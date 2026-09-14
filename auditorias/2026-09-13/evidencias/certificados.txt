@@ -1,0 +1,16 @@
+### crystalnowpp.com.br
+issuer=C = US, O = Let's Encrypt, CN = YR2
+subject=CN = *.leticiafelisberto.com
+notBefore=Sep  2 19:23:30 2026 GMT
+notAfter=Dec  1 19:23:29 2026 GMT
+X509v3 Subject Alternative Name: 
+    DNS:*.crystalnowpp.com.br, DNS:*.leticiafelisberto.com, DNS:crystalnowpp.com.br, DNS:www.crystal.leticiafelisberto.com
+
+### server.crystalnowpp.com.br
+issuer=C = US, O = Let's Encrypt, CN = YR1
+subject=CN = server.crystalnowpp.com.br
+notBefore=Aug 30 21:39:46 2026 GMT
+notAfter=Nov 28 21:39:45 2026 GMT
+X509v3 Subject Alternative Name: 
+    DNS:server.crystalnowpp.com.br
+
