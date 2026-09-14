@@ -1,0 +1,90 @@
+### crystalnowpp.com.br A
+{"Status":0,"Answer":[{"name":"crystalnowpp.com.br.","TTL":12402,"data":"45.224.128.177"}],"Comment":null}
+### crystalnowpp.com.br AAAA
+{"Status":0,"Answer":[{"name":"crystalnowpp.com.br.","TTL":14400,"data":"2804:3744:0:105::2"}],"Comment":"Response from ns1.jupiter.servidor.net.br.(45.224.128.178)."}
+### crystalnowpp.com.br CNAME
+{"Status":0,"Answer":[],"Comment":"Response from ns1.jupiter.servidor.net.br.(45.224.128.178)."}
+### www.crystalnowpp.com.br A
+{"Status":0,"Answer":[{"name":"www.crystalnowpp.com.br.","TTL":14400,"data":"crystalnowpp.com.br."},{"name":"crystalnowpp.com.br.","TTL":14400,"data":"45.224.128.177"}],"Comment":"Response from ns1.jupiter.servidor.net.br.(45.224.128.178)."}
+### www.crystalnowpp.com.br AAAA
+{"Status":0,"Answer":[{"name":"www.crystalnowpp.com.br.","TTL":14400,"data":"crystalnowpp.com.br."},{"name":"crystalnowpp.com.br.","TTL":14400,"data":"2804:3744:0:105::2"}],"Comment":"Response from 45.224.128.178."}
+### www.crystalnowpp.com.br CNAME
+{"Status":0,"Answer":[{"name":"www.crystalnowpp.com.br.","TTL":14399,"data":"crystalnowpp.com.br."}],"Comment":null}
+### server.crystalnowpp.com.br A
+{"Status":0,"Answer":[{"name":"server.crystalnowpp.com.br.","TTL":14400,"data":"35.199.71.234"}],"Comment":"Response from 45.224.128.177."}
+### server.crystalnowpp.com.br AAAA
+{"Status":0,"Answer":[{"name":"server.crystalnowpp.com.br.","TTL":14400,"data":"2600:1901:0:17b4::"}],"Comment":"Response from 45.224.128.178."}
+### server.crystalnowpp.com.br CNAME
+{"Status":0,"Answer":[],"Comment":"Response from 45.224.128.178."}
+### mail.crystalnowpp.com.br A
+{"Status":0,"Answer":[{"name":"mail.crystalnowpp.com.br.","TTL":12391,"data":"crystalnowpp.com.br."},{"name":"crystalnowpp.com.br.","TTL":12397,"data":"45.224.128.177"}],"Comment":null}
+### mail.crystalnowpp.com.br AAAA
+{"Status":0,"Answer":[{"name":"mail.crystalnowpp.com.br.","TTL":14400,"data":"crystalnowpp.com.br."},{"name":"crystalnowpp.com.br.","TTL":14400,"data":"2804:3744:0:105::2"}],"Comment":"Response from ns2.jupiter.servidor.net.br.(45.224.128.177)."}
+### mail.crystalnowpp.com.br CNAME
+{"Status":0,"Answer":[{"name":"mail.crystalnowpp.com.br.","TTL":12397,"data":"crystalnowpp.com.br."}],"Comment":null}
+### ftp.crystalnowpp.com.br A
+{"Status":0,"Answer":[{"name":"ftp.crystalnowpp.com.br.","TTL":12392,"data":"crystalnowpp.com.br."},{"name":"crystalnowpp.com.br.","TTL":12392,"data":"45.224.128.177"}],"Comment":null}
+### ftp.crystalnowpp.com.br AAAA
+{"Status":0,"Answer":[{"name":"ftp.crystalnowpp.com.br.","TTL":14400,"data":"crystalnowpp.com.br."},{"name":"crystalnowpp.com.br.","TTL":14400,"data":"2804:3744:0:105::2"}],"Comment":"Response from 45.224.128.178."}
+### ftp.crystalnowpp.com.br CNAME
+{"Status":0,"Answer":[{"name":"ftp.crystalnowpp.com.br.","TTL":12391,"data":"crystalnowpp.com.br."}],"Comment":null}
+### ipv6.crystalnowpp.com.br A
+{"Status":0,"Answer":[],"Comment":"Response from 45.224.128.178."}
+### ipv6.crystalnowpp.com.br AAAA
+{"Status":0,"Answer":[{"name":"ipv6.crystalnowpp.com.br.","TTL":14400,"data":"2804:3744:0:105::2"}],"Comment":"Response from 45.224.128.177."}
+### ipv6.crystalnowpp.com.br CNAME
+{"Status":0,"Answer":[],"Comment":"Response from 45.224.128.178."}
+### cpanel.crystalnowpp.com.br A
+{"Status":3,"Answer":[],"Comment":"Response from 45.224.128.177."}
+### cpanel.crystalnowpp.com.br AAAA
+{"Status":3,"Answer":[],"Comment":"Response from 2804:3744:0:105::2."}
+### cpanel.crystalnowpp.com.br CNAME
+{"Status":3,"Answer":[],"Comment":"Response from 2804:3744:0:105::2."}
+### webmail.crystalnowpp.com.br A
+{"Status":3,"Answer":[],"Comment":"Response from 45.224.128.177."}
+### webmail.crystalnowpp.com.br AAAA
+{"Status":3,"Answer":[],"Comment":"Response from 45.224.128.178."}
+### webmail.crystalnowpp.com.br CNAME
+{"Status":3,"Answer":[],"Comment":"Response from 45.224.128.177."}
+### webdisk.crystalnowpp.com.br A
+{"Status":3,"Answer":[],"Comment":"Response from 45.224.128.178."}
+### webdisk.crystalnowpp.com.br AAAA
+{"Status":3,"Answer":[],"Comment":"Response from 45.224.128.178."}
+### webdisk.crystalnowpp.com.br CNAME
+{"Status":3,"Answer":[],"Comment":"Response from 45.224.128.178."}
+### autodiscover.crystalnowpp.com.br A
+{"Status":3,"Answer":[],"Comment":"Response from 45.224.128.178."}
+### autodiscover.crystalnowpp.com.br AAAA
+{"Status":3,"Answer":[],"Comment":"Response from 45.224.128.178."}
+### autodiscover.crystalnowpp.com.br CNAME
+{"Status":3,"Answer":[],"Comment":"Response from 45.224.128.177."}
+### autoconfig.crystalnowpp.com.br A
+{"Status":3,"Answer":[],"Comment":"Response from 2804:3744:0:105::2."}
+### autoconfig.crystalnowpp.com.br AAAA
+{"Status":3,"Answer":[],"Comment":"Response from 2804:3744:0:105::2."}
+### autoconfig.crystalnowpp.com.br CNAME
+{"Status":3,"Answer":[],"Comment":"Response from 45.224.128.177."}
+### crystalnowpp.com.br NS
+{"Status":0,"Answer":[{"name":"crystalnowpp.com.br.","TTL":21600,"data":"ns1.jupiter.servidor.net.br."},{"name":"crystalnowpp.com.br.","TTL":21600,"data":"ns2.jupiter.servidor.net.br."}],"Comment":"Response from ns2.jupiter.servidor.net.br.(45.224.128.177)."}
+### crystalnowpp.com.br SOA
+{"Status":0,"Answer":[{"name":"crystalnowpp.com.br.","TTL":21600,"data":"ns1.jupiter.servidor.net.br. noc.servidor.net.br. 2026090201 3600 1800 1209600 86400"}],"Comment":"Response from 45.224.128.178."}
+### crystalnowpp.com.br MX
+{"Status":0,"Answer":[{"name":"crystalnowpp.com.br.","TTL":14400,"data":"0 crystalnowpp.com.br."}],"Comment":"Response from 45.224.128.177."}
+### crystalnowpp.com.br TXT
+{"Status":0,"Answer":[{"name":"crystalnowpp.com.br.","TTL":12391,"data":"v=spf1 +a +mx +ip4:45.224.128.177 include:spf.jupiter.servidor.net.br ~all"}],"Comment":null}
+### crystalnowpp.com.br CAA
+{"Status":0,"Answer":[],"Comment":"Response from 45.224.128.177."}
+### crystalnowpp.com.br DS
+{"Status":0,"Answer":[],"Comment":"Response from 2001:12f8:8::10."}
+### _dmarc.crystalnowpp.com.br TXT
+{"Status":0,"Answer":[{"name":"_dmarc.crystalnowpp.com.br.","TTL":14400,"data":"v=DMARC1; p=none;"}]}
+### default._domainkey.crystalnowpp.com.br TXT
+{"Status":0,"Answer":[{"name":"default._domainkey.crystalnowpp.com.br.","TTL":12391,"data":"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2snpShihXIiI/Y3w0LVRgzx3vN+ruEkhH9s5nS1RjyKzkKCpFynGHMTGvvAoBUYrz/7yihbcrLhZS3yVHaYApChezlLxXqAa6RT8XkKpVW7W1Mc8EVKvXHhkvM7PT4JXRtf1zxLkCTva6wtBC4d9MoK/VqS6wgVJ5S+80rdpErfXi7xI7jAbR+qKZRY2E6SMJ2i6RMd8CzIVWLTeUletGIZiLFbtkL0gwqqc6ibq0AWoC3W1HFMT1D5+Gr71U7ClJ1GZZVQn3FHqIR7NcR1Auo1MBX3XGRNh3oF+w55Ibk+FuIfozvtO5U40xHF+31+1CriZEssY/1ypmJZ1pm5pQQIDAQAB;"}]}
+### _acme-challenge.crystalnowpp.com.br TXT
+{"Status":0,"Answer":[{"name":"_acme-challenge.crystalnowpp.com.br.","TTL":14400,"data":"v83tgjfrmqo6BIqy7GIbBuhSLChQVEFeSn3O--aJwVs"}]}
+### _cpanel-dcv-test-record.crystalnowpp.com.br TXT
+{"Status":0,"Answer":[{"name":"_cpanel-dcv-test-record.crystalnowpp.com.br.","TTL":14400,"data":"_cpanel-dcv-test-record=Bmiq_B6NmgvnAdHhFwX7a54UJp3lluLqlUSEnK0tBQLhvq_L3Ak4SUz7xqawQFRw"}]}
+### leticiafelisberto.com NS
+{"Answer":["ns2.jupiter.servidor.net.br.","ns1.jupiter.servidor.net.br."]}
+### leticiafelisberto.com MX
+{"Answer":["10 alt4.aspmx.l.google.com.","1 aspmx.l.google.com.","5 alt2.aspmx.l.google.com.","10 alt3.aspmx.l.google.com.","5 alt1.aspmx.l.google.com."]}

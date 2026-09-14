@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+sitemap: https://crystalnowpp.com.br/sitemap613.xml
+sitemap: https://crystalnowpp.com.br/sitemap592.xml
+sitemap: https://crystalnowpp.com.br/sitemap669.xml
+sitemap: https://crystalnowpp.com.br/sitemap690.xml
+sitemap: https://crystalnowpp.com.br/sitemap712.xml

@@ -1,0 +1,45 @@
+### /wp-json/ (namespaces e autenticação)
+{
+  "name": "Crystal",
+  "description": "A Melhor Amiga dos Homens",
+  "authentication": [
+    "application-passwords"
+  ],
+  "namespaces": [
+    "oembed/1.0",
+    "litespeed/v1",
+    "litespeed/v3",
+    "rankmath/v1",
+    "rankmath/v1/setupWizard",
+    "rankmath/v1/an",
+    "elementor-one/v1",
+    "elementor/v1",
+    "elementor-pro/v1",
+    "rankmath/v1/ca",
+    "rankmath/v1/in",
+    "rankmath/v1/status",
+    "elementor/v1/documents",
+    "elementor-ai/v1",
+    "elementor/v1/feedback",
+    "code-snippets/v1",
+    "wp/v2",
+    "wp-site-health/v1",
+    "wp-block-editor/v1",
+    "wp-abilities/v1"
+  ]
+}
+### páginas editadas mais recentemente
+2026-09-12T01:12:48  publish  crystal-ttk
+2026-09-03T20:56:39  publish  crystal-247-promocional-r-wpp
+2026-09-03T20:55:36  publish  crystal-247-promocional-r-r
+2026-09-03T16:48:30  publish  crystal-promocional-r-wpp
+2026-09-03T16:48:29  publish  crystal-promocional-r-r
+2026-09-03T14:34:54  publish  teste-server-gtm
+2026-08-07T14:14:03  publish  crystal-teste
+2026-07-14T21:51:40  publish  upsell-pegada-v3-397
+2026-06-19T03:57:45  publish  teste-v8
+2026-06-17T20:12:24  publish  crystal-v6-teste
+### total de páginas publicadas
+x-wp-total: 44
+### usuários expostos
+{"id":1,"name":"admin","slug":"admin"}

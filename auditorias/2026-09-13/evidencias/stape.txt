@@ -1,0 +1,11 @@
+### GET https://server.crystalnowpp.com.br/healthz
+HTTP/1.1 200 Connection Established
+
+HTTP/2 200 
+content-type: text/plain
+date: Mon, 14 Sep 2026 00:23:42 GMT
+trace-id: 3c5161d6-c456-4425-a5b6-431015cb0933
+x-robots-tag: noindex, nofollow
+
+### loader 67hcnvgovw.js (só o que identifica o container)
+GTM-K6G4VGVK
