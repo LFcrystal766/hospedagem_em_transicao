@@ -24,3 +24,10 @@ Não é preciso mudar DNS, certificado nem nada no cPanel da conta. Por favor,
 confirmem quando as duas configurações estiverem aplicadas.
 
 Obrigado.
+
+## Situação
+
+- 28/09/2026: chamado **#RAI-374885** aberto em Suporte Técnico - Geral, com o
+  texto acima sem alteração. Aguardando a AZAN confirmar as duas configurações.
+- Fatura da AZAN: plano mensal de R$ 99,90. Próxima prevista para 14/10/2026,
+  deduzida da sequência das faturas pagas (não havia fatura em aberto em 28/09).
