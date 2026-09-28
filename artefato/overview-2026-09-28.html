@@ -1,0 +1,357 @@
+<title>Crystal, Onde Estamos</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&family=Schibsted+Grotesk:wght@600;700;800&display=swap">
+<style>
+:root{
+  --ground:#EEF1F4; --surface:#FFFFFF; --sunk:#E3E7EC; --ink:#131B23; --ink-2:#44505D; --ink-3:#737E8A; --rule:#D3D9DF;
+  --accent:#2148C9; --accent-soft:#E1E8FB; --on-accent:#FFFFFF;
+  --cf:#D5650F; --cf-soft:#FCE8D6;
+  --crit:#B3301E; --crit-soft:#F7DED9; --high:#A95708; --high-soft:#F8E7D3; --med:#7E690A; --med-soft:#F2ECCC; --low:#4B6574; --low-soft:#DFE7EB;
+  --ok:#1C7045; --ok-soft:#DAEEE2;
+  --f-display:"Schibsted Grotesk","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#0D1217; --surface:#141B22; --sunk:#1C252E; --ink:#E5EAEF; --ink-2:#A7B2BD; --ink-3:#74808C; --rule:#26313B;
+    --accent:#7F9DFF; --accent-soft:#1B2547; --on-accent:#0D1217;
+    --cf:#FF9D4D; --cf-soft:#3A2412;
+    --crit:#FF7F6E; --crit-soft:#3B1B17; --high:#F2A457; --high-soft:#37260F; --med:#DCC55A; --med-soft:#2F2A10; --low:#9FB6C3; --low-soft:#1B262D;
+    --ok:#5ED49B; --ok-soft:#10291C;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0D1217; --surface:#141B22; --sunk:#1C252E; --ink:#E5EAEF; --ink-2:#A7B2BD; --ink-3:#74808C; --rule:#26313B;
+  --accent:#7F9DFF; --accent-soft:#1B2547; --on-accent:#0D1217;
+  --cf:#FF9D4D; --cf-soft:#3A2412;
+  --crit:#FF7F6E; --crit-soft:#3B1B17; --high:#F2A457; --high-soft:#37260F; --med:#DCC55A; --med-soft:#2F2A10; --low:#9FB6C3; --low-soft:#1B262D;
+  --ok:#5ED49B; --ok-soft:#10291C;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.58 var(--f-body);padding-inline:20px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-block:36px 96px;display:flex;flex-direction:column;gap:44px}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--sunk);color:var(--ink);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+strong{font-weight:650}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+p{margin:0}
+
+.masthead{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px 48px;align-items:end}
+.eyebrow{font:500 12px/1.4 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);display:flex;gap:10px;flex-wrap:wrap}
+.eyebrow .arrow{color:var(--cf)}
+h1{font:800 clamp(30px,4.4vw,44px)/1.04 var(--f-display);letter-spacing:-.025em;margin:12px 0 14px;text-wrap:balance;max-width:20ch}
+.lede{font-size:17px;color:var(--ink-2);max-width:62ch}
+.meter{min-width:240px;display:flex;flex-direction:column;gap:10px}
+.meter-num{font:800 48px/1 var(--f-display);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.meter-num small{font:500 15px var(--f-body);color:var(--ink-3);letter-spacing:0;margin-left:6px}
+.bar{height:8px;border-radius:99px;background:var(--sunk);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.bar .f{background:var(--ok)} .bar .p{background:var(--high)} .bar .s{background:var(--low)}
+.meter-sub{display:flex;gap:6px 14px;flex-wrap:wrap;font:500 12.5px var(--f-mono);color:var(--ink-2)}
+.meter-sub b{font-weight:600}
+.meter-sub .f{color:var(--ok)} .meter-sub .p{color:var(--high)} .meter-sub .s{color:var(--low)}
+
+h2{font:700 24px/1.15 var(--f-display);letter-spacing:-.015em;margin:0;text-wrap:balance}
+h3{font:700 16px/1.25 var(--f-display);margin:0}
+.sec{display:flex;flex-direction:column;gap:16px}
+.sec-head{display:flex;flex-direction:column;gap:6px}
+.sec-head p{color:var(--ink-2);max-width:70ch}
+.kicker{font:600 11.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+
+.degraus{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.degrau{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;border-top:4px solid var(--rule)}
+.degrau.feito{border-top-color:var(--ok)} .degrau.agora{border-top-color:var(--cf)} .degrau.falta{border-top-color:var(--rule)}
+.degrau .k{font:600 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.degrau .t{font:700 17px/1.2 var(--f-display)}
+.degrau .d{font-size:13.5px;color:var(--ink-2)}
+.degrau .st{font:600 12px var(--f-mono);margin-top:4px}
+.degrau.feito .st{color:var(--ok)} .degrau.agora .st{color:var(--cf)} .degrau.falta .st{color:var(--ink-3)}
+
+.finds{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.finds li{display:grid;grid-template-columns:10px minmax(0,1fr);gap:14px;padding:14px 18px;border-top:1px solid var(--rule);font-size:14.5px}
+.finds li:first-child{border-top:0}
+.finds li::before{content:"";width:10px;height:10px;border-radius:50%;margin-top:7px;background:var(--ink-3)}
+.finds li.ok::before{background:var(--ok)} .finds li.warn::before{background:var(--high)} .finds li.bad::before{background:var(--crit)} .finds li.info::before{background:var(--accent)}
+.finds b{font-weight:650}
+.finds .sub{display:block;color:var(--ink-2);font-size:13.5px;margin-top:2px}
+
+.tscroll{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:13.5px}
+th{font:600 10.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);text-align:left;padding:11px 14px;background:var(--sunk);white-space:nowrap}
+td{padding:11px 14px;border-top:1px solid var(--rule);vertical-align:top;color:var(--ink)}
+td.mono{font:500 12.5px/1.5 var(--f-mono);white-space:nowrap}
+td.dim{color:var(--ink-2)}
+td ul{margin:0;padding-left:16px}
+td li+li{margin-top:2px}
+
+.chip{display:inline-block;font:600 10.5px/1 var(--f-mono);letter-spacing:.07em;text-transform:uppercase;padding:5px 7px 4px;border-radius:4px;white-space:nowrap}
+.chip.feito{background:var(--ok-soft);color:var(--ok)}
+.chip.parcial{background:var(--high-soft);color:var(--high)}
+.chip.falta{background:var(--sunk);color:var(--ink-2)}
+.chip.superado{background:var(--low-soft);color:var(--low)}
+.chip.temos{background:var(--ok-soft);color:var(--ok)}
+.chip.confirmar{background:var(--med-soft);color:var(--med)}
+.chip.who{background:transparent;color:var(--ink-2);border:1px solid var(--rule)}
+.chip.who.claude{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,transparent)}
+.chip.who.luiz{color:var(--cf);border-color:color-mix(in srgb,var(--cf) 45%,transparent)}
+.chip.critico{background:var(--crit-soft);color:var(--crit)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+.card p{font-size:14px;color:var(--ink-2)}
+.card ul{margin:0;padding-left:18px;font-size:14px;color:var(--ink-2);display:flex;flex-direction:column;gap:4px}
+.card .tag{font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase}
+.card .tag.ok{color:var(--ok)} .card .tag.warn{color:var(--high)} .card .tag.no{color:var(--crit)}
+
+.phase{display:flex;flex-direction:column;gap:10px}
+.phase-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 16px;align-items:baseline}
+.ord{font:800 30px/1 var(--f-display);color:var(--accent);letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.phase-head .when{font:600 11.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);grid-column:2}
+.phase-head h3{grid-column:2;font-size:19px}
+.phase-count{grid-column:3;grid-row:1/3;font:500 12px var(--f-mono);color:var(--ink-3);display:flex;gap:10px;white-space:nowrap}
+.phase-count .f{color:var(--ok)} .phase-count .p{color:var(--high)}
+.items{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.item{display:grid;grid-template-columns:82px minmax(0,1fr);gap:6px 14px;padding:12px 16px;border-top:1px solid var(--rule)}
+.item:first-child{border-top:0}
+.item .t{font:600 14.5px/1.4 var(--f-body)}
+.item .t .chip.who{margin-left:8px;vertical-align:1px}
+.item .h{font-size:13.5px;color:var(--ink-2);grid-column:2;max-width:78ch}
+.item.done .t{color:var(--ink-3)}
+.item.done .h{color:var(--ink-3)}
+
+.steps{list-style:none;margin:0;padding:0;counter-reset:s;display:flex;flex-direction:column;gap:10px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:40px minmax(0,1fr);gap:14px;background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 18px}
+.steps li::before{content:counter(s,decimal-leading-zero);font:800 22px/1.1 var(--f-display);color:var(--accent);letter-spacing:-.03em}
+.steps .st{font:650 15px/1.35 var(--f-body)}
+.steps .sd{font-size:14px;color:var(--ink-2);margin-top:3px;max-width:76ch}
+.steps .sd .chip{vertical-align:1px}
+
+.foot{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:16px;max-width:90ch}
+.foot p+p{margin-top:6px}
+
+@media (max-width:640px){
+  .masthead{grid-template-columns:1fr}.meter{min-width:0}
+  .item{grid-template-columns:1fr}.item .h{grid-column:1}
+  .phase-head{grid-template-columns:auto minmax(0,1fr)}.phase-count{grid-column:1/3;grid-row:auto}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div>
+    <div class="eyebrow"><span>crystalnowpp.com.br</span><span class="arrow">→</span><span>AZAN → Cloudflare → Hostinger</span><span>·</span><span>situação em 28/09/2026</span></div>
+    <h1>O DNS já virou. Falta o resto.</h1>
+    <p class="lede">O degrau 1 foi executado em 22/09 sem passar pelo checklist: os NS do domínio já são do Cloudflare, a zona está cinza e idêntica à AZAN, e o site ainda é servido pela AZAN. Com Hostinger e Supabase em mãos, o que trava agora são quatro credenciais que só o Luiz cria e a linha de base refeita antes do degrau 2.</p>
+  </div>
+  <div class="meter" aria-label="Progresso do checklist de 65 itens">
+    <div class="meter-num">8<small>de 65 itens feitos</small></div>
+    <div class="bar"><i class="f" style="width:12.3%"></i><i class="p" style="width:6.2%"></i><i class="s" style="width:3.1%"></i></div>
+    <div class="meter-sub"><span class="f"><b>8</b> feitos</span><span class="p"><b>4</b> parciais</span><span class="s"><b>2</b> superados</span><span><b>51</b> faltam</span></div>
+  </div>
+</header>
+
+<section class="sec" id="degraus">
+  <div class="sec-head"><span class="kicker">Os três degraus</span><h2>Um de três, e sem volta parcial</h2></div>
+  <div class="degraus">
+    <div class="degrau feito"><span class="k">Degrau 1 · DNS</span><span class="t">Cloudflare responde o DNS</span><span class="d">NS <code>aldo</code>/<code>jule.ns.cloudflare.com</code> desde 22/09 14:09 BRT. Registros iguais aos da AZAN, tudo cinza, TTL 300.</span><span class="st">FEITO · validação incompleta</span></div>
+    <div class="degrau agora"><span class="k">Degrau 2 · Proxy</span><span class="t">Cloudflare na frente da AZAN</span><span class="d">Apex ainda resolve <code>45.224.128.177</code>. Nada passa pelo Cloudflare. As 72h de congelamento já passaram: pode começar quando a linha de base estiver refeita.</span><span class="st">PRÓXIMO · 0 de 12 itens</span></div>
+    <div class="degrau falta"><span class="k">Degrau 3 · Virada</span><span class="t">Origem na Hostinger</span><span class="d">Depende da cópia pronta e testada por <code>curl --resolve</code>, do Origin CA instalado e da janela 02:00–05:00 BRT marcada.</span><span class="st">FALTA · cópia 0 de 11 itens</span></div>
+  </div>
+</section>
+
+<section class="sec" id="hoje">
+  <div class="sec-head"><span class="kicker">Conferido hoje, 28/09, só leitura</span><h2>O que mudou desde a auditoria de 13/09</h2><p>DNS-over-HTTPS, RDAP do Registro.br e HTTP a partir deste ambiente. HTTPS e a matriz de páginas não deram pra medir daqui (o proxy de saída retermina TLS e o LiteSpeed devolveu 403 pra tudo que não é a raiz); isso tem que rodar de fora.</p></div>
+  <ul class="finds">
+    <li class="ok"><span><b>NS trocados no Registro.br em 22/09/2026, 17:09 UTC (14:09 BRT).</b><span class="sub">RDAP: <code>aldo.ns.cloudflare.com</code> e <code>jule.ns.cloudflare.com</code>, DNSSEC desligado, sem DS. A troca foi feita numa terça à tarde, fora da janela de 02:00 do plano, e correu bem.</span></span></li>
+    <li class="ok"><span><b>A zona do Cloudflare segue a tabela Z.</b><span class="sub">Apex A <code>45.224.128.177</code> e AAAA <code>2804:3744:0:105::2</code>; <code>www</code> CNAME apex; <code>server</code> A <code>35.199.71.234</code> + AAAA <code>2600:1901:0:17b4::</code> (Stape, resolvendo direto, logo cinza); <code>mail</code> virou A com o mesmo IP; MX <code>0 mail.crystalnowpp.com.br</code>; SPF, DKIM <code>default</code> e DMARC <code>p=none</code> copiados; TXT <code>facebook-domain-verification</code> criado. TTL 300 em tudo. Sem CAA.</span></span></li>
+    <li class="warn"><span><b>Dois desvios da tabela Z pra decidir.</b><span class="sub"><code>ftp</code> ficou CNAME pro apex (o plano pedia A cinza ou apagar; com o apex laranja no degrau 2, FTP pelo nome para). E <code>_acme-challenge</code> tem dois TXT novos, diferentes do valor da AZAN: alguém emitiu certificado por DNS-01 usando a zona nova. Descobrir quem (Hostinger? Cloudflare Origin? cPanel da AZAN?) antes de apagar.</span></span></li>
+    <li class="info"><span><b>Degrau 2 não começou.</b><span class="sub"><code>http://crystalnowpp.com.br/</code> responde <code>LiteSpeed/6.3.7</code> direto, sem <code>cf-ray</code>. A AZAN subiu o LiteSpeed de 6.3.6 pra 6.3.7 e continua no PHP 7.4.33. O <code>http://</code> ainda responde 200 sem redirecionar pra https.</span></span></li>
+    <li class="ok"><span><b>Stape intacto.</b><span class="sub"><code>server.crystalnowpp.com.br/healthz</code> responde 200 com <code>trace-id</code>. É a prova de que a troca de NS não derrubou o rastreamento.</span></span></li>
+    <li class="bad"><span><b>O e-mail de contato do Registro.br ainda é <code>admin@leticiafelisberto.com</code>.</b><span class="sub">Esse domínio segue com NS e MX publicados pela AZAN. Se a AZAN cair ou for cancelada cedo, a recuperação da conta que controla os NS some junto. Item <code>acesso-registro-br</code>, ainda aberto.</span></span></li>
+    <li class="warn"><span><b>Certificados: 64 dias pro do site (01/12), 61 pro do Stape (28/11).</b><span class="sub">Com o DNS fora da AZAN, o cPanel dela não consegue mais renovar o wildcard <code>*.crystalnowpp.com.br</code> por DNS. Pode renovar só o apex por HTTP; se o cert vier sem o wildcard, nada quebra no plano, mas tem que ser conferido a cada rodada.</span></span></li>
+    <li class="warn"><span><b>O checklist do artefato está com 0 de 65 marcados.</b><span class="sub">O estado publicado (<code>{"done":{}}</code>) não reflete o degrau 1. Quem executou não registrou token, diff da zona nem hora. Primeiro passo é pôr o checklist em dia e guardar a evidência no repo.</span></span></li>
+  </ul>
+</section>
+
+<section class="sec" id="acessos">
+  <div class="sec-head"><span class="kicker">Credenciais e contas</span><h2>O que temos, o que falta e como conseguir</h2><p>Só o dono logado cria token, chave ou senha de aplicativo. Tudo vai pro <code>.env.local</code> (que não existe neste repositório) e é revogado no fim.</p></div>
+  <div class="tscroll"><table>
+    <thead><tr><th>Acesso</th><th>Situação</th><th>Destrava</th><th>Como conseguir</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">Hostinger<br>hPanel + API + SSH</td><td><span class="chip temos">temos</span></td><td class="dim">Toda a fase da cópia: criar o site, banco, PHP 7.4, importar o WordPress, cache LiteSpeed, SSL, redirects, cron.</td><td class="dim"><ul><li><b>API token</b>: hPanel &gt; perfil &gt; API &gt; gerar. Colar <code>HOSTINGER_API_TOKEN=</code></li><li><b>SSH</b>: Websites &gt; Dashboard &gt; SSH Access &gt; ativar e adicionar a chave pública do Claude (porta 65002). Não sai pela API</li><li>Anotar <code>HOSTINGER_USERNAME</code>, IPv4 do servidor e se há IPv6</li></ul></td></tr>
+      <tr><td class="mono">Supabase<br>projeto do dashboard</td><td><span class="chip temos">temos</span></td><td class="dim">Janela de virada recalculada, vigia automática (pg_cron + pg_net + push), primeira venda depois de cada degrau, Purchases × vendas, <code>webhook_logs</code>.</td><td class="dim"><ul><li>Colar <code>SUPABASE_URL=</code> e a chave de serviço (ou a string de conexão) no <code>.env.local</code></li><li>O app do dashboard (rota <code>/api/tracking-health</code>) mora em outro repositório: anexar esse repo à sessão pra editar <code>PAGINAS_VENDEDOR</code></li></ul></td></tr>
+      <tr><td class="mono">Cloudflare<br>API Token + 2FA</td><td><span class="chip confirmar">confirmar</span></td><td class="dim">Tudo do degrau 2 e 3: settings, laranja, WAF, rewrite, Origin CA, rollback em segundos.</td><td class="dim"><ul><li>A zona existe, então alguém tem acesso à conta. Conferir se há <code>CLOUDFLARE_API_TOKEN</code> e <code>CLOUDFLARE_ACCOUNT_ID</code> no <code>.env.local</code> e rodar <code>GET /user/tokens/verify</code></li><li>Se não houver: My Profile &gt; API Tokens &gt; Create Custom Token com as permissões listadas no item <code>token-cloudflare</code> do plano, Zone Resources = todas as zonas da conta</li><li>Ligar 2FA na conta: agora ela manda no DNS inteiro, inclusive no <code>server.</code></li></ul></td></tr>
+      <tr><td class="mono">Registro.br<br>login LFMPI73</td><td><span class="chip parcial">parcial</span></td><td class="dim">Rollback do degrau 1 e DNSSEC no fim.</td><td class="dim"><ul><li>Login funcionou (NS trocados em 22/09)</li><li><b>Falta</b>: trocar o e-mail do contato pra uma caixa fora da AZAN (Gmail pessoal) e confirmar pelo link que o Registro.br manda. O Claude confere no RDAP</li></ul></td></tr>
+      <tr><td class="mono">cPanel AZAN<br>token de API</td><td><span class="chip falta">falta</span></td><td class="dim">Zona real da AZAN (achar registro esquecido), lista de caixas de e-mail, backup completo, zona do leticiafelisberto.com.</td><td class="dim"><ul><li>cPanel &gt; Segurança &gt; Gerenciar tokens da API &gt; Criar, nome <code>claude-migracao</code>, 90 dias</li><li>Colar <code>CPANEL_AZAN_HOST=jupiter.servidor.net.br</code>, <code>CPANEL_AZAN_USER=</code>, <code>CPANEL_AZAN_TOKEN=</code></li><li>Mandar a data da próxima fatura da AZAN</li><li><b>Sem token</b>: backup completo pela interface do cPanel (Backup &gt; Full Backup) e envio pra Hostinger por SSH</li></ul></td></tr>
+      <tr><td class="mono">Stape<br>chave de conta</td><td><span class="chip falta">falta</span></td><td class="dim">Status do domínio <code>server.</code>, logs do <code>/lead/</code> (webhook de Purchase), volume do sGTM por domínio antes e depois de cada degrau.</td><td class="dim"><ul><li>stape.io &gt; conta &gt; Account settings &gt; API Keys &gt; Create, nome <code>claude-migracao-leitura</code>. Aparece uma vez só</li><li>Colar <code>STAPE_ACCOUNT_API_KEY=</code>. A chave do Store que já existe não serve</li><li><b>Sem chave</b>: print de Assiny &gt; Integrações/Webhooks e de Stape &gt; Domains</li></ul></td></tr>
+      <tr><td class="mono">WordPress<br>senha de aplicativo</td><td><span class="chip falta">falta</span></td><td class="dim">Ler snippets (HFCM, WPCode, Code Snippets), datas de edição e provar o congelamento. Vale na AZAN e na cópia.</td><td class="dim"><ul><li>wp-admin &gt; Usuários &gt; Perfil (admin) &gt; Senhas de aplicativo &gt; <code>claude-migracao</code></li><li>Colar <code>WP_APP_USER=admin</code> e <code>WP_APP_PASSWORD=</code></li><li>Na mesma tela, trocar a senha do <code>admin</code>: o usuário continua exposto em <code>/wp-json/wp/v2/users</code></li></ul></td></tr>
+      <tr><td class="mono">Meta BM<br>print do domínio</td><td><span class="chip falta">falta</span></td><td class="dim">Foto do "antes" da verificação de domínio (hoje só pela meta tag no head).</td><td class="dim">BM Universidade dos Homens &gt; Configurações &gt; Segurança da marca &gt; Domínios: print do status e do método. A Graph API devolve erro #100 aqui.</td></tr>
+      <tr><td class="mono">GTM API<br>só leitura</td><td><span class="chip confirmar">confirmar</span></td><td class="dim">Versão live dos containers web e servidor antes da linha de base e no go/no-go.</td><td class="dim">Existia em 11/09 no ambiente do dashboard. Conferir se a credencial está no <code>.env.local</code> daquele repo; se não, service account só-leitura no GTM.</td></tr>
+      <tr><td class="mono">Suporte AZAN<br>ticket</td><td><span class="chip falta">falta</span></td><td class="dim">Liberar as faixas de IP do Cloudflare no firewall e ler <code>CF-Connecting-IP</code> antes do laranja (degrau 2).</td><td class="dim">Pedido por escrito sai do Claude; o Luiz abre o ticket. Sem isso, o firewall da AZAN pode banir IPs do Cloudflare e derrubar o site pra parte dos visitantes.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="sec" id="hostinger">
+  <div class="sec-head"><span class="kicker">Hospedagem nova</span><h2>O que a Hostinger muda no plano</h2><p>O plano pedia "LiteSpeed + cPanel com token de API". A Hostinger tem LiteSpeed, SSH com WP-CLI, datacenter em São Paulo e uma API própria com 51 endpoints de hospedagem, mas o painel é o hPanel, não o cPanel. Cinco itens da fase da cópia mudam de mecanismo, nenhum muda de objetivo.</p></div>
+  <div class="cards">
+    <div class="card"><span class="tag ok">Atende</span><h3>LiteSpeed, PHP 7.4, São Paulo</h3><p>Cache de página igual ao de hoje. A versão do PHP e as extensões mudam pela API (<code>php/version</code>, <code>php/extensions</code>). O datacenter é escolhido ao criar o site: conferir com <code>GET /api/hosting/v1/datacenters</code> e pedir São Paulo.</p></div>
+    <div class="card"><span class="tag ok">Atende, pelo painel</span><h3>SSH e WP-CLI</h3><p>Disponível nos planos Premium ou acima, desligado por padrão. Ativar em Websites &gt; Dashboard &gt; SSH Access e colar a chave pública. Porta 65002. A partir daí, purge, regeneração de CSS do Elementor, checksums e conferência do banco são WP-CLI, como o plano previa.</p></div>
+    <div class="card"><span class="tag ok">Atende, pela API</span><h3>Restaurar a cópia</h3><p><code>POST .../wordpress/import</code> importa um WordPress a partir de arquivo + dump de banco já enviados pro diretório do site (por SSH). Alternativa: o pedido de migração do hPanel aceita o backup completo do cPanel. O import sobrescreve o site de destino: só rodar num site vazio.</p></div>
+    <div class="card"><span class="tag warn">Muda de mecanismo</span><h3>Origin CA</h3><p>A API só instala o certificado gratuito da própria Hostinger. O Origin CA do Cloudflare entra pelo hPanel: SSL &gt; Import SSL, com certificado e chave privada. Sem esse passo o degrau 3 fica sem Full (strict), então ele vem antes da virada, como no plano.</p></div>
+    <div class="card"><span class="tag warn">Decidir</span><h3>IPv6</h3><p>Hospedagem compartilhada da Hostinger costuma entregar só IPv4. Se o hPanel não mostrar IPv6, o AAAA do apex é apagado no degrau 3, no mesmo minuto do A. AAAA velho = parte das visitas caindo na AZAN sem ninguém perceber.</p></div>
+    <div class="card"><span class="tag no">Não fazer</span><h3>Integração Cloudflare do hPanel e troca de NS</h3><p>O hPanel oferece "ativar Cloudflare" e o e-mail de boas-vindas pede pra apontar os NS. Nenhum dos dois: a zona é a nossa, o <code>server.</code> do Stape e o <code>mail.</code> só existem nela. Só o IPv4 (e IPv6, se houver) da Hostinger entra no Cloudflare, e só no degrau 3.</p></div>
+    <div class="card"><span class="tag warn">Conferir na cópia</span><h3>IP real do visitante</h3><p>Atrás do laranja, o sGTM e o WordPress veem o IP do Cloudflare se a origem não ler <code>CF-Connecting-IP</code>. Testar com uma página de eco na cópia via <code>curl --resolve</code> antes do degrau 3. O firewall da Hostinger já convive com as faixas do Cloudflare.</p></div>
+    <div class="card"><span class="tag ok">Opção nova</span><h3>E-mail @crystalnowpp</h3><p>Os planos de hospedagem incluem caixas de e-mail. Vira a terceira opção do item <code>decidir-email</code>, ao lado do Email Routing do Cloudflare e do Google Workspace. A decisão continua dependendo da lista de caixas em uso, que sai do token cPanel da AZAN.</p></div>
+    <div class="card"><span class="tag ok">Atende, pela API</span><h3>Cache e observabilidade</h3><p><code>litespeed-cache/status</code> e <code>/purge</code>, <code>memcached/toggle</code>, <code>cache/clear</code>, listagem de arquivos e conteúdo (só leitura), redirects e cron jobs. O que o plano fazia por UAPI do cPanel, aqui é REST com bearer token.</p></div>
+  </div>
+</section>
+
+<section class="sec" id="supabase">
+  <div class="sec-head"><span class="kicker">Dados de venda</span><h2>O que o acesso ao Supabase destrava</h2></div>
+  <div class="cards">
+    <div class="card"><h3>Janela da virada</h3><p>A conta de 02:00–05:00 BRT usou vendas de 31/07 a 10/09. Refazer com <code>paid_at</code> até a véspera e confirmar o horário do degrau 2 e do 3.</p></div>
+    <div class="card"><h3>Vigia automática</h3><p>Mesma infra do <code>meta-sync</code>: pg_cron + pg_net chamando a rota do dashboard a cada 15 min (URLs de anúncio, vendedor, one-click, <code>server./healthz</code>) e o tracking-health a cada hora. Vermelho vira push e linha em <code>webhook_logs</code>. Liga antes do degrau 2, desliga em T+7; os checks de certificado ficam até dezembro.</p></div>
+    <div class="card"><h3>Prova venda a venda</h3><p>Depois de cada degrau: primeira venda aprovada no webhook do dashboard, POST <code>/lead/</code> correspondente nos logs do Stape (precisa da chave) e Purchase na Meta. No dia seguinte, Purchases Meta × vendas Assiny.</p></div>
+    <div class="card"><h3>Critério de rollback</h3><p>Venda aprovada no webhook sem o <code>/lead/</code> correspondente em 15 min é gatilho de volta. Só dá pra medir com Supabase e Stape juntos.</p></div>
+  </div>
+</section>
+
+<section class="sec" id="fases">
+  <div class="sec-head"><span class="kicker">Checklist, item a item</span><h2>Onde cada uma das 7 fases está</h2><p>Estado de hoje, com base nas evidências acima. Itens riscados estão feitos ou superados pela ordem em que as coisas aconteceram. Pra cada item aberto, o próximo movimento e quem o faz.</p></div>
+
+  <div class="phase">
+    <div class="phase-head"><span class="ord">P</span><span class="when">T−14 a T−8 · acessos e decisões</span><h3>Preparação</h3><span class="phase-count"><span class="f">2 feitos</span><span class="p">3 parciais</span><span>1 superado</span><span>12 faltam</span></span></div>
+    <ul class="items">
+      <li class="item done"><span class="chip feito">feito</span><span class="t">Redirects envenenados limpos</span><span class="h">Confirmado em 13/09. Regra que fica: URL que responde 301 nunca recebe fbclid, utm ou gclid.</span></li>
+      <li class="item"><span class="chip parcial">parcial</span><span class="t">Token do Cloudflare e 2FA <span class="chip who luiz">luiz</span></span><span class="h">A zona foi criada, então há acesso. Confirmar token no <code>.env.local</code> com <code>GET /user/tokens/verify</code> e as permissões de cada fase de regra; ligar 2FA.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Token de API do cPanel da AZAN + data da fatura <span class="chip who luiz">luiz</span></span><span class="h">cPanel &gt; Segurança &gt; Gerenciar tokens da API. Continua necessário pra backup, caixas de e-mail e zona do leticiafelisberto.com.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Chave de API da conta Stape <span class="chip who luiz">luiz</span></span><span class="h">Account settings &gt; API Keys. Sem ela, o Purchase CAPI não é provado venda a venda.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Senha de aplicativo do WordPress + trocar a senha do admin <span class="chip who luiz">luiz</span></span><span class="h">wp-admin &gt; Usuários &gt; Perfil. O <code>admin</code> segue exposto sem autenticação.</span></li>
+      <li class="item"><span class="chip parcial">parcial</span><span class="t">Login no Registro.br e e-mail de contato fora da AZAN <span class="chip who luiz">luiz</span></span><span class="h">Login provado em 22/09. O e-mail do contato ainda é <code>admin@leticiafelisberto.com</code>: trocar e confirmar.</span></li>
+      <li class="item"><span class="chip parcial">parcial</span><span class="t">Contratar a hospedagem nova e decidir o escopo <span class="chip who luiz">luiz</span></span><span class="h">Hostinger contratada. Faltam: escopo (só o Crystal, recomendado, ou conta inteira), API token, SSH ativado, IPv4/IPv6 e datacenter São Paulo confirmados.</span></li>
+      <li class="item done"><span class="chip feito">vigente</span><span class="t">Não seguir o "aponte seus DNS pra nós" da hospedagem</span><span class="h">Os NS continuam no Cloudflare. A regra vale até o fim, inclusive pra integração Cloudflare do hPanel.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Decidir o destino do e-mail @crystalnowpp <span class="chip who">ambos</span></span><span class="h">Precisa da lista de caixas (token cPanel) e da resposta de quais logins usam esse domínio. Opções: Email Routing, caixas da Hostinger, Google Workspace. Não bloqueia os degraus.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Por onde o webhook de Purchase entra no Stape <span class="chip who claude">claude</span></span><span class="h">Depende da chave Stape. Fallback: print de Assiny &gt; Webhooks. Nunca duplicar o webhook.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Print do domínio verificado no BM <span class="chip who luiz">luiz</span></span><span class="h">Segurança da marca &gt; Domínios. Um print, só leitura.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">URLs dos funis da Assiny e links fora do site <span class="chip who">ambos</span></span><span class="h">Próximo passo e página de recusa de cada funil, links dos closers e da bio. O Claude soma os anúncios ativos por Graph GET.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Vigia automática + 4 páginas de vendedor no tracking-health <span class="chip who claude">claude</span></span><span class="h">Agora possível: Supabase em mãos. Precisa do repositório do dashboard anexado à sessão.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Fechar o que sobrou do runbook TikTok <span class="chip who">ambos</span></span><span class="h">Decisão do Luiz: terminar antes da linha de base (e esperar 24h) ou congelar até T+3. Nunca no meio. Conferir a versão live do GTM web e se o TXT do TikTok precisa entrar na zona.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Marcar os degraus 2 e 3 na janela 02:00–05:00 BRT <span class="chip who">ambos</span></span><span class="h">Degrau 2 pode ser qualquer madrugada (só API). Degrau 3 na madrugada de sexta pra sábado. Recalcular com vendas até a véspera.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Avisar o time e congelar edições e anúncios novos <span class="chip who">ambos</span></span><span class="h">48h antes do degrau 2: gestor de tráfego, closers e quem edita Elementor/GTM. Prova por <code>modified_gmt</code>, versão do GTM e <code>updated_time</code> dos anúncios.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Exportar a zona real da AZAN <span class="chip who claude">claude</span></span><span class="h">Ainda vale: um registro que ninguém sondou pode ter ficado fora do Cloudflare. UAPI <code>DNS::parse_zone</code>, diff contra a zona nova. Idem pro leticiafelisberto.com.</span></li>
+      <li class="item done"><span class="chip superado">superado</span><span class="t">Baixar o TTL da AZAN pra 300</span><span class="h">A troca de NS já aconteceu e a zona do Cloudflare está em TTL 300. A zona da AZAN não se mexe mais: é o rollback.</span></li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="phase-head"><span class="ord">1</span><span class="when">Feito em 22/09 · DNS no Cloudflare</span><h3>Degrau 1</h3><span class="phase-count"><span class="f">6 feitos</span><span class="p">1 parcial</span><span>1 superado</span><span>1 falta</span></span></div>
+    <ul class="items">
+      <li class="item"><span class="chip falta">falta</span><span class="t">Linha de base refeita (45 páginas) <span class="chip who claude">claude</span></span><span class="h">A de 11/09 tem 43 páginas e a de 13/09 não teve credencial. Rodar <code>scripts/auditoria-so-leitura.sh</code> de fora deste ambiente, mais tracking-health, GTM live, Stape, IP das fichas, Pixel. Bloqueia o degrau 2.</span></li>
+      <li class="item done"><span class="chip feito">feito</span><span class="t">Zona criada no Cloudflare</span><span class="h">Sem CAA, sem DS. Não dá pra saber daqui se foi sem scan; o resultado bate com a tabela Z.</span></li>
+      <li class="item done"><span class="chip feito">feito</span><span class="t">Registros da tabela Z cadastrados, cinza</span><span class="h">Com dois desvios: <code>ftp</code> CNAME e <code>_acme-challenge</code> com valores novos. Decidir e registrar.</span></li>
+      <li class="item done"><span class="chip feito">feito</span><span class="t"><code>server.</code> do Stape idêntico, DNS only</span><span class="h">A e AAAA iguais aos de 11/09, resolvendo direto. Reler <code>proxied=false</code> via API depois de toda escrita na zona.</span></li>
+      <li class="item done"><span class="chip feito">feito</span><span class="t">E-mail separado do apex</span><span class="h"><code>mail</code> em A/AAAA, MX pra <code>mail.</code>, SPF, DKIM e DMARC copiados.</span></li>
+      <li class="item done"><span class="chip superado">superado</span><span class="t">Conferir a zona nos NS do Cloudflare antes da troca</span><span class="h">A troca já foi feita; a conferência agora é a validação abaixo.</span></li>
+      <li class="item done"><span class="chip feito">feito</span><span class="t">NS trocados no Registro.br</span><span class="h">22/09/2026 14:09 BRT, pelo RDAP.</span></li>
+      <li class="item"><span class="chip parcial">parcial</span><span class="t">Validar o degrau 1 ponta a ponta <span class="chip who claude">claude</span></span><span class="h">DNS confere nos resolvedores públicos e o <code>/healthz</code> do Stape responde. Faltam: tracking-health 14 verdes, domínio Ready na API do Stape, SMTP 587 respondendo Exim, matriz curl igual à base (de fora).</span></li>
+      <li class="item done"><span class="chip feito">feito</span><span class="t">Zona da AZAN congelada por 72h</span><span class="h">Seis dias se passaram. A regra continua: não editar a zona da AZAN até o cancelamento.</span></li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="phase-head"><span class="ord">2</span><span class="when">Próximo · Cloudflare na frente da AZAN · só API</span><h3>Degrau 2</h3><span class="phase-count"><span>0 de 12</span></span></div>
+    <ul class="items">
+      <li class="item"><span class="chip falta">falta</span><span class="t">SSL Full (strict), TLS 1.2 mínimo, HSTS desligado <span class="chip who claude">claude</span></span><span class="h">Antes do laranja. O cert da AZAN é válido até 01/12, então Full (strict) funciona com a AZAN de origem.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Desligar tudo que reescreve HTML ou JS <span class="chip who claude">claude</span></span><span class="h">Rocket Loader, minify, e-mail obfuscation, Zaraz. O loader do Stape e o one-click não podem ser tocados.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Sem security headers e sem Referrer-Policy na borda <span class="chip who claude">claude</span></span><span class="h">A Meta precisa do referrer completo.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Bots e segurança sem desafio nas páginas de venda <span class="chip who claude">claude</span></span><span class="h">Challenge no <code>facebookexternalhit</code> reprova anúncio.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Cache: nada de HTML nem de redirect no Cloudflare <span class="chip who claude">claude</span></span><span class="h">O cache de página fica no LiteSpeed. Um 301 cacheado na borda repetiria o problema de 11/09 em escala.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">AZAN liberar as faixas do Cloudflare e ler o IP real <span class="chip who">hospedagem</span></span><span class="h">Ticket pro suporte da AZAN, com texto do Claude. Sem isso o firewall deles pode banir a borda.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Ligar a nuvem laranja só em @ (A e AAAA) e www <span class="chip who claude">claude</span></span><span class="h">Com o cert de borda Active. <code>server.</code>, <code>mail.</code> e <code>ftp.</code> ficam cinza.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Always Use HTTPS depois do laranja validado <span class="chip who claude">claude</span></span><span class="h">Corrige o <code>http://</code> 200 sem redirect que existe desde antes.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Bloquear xmlrpc e frear wp-login na borda <span class="chip who claude">claude</span></span><span class="h">Substitui o WAF da AZAN, que some no degrau 3.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Validar o degrau 2 contra a linha de base <span class="chip who claude">claude</span></span><span class="h">Matriz igual, agora com <code>cf-ray</code>; IP das fichas no Stape Store continua público; tracking-health 14 verdes.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Blindar o /crystal-teste sem barra na borda (URL Rewrite) <span class="chip who claude">claude</span></span><span class="h">17 anúncios ativos apontam pra ele sem barra. Rewrite, nunca redirect.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Travar os prazos dos certificados <span class="chip who claude">claude</span></span><span class="h">Site e e-mail 01/12, Stape 28/11. Checks de cert na vigia, vermelhos a 20 dias.</span></li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="phase-head"><span class="ord">C</span><span class="when">Em paralelo ao degrau 2 · sem tocar no DNS</span><h3>Cópia na Hostinger</h3><span class="phase-count"><span>0 de 11</span></span></div>
+    <ul class="items">
+      <li class="item"><span class="chip falta">falta</span><span class="t">Varrer o WordPress da AZAN antes do backup <span class="chip who">ambos</span></span><span class="h">O <code>robots.txt</code> de 23/08 com 5 sitemaps falsos ainda é suspeito. Plugin de varredura + leitura dos snippets pela senha de aplicativo.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Backup completo da conta na AZAN <span class="chip who claude">claude</span></span><span class="h">Pelo token cPanel, ou pela interface se o token não vier. Guardar fora do repo. A <code>/crystal-ttk/</code> tem que estar dentro.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">SSH com WP-CLI na Hostinger <span class="chip who luiz">luiz</span></span><span class="h">Muda de dono: na Hostinger a chave entra pelo hPanel, não pela API. Ativar SSH Access e colar a chave pública que o Claude mandar.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Extrair o texto literal dos snippets <span class="chip who claude">claude</span></span><span class="h">HFCM, WPCode e Code Snippets pela REST. É o que injeta o GTM e o snippet do /crystal-teste.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Restaurar a cópia no escopo decidido <span class="chip who claude">claude</span></span><span class="h">Hostinger: enviar arquivos + dump por SSH e chamar <code>wordpress/import</code>, ou pedido de migração com o backup do cPanel. Conferir banco, <code>wp-config</code> e <code>.htaccess</code>.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">E-mail do domínio como remoto no painel novo <span class="chip who claude">claude</span></span><span class="h">Enquanto o e-mail estiver na AZAN, a Hostinger não pode achar que é dona do MX. Acertar o envio do WordPress (SMTP externo).</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">PHP 7.4 na cópia, igual hoje <span class="chip who claude">claude</span></span><span class="h"><code>PATCH .../php/version</code>. A subida pra 8.2 fica pra depois da virada.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Cache de página e object cache iguais aos de hoje <span class="chip who claude">claude</span></span><span class="h"><code>litespeed-cache/status</code> e <code>memcached/toggle</code> pela API. Drop Query String igual ao da AZAN.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Origin CA instalado na Hostinger antes da virada <span class="chip who">ambos</span></span><span class="h">O Claude gera o cert via API do Cloudflare; a importação é no hPanel (SSL &gt; Import SSL). Depois do degrau 3 o apex não volta pra cinza.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Testar a cópia por <code>curl --resolve</code> com a lista exata de URLs <span class="chip who claude">claude</span></span><span class="h">Zerar o cache antes. Mesma regra: nada de fbclid em URL de 301. Incluir a página de eco do IP real.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Jornada no navegador apontando o domínio pro IP novo <span class="chip who claude">claude</span></span><span class="h">Chromium com <code>--host-resolver-rules</code>: /crystal-teste, vendedor, one-click, vTurb.</span></li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="phase-head"><span class="ord">3</span><span class="when">T0 · madrugada de sexta pra sábado, 02:00 BRT</span><h3>Degrau 3</h3><span class="phase-count"><span>0 de 4</span></span></div>
+    <ul class="items">
+      <li class="item"><span class="chip falta">falta</span><span class="t">Go/no-go 30 min antes <span class="chip who claude">claude</span></span><span class="h">Matriz, tracking-health, congelamento provado, Stape Ready, Origin CA respondendo no IP novo.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Aquecer o cache da Hostinger <span class="chip who claude">claude</span></span><span class="h">Sem semear 301 com query.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Trocar A e AAAA do @ no mesmo minuto, ainda laranja <span class="chip who claude">claude</span></span><span class="h">Se a Hostinger não tiver IPv6, o AAAA é apagado, não deixado. Purge Everything em seguida.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Validar em produção em até 15 min <span class="chip who claude">claude</span></span><span class="h">Rollback: A/AAAA de volta pra AZAN, ainda laranja, em segundos.</span></li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="phase-head"><span class="ord">A</span><span class="when">T0+2h a T+2 dias</span><h3>Acompanhamento</h3><span class="phase-count"><span>0 de 5</span></span></div>
+    <ul class="items">
+      <li class="item"><span class="chip falta">falta</span><span class="t">Connect rate por hora nas 24h depois de cada degrau <span class="chip who claude">claude</span></span><span class="h">Abaixo de 72% por 2h com 150+ cliques = voltar.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Primeira venda real até o Purchase na Meta <span class="chip who claude">claude</span></span><span class="h">Supabase (webhook) + Stape (<code>/lead/</code>) + Meta (Purchase). Precisa da chave Stape.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Volume do sGTM no <code>server.</code> contra a base <span class="chip who claude">claude</span></span><span class="h">API de conta do Stape, por domínio.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Purchases Meta × vendas Assiny e plays do vTurb no dia seguinte <span class="chip who claude">claude</span></span><span class="h">Supabase em mãos: falta só rodar depois de cada degrau.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Security Events do Cloudflare de 6 em 6h por 48h <span class="chip who claude">claude</span></span><span class="h">Bloqueio de crawler da Meta ou de IP de closer aparece aqui primeiro.</span></li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="phase-head"><span class="ord">S</span><span class="when">T+3 a T+30</span><h3>Sair da AZAN</h3><span class="phase-count"><span>0 de 6</span></span></div>
+    <ul class="items">
+      <li class="item"><span class="chip falta">falta</span><span class="t">Migrar o e-mail conforme a decisão <span class="chip who">ambos</span></span><span class="h">MX, SPF, DKIM e DMARC trocados na zona do Cloudflare; volta pros valores da AZAN enquanto ela estiver paga.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Destino do leticiafelisberto.com e do crystal.leticiafelisberto.com <span class="chip who">ambos</span></span><span class="h">Ainda 100% na AZAN (NS, site, Google Workspace do e-mail de recuperação do Registro.br). Bloqueia o cancelamento.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Corrigir o 301 sem barra que perde fbclid e utm <span class="chip who claude">claude</span></span><span class="h">Defeito antigo; corrigir na Hostinger depois da virada.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Subir o PHP pra 8.2 <span class="chip who claude">claude</span></span><span class="h">Com o snippet do /crystal-teste conferido antes e depois.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">DNSSEC depois de 15 dias estável (opcional) <span class="chip who">ambos</span></span><span class="h">DS no Registro.br é só o Luiz.</span></li>
+      <li class="item"><span class="chip falta">falta</span><span class="t">Cancelar a AZAN <span class="chip who luiz">luiz</span></span><span class="h">Só com e-mail migrado, Letícia resolvida, backup final e 15 dias estáveis.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="sec" id="proximos">
+  <div class="sec-head"><span class="kicker">Ordem sugerida</span><h2>Os próximos dez movimentos</h2><p>Do que destrava mais pro que depende de tudo. Os passos 1, 2, 4 e 5 podem andar na mesma semana; o 3 é o único que só o Luiz consegue fazer e que trava o resto.</p></div>
+  <ol class="steps">
+    <li><span class="st">Registrar o degrau 1 como ele aconteceu</span><span class="sd">Token do Cloudflare no <code>.env.local</code> e <code>GET /user/tokens/verify</code>; <code>GET dns_records</code> pra provar <code>proxied=false</code> no <code>server.</code>; decidir <code>ftp</code> e <code>_acme-challenge</code>; marcar os 8 itens no checklist do plano; guardar a evidência em <code>auditorias/2026-09-28/</code>. <span class="chip who claude">claude</span></span></li>
+    <li><span class="st">Terminar a validação do degrau 1, de fora deste ambiente</span><span class="sd">Matriz das 45 páginas com <code>scripts/auditoria-so-leitura.sh</code>, tracking-health 14 verdes, SMTP 587 respondendo Exim, cert do site conferido por IP + SNI. <span class="chip who claude">claude</span></span></li>
+    <li><span class="st">Quatro credenciais e um print, numa sentada</span><span class="sd">Token cPanel AZAN (90 dias) + data da fatura; chave de conta Stape; senha de aplicativo do WordPress + senha nova do admin; e-mail de contato do Registro.br fora da AZAN; print do domínio no BM. <span class="chip who luiz">luiz</span></span></li>
+    <li><span class="st">Preparar a Hostinger sem tocar no DNS</span><span class="sd">API token, SSH Access com a chave do Claude, site <code>crystalnowpp.com.br</code> criado em São Paulo, PHP 7.4, IPv4 (e IPv6, se houver) anotados. Ignorar o pedido de NS e a integração Cloudflare do hPanel. <span class="chip who luiz">luiz</span> <span class="chip who claude">claude</span></span></li>
+    <li><span class="st">Ligar o Supabase ao plano</span><span class="sd">Chave no <code>.env.local</code>, repositório do dashboard anexado; vigia automática com as 4 páginas de vendedor e a <code>/crystal-ttk/</code>; janela recalculada com vendas até a véspera. <span class="chip who claude">claude</span></span></li>
+    <li><span class="st">Decisões que travam a data</span><span class="sd">TikTok (antes ou depois), escopo da cópia (só o Crystal), destino do e-mail, datas do degrau 2 e 3, aviso ao time 48h antes. <span class="chip who">ambos</span></span></li>
+    <li><span class="st">Refazer a linha de base e abrir o ticket na AZAN</span><span class="sd">Linha de base completa com credenciais (GTM live, Stape, fichas, Pixel). Pedido escrito pra AZAN liberar as faixas do Cloudflare e ler <code>CF-Connecting-IP</code>. <span class="chip who claude">claude</span> <span class="chip who luiz">luiz</span></span></li>
+    <li><span class="st">Degrau 2 numa madrugada, só API</span><span class="sd">Settings salvos antes de gravar, laranja em @ e www, validação contra a base, Always HTTPS, WAF de borda, rewrite do /crystal-teste. Rollback: cinza em 5 min. <span class="chip who claude">claude</span></span></li>
+    <li><span class="st">Cópia na Hostinger, em paralelo</span><span class="sd">Varredura, backup, import, snippets conferidos, cache igual, Origin CA importado no hPanel, <code>curl --resolve</code> e jornada no navegador. <span class="chip who claude">claude</span> <span class="chip who">ambos</span></span></li>
+    <li><span class="st">Degrau 3 na madrugada de sexta pra sábado, depois acompanhar e sair</span><span class="sd">Go/no-go, troca de A/AAAA ainda laranja, 15 min de validação, 48h de acompanhamento, e-mail, Letícia, cancelar a AZAN com 15 dias estáveis. <span class="chip who claude">claude</span> <span class="chip who luiz">luiz</span></span></li>
+  </ol>
+</section>
+
+<footer class="foot">
+  <p>Fontes: plano "Virada Cloudflare do Crystal" (versão 2, 13/09/2026, 65 itens em 7 fases); auditoria só-leitura de 13/09 em <code>auditorias/2026-09-13/</code>; conferência de 28/09/2026 por DNS-over-HTTPS (1.1.1.1), RDAP do Registro.br e HTTP a partir do ambiente do Claude. HTTPS, TTFB e a matriz de páginas não foram medidos hoje: o proxy de saída retermina TLS e o LiteSpeed da AZAN devolveu 403 pros caminhos além da raiz, o que não é conclusivo sobre o site.</p>
+  <p>Hostinger: docs da API (<code>docs.hostinger.com/api-reference</code>, OpenAPI com 51 endpoints de hospedagem: websites, bancos, PHP, cache LiteSpeed, import de WordPress, SSL gratuito, arquivos só leitura, redirects, cron) e artigos de suporte sobre SSH (planos Premium ou acima, ativação pelo hPanel) e importação de SSL customizado (hPanel &gt; SSL &gt; Import SSL). Suporte a IPv6 na hospedagem compartilhada não está documentado: conferir no hPanel.</p>
+</footer>
+
+</div>

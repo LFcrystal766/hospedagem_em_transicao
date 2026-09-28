@@ -17,6 +17,15 @@ evidências cruas em `evidencias/`.
 |---|---|
 | [2026-09-13](auditorias/2026-09-13/RELATORIO.md) | DNS, certificados e rastreamento iguais ao inventário de 11/09. `/crystal-ttk/` publicada em 12/09 (Fase A do TikTok) e os 3 redirects envenenados já limpos. Achados levados para o artefato na versão 2. |
 
+## Overviews
+
+Fotos de situação, feitas a partir do plano e das auditorias. Cada uma é uma
+página HTML em `artefato/`, publicada também como artefato.
+
+| Data | Arquivo | Publicado | O que diz |
+|---|---|---|---|
+| 2026-09-28 | [`artefato/overview-2026-09-28.html`](artefato/overview-2026-09-28.html) | [Crystal, Onde Estamos](https://claude.ai/artifact/4H3dx3Tkgz498ceNvZwpiA) | Degrau 1 feito em 22/09 (NS no Cloudflare, zona cinza e igual à AZAN), checklist em 8 de 65. Acessos que faltam e como conseguir; o que muda com a Hostinger (hPanel, API, SSH, Origin CA) e o que o Supabase destrava; os dez próximos movimentos. |
+
 ## Cópia do artefato
 
 `artefato/virada-cloudflare-crystal.html` é o conteúdo publicado na versão 2
