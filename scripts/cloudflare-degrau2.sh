@@ -16,7 +16,11 @@
 #   laranja         @ A, @ AAAA e www em proxied=true e tira o +a do SPF.
 #                   SÓ NA JANELA COMBINADA (02:00-05:00 BRT)
 #   validar         só leitura: matriz HTTP pela borda, TTFB, POP, server.
+#                   Sai 0 = ok, 1 = problema, 3 = inconclusivo (sem acesso)
+#   saude           só leitura: status da borda e da AZAN pela API de métricas
+#                   do Cloudflare (MINUTOS=20). Sai 1 se passar de 5% ruins
 #   https           liga Always Use HTTPS (depois do laranja validado)
+#   https-off       desliga Always Use HTTPS
 #   regras          bloqueia /xmlrpc.php, freia /wp-login.php e reescreve
 #                   /crystal-teste -> /crystal-teste/ (sem redirect)
 #   cinza           ROLLBACK: @ A, @ AAAA e www de volta pra proxied=false
@@ -341,6 +345,11 @@ cmd_https() {
   setting always_use_https '"on"'
 }
 
+cmd_https_off() {
+  precisa_token
+  setting always_use_https '"off"'
+}
+
 cmd_regras() {
   precisa_token
   regra_na_fase http_request_firewall_custom "$REF_XMLRPC" \
@@ -358,11 +367,53 @@ cmd_desfazer_regras() {
   tirar_regra http_request_transform "$REF_REWRITE"
 }
 
+cmd_saude() {
+  # Só leitura, pela API de métricas do Cloudflare: o que a borda respondeu
+  # aos visitantes nos últimos N minutos (padrão 20) e o que a AZAN respondeu
+  # à borda. Não depende de acessar o site de fora.
+  precisa_token
+  local min=${MINUTOS:-20}
+  local ini fim
+  ini=$(date -u -d "-$min minutes" +%Y-%m-%dT%H:%M:%SZ)
+  fim=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  local q
+  q=$(jq -nc --arg z "$ZONA_ID" --arg i "$ini" --arg f "$fim" '{query:
+    "query($z:String!,$i:Time!,$f:Time!){viewer{zones(filter:{zoneTag:$z}){httpRequestsAdaptiveGroups(filter:{datetime_geq:$i,datetime_leq:$f,requestSource:\"eyeball\"},limit:50,orderBy:[count_DESC]){count dimensions{edgeResponseStatus originResponseStatus}}}}}",
+    variables:{z:$z,i:$i,f:$f}}')
+  local r; r=$(curl -sS -m 40 -X POST "$API/graphql" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+    -H 'Content-Type: application/json' --data "$q")
+  if [ "$(echo "$r" | jq -r '.errors // [] | length')" != "0" ]; then
+    aviso "métricas indisponíveis: $(echo "$r" | jq -c '.errors')"
+    return 3
+  fi
+  local g; g=$(echo "$r" | jq '.data.viewer.zones[0].httpRequestsAdaptiveGroups')
+  salvar "saude_${min}min" "$g"
+  echo "Últimos $min min (borda / origem / pedidos):"
+  echo "$g" | jq -r '.[] | "  \(.dimensions.edgeResponseStatus)\t\(.dimensions.originResponseStatus)\t\(.count)"'
+  local total ruins
+  total=$(echo "$g" | jq '[.[].count] | add // 0')
+  # Ruim: 5xx na borda (inclui 520-526 = AZAN recusando o Cloudflare) e 403
+  # vindo da origem (firewall da AZAN barrando os IPs do Cloudflare).
+  ruins=$(echo "$g" | jq '[.[] | select(.dimensions.edgeResponseStatus>=500 or .dimensions.originResponseStatus==403) | .count] | add // 0')
+  echo "  total=$total ruins=$ruins"
+  if [ "$total" -eq 0 ]; then
+    aviso "nenhum pedido pela borda no período (normal com tudo cinza)"
+    return 0
+  fi
+  if [ $((ruins * 100)) -gt $((total * 5)) ] && [ "$ruins" -ge 10 ]; then
+    aviso "mais de 5% de respostas ruins: VOLTAR PRA CINZA"
+    return 1
+  fi
+  ok "respostas ruins abaixo de 5%"
+}
+
 cmd_validar() {
   # Só GET. Tem que rodar de uma máquina SEM proxy que retermine TLS.
+  # Status 000 = a máquina que roda o teste não alcançou o site (rede ou
+  # bloqueio do lado dela). Conta como inconclusivo, não como site fora.
   local UA='Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 341.0'
   local fb='facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)'
-  local erros=0
+  local erros=0 inconclusivos=0
   echo "server. (Stape) tem que resolver direto, sem Cloudflare:"
   local ip; ip=$(curl -sS -m 20 -H 'accept: application/dns-json' \
     "https://cloudflare-dns.com/dns-query?name=server.$DOMINIO&type=A" | jq -r '.Answer[0].data')
@@ -384,8 +435,12 @@ cmd_validar() {
     ref=$(grep -ci '^referrer-policy:' "$cab")
     loc=$(grep -i '^location:' "$cab" | tr -d '\r' | sed 's/^[Ll]ocation: *//')
     printf '  %-58s %-4s %-11s %-8s %-6s %s\n' "$u" "$st" "${srv:--}" "${ray:--}" "$ref" "${loc:--}"
-    [ "$st" = "200" ] || erros=$((erros+1))
-    [ "$ref" = "0" ] || erros=$((erros+1))
+    if [ "$st" = "000" ]; then
+      inconclusivos=$((inconclusivos+1))
+    else
+      [ "$st" = "200" ] || erros=$((erros+1))
+      [ "$ref" = "0" ] || erros=$((erros+1))
+    fi
     rm -f "$cab"
   done
 
@@ -410,8 +465,11 @@ cmd_validar() {
   echo "POP fora do Brasil (GRU, GIG, FOR, POA, CNF, CWB...) ou TTFB acima do dobro da base = voltar pra cinza"
 
   echo
+  [ "$inconclusivos" -gt 0 ] && echo "validar: $inconclusivos URL(s) sem resposta daqui (inconclusivo: conferir com o comando saude)"
   [ "$erros" -eq 0 ] && echo "validar: sem erro" || echo "validar: $erros problema(s)"
-  return "$erros"
+  [ "$erros" -gt 0 ] && return 1
+  [ "$inconclusivos" -gt 0 ] && return 3
+  return 0
 }
 
 case "$CMD" in
@@ -421,13 +479,17 @@ case "$CMD" in
   laranja) cmd_laranja ;;
   cinza) cmd_cinza ;;
   https) cmd_https ;;
+  https-off) cmd_https_off ;;
   regras) cmd_regras ;;
   desfazer-regras) cmd_desfazer_regras ;;
   validar) cmd_validar ;;
+  saude) cmd_saude ;;
   *) falha "comando desconhecido: $CMD" ;;
 esac
+RC=$?
 
-if [ "$APLICAR" -ne 1 ] && [ "$CMD" != "foto" ] && [ "$CMD" != "cert" ] && [ "$CMD" != "validar" ]; then
+if [ "$APLICAR" -ne 1 ] && [ "$CMD" != "foto" ] && [ "$CMD" != "cert" ] && [ "$CMD" != "validar" ] && [ "$CMD" != "saude" ]; then
   echo
   echo "Simulação: nada foi gravado. Rode de novo com --aplicar para gravar."
 fi
+exit $RC
