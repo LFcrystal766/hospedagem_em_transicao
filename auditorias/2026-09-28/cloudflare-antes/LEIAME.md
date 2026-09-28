@@ -46,3 +46,10 @@ Resposta de autenticação negada (10000, 9109 ou "request is not authorized"):
 - Page Rules, Cache Rules, Config Rules, Origin Rules, Redirect Rules
 - Managed headers (Add security headers / Referrer-Policy)
 - Bot management (Bot Fight Mode, AI Labyrinth), Zaraz, DNSSEC, Email Routing
+
+## Certificado de borda
+
+`ssl_verification.json`: Universal SSL `active` para `*.crystalnowpp.com.br`,
+validado por TXT (DV). Isso explica os dois TXT novos em `_acme-challenge`
+vistos no DNS público em 28/09: são do Cloudflare e não devem ser apagados.
+O pré-requisito do item `ligar-laranja` (cert de borda ativo) está cumprido.
