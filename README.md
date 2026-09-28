@@ -8,6 +8,8 @@ do site atual, troca de servidor) vive no artefato
 Este repositório guarda o que precisa sobreviver fora do artefato: as auditorias,
 as ferramentas que as produzem e uma cópia do próprio artefato.
 
+**Por onde começar:** `PROXIMOS-PASSOS.md` (o que falta e de quem) e `CLAUDE.md` (contexto e regras para a sessão do Claude).
+
 ## Auditorias
 
 Cada rodada fica em `auditorias/<data>/`, com o relatório em `RELATORIO.md` e as

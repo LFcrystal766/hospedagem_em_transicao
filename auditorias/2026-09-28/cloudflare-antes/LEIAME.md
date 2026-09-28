@@ -53,3 +53,17 @@ Resposta de autenticação negada (10000, 9109 ou "request is not authorized"):
 validado por TXT (DV). Isso explica os dois TXT novos em `_acme-challenge`
 vistos no DNS público em 28/09: são do Cloudflare e não devem ser apagados.
 O pré-requisito do item `ligar-laranja` (cert de borda ativo) está cumprido.
+
+## Leitura complementar (28/09, fim da tarde)
+
+| Setting | Hoje | Plano |
+|---|---|---|
+| `ssl_automatic_mode` | **auto** | custom (em auto o Cloudflare pode trocar o strict sozinho) |
+| `speed_brain` | off | off |
+| `fonts` | off | off |
+| `early_hints` | off | off |
+| `email_obfuscation` | **on** | off |
+
+As duas mudanças (ssl_automatic_mode e email_obfuscation) não foram gravadas:
+a permissão da sessão barrou. Estão no comando `preparar` do
+`scripts/cloudflare-degrau2.sh`.
