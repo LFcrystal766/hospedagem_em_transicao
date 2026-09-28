@@ -12,8 +12,17 @@
 ## Para o dono criar em claude.ai > Routines
 
 A permissão da sessão do Claude não deixou agendar as duas etapas que mudam o
-site. Crie cada uma como rotina de execução única, no ambiente deste
-repositório, com sessão nova, na hora indicada, colando o texto abaixo.
+site. Crie cada uma como rotina de execução única, com sessão nova, na hora
+indicada, colando o texto abaixo.
+
+**Ao criar, selecione o repositório `LFcrystal766/hospedagem_em_transicao` e o
+branch `claude/modest-brown-3sg4zm`.** É nesse branch que está a regra
+`.claude/settings.json` que libera o script. Sem isso, a sessão abre fora do
+repositório, a regra não vale e a gravação pode ser barrada.
+
+As quatro rotinas já agendadas abrem sem o repositório selecionado. Se a
+preparação das 00:30 ou um rollback numa conferência for barrado, a sessão
+registra, avisa por push e para. O site fica como está.
 
 ### 02:00 — Virada (29/09/2026 02:00 BRT = 05:00 UTC)
 
@@ -21,7 +30,7 @@ repositório, com sessão nova, na hora indicada, colando o texto abaixo.
 Migração do site crystalnowpp.com.br, etapa "02:00 — Virada" da madrugada de 29/09/2026 (degrau 2: ligar a nuvem laranja do Cloudflare no apex e no www, com a AZAN ainda como origem). O dono pediu em 28/09 para passar o degrau 2 nesta madrugada e conferir depois.
 
 1. Se o repositório não estiver na pasta de trabalho, clone https://github.com/LFcrystal766/hospedagem_em_transicao. Faça fetch, checkout e pull do branch claude/modest-brown-3sg4zm.
-2. Leia CLAUDE.md e runbooks/madrugada-degrau2.md. Leia também o relatório da etapa das 00:30 em auditorias/2026-09-29/madrugada/, se existir. Se ele disser que a preparação falhou ou que o certificado não está ativo, não ligue o laranja: registre e pare.
+2. Leia CLAUDE.md e runbooks/madrugada-degrau2.md. Leia também o relatório da etapa das 00:30 em auditorias/2026-09-29/madrugada/, se existir. Se a preparação das 00:30 foi barrada por permissão, isso não impede a virada: esta etapa roda a preparação de novo. Só não ligue o laranja se o comando cert falhar agora.
 3. Execute a seção "02:00 — Virada" e aplique as regras de rollback da seção "Quando voltar para cinza". Se CLOUDFLARE_API_TOKEN não existir, ou se a permissão da sessão barrar as chamadas, não tente contornar: registre o bloqueio e pare. O site segue cinza.
 4. Grave o relatório em auditorias/2026-09-29/madrugada/0200-virada.md com a saída dos comandos (nunca o token), faça commit e push no branch claude/modest-brown-3sg4zm.
 5. Termine com um resumo de até 3 linhas: estado final (laranja ou cinza), resultado do saude e do validar, e se houve rollback.
