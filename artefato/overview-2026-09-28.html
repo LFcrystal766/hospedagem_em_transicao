@@ -146,12 +146,12 @@ td li+li{margin-top:2px}
   <div>
     <div class="eyebrow"><span>crystalnowpp.com.br</span><span class="arrow">→</span><span>AZAN → Cloudflare → Hostinger</span><span>·</span><span>situação em 28/09/2026</span></div>
     <h1>O DNS já virou. Falta o resto.</h1>
-    <p class="lede">O degrau 1 foi executado em 22/09 sem passar pelo checklist: os NS do domínio já são do Cloudflare, a zona está cinza e idêntica à AZAN, e o site ainda é servido pela AZAN. Com Hostinger e Supabase em mãos, o que trava agora são quatro credenciais que só o Luiz cria e a linha de base refeita antes do degrau 2.</p>
+    <p class="lede">O degrau 1 foi executado entre 18 e 22/09 por duas sessões do Claude que rodavam no MacBook, fora deste repositório: os NS do domínio já são do Cloudflare, a zona está cinza e idêntica à AZAN, e o site ainda é servido pela AZAN. Com Hostinger e Supabase em mãos, o que trava agora são quatro credenciais que só o Luiz cria e a linha de base refeita antes do degrau 2.</p>
   </div>
   <div class="meter" aria-label="Progresso do checklist de 65 itens">
     <div class="meter-num">8<small>de 65 itens feitos</small></div>
-    <div class="bar"><i class="f" style="width:12.3%"></i><i class="p" style="width:6.2%"></i><i class="s" style="width:3.1%"></i></div>
-    <div class="meter-sub"><span class="f"><b>8</b> feitos</span><span class="p"><b>4</b> parciais</span><span class="s"><b>2</b> superados</span><span><b>51</b> faltam</span></div>
+    <div class="bar"><i class="f" style="width:12.3%"></i><i class="p" style="width:7.7%"></i><i class="s" style="width:3.1%"></i></div>
+    <div class="meter-sub"><span class="f"><b>8</b> feitos</span><span class="p"><b>5</b> parciais</span><span class="s"><b>2</b> superados</span><span><b>50</b> faltam</span></div>
   </div>
 </header>
 
@@ -174,7 +174,7 @@ td li+li{margin-top:2px}
     <li class="ok"><span><b>Stape intacto.</b><span class="sub"><code>server.crystalnowpp.com.br/healthz</code> responde 200 com <code>trace-id</code>. É a prova de que a troca de NS não derrubou o rastreamento.</span></span></li>
     <li class="bad"><span><b>O e-mail de contato do Registro.br ainda é <code>admin@leticiafelisberto.com</code>.</b><span class="sub">Esse domínio segue com NS e MX publicados pela AZAN. Se a AZAN cair ou for cancelada cedo, a recuperação da conta que controla os NS some junto. Item <code>acesso-registro-br</code>, ainda aberto.</span></span></li>
     <li class="warn"><span><b>Certificados: 64 dias pro do site (01/12), 61 pro do Stape (28/11).</b><span class="sub">Com o DNS fora da AZAN, o cPanel dela não consegue mais renovar o wildcard <code>*.crystalnowpp.com.br</code> por DNS. Pode renovar só o apex por HTTP; se o cert vier sem o wildcard, nada quebra no plano, mas tem que ser conferido a cada rodada.</span></span></li>
-    <li class="warn"><span><b>O checklist do artefato está com 0 de 65 marcados.</b><span class="sub">O estado publicado (<code>{"done":{}}</code>) não reflete o degrau 1. Quem executou não registrou token, diff da zona nem hora. Primeiro passo é pôr o checklist em dia e guardar a evidência no repo.</span></span></li>
+    <li class="warn"><span><b>O degrau 1 foi feito por outras sessões, e a evidência não está neste repositório.</b><span class="sub">A sessão "TASK-DNS-001" (18 a 21/09) refez a linha de base com 45 páginas, exportou a zona e validou 6 scripts. A sessão "DNS-002" aplicou SSL strict, TLS 1.2 e 12 registros cinza (commit <code>c437fa3</code> na pasta <code>hospedagem-crystal-dns</code>). As duas rodavam no MacBook, que está inacessível desde 21/09. O checklist do plano segue com 0 de 65 marcados. Falta trazer essa pasta para o GitHub.</span></span></li>
   </ul>
 </section>
 
@@ -250,9 +250,9 @@ td li+li{margin-top:2px}
   </div>
 
   <div class="phase">
-    <div class="phase-head"><span class="ord">1</span><span class="when">Feito em 22/09 · DNS no Cloudflare</span><h3>Degrau 1</h3><span class="phase-count"><span class="f">6 feitos</span><span class="p">1 parcial</span><span>1 superado</span><span>1 falta</span></span></div>
+    <div class="phase-head"><span class="ord">1</span><span class="when">Feito em 22/09 · DNS no Cloudflare</span><h3>Degrau 1</h3><span class="phase-count"><span class="f">6 feitos</span><span class="p">2 parciais</span><span>1 superado</span></span></div>
     <ul class="items">
-      <li class="item"><span class="chip falta">falta</span><span class="t">Linha de base refeita (45 páginas) <span class="chip who claude">claude</span></span><span class="h">A de 11/09 tem 43 páginas e a de 13/09 não teve credencial. Rodar <code>scripts/auditoria-so-leitura.sh</code> de fora deste ambiente, mais tracking-health, GTM live, Stape, IP das fichas, Pixel. Bloqueia o degrau 2.</span></li>
+      <li class="item"><span class="chip parcial">parcial</span><span class="t">Linha de base refeita (45 páginas) <span class="chip who claude">claude</span></span><span class="h">Refeita em 18/09 pela sessão "TASK-DNS-001" (45 páginas, 13 one-click, 4 de vendedor), mas a evidência está no MacBook. Recuperar ou refazer antes do degrau 2, com credenciais: tracking-health, GTM live, Stape, IP das fichas, Pixel. Bloqueia o degrau 2.</span></li>
       <li class="item done"><span class="chip feito">feito</span><span class="t">Zona criada no Cloudflare</span><span class="h">Sem CAA, sem DS. Não dá pra saber daqui se foi sem scan; o resultado bate com a tabela Z.</span></li>
       <li class="item done"><span class="chip feito">feito</span><span class="t">Registros da tabela Z cadastrados, cinza</span><span class="h">Com dois desvios: <code>ftp</code> CNAME e <code>_acme-challenge</code> com valores novos. Decidir e registrar.</span></li>
       <li class="item done"><span class="chip feito">feito</span><span class="t"><code>server.</code> do Stape idêntico, DNS only</span><span class="h">A e AAAA iguais aos de 11/09, resolvendo direto. Reler <code>proxied=false</code> via API depois de toda escrita na zona.</span></li>
