@@ -41,7 +41,7 @@ scripts/cloudflare-degrau2.sh laranja --aplicar
 Espere uns 3 minutos (por exemplo, repetindo o `foto` e o `saude`) e confira:
 
 ```bash
-MINUTOS=5 scripts/cloudflare-degrau2.sh saude     # 0 ok, 1 ruim, 3 sem métricas
+scripts/cloudflare-degrau2.sh saude 5     # 0 ok, 1 ruim, 3 sem métricas
 scripts/cloudflare-degrau2.sh validar             # 0 ok, 1 ruim, 3 inconclusivo
 ```
 
@@ -62,10 +62,10 @@ Se os dois ficarem sem dado, mantenha e registre.
 ## 02:30 — Consolidação (só se 02:00 ficou laranja e saudável)
 
 ```bash
-MINUTOS=30 scripts/cloudflare-degrau2.sh saude
+scripts/cloudflare-degrau2.sh saude 30
 scripts/cloudflare-degrau2.sh https --aplicar
 scripts/cloudflare-degrau2.sh regras --aplicar
-MINUTOS=5 scripts/cloudflare-degrau2.sh saude
+scripts/cloudflare-degrau2.sh saude 5
 scripts/cloudflare-degrau2.sh validar
 ```
 
@@ -76,7 +76,7 @@ Se piorar depois de `https`: `https-off --aplicar`. Se piorar depois de
 
 ```bash
 scripts/cloudflare-degrau2.sh foto
-MINUTOS=60 scripts/cloudflare-degrau2.sh saude
+scripts/cloudflare-degrau2.sh saude 60
 scripts/cloudflare-degrau2.sh validar
 ```
 

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(scripts/cloudflare-degrau2.sh:*)"
+    ]
+  }
+}

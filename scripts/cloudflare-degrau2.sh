@@ -18,7 +18,8 @@
 #   validar         só leitura: matriz HTTP pela borda, TTFB, POP, server.
 #                   Sai 0 = ok, 1 = problema, 3 = inconclusivo (sem acesso)
 #   saude           só leitura: status da borda e da AZAN pela API de métricas
-#                   do Cloudflare (MINUTOS=20). Sai 1 se passar de 5% ruins
+#                   do Cloudflare. Minutos no 2º argumento (padrão 20):
+#                   saude 5. Sai 1 se passar de 5% ruins
 #   https           liga Always Use HTTPS (depois do laranja validado)
 #   https-off       desliga Always Use HTTPS
 #   regras          bloqueia /xmlrpc.php, freia /wp-login.php e reescreve
@@ -45,6 +46,8 @@ RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CMD="${1:-}"
 APLICAR=0
 [ "${2:-}" = "--aplicar" ] && APLICAR=1
+# saude aceita os minutos como 2º argumento: scripts/cloudflare-degrau2.sh saude 5
+[ "$CMD" = "saude" ] && [[ "${2:-}" =~ ^[0-9]+$ ]] && SAUDE_MIN=$2
 
 if [ -z "$CMD" ]; then
   sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'
@@ -372,7 +375,7 @@ cmd_saude() {
   # aos visitantes nos últimos N minutos (padrão 20) e o que a AZAN respondeu
   # à borda. Não depende de acessar o site de fora.
   precisa_token
-  local min=${MINUTOS:-20}
+  local min=${SAUDE_MIN:-${MINUTOS:-20}}
   local ini fim
   ini=$(date -u -d "-$min minutes" +%Y-%m-%dT%H:%M:%SZ)
   fim=$(date -u +%Y-%m-%dT%H:%M:%SZ)
