@@ -17,8 +17,9 @@ de você, na ordem, com o tempo estimado.
    "segue o CLAUDE.md". Na primeira chamada ao Cloudflare, aprove. Para não
    ser perguntado de novo, libere em /permissions a regra
    `Bash(scripts/cloudflare-degrau2.sh:*)`.
-4. **Registro.br, 2 min.** Responda ao Cowork com o e-mail novo do contato
-   LFMPI73 (fora da AZAN e do leticiafelisberto.com).
+4. **Registro.br: fica em aberto por decisão do dono (28/09).** Não bloqueia o
+   degrau 2. Precisa ser resolvido antes de cancelar a AZAN: o e-mail do
+   contato LFMPI73 ainda é admin@leticiafelisberto.com.
 
 ## Quando puder (uns 10 minutos)
 
@@ -40,8 +41,8 @@ de você, na ordem, com o tempo estimado.
 8. **Data do degrau 2**: uma madrugada, às 02:00, depois da resposta da AZAN.
 9. **TikTok**: terminar o que falta antes da linha de base, ou congelar até a
    migração acabar.
-10. **Aviso ao time**, 48h antes do degrau 2: sem anúncio novo, sem editar
-    páginas no Elementor e sem publicar no GTM até dois dias depois.
+10. **Aviso ao time**, 48h antes do degrau 2. Texto pronto em
+    `pedidos/aviso-time-degrau2.md`.
 
 ## O que a sessão do Claude faz sozinha depois do passo 3
 
