@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Crystal AI · Implantação da Stack</title>
+<meta name="description" content="O que precisa estar no ar para rodar a Crystal em infraestrutura própria: o agente em Python, o n8n de integrações e o dimensionamento da VPS.">
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@500,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<script>(function(){document.documentElement.dataset.tema=localStorage.getItem('tema')||'dark';})();</script>
+<style>
+:root{
+  color-scheme:light;
+  --primary:#C3B68D;
+  --primary-rgb:195,182,141;
+  --gold-dark:#D5A352;
+  --bg:#FAFAFA;
+  --surface:#FFFFFF;
+  --surface-2:#F4F2ED;
+  --text:#141414;
+  --text-2:#555555;
+  --border:#E0E0E0;
+  --code-bg:#F0EEE8;
+  --shadow:0 16px 48px rgba(20,20,20,.06);
+}
+[data-tema="dark"]{
+  color-scheme:dark;
+  --bg:#080808;
+  --surface:#141414;
+  --surface-2:#191919;
+  --text:#FFFFFF;
+  --text-2:#A8A8A8;
+  --border:#2B2B2B;
+  --code-bg:#1A1A1A;
+  --shadow:0 16px 48px rgba(0,0,0,.25);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;min-width:320px;
+  font-family:'Inter',system-ui,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(ellipse 70% 40% at 5% 0%, rgba(var(--primary-rgb),.08), transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+  line-height:1.68;
+}
+h1,h2,h3,h4{font-family:'Satoshi','Inter',sans-serif;font-weight:700;letter-spacing:-.02em;line-height:1.2;}
+h1{margin:0 0 12px;font-size:clamp(2.1rem,5vw,3.35rem);}
+h2{margin-top:52px;font-size:1.65rem;scroll-margin-top:24px;}
+h3{margin-top:30px;font-size:1.12rem;}
+h4{margin:26px 0 8px;font-size:.95rem;color:var(--text);}
+.fase{
+  display:inline-block;vertical-align:middle;margin-left:10px;padding:3px 9px;
+  border-radius:999px;font:700 10px/1.4 'Inter',sans-serif;letter-spacing:.08em;
+  text-transform:uppercase;border:1px solid var(--border);color:var(--text-2);
+}
+.fase.f1{border-color:rgba(var(--primary-rgb),.5);color:var(--primary);background:rgba(var(--primary-rgb),.08);}
+.fase.f2{border-color:var(--border);background:var(--surface-2);}
+.divisor td{
+  background:rgba(var(--primary-rgb),.10);color:var(--text);
+  font:700 11px/1.5 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;
+}
+pre{
+  margin:14px 0;padding:14px 16px;border-radius:10px;overflow-x:auto;
+  border:1px solid var(--border);background:var(--code-bg);
+}
+pre code{padding:0;background:none;font-size:12.5px;line-height:1.6;white-space:pre;}
+p{color:var(--text-2);}
+a{color:var(--gold-dark);}
+strong{color:var(--text);font-weight:600;}
+
+.layout{display:flex;min-height:100vh;}
+.sidebar{
+  width:284px;flex-shrink:0;padding:24px 16px 36px;
+  border-right:1px solid var(--border);
+  background:color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter:blur(18px);
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.brand{display:flex;align-items:center;min-height:48px;margin:0 8px 22px;color:var(--text);}
+.brand svg{display:block;width:190px;height:auto;}
+.sidebar a{
+  display:block;padding:7px 12px;border-radius:8px;
+  color:var(--text-2);text-decoration:none;font-size:13.5px;
+}
+.sidebar a:hover{color:var(--text);background:rgba(var(--primary-rgb),.07);}
+.sidebar a.active{color:var(--text);background:rgba(var(--primary-rgb),.14);font-weight:600;}
+.sidebar .group{
+  margin:20px 0 6px;padding:0 12px;font-size:10.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;color:var(--primary);
+}
+.sidebar .num{display:inline-block;width:22px;color:var(--primary);font-size:11.5px;}
+
+main{flex:1;width:min(900px,calc(100vw - 284px));padding:64px 64px 96px;}
+.eyebrow{color:var(--primary);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;}
+.lead{max-width:760px;margin:0 0 24px;font-size:1.08rem;}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 28px;}
+.badge{padding:4px 9px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text-2);font-size:12px;}
+.badge.good{border-color:rgba(83,180,120,.45);color:#53B478;}
+.badge.vps{
+  border-color:var(--primary);background:rgba(var(--primary-rgb),.14);
+  color:var(--text);font-weight:600;
+}
+
+.note{
+  padding:14px 18px;border-radius:10px;margin:22px 0;font-size:14px;
+  border:1px solid rgba(var(--primary-rgb),.42);background:rgba(var(--primary-rgb),.08);
+  color:var(--text-2);
+}
+.note strong{color:var(--text);}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:14px;margin:26px 0;}
+.card{
+  padding:18px;border:1px solid var(--border);border-radius:12px;
+  background:var(--surface);color:var(--text);box-shadow:var(--shadow);
+}
+.card h3{margin:0 0 6px;font-size:13px;color:var(--primary);text-transform:uppercase;letter-spacing:.08em;}
+.card p{margin:0;font-size:13.5px;}
+
+.table-wrap{width:100%;overflow-x:auto;margin:20px 0;}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px;}
+th,td{border:1px solid var(--border);padding:9px 13px;text-align:left;vertical-align:top;}
+th{background:rgba(var(--primary-rgb),.10);font-family:'Satoshi',sans-serif;color:var(--text);}
+td{color:var(--text-2);}
+td b{color:var(--text);font-weight:600;}
+td .sub{display:block;font-size:12px;opacity:.75;}
+td.spec{font-family:ui-monospace,'SF Mono',Menlo,monospace;white-space:nowrap;color:var(--text);}
+
+code{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12.5px;background:var(--code-bg);padding:2px 6px;border-radius:5px;}
+
+.fluxo{display:flex;align-items:stretch;gap:6px;margin:24px 0 10px;}
+.fluxo .no{
+  flex:1 1 0;min-width:0;padding:12px 14px;border:1px solid var(--border);
+  border-radius:10px;background:var(--surface);
+}
+.fluxo .no b{display:block;font-family:'Satoshi',sans-serif;font-size:13.5px;color:var(--text);}
+.fluxo .no span{display:block;font-size:11.5px;color:var(--text-2);line-height:1.4;margin-top:2px;}
+.fluxo .no.destaque{border-color:var(--primary);background:rgba(var(--primary-rgb),.08);}
+.fluxo .seta{flex:0 0 18px;display:flex;align-items:center;justify-content:center;color:var(--primary);}
+.fluxo .seta::before{content:"\2192";}
+@media (max-width:640px){
+  .fluxo{flex-direction:column;gap:4px;}
+  .fluxo .seta::before{content:"\2193";}
+}
+.fluxo .no em{
+  display:block;font-style:normal;font-size:10px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);
+  opacity:.75;margin-bottom:6px;
+}
+.fluxo .no.destaque em{color:var(--primary);opacity:1;}
+
+ul{color:var(--text-2);padding-left:20px;}
+li{margin-bottom:7px;}
+ul.checklist{list-style:none;padding:0;}
+ul.checklist li{position:relative;padding-left:28px;}
+ul.checklist li::before{
+  content:"";position:absolute;left:0;top:7px;width:13px;height:13px;
+  border:1.5px solid var(--primary);border-radius:4px;
+}
+
+.theme-toggle,.menu-toggle,.copy-toggle{
+  position:fixed;z-index:10;top:18px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text);border-radius:999px;padding:7px 13px;
+  cursor:pointer;font:500 13px 'Inter',sans-serif;box-shadow:var(--shadow);
+}
+.acoes{position:fixed;z-index:10;top:18px;right:22px;display:flex;gap:8px;}
+.acoes button{position:static;top:auto;right:auto;}
+.copy-toggle:hover,.theme-toggle:hover{border-color:var(--primary);}
+.menu-toggle{display:none;left:16px;}
+.page-footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--border);color:var(--text-2);font-size:12px;}
+
+@media (max-width:820px){
+  .sidebar{position:fixed;z-index:9;transform:translateX(-105%);transition:transform .25s ease;box-shadow:var(--shadow);}
+  .sidebar.open{transform:translateX(0);}
+  .menu-toggle{display:block;}
+  main{width:100%;padding:76px 20px 64px;}
+  .acoes{right:16px;gap:6px;}
+  .acoes button{padding:7px 10px;font-size:12px;}
+  table{min-width:460px;}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;}html{scroll-behavior:auto;}}
+@media print{.sidebar,.theme-toggle,.menu-toggle{display:none;}main{width:100%;padding:0;}}
+
+.destaque-inline{color:var(--text);font-weight:600;}
+td.spec b{font-weight:700;}
+tbody tr:last-child td.spec b{color:var(--primary);}
+</style></head>
+<body>
+<button class="menu-toggle" onclick="alternarMenu()" aria-label="Abrir menu">&#9776; Menu</button>
+<div class="acoes">
+  <button class="copy-toggle" onclick="copiarMarkdown(this)" title="Copia o documento inteiro em Markdown">&#10697; Copiar Markdown</button>
+  <button class="theme-toggle" onclick="alternarTema()">&#9686; Tema</button>
+</div>
+
+<div class="layout">
+<nav class="sidebar" aria-label="Navegação do documento">
+  <div class="brand">
+    <svg xmlns="http://www.w3.org/2000/svg" width="220" height="40" viewBox="0 0 220 40" role="img" aria-label="Crystal AI">
+      <rect x="0" y="6" width="28" height="28" rx="8" fill="#C3B68D"/>
+      <path d="M9 20l5-7 5 7-5 7z" fill="#080808"/>
+      <text x="38" y="27" font-family="Satoshi, Inter, sans-serif" font-weight="700" font-size="22" letter-spacing="-0.5" fill="currentColor">Crystal AI</text>
+    </svg>
+  </div>
+  <div class="group">Implantação</div>
+  <a href="#visao"><span class="num">01</span>Visão macro</a>
+  <a href="#stack"><span class="num">02</span>A stack</a>
+  <a href="#requisitos"><span class="num">03</span>Requisitos</a>
+  <a href="#capacidade"><span class="num">04</span>Capacidade</a>
+  <a href="#contas"><span class="num">05</span>As contas</a>
+  <a href="#pronto"><span class="num">06</span>Base pronta</a>
+  <a href="#migracao"><span class="num">07</span>Migração</a>
+  <a href="#operacao"><span class="num">08</span>Operação</a>
+</nav>
+
+<main>
+  <div class="eyebrow">Guia técnico</div>
+  <h1>Implantação da Stack</h1>
+  <p class="lead">O que precisa estar no ar para rodar a Crystal em infraestrutura própria, com que capacidade, e como a migração acontece sem interromper o atendimento.</p>
+
+  <div class="meta">
+    <span class="badge vps">4 vCPU · 16 GB · 160 GB</span>
+    <span class="badge good">agente em Python</span>
+    <span class="badge good">Docker Swarm</span>
+    <span class="badge good">Traefik v2</span>
+    <span class="badge">n8n 1.123.10+</span>
+    <span class="badge">Supabase</span>
+    <span class="badge">GitHub</span>
+    <span class="badge">Netlify</span>
+    <span class="badge">OpenRouter</span>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>A stack</h3>
+      <p>O agente da Crystal roda como serviço próprio, em Python. O n8n fica na mesma VPS, cuidando das integrações de pagamento e da criação de acessos.</p>
+    </div>
+    <div class="card">
+      <h3>Divisão do trabalho</h3>
+      <p>A infraestrutura é subida e operada por vocês. Nós entregamos o código do agente, os fluxos de integração e o dashboard, e conduzimos a migração dos dados.</p>
+    </div>
+    <div class="card">
+      <h3>O corte</h3>
+      <p>A virada é o reapontamento de um webhook, e a reversão é reapontá-lo de volta. Nada da operação atual é tocado antes disso.</p>
+    </div>
+  </div>
+
+  <h2 id="visao">Visão macro</h2>
+  <p>A implantação tem duas fases, e existe um ponto de parada claro entre elas. <strong>Vocês não fazem tudo de uma vez.</strong> A primeira fase é o que vocês montam sozinhos, sem depender de nada nosso. Ela termina com um aviso para nós, e só então a segunda começa.</p>
+
+  <div class="fluxo">
+    <div class="no destaque"><em>fase 1, vocês</em><b>Base no ar</b><span>VPS, Traefik, n8n e contas</span></div>
+    <div class="seta" aria-hidden="true"></div>
+    <div class="no"><em>ponto de parada</em><b>Aviso para nós</b><span>a fase 1 termina aqui</span></div>
+    <div class="seta" aria-hidden="true"></div>
+    <div class="no destaque"><em>fase 2, juntos</em><b>Crystal no ar</b><span>código, imagem e corte</span></div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Fase 1, vocês sozinhos</th><th>Fase 2, depois do aviso</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>
+            Contratar a VPS e subir a fundação: Docker Swarm, Traefik e a rede pública<span class="sub">Subir a stack do n8n</span><span class="sub">Criar a organização no Supabase e nos convidar</span><span class="sub">Criar a conta no GitHub e informar o e-mail</span><span class="sub">Criar a conta na Netlify</span><span class="sub">Criar o bot e o grupo do Telegram</span>
+          </td>
+          <td>
+            Nós enviamos o código para o repositório de vocês<span class="sub">Nós transferimos o projeto do Supabase</span><span class="sub">Vocês constroem a primeira imagem do agente</span><span class="sub">Vocês sobem a stack do agente e importam os fluxos</span><span class="sub">Ensaio, corte e validação, em conjunto</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <strong>O que não dá para adiantar:</strong> a construção da imagem do agente depende do código estar no repositório de vocês, e isso é conosco, já na fase 2. Se você chegou na seção do GitHub e ficou na dúvida se precisa buildar agora, a resposta é não: crie a conta, informe o e-mail e siga em frente.
+  </div>
+
+  <h2 id="stack">A stack</h2>
+  <p>A Crystal é um conjunto de serviços que conversam entre si. São dois caminhos, e eles são independentes: o do atendimento, que é o volume, e o dos pagamentos, que é esporádico.</p>
+
+  <h3>Caminho do atendimento</h3>
+  <div class="fluxo">
+    <div class="no"><em>já existe</em><b>WhatsApp</b><span>API oficial da Meta</span></div>
+    <div class="seta" aria-hidden="true"></div>
+    <div class="no"><em>conosco</em><b>LendChat</b><span>segue como está</span></div>
+    <div class="seta" aria-hidden="true"></div>
+    <div class="no destaque"><em>na VPS de vocês</em><b>Agente Crystal</b><span>executa o atendimento</span></div>
+    <div class="seta" aria-hidden="true"></div>
+    <div class="no destaque"><em>conta de vocês</em><b>Supabase</b><span>dados da aplicação</span></div>
+  </div>
+
+  <h3>Caminho dos pagamentos e acessos</h3>
+  <div class="fluxo">
+    <div class="no"><em>já existe</em><b>Gateway de pagamento</b><span>notificação de compra</span></div>
+    <div class="seta" aria-hidden="true"></div>
+    <div class="no destaque"><em>na VPS de vocês</em><b>n8n</b><span>aplica o evento, cria o acesso</span></div>
+    <div class="seta" aria-hidden="true"></div>
+    <div class="no destaque"><em>conta de vocês</em><b>Supabase</b><span>assinaturas e acessos</span></div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Serviço</th><th>Para quê</th><th>Quem provisiona</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Agente Crystal</b><span class="sub">4 contêineres, na VPS</span></td>
+          <td>Recebe as mensagens, executa o atendimento e envia as respostas. É onde está todo o volume da operação</td>
+          <td>Vocês, construindo a imagem a partir do repositório</td>
+        </tr>
+        <tr>
+          <td><b>n8n em modo fila</b><span class="sub">com Postgres e Redis próprios, na VPS</span></td>
+          <td>Integrações de pagamento, criação de acessos e produtos, e rotinas de manutenção do banco</td>
+          <td>Vocês</td>
+        </tr>
+        <tr>
+          <td><b>Supabase</b><span class="sub">Postgres gerenciado, fora da VPS</span></td>
+          <td>O banco do agente: histórico de conversa, clientes e assinaturas</td>
+          <td>Vocês, recebendo o projeto por transferência</td>
+        </tr>
+        <tr>
+          <td><b>Netlify</b></td>
+          <td>Publica o dashboard de métricas</td>
+          <td>Vocês, conta gratuita</td>
+        </tr>
+        <tr>
+          <td><b>GitHub</b></td>
+          <td>Guarda o código do agente e os prompts. É a origem da imagem que roda na VPS</td>
+          <td>Vocês, repositório privado</td>
+        </tr>
+        <tr>
+          <td><b>OpenRouter</b></td>
+          <td>Acesso aos modelos de linguagem</td>
+          <td>Conta já existente</td>
+        </tr>
+        <tr>
+          <td><b>Telegram</b><span class="sub">opcional</span></td>
+          <td>Alertas de falha de envio e de fila parada</td>
+          <td>Vocês, bot próprio</td>
+        </tr>
+        <tr>
+          <td><b>LendChat</b></td>
+          <td>Recebe as mensagens do WhatsApp e as encaminha ao agente</td>
+          <td>Permanece como está hoje</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Por dentro do agente</h3>
+  <p>O agente não é um processo só. São quatro contêineres da mesma imagem, com papéis separados, o que permite reiniciar ou escalar cada parte sem parar as outras.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Contêiner</th><th>Papel</th></tr></thead>
+      <tbody>
+        <tr><td><b>API</b></td><td>Recebe o webhook do LendChat e coloca a mensagem na fila. É a única parte exposta à internet</td></tr>
+        <tr><td><b>Worker de entrada</b></td><td>Aplica os filtros, agrupa mensagens em sequência, trata mídia e executa o agente</td></tr>
+        <tr><td><b>Worker de envio</b></td><td>Entrega as respostas no LendChat, com repetição automática em caso de falha</td></tr>
+        <tr><td><b>Redis do agente</b></td><td>As duas filas, de entrada e de saída, e o controle de mensagens já processadas</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <strong>Fora deste escopo:</strong> monitoramento e observabilidade de infraestrutura não fazem parte desta entrega, e por isso não entram no dimensionamento da VPS. O LendChat continua operando onde está, e a única mudança nele é o endereço para onde encaminha as mensagens, no momento do corte.
+  </div>
+
+  <h2 id="requisitos">Requisitos</h2>
+  <p>Como a stack sobe é decisão de vocês. O que ela precisa atender para a Crystal funcionar está aqui.</p>
+
+  <h3>A fundação <span class="fase f1">fase 1</span></h3>
+  <p>Antes de qualquer coisa da Crystal, a VPS precisa de uma base montada. Ela não é específica deste projeto, é o alicerce comum de qualquer stack em Docker Swarm, e é sobre ela que tanto o agente quanto o n8n se apoiam.</p>
+
+  <div class="note">
+    <strong>Se vocês já têm parte disso no ar:</strong> nada precisa ser recriado. Os itens abaixo são requisitos, não instalações novas. Swarm, proxy e Portainer que já existam atendem, desde que cumpram o que a tabela pede. O mesmo vale para um n8n que já rode outros projetos: se estiver na versão mínima e em modo fila, ele recebe os fluxos de integração da Crystal sem precisar de uma segunda instalação. Nesse caso o trabalho desta fase é conferir, não montar.
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Componente</th><th>Para quê</th></tr></thead>
+      <tbody>
+        <tr><td><b>Docker Swarm</b></td><td>Orquestra os contêineres, cuida de réplicas, reinício e atualização sem parada. É o modo em que as stacks são entregues</td></tr>
+        <tr><td><b>Um proxy reverso com HTTPS</b><span class="sub">recomendamos Traefik v2</span></td><td>Recebe o tráfego da internet, direciona para o serviço certo e cuida do certificado. É por ele que o LendChat alcança a API do agente. Qualquer proxy serve, e a stack já vem configurada para o Traefik</td></tr>
+        <tr><td><b>Rede overlay pública</b></td><td>A rede compartilhada em que o Traefik enxerga os serviços. Precisa existir antes de qualquer stack subir</td></tr>
+        <tr><td><b>Portainer</b><span class="sub">opcional</span></td><td>Interface para subir e acompanhar as stacks sem depender de linha de comando. É o caminho mais simples para quem vai operar</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Se vocês usarem Traefik, os nomes precisam bater</h4>
+  <p>A stack é entregue com o roteamento já configurado, na forma de etiquetas que apontam para nomes específicos do Traefik. Se a base de vocês tiver Traefik com outros nomes, a stack sobe mas <strong>não fica acessível</strong>, e o sintoma é uma página que nunca carrega, sem erro no log.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>O que o agente procura</th><th>Nome esperado</th><th>Se o seu for diferente</th></tr></thead>
+      <tbody>
+        <tr><td><b>Rede do Traefik</b></td><td class="spec">network_swarm_public</td><td>Ajustar o nome da rede na stack, em dois lugares: na etiqueta de rede e na declaração de rede externa</td></tr>
+        <tr><td><b>Entrada HTTPS</b></td><td class="spec">websecure</td><td>Trocar o nome da entrada na etiqueta de roteamento</td></tr>
+        <tr><td><b>Emissor de certificado</b></td><td class="spec">letsencryptresolver</td><td>Trocar o nome do emissor na etiqueta de TLS</td></tr>
+        <tr><td><b>Porta interna da API</b></td><td class="spec">8000</td><td>Não mudar. É a porta em que a aplicação escuta dentro do contêiner</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>São ajustes de uma linha cada, e nós fazemos junto com vocês na hora de subir a stack. O que não pode acontecer é subir com os nomes errados e passar horas procurando o problema no lugar errado.</p>
+
+  <div class="note">
+    <strong>Traefik v2, e não v3:</strong> as etiquetas entregues seguem a sintaxe da versão 2, que é a que roda na operação atual. Em uma base com Traefik v3 uma delas muda de nome, a que informa a rede, e sem essa troca o roteamento não sobe. Se vocês já tiverem v3 instalado, nos avisem antes para entregarmos a stack já ajustada.
+  </div>
+
+  <h4>Se vocês já usam outro proxy</h4>
+  <p>Nada impede. A aplicação não conhece o Traefik: ela é um serviço HTTP comum, escutando na porta 8000 dentro do contêiner. As etiquetas do Traefik em uma máquina que não tem Traefik são simplesmente ignoradas, sem quebrar nada.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Cenário</th><th>O que muda na entrega</th></tr></thead>
+      <tbody>
+        <tr><td><b>Traefik v2</b><span class="sub">o caminho testado</span></td><td>Nada. A stack sobe como é entregue, desde que os nomes da tabela acima confiram</td></tr>
+        <tr><td><b>Nginx, Caddy ou equivalente</b></td><td>Colocar o proxy na mesma rede em que a API está, e apontar o roteamento para ela na porta 8000. As etiquetas do Traefik ficam sem efeito e podem ficar onde estão</td></tr>
+        <tr><td><b>Túnel, como o do Cloudflare</b></td><td>Mesma ideia: o túnel alcança a API pela rede interna, e nem é preciso abrir porta pública na VPS</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">
+    <strong>O requisito de verdade é este:</strong> um endereço público em HTTPS, com certificado válido, que entregue as requisições na porta 8000 da API. Como isso é feito é escolha de vocês. Recomendamos o Traefik porque é o que já está configurado e testado na operação atual, e porque ele resolve certificado sozinho, não porque a Crystal dependa dele. O que não é opcional é a API ficar acessível: sem isso o LendChat não tem como entregar as mensagens.
+  </div>
+
+  <div class="note">
+    <strong>Por que o Traefik não aparece no dimensionamento:</strong> ele faz parte da base da VPS, e não da stack da Crystal. O consumo dele é pequeno e constante, na casa de dezenas de megabytes, e está contemplado na folga da máquina descrita em <a href="#capacidade">Capacidade</a>.
+  </div>
+
+  <h3>Versões</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Componente</th><th>Versão</th><th>Observação</th></tr></thead>
+      <tbody>
+        <tr><td><b>Agente Crystal</b></td><td class="spec">imagem construída por vocês</td><td>Gerada a partir do repositório e publicada no registry de vocês. A tag é a versão do código, e <code>latest</code> não é usado de propósito</td></tr>
+        <tr><td><b>Redis do agente</b></td><td class="spec">7</td><td>Roda na VPS, em rede interna. É a fila do agente, separada da fila do n8n</td></tr>
+        <tr><td><b>n8n</b></td><td class="spec">1.123.10 ou superior</td><td>Versões anteriores não atendem os fluxos de integração. Fixar a tag da imagem</td></tr>
+        <tr><td><b>Postgres do n8n</b></td><td class="spec">16</td><td>Roda na VPS. É o banco interno do n8n, diferente do Postgres do Supabase, que guarda os dados do agente</td></tr>
+        <tr><td><b>Redis do n8n</b></td><td class="spec">7</td><td>Roda na VPS. É a fila entre o processo principal do n8n e o worker</td></tr>
+        <tr><td><b>Docker Swarm</b></td><td class="spec">modo swarm ativo</td><td>A stack do agente é entregue pronta nesse formato, com quatro serviços e uma rede interna própria</td></tr>
+        <tr><td><b>Traefik</b><span class="sub">recomendado, não obrigatório</span></td><td class="spec">2.11 ou superior, série 2</td><td>Com o provedor Docker em modo swarm. A série 3 exige um ajuste nas etiquetas. Outro proxy também atende, como descrito acima</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Configurações obrigatórias</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Exigência</th><th>Se não for atendido</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Conexão com o Supabase</b></td>
+          <td>Session Pooler, na porta 5432</td>
+          <td>O Transaction Pooler, na 6543, derruba a conexão persistente e os atendimentos falham de forma intermitente, sem padrão claro</td>
+        </tr>
+        <tr>
+          <td><b>Redis do agente</b></td>
+          <td>Persistência ligada e descarte de chaves desativado</td>
+          <td>O conteúdo é fila de trabalho, não cache. Descartar chave significa perder mensagem de cliente</td>
+        </tr>
+        <tr>
+          <td><b>Acesso externo</b></td>
+          <td>Endereço público em HTTPS, com certificado válido, entregando na porta 8000 da API. O proxy que faz isso é escolha de vocês</td>
+          <td>O LendChat não consegue entregar as mensagens e o atendimento não recebe nada</td>
+        </tr>
+        <tr>
+          <td><b>Rede interna</b></td>
+          <td>O agente sobe com uma rede própria, separada da rede pública do Traefik. Só a API fica nas duas</td>
+          <td>A fila do agente e o Redis ficam alcançáveis de fora</td>
+        </tr>
+        <tr>
+          <td><b>Worker de envio</b></td>
+          <td>Uma réplica, sempre</td>
+          <td>Duas réplicas quebram a ordem das mensagens e o cliente recebe a resposta fora de sequência</td>
+        </tr>
+        <tr>
+          <td><b>Chave de criptografia do n8n</b></td>
+          <td>A mesma em todos os processos, guardada em cofre e nunca trocada</td>
+          <td>As credenciais salvas no n8n se tornam ilegíveis, sem recuperação</td>
+        </tr>
+        <tr>
+          <td><b>Retenção de execuções do n8n</b></td>
+          <td>Limitada, com limpeza automática</td>
+          <td>O histórico do n8n cresce e enche o disco</td>
+        </tr>
+        <tr>
+          <td><b>Memória do n8n</b></td>
+          <td>O limite de memória do contêiner precisa ser maior que o limite de heap do Node, com folga de pelo menos 25%</td>
+          <td>O sistema encerra o processo antes que o Node consiga liberar memória, e o n8n reinicia sozinho de tempos em tempos</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="capacidade">Capacidade</h2>
+  <p>O dimensionamento parte de medição, não de estimativa. Os números abaixo vêm da operação em produção, com o agente já rodando em Python.</p>
+
+  <h3>Carga medida</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Indicador</th><th>Média por dia</th><th>Maior valor observado</th></tr></thead>
+      <tbody>
+        <tr><td><b>Mensagens</b><span class="sub">recebidas e enviadas</span></td><td class="spec">21.174</td><td class="spec">28.876</td></tr>
+        <tr><td><b>Atendimentos</b><span class="sub">cada mensagem do cliente que gera resposta</span></td><td class="spec">10.580</td><td class="spec">14.403</td></tr>
+        <tr><td><b>Conversas distintas</b></td><td class="spec">775</td><td class="spec">1.101</td></tr>
+        <tr><td><b>Áudios recebidos</b></td><td class="spec">1.037</td><td class="spec">1.659</td></tr>
+        <tr><td><b>Imagens recebidas</b></td><td class="spec">1.499</td><td class="spec">2.320</td></tr>
+        <tr><td><b>Pico por hora</b></td><td class="spec">971 atendimentos</td><td class="spec">2.484 atendimentos</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>A coluna do maior valor observado inclui o pico histórico da operação, cerca de <strong>2,5 vezes</strong> o pico de um dia normal. O dimensionamento abaixo é feito para esse pico, não para a média.</p>
+
+  <h3>Consumo medido do agente</h3>
+  <p>O custo de processamento local por atendimento é de <strong>0,14 segundo de CPU</strong>. O tempo de cada atendimento é dominado pela espera da resposta do modelo de linguagem, não por processamento na máquina, então o consumo real fica muito abaixo do que a duração sugere.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Contêiner</th><th>CPU média</th><th>CPU no pico</th><th>Memória</th><th>Memória no pico</th></tr></thead>
+      <tbody>
+        <tr><td><b>Worker de entrada</b></td><td class="spec">0,027 vCPU</td><td class="spec">0,144 vCPU</td><td class="spec">189 MB</td><td class="spec">224 MB</td></tr>
+        <tr><td><b>Worker de envio</b></td><td class="spec">0,012 vCPU</td><td class="spec">0,017 vCPU</td><td class="spec">65 MB</td><td class="spec">90 MB</td></tr>
+        <tr><td><b>API</b></td><td class="spec">0,006 vCPU</td><td class="spec">0,013 vCPU</td><td class="spec">57 MB</td><td class="spec">63 MB</td></tr>
+        <tr><td><b>Redis do agente</b></td><td class="spec">0,007 vCPU</td><td class="spec">0,010 vCPU</td><td class="spec">25 MB</td><td class="spec">27 MB</td></tr>
+        <tr><td><b>Total do agente</b></td><td class="spec"><b>0,052 vCPU</b></td><td class="spec"><b>0,163 vCPU</b></td><td class="spec"><b>336 MB</b></td><td class="spec"><b>404 MB</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>A memória do agente é <strong>estável sob carga</strong>: entre 37 e 971 atendimentos por hora ela permanece na mesma faixa, sem crescer. Isso é o que permite dimensionar a máquina pela média e não pelo pior caso acumulado.</p>
+
+  <h3>A VPS</h3>
+  <div class="note">
+    <strong>Configuração recomendada:</strong> 4 vCPUs, 16 GB de RAM e 160 GB de disco. É nessa máquina que rodam o agente da Crystal, o n8n das integrações e os bancos internos dos dois.<br>
+    Tecnicamente a stack roda em 4 vCPUs e 8 GB, mas com folga que depende de os picos não coincidirem. Os 16 GB são para o n8n, não para o agente, e existem para que a operação não precise de intervenção quando o volume crescer.
+  </div>
+
+  <h3>Serviços que rodam na VPS</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Serviço</th><th>Réplicas</th><th>CPU (teto)</th><th>Memória (teto)</th><th>Para quê</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Agente, API</b></td>
+          <td class="spec">1<span class="sub">pode crescer</span></td>
+          <td class="spec">1</td>
+          <td class="spec">512 MB</td>
+          <td>Recebe o webhook do LendChat e publica na fila. Pode ter mais de uma réplica</td>
+        </tr>
+        <tr>
+          <td><b>Agente, worker de entrada</b></td>
+          <td class="spec">1<span class="sub">pode crescer</span></td>
+          <td class="spec">1</td>
+          <td class="spec">1 GB</td>
+          <td>Executa o atendimento. É por aqui que a capacidade cresce, se um dia precisar</td>
+        </tr>
+        <tr>
+          <td><b>Agente, worker de envio</b></td>
+          <td class="spec">1<span class="sub">fixo, nunca mais</span></td>
+          <td class="spec">1</td>
+          <td class="spec">512 MB</td>
+          <td>Entrega as respostas em ordem. Não pode ter réplica adicional</td>
+        </tr>
+        <tr>
+          <td><b>Redis do agente</b></td>
+          <td class="spec">1</td>
+          <td class="spec">0,5</td>
+          <td class="spec">512 MB</td>
+          <td>Filas de entrada e saída, com persistência ligada e sem descarte de chaves</td>
+        </tr>
+        <tr>
+          <td><b>n8n editor</b></td>
+          <td class="spec">1</td>
+          <td class="spec">2</td>
+          <td class="spec">3 GB</td>
+          <td>A interface em que os fluxos são criados e editados. Heap do Node em 2,3 GB, respeitando a folga de 25%</td>
+        </tr>
+        <tr>
+          <td><b>n8n webhook</b></td>
+          <td class="spec">1</td>
+          <td class="spec">2</td>
+          <td class="spec">2 GB</td>
+          <td>Recebe as notificações de pagamento e publica na fila. Separado do editor para que uma atualização da interface não derrube a entrada. Heap do Node em 1,5 GB</td>
+        </tr>
+        <tr>
+          <td><b>n8n worker</b></td>
+          <td class="spec">1</td>
+          <td class="spec">2</td>
+          <td class="spec">4 GB</td>
+          <td>Executa os fluxos de integração, com concorrência 50. É o único do n8n que consome processamento de verdade. Heap do Node em 3 GB</td>
+        </tr>
+        <tr>
+          <td><b>Postgres do n8n</b></td>
+          <td class="spec">1</td>
+          <td class="spec">2</td>
+          <td class="spec">2 GB</td>
+          <td>Fluxos, credenciais, fila e histórico de execução do n8n</td>
+        </tr>
+        <tr>
+          <td><b>Redis do n8n</b></td>
+          <td class="spec">1</td>
+          <td class="spec">1</td>
+          <td class="spec">1 GB</td>
+          <td>Fila entre o processo principal do n8n e o worker</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Os valores de CPU e memória são teto, não reserva: cada serviço consome só o que precisa. Nesta configuração a soma dos tetos de memória é de 14,5 GB, e portanto <strong>cabe dentro da máquina</strong> mesmo que todos os serviços atinjam o limite ao mesmo tempo. Isso é deliberado: dispensa a premissa de que os picos nunca coincidem.</p>
+
+  <h3>Réplicas e concorrência</h3>
+  <p>A stack sobe com <strong>uma réplica de cada serviço</strong>. Concorrência e réplica resolvem problemas diferentes, e a ordem em que se mexe neles importa mais que os números em si.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Serviço</th><th>Réplicas</th><th>Concorrência</th><th>Observação</th></tr></thead>
+      <tbody>
+        <tr><td><b>n8n worker</b></td><td class="spec">1</td><td class="spec">50</td><td>Os fluxos de integração são curtos e leves. Medidos: 0,6 s no fluxo de produto e 1,9 s no de pagamento, com máximo de 6,4 s, carregando apenas o JSON do webhook</td></tr>
+        <tr><td><b>Agente, worker de entrada</b></td><td class="spec">1</td><td class="spec">automática</td><td>Processa até 128 atendimentos ao mesmo tempo em um único processo, e para de puxar da fila ao atingir o teto. Não é ajustável, e não precisa ser</td></tr>
+        <tr><td><b>Agente, API</b></td><td class="spec">1</td><td class="spec">automática</td><td>Só recebe e enfileira, sem guardar estado</td></tr>
+        <tr><td><b>Agente, worker de envio</b></td><td class="spec">1<span class="sub">fixo</span></td><td class="spec">automática</td><td>É o que garante que as respostas cheguem na ordem. Uma segunda réplica embaralharia a conversa do cliente</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <strong>Por que 50 e não o padrão do n8n:</strong> concorrência não se dimensiona pelo volume médio, e sim pela rajada. Notificação de pagamento chega em lote, e o custo de uma execução ficar esperando na fila é um cliente que pagou e ainda não recebeu acesso. Como esses fluxos são curtos e sem mídia nem modelo de linguagem, 50 execuções simultâneas cabem folgadas nos 4 GB do worker.
+  </div>
+
+  <h4>A ordem de crescimento</h4>
+  <p>Quando a vazão não bastar, o primeiro movimento é <strong>aumentar a concorrência</strong>, não subir réplica. Os dois custam coisas diferentes:</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Movimento</th><th>O que custa</th><th>Quando usar</th></tr></thead>
+      <tbody>
+        <tr><td><b>Aumentar a concorrência</b></td><td>Só a memória das execuções adicionais, dentro do processo que já existe</td><td>Primeiro recurso. Resolve rajada, que é o caso comum</td></tr>
+        <tr><td><b>Subir uma réplica</b></td><td>Um processo inteiro, cerca de 700 MB de base antes de executar qualquer coisa, mais conexões próprias com os bancos</td><td>Segundo recurso. Quando a concorrência já está alta e o gargalo virou CPU, ou quando se quer tolerância a falha</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Ao subir réplica, revisar a concorrência</h4>
+  <p>Este é o detalhe que costuma derrubar produção sem ninguém entender por quê. A carga simultânea real não é a concorrência configurada, e sim <strong>réplicas multiplicadas pela concorrência</strong>:</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Configuração</th><th>Execuções simultâneas</th><th>Efeito</th></tr></thead>
+      <tbody>
+        <tr><td class="spec">1 worker × 50</td><td class="spec">50</td><td>Configuração inicial, dimensionada</td></tr>
+        <tr><td class="spec">2 workers × 50</td><td class="spec">100</td><td>Dobra a pressão de memória e de conexões, sem que ninguém tenha mexido no número da concorrência</td></tr>
+        <tr><td class="spec">2 workers × 25</td><td class="spec">50</td><td>Mesma carga simultânea de antes, agora distribuída em dois processos</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Subir a segunda réplica mantendo o mesmo número é multiplicar a carga em silêncio. Quem aperta primeiro nesse cenário não é a CPU nem a memória da VPS: é o <strong>limite de conexões dos bancos</strong>, tanto do Postgres interno do n8n quanto do Supabase, e o sintoma aparece como falha intermitente de fluxo, não como servidor cheio.</p>
+
+  <div class="note">
+    <strong>Quando revisar o número 50:</strong> ele vale para o perfil de fluxo que roda ali hoje, curto e leve. Se um dia entrar no n8n um fluxo com mídia, com modelo de linguagem, ou de longa duração, o custo de memória por execução muda de patamar e a concorrência precisa cair junto. Um dos fluxos atuais já é assim, o de criação de lead com CRM, que leva cerca de 41 segundos, mas ele roda pouquíssimas vezes por dia e não chega a coincidir consigo mesmo.
+  </div>
+
+  <div class="note">
+    <strong>Réplica não é folga preventiva:</strong> ao contrário da memória da VPS, subir réplica sem necessidade tem custo. A folga fica na máquina, e a réplica sobe quando a fila pedir.
+  </div>
+
+  <h3>Margem de folga</h3>
+  <p>Somando o consumo real de todos os serviços, incluindo o sistema operacional e o Docker, a VPS recomendada opera assim:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Recurso</th><th>Uso em dia normal</th><th>Uso no pico histórico</th><th>Folga</th></tr></thead>
+      <tbody>
+        <tr><td><b>CPU</b></td><td class="spec">cerca de 0,26 de 4 vCPUs</td><td class="spec">cerca de 0,50 de 4 vCPUs</td><td class="spec">8 vezes o pico</td></tr>
+        <tr><td><b>Memória</b></td><td class="spec">cerca de 3,2 GB de 16 GB</td><td class="spec">cerca de 4,5 GB de 16 GB</td><td class="spec">3,5 vezes o pico</td></tr>
+        <tr><td><b>Disco</b></td><td class="spec">cerca de 15 GB de 160 GB</td><td class="spec">cresce com o histórico do n8n</td><td class="spec">controlada pela limpeza automática</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>A maior parte desse consumo é do n8n e dos bancos internos, não do agente. Mesmo que o volume de atendimento dobre em relação ao pico já registrado, o agente sobe de 0,16 para cerca de 0,3 vCPU e a memória continua na mesma faixa, sem exigir troca de máquina.</p>
+  <div class="note">
+    <strong>Sobre vCPU dedicada:</strong> não é necessária. A contenção de CPU medida na operação atual, em servidores compartilhados, é de <strong>zero por cento</strong> ao longo de sete dias, incluindo os picos. Planos com núcleo dedicado costumam custar o dobro pelo mesmo tamanho, e esse valor rende mais aplicado em memória.
+  </div>
+
+  <h3>Serviço gerenciado, fora da VPS</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Serviço</th><th>Plano</th><th>Para quê</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Supabase</b><span class="sub">Postgres do agente</span></td>
+          <td class="spec">Pro</td>
+          <td>Histórico de conversa, clientes e assinaturas. É gerenciado pelo Supabase e não consome recurso da VPS</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>A partir daí o crescimento é por réplicas antes de ser por máquina, como descrito em <a href="#operacao">Operação</a>.</p>
+
+  <h2 id="contas">As contas</h2>
+  <p>As contas ficam todas em nome de vocês. Nós só precisamos de acesso pontual ao Supabase, para executar a transferência do projeto.</p>
+
+  <h3>Supabase <span class="fase f1">fase 1</span></h3>
+  <p>Plano <strong>Pro</strong>. O projeto da Crystal já existe e roda hoje na nossa organização, então ele não é criado do zero: é transferido inteiro para a organização de vocês, com os dados dentro e preservando o mesmo endereço.</p>
+  <p>Para isso ser possível, três passos de vocês:</p>
+  <ol>
+    <li>Criar a conta e uma <strong>organização</strong> no plano Pro, que será a de destino</li>
+    <li>Convidar <code>agencia@academialendaria.ai</code> para essa organização, com papel de <strong>Owner</strong></li>
+    <li>Nos avisar, para que aceitemos o convite e executemos a transferência pelo painel do Supabase</li>
+  </ol>
+  <div class="note">
+    <strong>Por que o convite parte de vocês:</strong> quem move o projeto precisa ter acesso às duas organizações, a de origem e a de destino. Como nós já somos Owner na de origem, basta sermos convidados para a de vocês. O caminho inverso, em que vocês puxariam o projeto, exigiria dar acesso de Owner na nossa organização, onde vivem projetos de outros clientes.
+  </div>
+  <p>A cobrança do Supabase passa a ser de vocês a partir da transferência.</p>
+
+  <h3>Telegram <span class="fase f1">fase 1</span></h3>
+  <p>Opcional, mas recomendado. É por onde a operação fica sabendo que algo falhou sem precisar que alguém esteja olhando um painel. São dois valores no fim: o <strong>token do bot</strong> e o <strong>ID do grupo</strong>.</p>
+
+  <h4>1. Criar o bot</h4>
+  <ol>
+    <li>No Telegram, abrir conversa com <code>@BotFather</code> e enviar <code>/newbot</code></li>
+    <li>Informar um nome de exibição, por exemplo <code>Crystal Alertas</code></li>
+    <li>Informar um nome de usuário único, que precisa terminar em <code>bot</code>, por exemplo <code>crystal_alertas_bot</code></li>
+    <li>O BotFather responde com o <strong>token</strong>, no formato <code>1234567890:AAG...</code></li>
+  </ol>
+  <div class="note">
+    <strong>O token é uma senha:</strong> quem tem o token controla o bot. Guardar em cofre, junto com as demais credenciais, e nunca colar em mensagem ou documento compartilhado. Se vazar, o <code>/revoke</code> no BotFather gera um novo e invalida o antigo.
+  </div>
+
+  <h4>2. Criar o grupo de alertas</h4>
+  <ol>
+    <li>Criar um grupo novo no Telegram, por exemplo <code>Crystal · Alertas</code></li>
+    <li>Adicionar as pessoas que devem receber os avisos</li>
+    <li>Adicionar o bot recém-criado, buscando pelo nome de usuário dele</li>
+    <li>Abrir os dados do grupo, ir em administradores e <strong>promover o bot a administrador</strong></li>
+  </ol>
+  <p>Tecnicamente o bot consegue postar sendo membro comum. Promover a administrador evita que uma mudança futura nas permissões do grupo derrube os alertas em silêncio, que é o pior tipo de falha para um canal de aviso.</p>
+  <div class="note">
+    <strong>Não ativar tópicos no grupo:</strong> o envio de alerta é direto, sem endereçar tópico. Em um grupo com tópicos ativados, tudo cai no tópico geral e se mistura ao resto.
+  </div>
+
+  <h4>3. Obter o ID do grupo</h4>
+  <ol>
+    <li>Enviar qualquer mensagem no grupo, por exemplo <code>teste</code>. É isso que faz o grupo aparecer no passo seguinte</li>
+    <li>Abrir no navegador, trocando <code>SEU_TOKEN</code> pelo token do bot:<br>
+      <code>https://api.telegram.org/botSEU_TOKEN/getUpdates</code></li>
+    <li>Na resposta, localizar <code>"chat":{"id":-1001234567890</code>. Esse número, <strong>com o sinal de menos</strong>, é o ID do grupo</li>
+  </ol>
+  <div class="note">
+    <strong>Se a resposta vier vazia:</strong> normalmente é uma destas três. A mensagem de teste não foi enviada depois de o bot entrar no grupo; passaram mais de 24 horas desde ela, e o Telegram já descartou; ou o bot tem um webhook ativo, e nesse caso o <code>getUpdates</code> não retorna nada até o webhook ser removido.
+  </div>
+
+  <h4>4. Testar antes de confiar</h4>
+  <p>Com os dois valores em mãos, vale confirmar que a combinação funciona antes de colocar na configuração:</p>
+  <pre><code>curl "https://api.telegram.org/bot&lt;SEU_TOKEN&gt;/sendMessage" \
+     -d chat_id=&lt;SEU_ID&gt; \
+     -d text="teste de alerta"</code></pre>
+  <p>Se a mensagem aparecer no grupo, está pronto. Se a resposta trouxer <code>chat not found</code>, o ID está errado ou sem o sinal de menos. Se trouxer <code>bot was blocked</code> ou <code>not enough rights</code>, o bot não está no grupo ou não tem permissão para postar.</p>
+
+  <h4>5. Onde os valores entram</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Variável</th><th>Valor</th></tr></thead>
+      <tbody>
+        <tr><td class="spec">TELEGRAM_BOT_TOKEN</td><td>O token que o BotFather devolveu</td></tr>
+        <tr><td class="spec">TELEGRAM_ALERT_CHAT_ID</td><td>O ID do grupo, com o sinal de menos</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>As duas entram na configuração do agente, no momento em que a stack sobe. Deixar em branco não quebra nada: o agente segue operando e apenas registra os alertas no log, em vez de enviá-los.</p>
+
+  <div class="note">
+    <strong>Cuidado ao converter o grupo:</strong> se um grupo comum virar supergrupo depois, o que acontece sozinho ao adicionar muita gente ou ativar certos recursos, o ID muda e os alertas param de chegar sem dar erro visível. Se isso acontecer, refazer o passo 3 e atualizar a variável.
+  </div>
+
+  <h3>GitHub <span class="fase f1">fase 1</span></h3>
+  <p>É a conta mais importante depois do Supabase, porque ela é a <strong>origem da imagem</strong> que roda na VPS. O agente não é entregue como imagem pronta: o código vai para o repositório de vocês, e é de lá que a imagem é construída, sempre que houver uma versão nova.</p>
+
+  <div class="note">
+    <strong>Ordem obrigatória:</strong> a imagem só pode ser construída depois que o repositório de vocês estiver no ar e com o código dentro. Por isso esta conta precisa existir antes da etapa de build, e não junto com ela.
+  </div>
+
+  <h4>1. Criar a conta e informar o e-mail <span class="fase f1">fase 1</span></h4>
+  <ol>
+    <li>Criar a conta ou a <strong>organização</strong> no GitHub, com um repositório <strong>privado</strong> para o agente</li>
+    <li>Informar para nós o <strong>e-mail cadastrado no GitHub</strong>, que é por onde o acesso ao código é concedido</li>
+    <li>Aceitar o convite que enviamos para esse e-mail</li>
+  </ol>
+  <p>O e-mail do GitHub costuma ser diferente do e-mail comercial, então vale confirmar qual está de fato na conta antes de passar. Um convite enviado para o endereço errado não chega e trava a etapa seguinte.</p>
+
+  <h4>2. Habilitar o registry <span class="fase f1">fase 1</span></h4>
+  <p>A imagem construída precisa ficar em algum lugar de onde a VPS possa baixá-la. O caminho natural é o registry do próprio GitHub, que já vem com a conta e não exige contratar nada à parte. É preciso gerar um <strong>token de acesso</strong> com permissão de escrita em pacotes, que é o que autoriza a publicação.</p>
+
+  <h4>3. Construir a imagem <span class="fase f2">fase 2</span></h4>
+  <div class="note">
+    <strong>Este passo não é para agora.</strong> Ele só é possível depois que enviarmos o código para o repositório de vocês, o que acontece na fase 2. Fica documentado aqui para o assunto ficar todo em um lugar só.
+  </div>
+  <p>Com o código no repositório e o registry habilitado, o build é um comando, executado na máquina de quem publica:</p>
+  <pre><code>docker login ghcr.io -u &lt;usuario&gt;
+
+docker buildx build --platform linux/amd64 \
+  -t ghcr.io/&lt;organizacao&gt;/crystal-ai:&lt;versao&gt; \
+  --push .</code></pre>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Detalhe</th><th>Por quê</th></tr></thead>
+      <tbody>
+        <tr><td><b><code>--platform linux/amd64</code></b></td><td>É a arquitetura do servidor. Quem builda em Mac recente gera ARM por padrão, e a imagem sobe mas não executa na VPS</td></tr>
+        <tr><td><b>Tag com a versão</b></td><td>A tag acompanha a versão do código. Publicar de novo exige subir a versão, o que garante que cada imagem seja rastreável até um commit</td></tr>
+        <tr><td><b>Nunca <code>latest</code></b></td><td>Deliberado. Com <code>latest</code> ninguém sabe qual versão está no ar, e o rollback deixa de existir</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>4. Apontar a stack para a imagem de vocês <span class="fase f2">fase 2</span></h4>
+  <p>A stack recebe o endereço completo da imagem, incluindo a versão. É essa mesma linha que muda no dia de uma atualização, e é o que permite voltar para a versão anterior em segundos, caso algo saia errado.</p>
+
+  <div class="note">
+    <strong>Os prompts vão dentro da imagem:</strong> o comportamento da Crystal é definido por arquivos de texto que ficam no repositório e são copiados para a imagem no momento do build. Isso significa que ajustar um prompt é uma alteração de código: commit, novo build, novo deploy. Em compensação, cada versão em produção carrega exatamente os prompts que foram testados com ela, sem depender de nada externo em tempo de execução.
+  </div>
+
+  <h3>Demais contas</h3>
+  <ul>
+    <li><strong>Netlify</strong>, conta gratuita, onde o dashboard é publicado</li>
+    <li><strong>OpenRouter</strong>, a chave já em uso hoje, apenas reconectada</li>
+  </ul>
+
+  <h2 id="pronto">Base pronta</h2>
+  <p>A fase 1 se encerra quando estes pontos estiverem verdadeiros. Nada aqui depende de nós, e nenhum deles exige a imagem do agente.</p>
+
+  <ul class="checklist">
+    <li>VPS contratada, na configuração recomendada ou acima</li>
+    <li>Docker Swarm ativo na VPS</li>
+    <li>Proxy reverso no ar, com certificado HTTPS válido. Se for Traefik, da série 2</li>
+    <li>Rede overlay pública criada, com o nome que a stack espera</li>
+    <li>Portainer instalado, se vocês forem operar por interface</li>
+    <li>n8n rodando em modo fila, com o processo principal e o worker no ar</li>
+    <li>n8n acessível por um endereço público em HTTPS</li>
+    <li>Chave de criptografia do n8n gerada e guardada em cofre</li>
+    <li>Limpeza automática de execuções do n8n configurada</li>
+    <li>Conta no Supabase criada, no plano Pro, com uma organização de destino</li>
+    <li>Convite enviado para <code>agencia@academialendaria.ai</code> nessa organização, com papel de Owner</li>
+    <li>Conta ou organização criada no GitHub, com um repositório privado</li>
+    <li>E-mail do GitHub informado para nós</li>
+    <li>Registry habilitado e token de publicação gerado</li>
+    <li>Conta na Netlify criada</li>
+    <li>Bot do Telegram criado, no grupo de alertas, com o ID do grupo em mãos</li>
+  </ul>
+
+  <div class="note">
+    <strong>Com tudo marcado, é só nos avisar.</strong> É esse aviso que dispara a fase 2: a partir dele enviamos o código para o repositório de vocês e iniciamos a transferência do projeto do Supabase. Só então a construção da imagem e a subida do agente fazem sentido.
+  </div>
+
+  <h2 id="migracao">Migração</h2>
+  <p>O quadro completo, das duas fases, com a fronteira marcada. A ordem importa: a stack precisa estar de pé antes de receber o agente, e o agente precisa estar validado antes do corte.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Etapa</th><th>Responsável</th></tr></thead>
+      <tbody>
+        <tr class="divisor"><td colspan="2">Fase 1, sem depender de nós</td></tr>
+        <tr><td>Contratar a VPS e subir a fundação: Docker Swarm, Traefik e a rede pública</td><td><b>Vocês</b></td></tr>
+        <tr><td>Subir a stack do n8n em modo fila, atendendo aos requisitos</td><td><b>Vocês</b></td></tr>
+        <tr><td>Criar as contas de Supabase, GitHub e Netlify</td><td><b>Vocês</b></td></tr>
+        <tr><td>Convidar <code>agencia@academialendaria.ai</code> como Owner na organização do Supabase</td><td><b>Vocês</b></td></tr>
+        <tr><td>Informar para nós o e-mail cadastrado no GitHub</td><td><b>Vocês</b></td></tr>
+        <tr><td>Habilitar o registry e gerar o token de publicação</td><td><b>Vocês</b></td></tr>
+        <tr class="divisor"><td colspan="2">Nos avisar. A fase 2 começa aqui</td></tr>
+        <tr><td>Entregar o código do agente no repositório de vocês, mais os fluxos de integração e o código do dashboard</td><td><b>Nós</b></td></tr>
+        <tr><td>Construir a primeira imagem do agente e publicá-la no registry</td><td><b>Vocês</b>, com o nosso apoio</td></tr>
+        <tr><td>Subir a stack do agente, apontando para a imagem, e preencher as variáveis de ambiente</td><td><b>Vocês</b>, com o nosso apoio</td></tr>
+        <tr><td>Importar os fluxos de integração e conectar as credenciais</td><td><b>Vocês</b>, com o nosso apoio</td></tr>
+        <tr><td>Transferir o projeto do Supabase com os dados</td><td><b>Nós</b>, após aceitar o convite</td></tr>
+        <tr><td>Publicar o dashboard na Netlify</td><td><b>Vocês</b></td></tr>
+        <tr><td>Ensaio com número de teste</td><td><b>Nós e vocês</b></td></tr>
+        <tr><td>Reapontar o webhook do LendChat</td><td><b>Nós</b></td></tr>
+        <tr><td>Validação após o corte</td><td><b>Nós e vocês</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Sobre a transferência do banco</h3>
+  <p>O caminho é a transferência do projeto entre organizações, dentro do próprio Supabase, em vez de exportar e recriar. O projeto da Crystal já é isolado e dedicado, então a transferência leva tudo junto e preserva o mesmo endereço, o que dispensa reconfigurar integrações externas.</p>
+  <p>Quem executa a transferência somos nós, e por isso precisamos ser convidados como <strong>Owner</strong> na organização de destino, conforme os três passos descritos em <a href="#contas">As contas</a>. Sem esse convite a transferência não fica disponível no painel.</p>
+  <p>Se a transferência não estiver disponível para o plano contratado, a alternativa é exportar schema e dados e restaurar em um projeto novo. Esse caminho muda o endereço do banco e exige reconfigurar as integrações que apontam para ele, incluindo as variáveis de ambiente do agente, o que precisa ser combinado antes de agendar o corte.</p>
+
+  <h3>O corte</h3>
+  <p>Até esse momento nada da operação atual é tocado: a stack nova pode ser montada e testada em paralelo. A virada é o reapontamento do webhook do LendChat para o endereço novo, e o rollback é reapontá-lo de volta. A instalação antiga fica de pé, sem tráfego, por alguns dias.</p>
+
+  <h3>Validação</h3>
+  <ul class="checklist">
+    <li>Mensagem de texto simples: a resposta chega corretamente</li>
+    <li>Duas mensagens em sequência rápida: o agrupamento une em uma resposta só, sem duplicar</li>
+    <li>Resposta longa: chega dividida em partes, na ordem certa</li>
+    <li>Envio de áudio: a transcrição acontece e a resposta considera o conteúdo</li>
+    <li>Envio de imagem: o tratamento de mídia responde como esperado</li>
+    <li>Número sem assinatura: o fluxo de identificação e vínculo de acesso funciona</li>
+    <li>Notificação de pagamento de teste: o n8n aplica o evento e o acesso é criado</li>
+    <li>Histórico da conversa gravado no banco, no formato esperado</li>
+    <li>Dashboard reflete a conversa de teste</li>
+    <li>Fila de saída zerada ao fim do teste, sem mensagem presa</li>
+    <li>Alerta de teste chega no Telegram, se configurado</li>
+  </ul>
+
+  <h2 id="operacao">Operação</h2>
+  <p>O que exige atenção depois que a stack estiver no ar.</p>
+
+  <h3>O que precisa de backup</h3>
+  <ul>
+    <li><strong>Banco do n8n</strong>, que guarda os fluxos e as credenciais. Ele só é restaurável junto com a chave de criptografia, que precisa estar guardada separadamente.</li>
+    <li><strong>Fluxos de integração</strong>, exportados periodicamente para o repositório no GitHub. Serve de versionamento e de segunda cópia, independente do servidor.</li>
+    <li><strong>Banco da aplicação</strong>, que no Supabase já tem backup automático no plano Pro. Vale confirmar a janela de retenção contratada.</li>
+    <li><strong>Variáveis de ambiente do agente</strong>, que carregam as chaves de acesso aos serviços externos. Guardadas em cofre, fora do servidor.</li>
+  </ul>
+  <p>O Redis do agente não precisa de backup: ele guarda trabalho em andamento, não histórico. A persistência ligada existe para sobreviver a um reinício, não para arquivamento.</p>
+
+  <h3>Quando escalar</h3>
+  <ul>
+    <li><strong>Fila de entrada crescendo</strong>, com mensagens esperando processamento. No agente não há concorrência para ajustar, então o recurso é subir réplica do worker de entrada, conferindo antes o limite de conexões do Supabase.</li>
+    <li><strong>Fluxos de integração demorando a rodar</strong> em momento de rajada. Primeiro ajuste: aumentar a concorrência do worker do n8n. Só depois, se o gargalo virar CPU, subir réplica, reduzindo a concorrência na mesma proporção.</li>
+    <li><strong>Fila de saída crescendo</strong>: aqui a resposta não é réplica, porque o worker de envio é fixo em uma. Costuma indicar lentidão ou erro no LendChat, não falta de recurso.</li>
+    <li><strong>Memória do servidor acima de 80%</strong>: aí sim vale aumentar a máquina, acima do mínimo.</li>
+    <li><strong>Erros de conexão com o banco da aplicação</strong>: costuma ser limite de conexões no Supabase, não falta de recurso no servidor. Cada réplica a mais consome conexões, então subir réplicas exige verificar esse limite antes.</li>
+  </ul>
+
+  <h3>Sinais de que a máquina ficou pequena</h3>
+  <p>Quatro sinais objetivos, para não depender de percepção. Qualquer um deles sustentado significa aumentar a VPS, não ajustar a stack:</p>
+  <ul>
+    <li><strong>Memória acima de 80%</strong> de forma sustentada, não em pico isolado</li>
+    <li><strong>Qualquer contêiner reiniciando sozinho</strong> por falta de memória</li>
+    <li><strong>Fila de entrada acumulando</strong> por mais de alguns minutos, com o worker já escalado</li>
+    <li><strong>Disco acima de 70%</strong>, depois de confirmar que a limpeza de execuções do n8n está ativa</li>
+  </ul>
+
+  <h3>Mensagens que falharam</h3>
+  <p>Quando uma resposta não consegue ser entregue depois das tentativas automáticas, ela vai para uma fila separada, de mensagens mortas, em vez de ser descartada. Essa fila é consultável e reprocessável, e o crescimento dela é o sinal mais direto de que algo está errado no canal de saída.</p>
+
+  <h3>Alertas</h3>
+  <p>O agente dispara avisos no Telegram quando uma entrega falha em definitivo ou quando um worker para de dar sinal de vida. Os fluxos de integração do n8n também avisam em falha. Configurar o bot deixa esses avisos ativos desde o primeiro dia, sem depender de ferramenta adicional.</p>
+
+  <h3>Atualização do agente</h3>
+  <p>Uma versão nova percorre três passos: a alteração chega ao repositório, a imagem é construída e publicada com a versão nova, e a stack passa a apontar para ela. Vale tanto para mudança de código quanto para ajuste de prompt, já que os prompts viajam dentro da imagem.</p>
+  <p>O redeploy em si não tem janela de indisponibilidade: a API sobe a réplica nova antes de derrubar a antiga, os workers terminam o que estão processando antes de encerrar, e o que estiver na fila é retomado pela réplica nova.</p>
+  <div class="note">
+    <strong>O rollback é trivial, e é por isso que a tag importa:</strong> como cada imagem carrega a versão do código, voltar atrás é apontar a stack para a versão anterior, que continua publicada no registry. É a única razão de <code>latest</code> não ser usado em lugar nenhum.
+  </div>
+
+  <footer class="page-footer">Crystal AI · Implantação da Stack · Agência Lendária</footer>
+</main>
+</div>
+
+<script>
+function alternarTema(){
+  var atual = document.documentElement.dataset.tema;
+  var novo = atual === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.tema = novo;
+  try{ localStorage.setItem('tema', novo); }catch(e){}
+}
+function alternarMenu(){
+  var s = document.querySelector('.sidebar');
+  if(s) s.classList.toggle('open');
+}
+
+/* ---- Copiar como Markdown ------------------------------------------------ */
+function mdInline(no){
+  if(no.nodeType === 3) return no.nodeValue.replace(/\s+/g,' ');
+  if(no.nodeType !== 1) return '';
+  var tag = no.tagName.toLowerCase();
+  if(tag === 'br') return '\n';
+  var dentro = mdFilhos(no);
+  if(tag === 'strong' || tag === 'b') return dentro.trim() ? '**' + dentro.trim() + '**' : '';
+  if(tag === 'code') return '`' + dentro.trim() + '`';
+  if(tag === 'a'){
+    var href = no.getAttribute('href') || '';
+    if(href.charAt(0) === '#') return dentro.trim();
+    return '[' + dentro.trim() + '](' + href + ')';
+  }
+  if(no.classList.contains('fase')) return dentro.trim() ? ' _(' + dentro.trim() + ')_' : '';
+  if(no.classList.contains('sub')) return dentro.trim() ? ' (' + dentro.trim() + ')' : '';
+  return dentro;
+}
+function mdFilhos(el){
+  var out = '';
+  for(var i=0;i<el.childNodes.length;i++) out += mdInline(el.childNodes[i]);
+  return out;
+}
+function mdTexto(el){
+  return mdFilhos(el).replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').trim();
+}
+function mdCelula(el){
+  return mdTexto(el).replace(/\n+/g,' ').replace(/\|/g,'\\|');
+}
+function mdTabela(tabela){
+  var linhas = [], cab = [];
+  var ths = tabela.querySelectorAll('thead th');
+  for(var i=0;i<ths.length;i++) cab.push(mdCelula(ths[i]));
+  if(cab.length){
+    linhas.push('| ' + cab.join(' | ') + ' |');
+    linhas.push('|' + cab.map(function(){ return '---'; }).join('|') + '|');
+  }
+  var trs = tabela.querySelectorAll('tbody tr');
+  var colunas = cab.length;
+  for(var j=0;j<trs.length;j++){
+    var tds = trs[j].children, cels = [];
+    for(var k=0;k<tds.length;k++){
+      cels.push(mdCelula(tds[k]));
+      var span = parseInt(tds[k].getAttribute('colspan') || '1', 10);
+      for(var s=1;s<span;s++) cels.push('');
+    }
+    while(colunas && cels.length < colunas) cels.push('');
+    if(!cab.length && j === 0){
+      linhas.push('| ' + cels.join(' | ') + ' |');
+      linhas.push('|' + cels.map(function(){ return '---'; }).join('|') + '|');
+    } else {
+      linhas.push('| ' + cels.join(' | ') + ' |');
+    }
+  }
+  return linhas.join('\n');
+}
+function mdLista(lista, ordenada){
+  var itens = [], lis = lista.children;
+  var check = lista.classList.contains('checklist');
+  for(var i=0;i<lis.length;i++){
+    if(lis[i].tagName.toLowerCase() !== 'li') continue;
+    var marca = check ? '- [ ] ' : (ordenada ? (itens.length+1) + '. ' : '- ');
+    itens.push(marca + mdTexto(lis[i]).replace(/\n/g,' '));
+  }
+  return itens.join('\n');
+}
+function mdBloco(el, saida){
+  var tag = el.tagName.toLowerCase();
+  var cls = el.classList;
+
+  if(cls.contains('page-footer')) return;
+  if(tag === 'button' || tag === 'script' || tag === 'style' || tag === 'svg') return;
+
+  if(tag === 'h1'){ saida.push('# ' + mdTexto(el)); return; }
+  if(tag === 'h2'){ saida.push('## ' + mdTexto(el)); return; }
+  if(tag === 'h3'){ saida.push('### ' + mdTexto(el)); return; }
+  if(tag === 'h4'){ saida.push('#### ' + mdTexto(el)); return; }
+
+  if(tag === 'pre'){ saida.push('```\n' + (el.textContent||'').replace(/\s+$/,'') + '\n```'); return; }
+  if(tag === 'table'){ saida.push(mdTabela(el)); return; }
+  if(tag === 'ul'){ saida.push(mdLista(el, false)); return; }
+  if(tag === 'ol'){ saida.push(mdLista(el, true)); return; }
+
+  if(cls.contains('eyebrow')){ saida.push('_' + mdTexto(el) + '_'); return; }
+
+  if(cls.contains('meta')){
+    var bs = el.querySelectorAll('.badge'), tags = [];
+    for(var i=0;i<bs.length;i++) tags.push('`' + mdTexto(bs[i]) + '`');
+    if(tags.length) saida.push(tags.join(' '));
+    return;
+  }
+
+  if(cls.contains('note')){
+    var t = mdTexto(el).split('\n').map(function(l){ return '> ' + l; }).join('\n');
+    saida.push(t);
+    return;
+  }
+
+  if(cls.contains('fluxo')){
+    var nos = el.querySelectorAll('.no'), passos = [];
+    for(var j=0;j<nos.length;j++){
+      var rotulo = nos[j].querySelector('em');
+      var nome = nos[j].querySelector('b');
+      var det  = nos[j].querySelector('span');
+      var txt = nome ? mdTexto(nome) : mdTexto(nos[j]);
+      var extra = [];
+      if(rotulo) extra.push(mdTexto(rotulo));
+      if(det) extra.push(mdTexto(det));
+      if(extra.length) txt += ' _(' + extra.join(', ') + ')_';
+      passos.push(txt);
+    }
+    saida.push(passos.join('  →  '));
+    return;
+  }
+
+  if(cls.contains('cards')){
+    var cards = el.querySelectorAll('.card');
+    for(var k=0;k<cards.length;k++){
+      var h = cards[k].querySelector('h3');
+      var p = cards[k].querySelector('p');
+      saida.push('**' + (h ? mdTexto(h) : '') + '** ' + (p ? mdTexto(p) : ''));
+    }
+    return;
+  }
+
+  if(tag === 'p'){
+    var texto = mdTexto(el);
+    if(texto) saida.push(texto);
+    return;
+  }
+
+  /* contêiner genérico: desce nos filhos */
+  for(var m=0;m<el.children.length;m++) mdBloco(el.children[m], saida);
+}
+function gerarMarkdown(){
+  var raiz = document.querySelector('main');
+  if(!raiz) return '';
+  var saida = [];
+  for(var i=0;i<raiz.children.length;i++) mdBloco(raiz.children[i], saida);
+  return saida.join('\n\n').replace(/\n{3,}/g,'\n\n').trim() + '\n';
+}
+function copiarMarkdown(botao){
+  var md = gerarMarkdown();
+  var original = botao.getAttribute('data-rotulo') || botao.textContent;
+  botao.setAttribute('data-rotulo', original);
+  function feito(ok){
+    botao.textContent = ok ? '✓ Copiado' : '✗ Falhou';
+    setTimeout(function(){ botao.textContent = original; }, 2000);
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(md).then(function(){ feito(true); }, function(){ feito(copiarFallback(md)); });
+  } else {
+    feito(copiarFallback(md));
+  }
+}
+function copiarFallback(texto){
+  try{
+    var ta = document.createElement('textarea');
+    ta.value = texto;
+    ta.setAttribute('readonly','');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  }catch(e){ return false; }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('.sidebar a[href^="#"]'));
+  if(!links.length) return;
+  var porId = {};
+  links.forEach(function(a){ porId[a.getAttribute('href').slice(1)] = a; });
+  function marcar(a){
+    links.forEach(function(l){ l.classList.remove('active'); l.removeAttribute('aria-current'); });
+    a.classList.add('active'); a.setAttribute('aria-current','true');
+  }
+  marcar(links[0]);
+  links.forEach(function(a){
+    a.addEventListener('click', function(){
+      marcar(a);
+      var s = document.querySelector('.sidebar');
+      if(s) s.classList.remove('open');
+    });
+  });
+  var obs = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting && porId[e.target.id]) marcar(porId[e.target.id]); });
+  }, {rootMargin:'-10% 0px -80% 0px'});
+  document.querySelectorAll('h2[id]').forEach(function(h){ obs.observe(h); });
+});
+</script>
+</body></html>

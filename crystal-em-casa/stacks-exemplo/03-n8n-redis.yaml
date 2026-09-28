@@ -1,0 +1,69 @@
+# =============================================================================
+# REDIS DO n8n  ·  fila entre o editor e os workers
+# =============================================================================
+#
+# O QUE ESTE SERVIÇO FAZ
+#   É a fila de trabalho do n8n em modo fila. Quando um webhook chega, o serviço
+#   que o recebeu coloca a execução aqui, e um worker livre pega para executar.
+#
+#   O conteúdo é trabalho em andamento, não cache. Por isso a persistência fica
+#   LIGADA (appendonly) e não há descarte automático de chaves: descartar uma
+#   chave aqui significa perder uma execução que já foi aceita.
+#
+# ORDEM DE INSTALAÇÃO
+#   Quarto, junto com o Postgres. Antes dos serviços do n8n.
+#
+# ANTES DE SUBIR, criar o volume (uma vez só, no manager):
+#   docker volume create n8n_redis_data
+#
+# O QUE VOCÊ PRECISA TROCAR NESTE ARQUIVO
+#   Nada. Ele sobe como está.
+#
+# COMO SUBIR
+#   docker stack deploy -c 03-n8n-redis.yaml n8n_redis
+#
+# BACKUP
+#   Não precisa. Guarda apenas trabalho em andamento, não histórico. A
+#   persistência existe para sobreviver a um reinício, não para arquivamento.
+# =============================================================================
+
+version: "3.7"
+
+services:
+  n8n_redis:
+    image: redis:7
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+
+    # appendonly yes = grava cada alteração em disco, para que a fila sobreviva
+    # a um reinício do contêiner.
+    command: redis-server --appendonly yes --port 6379
+
+    networks:
+      - network_swarm_public
+
+    # A porta NÃO é publicada: o Redis só é alcançável de dentro da rede do
+    # Docker. Nunca exponha um Redis à internet.
+
+    volumes:
+      - n8n_redis_data:/data
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.app == n8n
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
+
+volumes:
+  n8n_redis_data:
+    external: true
+    name: n8n_redis_data
+
+networks:
+  network_swarm_public:
+    external: true
+    name: network_swarm_public

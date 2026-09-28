@@ -10,6 +10,10 @@ as ferramentas que as produzem e uma cópia do próprio artefato.
 
 **Por onde começar:** `PROXIMOS-PASSOS.md` (o que falta e de quem) e `CLAUDE.md` (contexto e regras para a sessão do Claude).
 
+**Frente paralela:** `crystal-em-casa/` guarda a migração do **app** da Crystal
+(agente + n8n) da agência para uma VPS nossa. É outra migração, que só cruza
+com esta na zona DNS do Cloudflare.
+
 ## Auditorias
 
 Cada rodada fica em `auditorias/<data>/`, com o relatório em `RELATORIO.md` e as

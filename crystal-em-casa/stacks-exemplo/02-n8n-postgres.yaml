@@ -1,0 +1,95 @@
+# =============================================================================
+# POSTGRES DO n8n  ·  banco interno da ferramenta
+# =============================================================================
+#
+# O QUE ESTE SERVIÇO FAZ
+#   Guarda o funcionamento interno do n8n: os fluxos, as credenciais salvas, os
+#   usuários e o histórico de execução.
+#
+#   ATENÇÃO, NÃO CONFUNDIR: este NÃO é o banco do agente. Os dados do
+#   atendimento (histórico de conversa, clientes, assinaturas) ficam no
+#   Supabase, que é gerenciado e roda fora desta máquina. São dois bancos
+#   diferentes, com finalidades diferentes.
+#
+# ORDEM DE INSTALAÇÃO
+#   Terceiro. Precisa estar no ar antes de qualquer serviço do n8n.
+#
+# ANTES DE SUBIR, criar o volume (uma vez só, no manager):
+#   docker volume create n8n_postgres_data
+#
+# ANTES DE SUBIR, marcar o nó que vai receber o n8n (uma vez só, no manager):
+#   docker node update --label-add app=n8n NOME_DO_NO
+#   (para descobrir o nome do nó: docker node ls)
+#
+# O QUE VOCÊ PRECISA TROCAR NESTE ARQUIVO
+#   1. SUBSTITUA_PELA_SENHA_DO_BANCO  ->  uma senha forte, gerada por você.
+#      Ela precisa ser IDÊNTICA nos quatro arquivos do n8n (editor, webhook,
+#      worker e mcp). Guarde em cofre de senhas.
+#
+# COMO SUBIR
+#   docker stack deploy -c 02-n8n-postgres.yaml n8n_postgres
+#
+# BACKUP
+#   Este banco precisa de backup. Ele guarda os fluxos e as credenciais, e só é
+#   restaurável junto com a chave de criptografia do n8n, que fica no arquivo do
+#   editor. Guarde as duas coisas separadamente.
+# =============================================================================
+
+version: "3.7"
+
+services:
+  n8n_postgres:
+    image: postgres:16
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+
+    networks:
+      - network_swarm_public
+
+    entrypoint: docker-entrypoint.sh
+    command:
+      [
+        postgres,
+        # Limite de conexões simultâneas. A soma dos "pool" configurados nos
+        # serviços do n8n precisa caber aqui, com folga.
+        --max_connections=200,
+        # Reduz a escrita em disco. Seguro porque não há réplica de leitura.
+        --wal_level=minimal,
+        --max_wal_senders=0,
+        --port=5432
+      ]
+
+    # A porta NÃO é publicada de propósito: o banco só é alcançável de dentro
+    # da rede do Docker. Não abra para a internet.
+
+    volumes:
+      - n8n_postgres_data:/var/lib/postgresql/data
+
+    environment:
+      # TROCAR: senha do banco. A mesma nos quatro arquivos do n8n.
+      - POSTGRES_PASSWORD=SUBSTITUA_PELA_SENHA_DO_BANCO
+      # Método de autenticação recomendado a partir do Postgres 16.
+      - POSTGRES_INITDB_ARGS="--auth-host=scram-sha-256"
+      # O banco é criado sozinho na primeira subida, se o volume estiver vazio.
+      - POSTGRES_DB=n8n_queue
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          # Prende o serviço ao nó marcado com o rótulo app=n8n.
+          - node.labels.app == n8n
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2048M
+
+volumes:
+  n8n_postgres_data:
+    external: true
+    name: n8n_postgres_data
+
+networks:
+  network_swarm_public:
+    external: true
+    name: network_swarm_public

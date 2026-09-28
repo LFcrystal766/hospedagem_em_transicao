@@ -44,6 +44,28 @@ de você, na ordem, com o tempo estimado.
 10. **Aviso ao time**, 48h antes do degrau 2. Texto pronto em
     `pedidos/aviso-time-degrau2.md`.
 
+## Frente paralela: a VPS da Crystal (o app)
+
+Independe dos degraus do site. Detalhes em `crystal-em-casa/README.md`.
+
+11. **VPS contratada em 28/09**: Hostinger KVM 4, Ubuntu 24.04, Boston, IP
+    `177.7.61.136`. Falta tudo o que vem depois.
+12. **DNS dos três nomes** (`painel`, `editor`, `webhook` → `177.7.61.136`,
+    **nuvem cinza**). Dois caminhos:
+    - Sessão do Claude, com `CLOUDFLARE_API_TOKEN` (DNS Edit) no ambiente:
+      `scripts/cloudflare-crystal-vps-dns.sh criar --aplicar`
+    - Painel do Cloudflare (DNS > Records > Add record), Proxy status = DNS only.
+      Depois: `scripts/cloudflare-crystal-vps-dns.sh conferir` prova os três
+    Não criar antes de o token novo existir nem na mesma madrugada do degrau 2.
+13. **Três respostas da agência** antes de contratar o Supabase: compute size
+    do projeto da Crystal, dono da conta OpenRouter, quem monta a fase 1.
+14. **Docker + Swarm** pelo Web console da Hostinger, depois as stacks 00 a 06
+    de `crystal-em-casa/stacks-exemplo/`, na ordem, com os segredos em cofre.
+15. **Contas**: Supabase Pro + convite Owner para `agencia@academialendaria.ai`,
+    GitHub (repo privado, e-mail, token `write:packages`), Netlify, Telegram.
+16. **Avisar a agência** quando os 16 pontos de "Base pronta" do guia estiverem
+    verdadeiros. A fase 2 (código, transferência do Supabase, imagem, corte) é deles.
+
 ## O que a sessão do Claude faz sozinha depois do passo 3
 
 - Foto completa da zona e preparação das configurações, ainda com tudo cinza.

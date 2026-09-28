@@ -1,0 +1,213 @@
+# =============================================================================
+# n8n WORKER  ·  quem de fato executa os fluxos
+# =============================================================================
+#
+# O QUE ESTE SERVIÇO FAZ
+#   Pega os trabalhos da fila e executa. É o único que gasta processamento de
+#   verdade, e é por ele que a capacidade cresce quando o volume aumentar.
+#
+#   Não tem endereço público e não aparece no Traefik: ninguém acessa um worker
+#   de fora, ele só consome a fila.
+#
+# ORDEM DE INSTALAÇÃO
+#   Sétimo, por último entre os serviços do n8n.
+#
+# O QUE VOCÊ PRECISA TROCAR NESTE ARQUIVO
+#   1. SUBSTITUA_PELA_CHAVE_DE_CRIPTOGRAFIA  ->  a MESMA do arquivo do editor.
+#   2. SUBSTITUA_PELA_SENHA_DO_BANCO  ->  a mesma senha do arquivo do Postgres.
+#   3. editor.seudominio.com.br   ->  endereço do editor (em 2 lugares).
+#   4. webhook.seudominio.com.br  ->  endereço dos webhooks (em 1 lugar).
+#
+# COMO SUBIR
+#   docker stack deploy -c 06-n8n-worker.yaml n8n_worker
+#
+# -----------------------------------------------------------------------------
+# AVISO SOBRE A CHAVE DE CRIPTOGRAFIA
+#   É com ela que o n8n embaralha as credenciais salvas (chaves de API, senhas
+#   de integrações). Três regras:
+#     · A MESMA chave nos quatro arquivos do n8n. Se divergir, os serviços não
+#       conseguem ler as credenciais uns dos outros.
+#     · Guardada em cofre de senhas, SEPARADA do backup do banco. Um backup sem
+#       a chave é um backup que não restaura.
+#     · NUNCA trocada depois que o n8n estiver em uso. Trocar torna todas as
+#       credenciais salvas ilegíveis, sem recuperação.
+# -----------------------------------------------------------------------------
+# =============================================================================
+
+version: "3.7"
+
+services:
+  n8n_worker:
+    image: n8nio/n8n:1.123.10
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+
+    # A concorrência é quantos fluxos este worker executa AO MESMO TEMPO.
+    #
+    # 50 atende com folga fluxos de integração, que são curtos e carregam pouco
+    # dado. Se um dia entrar aqui um fluxo pesado, que processe mídia ou faça
+    # chamadas a modelo de linguagem, o custo de memória por execução muda de
+    # patamar e este número precisa CAIR.
+    #
+    # Leia também o aviso sobre réplicas, mais abaixo em "replicas".
+    command: worker --concurrency=50
+
+    networks:
+      - network_swarm_public
+
+    environment:
+
+      # --- Geral ------------------------------------------------------------
+      # TROCAR: 32 caracteres aleatórios. Leia o aviso no topo do arquivo.
+      - N8N_ENCRYPTION_KEY=SUBSTITUA_PELA_CHAVE_DE_CRIPTOGRAFIA
+      - NODE_ENV=production
+      # Expõe métricas para ferramentas de monitoramento, se você usar alguma.
+      - N8N_METRICS=true
+      # Não envia dados de uso para o n8n.
+      - N8N_DIAGNOSTICS_ENABLED=false
+      # Tamanho máximo, em MB, de um corpo de requisição aceito.
+      - N8N_PAYLOAD_SIZE_MAX=16
+      - N8N_LOG_LEVEL=info
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - TZ=America/Sao_Paulo
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+
+      # --- Execução dos fluxos ----------------------------------------------
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_RUNNERS_MODE=internal
+      # Execuções de teste, disparadas pelo botão na interface, também vão para
+      # os workers. Evita que um teste pesado trave o editor.
+      - OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true
+
+      # --- Banco de dados ---------------------------------------------------
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_DATABASE=n8n_queue
+      # Nome do serviço do Postgres dentro da rede do Docker. Não é um endereço
+      # da internet, e não precisa ser trocado.
+      - DB_POSTGRESDB_HOST=n8n_postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_USER=postgres
+      # TROCAR: a mesma senha do arquivo do Postgres.
+      - DB_POSTGRESDB_PASSWORD=SUBSTITUA_PELA_SENHA_DO_BANCO
+      # Conexões que este serviço reserva. A soma dos quatro serviços precisa
+      # caber no --max_connections do Postgres.
+      # O worker é quem executa, então precisa de mais conexões que os outros.
+      # Como referência: mantenha esse número próximo da concorrência.
+      - DB_POSTGRESDB_POOL_SIZE=60
+
+      # --- Endereços --------------------------------------------------------
+      - N8N_PORT=5678
+      # TROCAR: endereço do editor. Este serviço não serve interface, mas o
+      # n8n usa esses dois valores para montar links internos, e eles precisam
+      # bater com o que está no arquivo do editor.
+      - N8N_HOST=editor.seudominio.com.br
+      - N8N_EDITOR_BASE_URL=https://editor.seudominio.com.br/
+      - N8N_PROTOCOL=https
+      # TROCAR: endereço dos webhooks. É o que o n8n mostra quando você copia a
+      # URL de um webhook, então precisa ser o endereço público de verdade.
+      - WEBHOOK_URL=https://webhook.seudominio.com.br/
+      - N8N_ENDPOINT_WEBHOOK=webhook
+
+      # --- Modo fila --------------------------------------------------------
+      # É o modo em que a execução é distribuída entre workers. Obrigatório.
+      - EXECUTIONS_MODE=queue
+      # Nome do serviço do Redis na rede do Docker. Não precisa ser trocado.
+      - QUEUE_BULL_REDIS_HOST=n8n_redis
+      - QUEUE_BULL_REDIS_PORT=6379
+      - QUEUE_BULL_REDIS_DB=0
+      # OBRIGATÓRIO no worker: sem isso o teste de saúde lá embaixo nunca passa
+      # e o Swarm reinicia o serviço em looping.
+      - QUEUE_HEALTH_CHECK_ACTIVE=true
+      # Tempo máximo de uma execução, em segundos.
+      - EXECUTIONS_TIMEOUT=3600
+      - EXECUTIONS_TIMEOUT_MAX=7200
+
+      # --- Limpeza automática do histórico ----------------------------------
+      # Sem isso o histórico de execução cresce sem parar e enche o disco.
+      # Mantenha ligado.
+      - EXECUTIONS_DATA_PRUNE=true
+      # Idade máxima do histórico, em horas. 336 = 2 semanas.
+      - EXECUTIONS_DATA_MAX_AGE=336
+      - EXECUTIONS_DATA_PRUNE_HARD_DELETE_INTERVAL=15
+      - EXECUTIONS_DATA_PRUNE_SOFT_DELETE_INTERVAL=60
+      # Quantidade máxima de execuções guardadas. O que vier primeiro, este
+      # limite ou a idade acima, dispara a limpeza.
+      - EXECUTIONS_DATA_PRUNE_MAX_COUNT=10000
+
+      # --- Bibliotecas nos nós de código ------------------------------------
+      - NODE_FUNCTION_ALLOW_BUILTIN=*
+      - NODE_FUNCTION_ALLOW_EXTERNAL=lodash
+      - N8N_COMMUNITY_PACKAGES_ENABLED=true
+      - N8N_REINSTALL_MISSING_PACKAGES=true
+      - N8N_NODE_PATH=/home/node/.n8n/nodes
+
+      # --- Memória ----------------------------------------------------------
+      # Limite de memória ativa do Node.js, em MB.
+      #
+      # REGRA IMPORTANTE: este número precisa ficar em torno de 75% do limite
+      # de memória do contêiner, lá embaixo em resources.limits.memory. Aqui
+      # são 3072 MB para um contêiner de 4096 MB.
+      #
+      # Se os dois forem iguais, o sistema encerra o processo antes que o
+      # Node.js consiga liberar memória, e o serviço passa a reiniciar sozinho
+      # de tempos em tempos, sem erro claro no registro.
+      - NODE_OPTIONS="--max-old-space-size=3072"
+
+    # Tempo que o Swarm espera o worker terminar o que está executando antes de
+    # encerrá-lo. Sem isso, uma atualização mataria execuções pela metade.
+    stop_grace_period: 120s
+
+    deploy:
+      mode: replicated
+      # AVISO SOBRE CRESCER A CAPACIDADE
+      #   A carga simultânea real é RÉPLICAS x CONCORRÊNCIA. Com 1 réplica de
+      #   concorrência 50, são 50 execuções ao mesmo tempo. Subir para 2 réplicas
+      #   mantendo 50 vira 100, e dobra a pressão de memória e de conexões com o
+      #   banco sem que ninguém tenha mexido no número da concorrência.
+      #
+      #   Ordem certa quando faltar vazão: PRIMEIRO aumente a concorrência, que
+      #   custa só a memória das execuções extras. Só depois suba réplica, e ao
+      #   subir, reduza a concorrência na mesma proporção.
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.app == n8n
+      resources:
+        limits:
+          cpus: "2"
+          # Ao mudar este número, ajuste o NODE_OPTIONS acima na mesma proporção.
+          memory: 4096M
+
+      # Sem etiquetas do Traefik de propósito: o worker não é acessado de fora.
+
+      update_config:
+        parallelism: 1
+        delay: 60s
+        # "stop-first" derruba a réplica antiga antes de criar a nova. É o
+        # correto para o worker: evita que duas instâncias disputem a mesma fila
+        # durante a atualização. Com "parallelism: 1", as réplicas são trocadas
+        # uma de cada vez.
+        order: stop-first
+        failure_action: rollback
+
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        # Janela de contagem: as 3 tentativas valem por 5 minutos, não pela vida
+        # inteira do serviço. Sem isso, o Swarm soma falhas antigas e desiste de
+        # reiniciar o serviço para sempre.
+        window: 300s
+
+    # Depende de QUEUE_HEALTH_CHECK_ACTIVE=true nas variáveis acima.
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 5678 || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      # Tempo que o n8n leva para subir antes de o teste começar a valer.
+      start_period: 60s
+
+networks:
+  network_swarm_public:
+    name: network_swarm_public
+    external: true

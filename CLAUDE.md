@@ -15,6 +15,9 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
 - **Chamado #RAI-374885** aberto na AZAN em 28/09 para liberar os IPs do
   Cloudflare e ler `CF-Connecting-IP`. O laranja só entra depois da resposta.
 - **Fatura AZAN**: mensal, R$ 99,90, próxima prevista para 14/10/2026. Não cancelar.
+- **Frente paralela, o app da Crystal**: VPS Hostinger KVM 4 no ar desde 28/09
+  (`177.7.61.136`, Boston). Faltam os três registros DNS cinza e toda a stack.
+  É outra migração, com a agência (Academia Lendária): ver `crystal-em-casa/`.
 
 ## Primeira coisa a fazer numa sessão nova
 
@@ -37,6 +40,9 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
   seus DNS" da Hostinger nem ligar a integração Cloudflare do hPanel.
 - Segredos só em variável de ambiente. Nunca em arquivo do repositório nem no chat.
 - Não publicar nada no GTM: a migração não exige mudança lá.
+- `painel.`, `editor.` e `webhook.` (VPS da Crystal) ficam **cinza** enquanto o
+  Traefik emitir o certificado por HTTP. Laranja neles só depois da stack no ar,
+  com decisão explícita. Não são a mesma Hostinger do site: é uma VPS, não o hPanel.
 
 ## Onde está cada coisa
 
@@ -44,6 +50,8 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
 |---|---|
 | `scripts/auditoria-so-leitura.sh` | Auditoria só GET/DNS. Rodar de fora: o proxy deste ambiente retermina TLS |
 | `scripts/cloudflare-degrau2.sh` | Degrau 2 inteiro, com simulação, backup antes de gravar e rollback |
+| `scripts/cloudflare-crystal-vps-dns.sh` | DNS da VPS da Crystal (`painel`, `editor`, `webhook`, cinza). `conferir` roda sem token |
+| `crystal-em-casa/` | Frente do app: guia e stacks da agência, situação da VPS |
 | `auditorias/<data>/` | Evidências de cada rodada |
 | `pedidos/` | Chamado da AZAN e prompt do Cowork |
 | `artefato/` | Cópia do plano e o overview |

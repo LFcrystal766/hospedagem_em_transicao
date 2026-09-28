@@ -1,0 +1,121 @@
+# =============================================================================
+# TRAEFIK v2  ·  proxy reverso e certificados HTTPS automáticos
+# =============================================================================
+#
+# O QUE ESTE SERVIÇO FAZ
+#   Recebe todo o tráfego que chega da internet nas portas 80 e 443, descobre
+#   sozinho quais serviços estão no ar (lendo as etiquetas de cada stack) e
+#   encaminha cada requisição para o serviço certo. Também emite e renova os
+#   certificados HTTPS de graça, via Let's Encrypt.
+#
+# ORDEM DE INSTALAÇÃO
+#   Este é o PRIMEIRO serviço a subir. Nada mais funciona sem ele.
+#
+# ANTES DE SUBIR, criar a rede e os volumes (uma vez só, no manager):
+#   docker network create --driver=overlay network_swarm_public
+#   docker volume create volume_swarm_certificates
+#
+# O QUE VOCÊ PRECISA TROCAR NESTE ARQUIVO
+#   1. SEU_EMAIL_AQUI  ->  um e-mail seu, válido. O Let's Encrypt usa esse
+#      endereço para avisar se um certificado estiver perto de vencer.
+#
+# COMO SUBIR
+#   docker stack deploy -c 00-traefik.yaml traefik
+# =============================================================================
+
+version: "3.7"
+
+services:
+  traefik:
+    image: traefik:v2.11.3
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+
+    command:
+      # --- Descoberta de serviços -------------------------------------------
+      # Lê o Docker para descobrir quais serviços existem, em modo Swarm.
+      - "--providers.docker.swarmMode=true"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      # IMPORTANTE: só expõe serviços que pedirem explicitamente, com a
+      # etiqueta "traefik.enable=true". Sem isso, tudo ficaria público.
+      - "--providers.docker.exposedbydefault=false"
+      # Rede em que o Traefik procura os serviços. Precisa ser a mesma que as
+      # outras stacks usam.
+      - "--providers.docker.network=network_swarm_public"
+
+      # --- Portas de entrada ------------------------------------------------
+      # "web" é a porta 80 (HTTP) e "websecure" é a 443 (HTTPS).
+      # Todo acesso HTTP é redirecionado para HTTPS automaticamente.
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+      - "--entrypoints.websecure.address=:443"
+
+      # --- Certificados HTTPS -----------------------------------------------
+      # O nome "letsencryptresolver" é referenciado pelas outras stacks.
+      # Se você mudar aqui, mude em todas as outras também.
+      - "--certificatesresolvers.letsencryptresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencryptresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencryptresolver.acme.email=SEU_EMAIL_AQUI"
+      - "--certificatesresolvers.letsencryptresolver.acme.storage=/etc/traefik/letsencrypt/acme.json"
+
+      # --- Painel do Traefik ------------------------------------------------
+      # Deixado LIGADO mas SEM rota pública: o painel não fica acessível pela
+      # internet. Para consultá-lo, use um túnel SSH até a máquina.
+      - "--api.dashboard=true"
+
+      # --- Registros --------------------------------------------------------
+      # Use "DEBUG" apenas para investigar um problema. Em operação normal,
+      # "INFO" evita encher o disco.
+      - "--log.level=INFO"
+      - "--log.format=common"
+      - "--log.filePath=/var/log/traefik/traefik.log"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/var/log/traefik/access-log"
+
+    volumes:
+      # Só leitura: o Traefik precisa consultar o Docker, nunca alterá-lo.
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      # Onde os certificados ficam guardados. Se este volume for perdido, os
+      # certificados são emitidos de novo, sem intervenção.
+      - "vol_certificates:/etc/traefik/letsencrypt"
+
+    networks:
+      - network_swarm_public
+
+    ports:
+      # "mode: host" preserva o IP real de quem acessa, o que importa para
+      # registros de acesso e para bloqueios por IP.
+      - target: 80
+        published: 80
+        mode: host
+      - target: 443
+        published: 443
+        mode: host
+
+    deploy:
+      placement:
+        constraints:
+          # O Traefik precisa rodar em um nó manager, porque lê o estado do Swarm.
+          - node.role == manager
+
+      labels:
+        - "traefik.enable=true"
+        # Garante que qualquer acesso HTTP vire HTTPS, inclusive em domínios
+        # que ainda não têm rota configurada.
+        - "traefik.http.middlewares.redirect-https.redirectscheme.scheme=https"
+        - "traefik.http.middlewares.redirect-https.redirectscheme.permanent=true"
+        - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
+        - "traefik.http.routers.http-catchall.entrypoints=web"
+        - "traefik.http.routers.http-catchall.middlewares=redirect-https@docker"
+        - "traefik.http.routers.http-catchall.priority=1"
+
+volumes:
+  vol_certificates:
+    external: true
+    name: volume_swarm_certificates
+
+networks:
+  network_swarm_public:
+    external: true
+    name: network_swarm_public

@@ -1,0 +1,84 @@
+# =============================================================================
+# PORTAINER  ·  painel visual para operar o Docker Swarm
+# =============================================================================
+#
+# O QUE ESTE SERVIÇO FAZ
+#   Dá uma interface web para subir stacks, ver registros, reiniciar serviços e
+#   acompanhar o consumo de cada contêiner, sem precisar de linha de comando.
+#   É opcional: tudo que ele faz também é possível por SSH.
+#
+# ORDEM DE INSTALAÇÃO
+#   Depois do Traefik. É o segundo serviço a subir.
+#
+# ANTES DE SUBIR, criar o volume (uma vez só, no manager):
+#   docker volume create portainer_data
+#
+# O QUE VOCÊ PRECISA TROCAR NESTE ARQUIVO
+#   1. painel.seudominio.com.br  ->  o endereço em que você quer acessar o
+#      painel. Esse nome precisa apontar para o IP da VPS no seu DNS ANTES de
+#      subir, senão o certificado HTTPS não é emitido.
+#
+# COMO SUBIR
+#   docker stack deploy -c 01-portainer.yaml portainer
+#
+# PRIMEIRO ACESSO
+#   Abra o endereço configurado e crie o usuário administrador. Faça isso logo
+#   depois de subir: enquanto ninguém criar, o painel fica aberto para quem
+#   chegar primeiro.
+# =============================================================================
+
+version: "3.7"
+
+services:
+
+  # Agente que roda em TODOS os nós e reporta o estado deles ao painel.
+  agent:
+    image: portainer/agent:sts
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - network_swarm_public
+    deploy:
+      # "global" = uma cópia em cada nó do cluster, automaticamente.
+      mode: global
+      placement:
+        constraints:
+          - node.platform.os == linux
+
+  # A interface web em si.
+  portainer:
+    image: portainer/portainer-ce:sts
+    command: -H tcp://tasks.agent:9001 --tlsskipverify
+    volumes:
+      - portainer_data:/data
+    networks:
+      - network_swarm_public
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=network_swarm_public"
+        # TROCAR: o endereço do painel.
+        - "traefik.http.routers.portainer.rule=Host(`painel.seudominio.com.br`)"
+        - "traefik.http.routers.portainer.entrypoints=websecure"
+        - "traefik.http.routers.portainer.priority=1"
+        - "traefik.http.routers.portainer.tls.certresolver=letsencryptresolver"
+        - "traefik.http.routers.portainer.service=portainer"
+        # Porta interna do Portainer. Não mudar.
+        - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+
+networks:
+  network_swarm_public:
+    external: true
+    attachable: true
+    name: network_swarm_public
+
+volumes:
+  portainer_data:
+    external: true
+    name: portainer_data
