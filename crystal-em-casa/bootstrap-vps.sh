@@ -38,6 +38,9 @@
 #   bash bootstrap-vps.sh app-admin            cria o primeiro admin (CPF digitado sem aparecer,
 #                                              não fica em spec, log nem histórico)
 #   bash bootstrap-vps.sh app-segredos         mostra os segredos do app pra copiar pro cofre
+#   bash bootstrap-vps.sh app-recomecar TAG --confirmo
+#                                              só com o banco do app VAZIO: apaga o banco e
+#                                              troca todos os segredos do app (vazaram?)
 #
 # Onde ficam as coisas:
 #   /root/crystal/.segredos      senha do banco e chave de criptografia (chmod 600).
@@ -597,11 +600,40 @@ TS
   echo "  Próximo: entrar em https://app.$DOMINIO com esse CPF e e-mail (o código chega pelo Resend)."
 }
 
+# Troca TODOS os segredos do app recriando o banco dele do zero. Só enquanto o
+# banco não tem ninguém cadastrado: com usuário dentro, ENCRYPTION_KEY e
+# CPF_SALT novos deixariam os dados ilegíveis. Mantém .externos (Resend etc.).
+#   bash bootstrap-vps.sh app-recomecar TAG --confirmo
+app_recomecar() {
+  local tag="${2:-}" conf="${3:-}" cid n
+  [ "$conf" = "--confirmo" ] || falha "isto apaga o banco do app e troca os segredos. Se for isso: bash $0 app-recomecar TAG --confirmo"
+  echo "$tag" | grep -Eq '^(sha-[0-9a-f]{7}|v[0-9][0-9A-Za-z.-]*)$' || falha "informe a tag: bash $0 app-recomecar sha-XXXXXXX --confirmo"
+  cid=$(docker ps -q -f name=${APP_STACK}_app_postgres | head -1)
+  if [ -n "$cid" ]; then
+    n=$(docker exec "$cid" psql -U crystal -d crystal_web_chat -tAc 'select count(*) from users' 2>/dev/null || echo "?")
+    n=$(echo "$n" | tr -d '[:space:]')
+    [ "$n" = "0" ] || [ "$n" = "?" ] || falha "o banco do app já tem $n usuário(s). Trocar ENCRYPTION_KEY e CPF_SALT agora os tornaria ilegíveis. Não recomece"
+  fi
+  echo "== removendo a stack $APP_STACK"
+  docker stack rm "$APP_STACK" >/dev/null 2>&1 || true
+  local t=0
+  while docker ps -aq -f "label=com.docker.stack.namespace=$APP_STACK" | grep -q . && [ $t -lt 120 ]; do sleep 3; t=$((t+3)); done
+  sleep 5
+  echo "== apagando os volumes do app (banco vazio)"
+  for v in app_postgres_data app_redis_data app_uploads; do
+    docker volume rm "${APP_STACK}_$v" >/dev/null 2>&1 || true
+  done
+  rm -f "$APP_SEG" "$APP_DIR/api.env" "$APP_DIR/postgres.env"
+  ok "segredos antigos apagados; $APP_EXT mantido"
+  app_subir app-subir "$tag"
+}
+
 app_segredos() {
   [ -f "$APP_SEG" ] || falha "ainda não há segredos do app: rode 'app-subir'"
   if [ -t 1 ] && command -v less >/dev/null; then
     {
-      echo "Segredos do app. Copie pro Bitwarden. Aperte q pra fechar."
+      echo "Segredos do app. Copie CADA LINHA direto pro Bitwarden. Aperte q pra fechar."
+      echo "NÃO cole em chat, e-mail ou print: segredo que sai daqui tem que ser trocado."
       echo "ENCRYPTION_KEY e CPF_SALT nunca podem mudar: sem eles o banco do app fica ilegível."
       echo
       grep -vE '^CRIADO_EM=' "$APP_SEG"
@@ -619,6 +651,7 @@ case "$CMD" in
   app-status) app_status ;;
   app-admin) app_admin ;;
   app-segredos) app_segredos ;;
+  app-recomecar) app_recomecar "$@" ;;
   preparar) preparar "$@" ;;
   recomecar-n8n) recomecar_n8n "$@" ;;
   docker-api) docker_api ;;
