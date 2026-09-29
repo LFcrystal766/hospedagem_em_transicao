@@ -50,3 +50,24 @@ Pra fechar a conexão, preciso entender três pontos do lado de vocês:
 a) Pelo guia, o agente recebe o webhook do LendChat e responde pela API do LendChat. Pra atender o app, a ideia é o agente receber a mensagem do app e devolver a resposta direto? Ou vocês pensaram em outro caminho?
 b) O app manda contact_id, conversation_id e o texto da mensagem, e espera o texto da resposta no retorno. Mensagem que a Crystal manda por iniciativa própria chega no app assinada (HMAC), com id do evento, horário, contato, tipo e conteúdo. Te mando o documento com o formato. Se o de vocês for diferente, a gente adapta do nosso lado.
 c) O login do app confere CPF + e-mail na base de clientes. Essa base é a do Supabase da Crystal? E qual identificador do cliente o agente usa: telefone ou o id do Supabase?
+
+---
+
+## Situação
+
+Enviada ao Tuan pelo Luiz (o Luiz diz "ontem", em 29/09). Sem resposta até
+29/09. Qual versão foi enviada não está registrado aqui.
+
+## Cobrança (para mandar se não houver resposta até 01/10)
+
+Oi, Tuan. Tudo certo? Retomando a mensagem de ontem: do nosso lado a fase 1
+está pronta, só esperando vocês pra começar a fase 2.
+
+Somei uma pergunta às que mandei:
+
+4. Prompts da Crystal: vocês conseguem mandar já o prompt e a base de
+conhecimento que ela usa hoje? Queremos testar o app com o mesmo jeito dela
+enquanto a fase 2 não começa. E só pra confirmar: na fase 2 o código, os
+prompts e a base ficam no nosso repositório e passam a ser nossos, certo?
+
+Consegue me dar uma previsão de quando o código sobe pro repositório?
