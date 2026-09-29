@@ -188,6 +188,14 @@ esperar_stack() { # esperar_stack NOME_DA_STACK [SEGUNDOS]
     linhas=$(docker service ls --filter "label=com.docker.stack.namespace=$stack" --format '{{.Name}} {{.Replicas}}')
     [ -n "$linhas" ] || falha "stack $stack não tem serviço nenhum"
     pendentes=$(echo "$linhas" | awk '{split($2,r,"/"); if (r[1]!=r[2] || r[2]=="0") print}')
+    # 1/1 não basta logo depois de um deploy: a tarefa antiga ainda conta. Espera
+    # também as atualizações em andamento terminarem.
+    local s st
+    for s in $(echo "$linhas" | awk '{print $1}'); do
+      st=$(docker service inspect -f '{{if .UpdateStatus}}{{.UpdateStatus.State}}{{end}}' "$s" 2>/dev/null || true)
+      case "$st" in updating|rollback_started|paused) pendentes="$pendentes"$'\n'"$s atualizando" ;; esac
+    done
+    pendentes=$(echo "$pendentes" | sed '/^$/d')
     if [ -z "$pendentes" ]; then
       echo "$linhas" | sed 's/^/  ok /'
       return 0
@@ -543,6 +551,7 @@ app_subir() {
   sed -e "s|APP_TAG|$tag|g" -e "s|APP_ENV_DIR|$APP_DIR|g" "$ORIG/$APP_YAML" > "$STACKS/$APP_YAML"
   grep -nE 'APP_TAG|APP_ENV_DIR' "$STACKS/$APP_YAML" | grep -vE '^\s*[0-9]+:\s*#' | grep -q . && falha "marcador sobrando em $APP_YAML"
   docker stack deploy --with-registry-auth -c "$STACKS/$APP_YAML" "$APP_STACK" --detach=true >/dev/null
+  sleep 8   # deixa o Swarm registrar a atualização antes de conferir
   esperar_stack "$APP_STACK" 420 || { echo "  Logs da API: docker service logs --tail 80 ${APP_STACK}_app_api"; exit 1; }
   echo
   app_status
@@ -731,7 +740,12 @@ SQL
 
   echo
   echo "== teste: a API do app pergunta à Crystal provisória"
-  local api; api=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
+  local api t=0
+  while :; do
+    api=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
+    [ -n "$api" ] && docker exec "$api" sh -c '[ -n "$CRYSTAL_API_URL" ]' 2>/dev/null && break
+    [ $t -ge 120 ] && break; sleep 5; t=$((t+5))
+  done
   docker exec "$api" node -e '
     const u = process.env.CRYSTAL_API_URL + process.env.CRYSTAL_API_PATH;
     fetch(u, { method: "POST", headers: { "x-api-key": process.env.CRYSTAL_API_KEY, "content-type": "application/json" },
