@@ -19,6 +19,8 @@
 #   bash bootstrap-vps.sh backup               pg_dump do banco do n8n em /root/crystal/backups
 #                                              (guarda 14 dias). A chave do n8n NÃO vai junto
 #   bash bootstrap-vps.sh backup-cron          agenda o backup todo dia às 03:30 (hora da VPS)
+#   bash bootstrap-vps.sh firewall             ufw: só 22, 80 e 443 de fora. As portas do Swarm
+#                                              (2377, 7946, 4789) deixam de ficar públicas
 #   bash bootstrap-vps.sh recomecar-n8n EMAIL --confirmo
 #                                              só ANTES de o n8n ter fluxo salvo: apaga o banco
 #                                              do n8n e refaz com segredos novos
@@ -49,7 +51,7 @@ falha() { echo "ERRO: $*" >&2; exit 2; }
 ok() { echo "  ok $*"; }
 aviso() { echo "  ! $*"; }
 
-[ -n "$CMD" ] || { sed -n '2,37p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ -n "$CMD" ] || { sed -n '2,39p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 
 # ------------------------------------------------------------------ fundação
 conferir_fundacao() {
@@ -220,6 +222,24 @@ backup_cron() {
   echo "  Fora da VPS: copiar $BASE/backups/ pra outro lugar de tempos em tempos (a VPS sumir leva o backup junto)."
 }
 
+# ------------------------------------------------------------------ firewall
+# Nó único: ninguém de fora precisa falar com o Swarm. O Docker publica 80 e
+# 443 por conta própria (passa por cima do ufw), então o que o ufw realmente
+# fecha são as portas do Swarm e qualquer coisa que subir por engano. O Web
+# console da Hostinger continua funcionando mesmo se o SSH for bloqueado.
+firewall() {
+  command -v ufw >/dev/null || { apt-get -qq update >/dev/null; DEBIAN_FRONTEND=noninteractive apt-get -y -qq install ufw >/dev/null; }
+  ufw default deny incoming >/dev/null
+  ufw default allow outgoing >/dev/null
+  ufw allow 22/tcp comment 'ssh' >/dev/null
+  ufw allow 80/tcp comment 'traefik http' >/dev/null
+  ufw allow 443/tcp comment 'traefik https' >/dev/null
+  ufw --force enable >/dev/null
+  ok "ufw ativo: entrada só 22, 80 e 443"
+  ufw status | sed 's/^/  /'
+  echo "  Conferir de fora: as três URLs em HTTPS continuam respondendo (bash $0 status)."
+}
+
 # ------------------------------------------------------------------ status
 status() {
   echo "== Serviços"
@@ -289,6 +309,7 @@ case "$CMD" in
   docker-api) docker_api ;;
   backup) backup ;;
   backup-cron) backup_cron ;;
+  firewall) firewall ;;
   traefik|portainer|bancos|n8n|tudo|status|segredos) "$CMD" ;;
   *) falha "comando desconhecido: $CMD" ;;
 esac
