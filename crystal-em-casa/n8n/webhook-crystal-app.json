@@ -1,0 +1,168 @@
+{
+  "name": "Crystal · webhook do app",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "crystal-app",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "Recebe do app (POST)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "crystal-app-post",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Crystal app · X-Webhook-Secret"
+        }
+      },
+      "notes": "URL de produção: https://webhook.crystalnowpp.com.br/webhook/crystal-app\nURL de teste (só com o editor aberto em 'Listen'): https://webhook.crystalnowpp.com.br/webhook-test/crystal-app\nAutenticação: header X-Webhook-Secret com o valor da credencial. Sem o header, 403."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Valida e normaliza o que chegou. Enquanto a agência não mandar o formato\n// definitivo, o mínimo exigido é um objeto JSON. Tudo o que vier é guardado\n// inteiro em `bruto`, para não perder nada quando o formato for definido.\nconst entrada = $input.first().json;\nconst corpo = entrada.body ?? {};\nconst headers = entrada.headers ?? {};\n\nconst ehObjeto = corpo && typeof corpo === 'object' && !Array.isArray(corpo);\nconst id = (ehObjeto && (corpo.id || corpo.event_id || corpo.message_id)) || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;\n\nreturn [{\n  json: {\n    ok: ehObjeto,\n    erro: ehObjeto ? null : 'o corpo precisa ser um objeto JSON',\n    id: String(id),\n    recebido_em: new Date().toISOString(),\n    origem_ip: headers['cf-connecting-ip'] || headers['x-forwarded-for'] || headers['x-real-ip'] || null,\n    user_agent: headers['user-agent'] || null,\n    tipo: (ehObjeto && (corpo.type || corpo.event || corpo.tipo)) || null,\n    bruto: corpo,\n  },\n}];"
+      },
+      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+      "name": "Valida e normaliza",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c0000000-0000-4000-8000-000000000001",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0003-4000-8000-000000000003",
+      "name": "Corpo válido?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [520, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, id: $json.id, recebido_em: $json.recebido_em }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "a1b2c3d4-0004-4000-8000-000000000004",
+      "name": "Responde 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [800, -120]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, erro: $json.erro }) }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "a1b2c3d4-0005-4000-8000-000000000005",
+      "name": "Responde 400",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [800, 140]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "crystal-app/health",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0006-4000-8000-000000000006",
+      "name": "Health (GET, sem auth)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 320],
+      "webhookId": "crystal-app-health",
+      "notes": "Teste de alcance sem segredo: https://webhook.crystalnowpp.com.br/webhook/crystal-app/health"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s0000000-0000-4000-8000-000000000001",
+              "name": "status",
+              "value": "ok",
+              "type": "string"
+            },
+            {
+              "id": "s0000000-0000-4000-8000-000000000002",
+              "name": "servico",
+              "value": "crystal-app-webhook",
+              "type": "string"
+            },
+            {
+              "id": "s0000000-0000-4000-8000-000000000003",
+              "name": "agora",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0007-4000-8000-000000000007",
+      "name": "Status ok",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [260, 320]
+    }
+  ],
+  "connections": {
+    "Recebe do app (POST)": {
+      "main": [[{ "node": "Valida e normaliza", "type": "main", "index": 0 }]]
+    },
+    "Valida e normaliza": {
+      "main": [[{ "node": "Corpo válido?", "type": "main", "index": 0 }]]
+    },
+    "Corpo válido?": {
+      "main": [
+        [{ "node": "Responde 200", "type": "main", "index": 0 }],
+        [{ "node": "Responde 400", "type": "main", "index": 0 }]
+      ]
+    },
+    "Health (GET, sem auth)": {
+      "main": [[{ "node": "Status ok", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  },
+  "active": false,
+  "tags": []
+}
