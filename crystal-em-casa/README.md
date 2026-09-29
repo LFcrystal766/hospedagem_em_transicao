@@ -54,7 +54,7 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | Portainer e n8n | **Admin do Portainer e dono do n8n criados em 29/09** (dono recriado depois da última troca de segredos). `editor./healthz` responde ok. Lado do servidor da fase 1 fechado |
 | Supabase Pro + convite | **Feito em 29/09**: convite de Owner para `agencia@academialendaria.ai` na organização Pro do dashboard (decisão do Luiz). Enquanto Owner, a agência enxerga o projeto do dashboard também; rever o papel depois da transferência. Compute size do projeto: perguntar à agência |
 | GitHub | **Feito em 29/09**: repositório privado `LFcrystal766/crystal-ia` (com "ia", não "ai": ajustar `IMAGE_NAME` no workflow). E-mail da conta para o convite da agência: `crystal@leticiafelisberto.com`. Em 29/09 o Luiz também convidou `agencia@academialendaria.ai` como colaborador do `crystal-ia`, para eles poderem enviar o código direto. Token `write:packages` criado em 29/09 (90 dias, vence por volta de 28/12) e cadastrado no Portainer como registry `ghcr` |
-| Backup do n8n | **Feito em 29/09**: dump diário às 03:30 em `/root/crystal/backups`, 14 dias. Cópia fora da VPS: snapshot/backup semanal da Hostinger (conferir no hPanel). R2 do Cloudflare não está ativado na conta |
+| Backup | **Na VPS desde 29/09**: dump diário às 03:30 em `/root/crystal/backups`, 14 dias (n8n, banco do app e uploads). **Fora da VPS: código pronto em 29/09** (R2 cifrado com age e trava de 30 dias). Falta ativar o R2 na conta, criar o bucket e rodar `backup-chave` e `backup-fora-config` |
 | Firewall | **Feito em 29/09**: ufw com 22, 80 e 443. Portas do Swarm fora da internet |
 | Portainer restrito | **No ar desde 29/09** (`painel-restringir`): só o IP de casa do Luiz na lista. Conferido de fora: 403 fora da lista; do IP liberado, login e ambiente `primary` funcionando pelo agente na rede interna. Imagens presas em `portainer-ce`/`agent` 2.45.0 (digest). Falta o IP do Igor, se ele for usar |
 | Netlify | Conta criada em 29/09 (com o GitHub), segundo o Luiz. Sem API aqui para conferir |
@@ -201,6 +201,58 @@ os cabeçalhos; fora da lista → 403, inclusive com `X-Forwarded-For` forjado. 
 Swarm local, o Portainer alcança `tasks.agent:9001` e um vizinho da rede pública
 não resolve o agente.
 
+## Backup fora da VPS (Cloudflare R2, cifrado)
+
+Um ransomware na VPS apaga o backup que está nela. Por isso cada backup diário
+também sobe para um bucket do R2, com três travas:
+
+- **Cifrado na VPS com [age](https://age-encryption.org)**, para uma chave pública.
+  A chave privada existe só no Bitwarden: quem invadir a VPS acha a chave do R2,
+  mas não lê backup nenhum.
+- **Trava do bucket (bucket lock) de 30 dias**: nem com a chave do R2 dá para
+  apagar ou sobrescrever o que subiu.
+- **Token do R2 só daquele bucket**, "Object Read & Write". A chave vai ao curl pela
+  entrada padrão, nunca na linha de comando.
+
+Sobe: banco do n8n, banco do app e uploads do app. Não sobe segredo nenhum:
+`N8N_CHAVE`, `ENCRYPTION_KEY` e `CPF_SALT` ficam no Bitwarden, e sem eles as
+credenciais do n8n e os campos cifrados do app não abrem.
+
+**No Cloudflare (uma vez):**
+1. R2 > ativar (plano gratuito: 10 GB, sem custo de saída).
+2. Criar o bucket `crystal-backups`, localização automática.
+3. No bucket, Settings > **Bucket lock rules** > regra para todos os objetos,
+   retenção de **30 dias**.
+4. No bucket, Settings > **Object lifecycle rules** > apagar objetos com mais de
+   **60 dias**.
+5. R2 > Manage API tokens > criar token com **Object Read & Write**, só para o
+   bucket `crystal-backups`. Guardar Access Key ID e Secret Access Key no Bitwarden.
+
+**Na VPS (Web console):**
+```bash
+bash bootstrap-vps.sh backup-chave         # chave privada no less -> Bitwarden; confere os 6 últimos
+bash bootstrap-vps.sh backup-fora-config   # Account ID, bucket, Access Key, Secret (não aparece); testa
+bash bootstrap-vps.sh backup               # um backup agora, já indo para o R2
+bash bootstrap-vps.sh backup-conferir      # o que está no R2 e há quanto tempo
+```
+O `backup-fora-config` reinstala o cron das 03:30 com o script novo. O `status`
+avisa se o último envio ao R2 tem mais de 26 horas.
+
+**Restaurar (ou só testar, uma vez por mês), no Mac:**
+```bash
+brew install age
+# baixar o .age no painel do R2 (bucket > objeto > Download)
+# copiar a chave AGE-SECRET-KEY-... do Bitwarden e, sem colar em lugar nenhum:
+pbpaste | age -d -i - ~/Downloads/n8n_queue-AAAAMMDDTHHMMSSZ.sql.gz.age | gunzip | head -40
+```
+Para restaurar de verdade, sem o `head`: `... | gunzip > n8n.sql`, copiar para a
+VPS nova e `docker exec -i CID psql -U postgres -d n8n_queue < n8n.sql`.
+
+Ensaiado em 29/09 contra um S3 local que confere a assinatura (região `auto`, como
+o R2): envio dos três arquivos, listagem, chave errada recusada (403, backup falha
+e avisa), arquivo abre com a chave privada e não abre sem ela, chave privada nunca
+em arquivo, segredo do R2 nunca na tela, configuração errada não fica gravada.
+
 ## Ligar o canal do LendChat no app
 
 O app já sabe falar com uma inbox de API no formato do Chatwoot
@@ -245,7 +297,8 @@ no dashboard. Com a base de alunos e o canal ligados, o app deixa de usar simula
   `latest`. Vai para `.github/workflows/` do repositório privado do agente
   depois que a agência entregar o código. Dispensa build no Mac.
 - `bootstrap-vps.sh backup` e `backup-cron`: dump diário do banco do n8n em
-  `/root/crystal/backups`, 14 dias. A chave do n8n fica só no cofre.
+  `/root/crystal/backups`, 14 dias, e cópia cifrada no R2 (ver "Backup fora da
+  VPS"). A chave do n8n fica só no cofre.
 - Firewall da VPS pelo hPanel (VPS > Firewall): liberar só 22, 80 e 443.
   As portas do Swarm (2377, 7946, 4789) não precisam ficar públicas num nó só.
 - Portainer > Registries: cadastrar o ghcr.io com o token `write:packages`

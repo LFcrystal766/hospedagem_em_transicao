@@ -59,7 +59,8 @@ Toda mudança leva em conta ataque e malware, sem precisar pedir:
   `painel.` (Portainer) só para IPs liberados: `bootstrap-vps.sh painel-restringir`.
 - Atualização de segurança automática e bloqueio de força bruta no SSH
   (`bootstrap-vps.sh seguranca`); imagens com versão fixa, nunca `latest`.
-- Backup fora da VPS (ransomware apaga o que está na máquina).
+- Backup fora da VPS (ransomware apaga o que está na máquina): R2 cifrado com age,
+  chave privada só no Bitwarden, trava de 30 dias no bucket (`backup-fora-config`).
 - Entrada de fora é sempre validada; nada de `curl | bash` de origem que não seja
   este repositório com commit fixo.
 - 2FA em todas as contas: GitHub, Hostinger, Cloudflare, Supabase, OpenRouter,

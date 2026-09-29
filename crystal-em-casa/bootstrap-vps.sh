@@ -19,6 +19,11 @@
 #   bash bootstrap-vps.sh backup               pg_dump do banco do n8n em /root/crystal/backups
 #                                              (guarda 14 dias). A chave do n8n NÃO vai junto
 #   bash bootstrap-vps.sh backup-cron          agenda o backup todo dia às 03:30 (hora da VPS)
+#   bash bootstrap-vps.sh backup-chave         gera a chave dos backups: a privada aparece só no
+#                                              less (vai pro Bitwarden), a pública fica na VPS
+#   bash bootstrap-vps.sh backup-fora-config   dados do R2 (segredo sem aparecer), testa e agenda:
+#                                              cada backup sobe cifrado para o Cloudflare R2
+#   bash bootstrap-vps.sh backup-conferir      lista o que está no R2 e há quanto tempo foi o último
 #   bash bootstrap-vps.sh seguranca            atualização de segurança automática, fail2ban no SSH
 #                                              e relatório (senha no SSH, root, portas, pendências)
 #   bash bootstrap-vps.sh firewall             ufw: só 22, 80 e 443 de fora. As portas do Swarm
@@ -244,39 +249,213 @@ tudo()      { traefik; portainer; bancos; n8n; echo; status; }
 # chave de criptografia guardada SEPARADA. Aqui só o banco; a chave fica no
 # cofre. Um dump sem a chave não restaura credenciais, e é por isso que os
 # dois nunca andam juntos.
+BACKUPS="$BASE/backups"
+FORA_CONF="$BASE/.backup-fora"            # conta, bucket e chave do R2 (chmod 600)
+FORA_DEST="$BASE/.backup-destinatario"    # chave PÚBLICA do age; a privada fica só no Bitwarden
+FORA_PREFIXO=vps-crystal
+
 backup() {
-  local dir="$BASE/backups" cid
+  local dir="$BACKUPS" cid ts novos=()
   mkdir -p "$dir"; chmod 700 "$dir"
+  ts=$(date -u +%Y%m%dT%H%M%SZ)
+  echo "== backup $ts"
   cid=$(docker ps -q -f name=n8n_postgres_n8n_postgres | head -1)
   [ -n "$cid" ] || falha "contêiner do Postgres do n8n não está rodando"
-  local arq="$dir/n8n_queue-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
+  local arq="$dir/n8n_queue-$ts.sql.gz"
   umask 077
   docker exec "$cid" pg_dump -U postgres -d n8n_queue --no-owner | gzip > "$arq" || falha "pg_dump falhou"
   [ -s "$arq" ] || falha "dump vazio em $arq"
   ok "backup em $arq ($(du -h "$arq" | cut -f1))"
-  find "$dir" -name 'n8n_queue-*.sql.gz' -mtime +14 -delete
-  echo "  $(ls "$dir" | wc -l) backup(s) guardados. Restaurar: gunzip -c ARQ | docker exec -i CID psql -U postgres -d n8n_queue"
+  novos+=("$arq")
+  echo "  Restaurar: gunzip -c ARQ | docker exec -i CID psql -U postgres -d n8n_queue"
   echo "  Lembrete: o backup só restaura credenciais com a N8N_CHAVE do cofre."
 
   # Banco do app, se a stack crystal_app estiver no ar. Campos cifrados e o
   # hash do CPF só se leem com ENCRYPTION_KEY e CPF_SALT, que ficam no cofre.
   cid=$(docker ps -q -f name=crystal_app_app_postgres | head -1)
   if [ -n "$cid" ]; then
-    arq="$dir/crystal_web_chat-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
+    arq="$dir/crystal_web_chat-$ts.sql.gz"
     docker exec "$cid" pg_dump -U crystal -d crystal_web_chat --no-owner | gzip > "$arq" || falha "pg_dump do app falhou"
     [ -s "$arq" ] || falha "dump do app vazio em $arq"
     ok "backup do app em $arq ($(du -h "$arq" | cut -f1))"
-    find "$dir" -name 'crystal_web_chat-*.sql.gz' -mtime +14 -delete
+    novos+=("$arq")
+  fi
+  # Arquivos que os alunos mandam pelo app (imagem, áudio).
+  local up=/var/lib/docker/volumes/${APP_STACK}_app_uploads/_data
+  if [ -d "$up" ]; then
+    arq="$dir/crystal_uploads-$ts.tar.gz"
+    tar -C "$up" -czf "$arq" . || falha "tar dos uploads falhou"
+    ok "uploads do app em $arq ($(du -h "$arq" | cut -f1))"
+    novos+=("$arq")
+  fi
+  find "$dir" -maxdepth 1 \( -name 'n8n_queue-*' -o -name 'crystal_web_chat-*' -o -name 'crystal_uploads-*' \) -mtime +14 -delete
+  echo "  $(find "$dir" -maxdepth 1 -name '*.gz' | wc -l) arquivo(s) na VPS (14 dias)"
+
+  if [ -s "$FORA_CONF" ] && [ -s "$FORA_DEST" ]; then
+    backup_fora "${novos[@]}"
+  else
+    aviso "cópia fora da VPS não configurada (backup-chave e backup-fora-config)"
   fi
 }
 
 backup_cron() {
-  local linha="30 3 * * * root /usr/bin/bash $BASE/bootstrap-vps.sh backup >> $BASE/backups/backup.log 2>&1"
+  local linha="30 3 * * * root /usr/bin/bash $BASE/bootstrap-vps.sh backup >> $BACKUPS/backup.log 2>&1"
+  mkdir -p "$BACKUPS"; chmod 700 "$BACKUPS"
   cp "$AQUI/$(basename "$0")" "$BASE/bootstrap-vps.sh" 2>/dev/null || true
   printf '%s\n' "$linha" > /etc/cron.d/crystal-backup-n8n
   chmod 644 /etc/cron.d/crystal-backup-n8n
-  ok "cron instalado em /etc/cron.d/crystal-backup-n8n: todo dia 03:30, log em $BASE/backups/backup.log"
-  echo "  Fora da VPS: copiar $BASE/backups/ pra outro lugar de tempos em tempos (a VPS sumir leva o backup junto)."
+  ok "cron instalado em /etc/cron.d/crystal-backup-n8n: todo dia 03:30, log em $BACKUPS/backup.log"
+  if [ -s "$FORA_CONF" ]; then ok "cada backup também vai cifrado para o R2"
+  else aviso "só na VPS por enquanto: falta backup-chave e backup-fora-config"; fi
+}
+
+# ------------------------------------------------------------------ backup fora da VPS
+# Cada arquivo do backup é cifrado aqui com age, para a chave PÚBLICA, e sobe para
+# um bucket do Cloudflare R2 com trava (bucket lock) de 30 dias. Quem invadir a
+# VPS acha a chave do R2, mas:
+#   - não lê os backups: a chave privada nunca fica na VPS;
+#   - não apaga nem sobrescreve: a trava do bucket recusa, mesmo com a chave.
+# Envio pelo curl (assinatura S3 v4), sem instalar cliente; a chave do R2 vai ao
+# curl pela entrada padrão, nunca na linha de comando (que aparece no ps).
+fora_ler_conf() {
+  [ -s "$FORA_CONF" ] || falha "R2 não configurado: bash $0 backup-fora-config"
+  R2_CONTA=$(app_valor "$FORA_CONF" R2_CONTA); R2_BUCKET=$(app_valor "$FORA_CONF" R2_BUCKET)
+  R2_CHAVE_ID=$(app_valor "$FORA_CONF" R2_CHAVE_ID); R2_SEGREDO=$(app_valor "$FORA_CONF" R2_SEGREDO)
+  R2_URL="${R2_ENDPOINT:-https://$R2_CONTA.r2.cloudflarestorage.com}/$R2_BUCKET"
+}
+
+fora_curl() { # fora_curl ARGS... (credenciais pela entrada padrão)
+  printf 'user = "%s:%s"\n' "$R2_CHAVE_ID" "$R2_SEGREDO" \
+    | curl -K - -s -m 300 --aws-sigv4 "aws:amz:${R2_REGIAO:-auto}:s3" "$@"
+}
+
+fora_enviar() { # fora_enviar ARQUIVO CHAVE_NO_BUCKET -> 0 se o R2 confirmou
+  local sha code resp
+  sha=$(sha256sum "$1" | cut -d' ' -f1)
+  resp=$(mktemp)
+  code=$(fora_curl -o "$resp" -w '%{http_code}' -T "$1" -H "x-amz-content-sha256: $sha" "$R2_URL/$2") || code=000
+  if [ "$code" = 200 ]; then rm -f "$resp"; return 0; fi
+  aviso "R2 respondeu $code para $2: $(head -c 300 "$resp" | tr -d '\n')"
+  rm -f "$resp"; return 1
+}
+
+backup_fora() { # backup_fora ARQUIVO... cifra e envia; falha se algum não subir
+  command -v age >/dev/null || falha "age não instalado: bash $0 backup-chave"
+  fora_ler_conf
+  local dest a obj tmp erros=0
+  dest=$(cat "$FORA_DEST")
+  echo "== fora da VPS (R2, bucket $R2_BUCKET)"
+  for a in "$@"; do
+    obj="$FORA_PREFIXO/$(basename "$a" | sed -E 's/-[0-9]{8}T.*//')/$(date -u +%Y/%m)/$(basename "$a").age"
+    tmp=$(mktemp "$BACKUPS/.envio.XXXXXX")
+    if age -r "$dest" -o "$tmp" "$a" && fora_enviar "$tmp" "$obj"; then
+      ok "$obj ($(du -h "$tmp" | cut -f1), cifrado)"
+    else
+      erros=$((erros+1))
+    fi
+    rm -f "$tmp"
+  done
+  [ "$erros" -eq 0 ] || falha "$erros arquivo(s) não subiram para o R2. Ficaram só na VPS"
+  date -u +%FT%TZ > "$BACKUPS/.fora-ultimo"
+}
+
+backup_chave() {
+  if [ -s "$FORA_DEST" ] && [ "${1:-}" != "--nova" ]; then
+    ok "já existe chave: $(cat "$FORA_DEST")"
+    echo "  Trocar só se a privada se perdeu ou vazou: bash $0 backup-chave --nova"
+    echo "  (os backups antigos continuam abrindo só com a chave antiga)"
+    return 0
+  fi
+  [ -t 0 ] && [ -t 1 ] || falha "rode num terminal (a chave aparece só no less)"
+  command -v age-keygen >/dev/null || { apt-get -qq update >/dev/null; DEBIAN_FRONTEND=noninteractive apt-get -y -qq install age >/dev/null || falha "não instalou o age"; }
+  local pub priv fim tent
+  # Só em variável: a chave privada nunca é gravada em arquivo na VPS.
+  priv=$(age-keygen 2>/dev/null | grep -E '^AGE-SECRET-KEY-1[0-9A-Z]+$' || true)
+  pub=$(printf '%s\n' "$priv" | age-keygen -y 2>/dev/null || true)
+  [ -n "$priv" ] && echo "$pub" | grep -Eq '^age1[0-9a-z]+$' || falha "age-keygen não gerou a chave"
+  for tent in 1 2 3; do
+    {
+      echo "CHAVE PRIVADA DOS BACKUPS. Copie a linha AGE-SECRET-KEY-... inteira para um item"
+      echo "novo no Bitwarden (\"Crystal backup age\"). Sem ela, NENHUM backup abre."
+      echo "Ela não fica na VPS: ao fechar (q), some. Não cole em chat nem em e-mail."
+      echo
+      echo "$priv"
+      echo
+      echo "(chave pública, que fica na VPS: $pub)"
+    } | less -K
+    read -rp "Digite os 6 ÚLTIMOS caracteres da chave, lendo do Bitwarden: " fim
+    fim=$(echo "$fim" | tr -d ' ' | tr '[:lower:]' '[:upper:]')
+    if [ "${#fim}" -eq 6 ] && [ "${priv: -6}" = "$fim" ]; then
+      umask 077; echo "$pub" > "$FORA_DEST"; chmod 600 "$FORA_DEST"
+      priv=""
+      ok "chave pública gravada em $FORA_DEST; a privada só no Bitwarden"
+      echo "Próximo: bash $0 backup-fora-config"
+      return 0
+    fi
+    aviso "não confere. Mostrando de novo ($tent de 3)"
+  done
+  priv=""
+  falha "nada gravado. Rode de novo quando der para salvar no Bitwarden"
+}
+
+backup_fora_config() {
+  [ -s "$FORA_DEST" ] || falha "primeiro: bash $0 backup-chave"
+  [ -t 0 ] || falha "rode num terminal"
+  local conta bucket id seg t
+  echo "Dados do R2 (Cloudflare > R2). O segredo não aparece enquanto você digita."
+  read -rp "Account ID (32 caracteres, na página inicial do R2): " conta
+  echo "$conta" | grep -Eq '^[0-9a-f]{32}$' || falha "Account ID inválido"
+  read -rp "Nome do bucket [crystal-backups]: " bucket; bucket=${bucket:-crystal-backups}
+  echo "$bucket" | grep -Eq '^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$' || falha "nome de bucket inválido"
+  read -rp "Access Key ID (32 caracteres): " id
+  echo "$id" | grep -Eq '^[0-9a-f]{32}$' || falha "Access Key ID inválido (é o de 32 caracteres, não o token de 40)"
+  read -rsp "Secret Access Key (64 caracteres, não aparece): " seg; echo
+  echo "$seg" | grep -Eq '^[0-9a-f]{64}$' || { seg=""; falha "Secret Access Key inválida (64 caracteres hexadecimais)"; }
+  mkdir -p "$BACKUPS"; chmod 700 "$BACKUPS"
+  umask 077
+  printf 'R2_CONTA=%s\nR2_BUCKET=%s\nR2_CHAVE_ID=%s\nR2_SEGREDO=%s\n' "$conta" "$bucket" "$id" "$seg" > "$FORA_CONF.novo"
+  seg=""
+  echo "== teste de envio"
+  local conf_ok=0
+  mv "$FORA_CONF.novo" "$FORA_CONF"; chmod 600 "$FORA_CONF"
+  fora_ler_conf
+  t=$(mktemp "$BACKUPS/.teste.XXXXXX")
+  echo "teste $(date -u +%FT%TZ)" | age -r "$(cat "$FORA_DEST")" -o "$t"
+  fora_enviar "$t" "$FORA_PREFIXO/teste/$(date -u +%Y%m%dT%H%M%SZ).age" && conf_ok=1
+  rm -f "$t"
+  if [ "$conf_ok" -ne 1 ]; then
+    rm -f "$FORA_CONF"
+    falha "o envio de teste falhou (Account ID, bucket ou chave?). Nada gravado; rode de novo"
+  fi
+  ok "R2 aceitou o envio; dados gravados em $FORA_CONF"
+  backup_cron
+  echo "Próximo: bash $0 backup   (faz um backup agora e manda pro R2)"
+}
+
+backup_conferir() {
+  fora_ler_conf
+  local xml code
+  xml=$(mktemp)
+  code=$(fora_curl -o "$xml" -w '%{http_code}' "$R2_URL?list-type=2&prefix=$FORA_PREFIXO") || code=000
+  if [ "$code" != 200 ]; then aviso "listagem do R2 respondeu $code: $(head -c 300 "$xml")"; rm -f "$xml"; exit 1; fi
+  python3 - "$xml" <<'PY'
+import sys, datetime, xml.etree.ElementTree as ET
+ns = {'s': 'http://s3.amazonaws.com/doc/2006-03-01/'}
+itens = [(c.find('s:Key', ns).text, int(c.find('s:Size', ns).text), c.find('s:LastModified', ns).text)
+         for c in ET.parse(sys.argv[1]).getroot().findall('s:Contents', ns)]
+itens.sort(key=lambda i: i[2])
+print(f"  {len(itens)} objeto(s) no R2 (a listagem mostra até 1000)")
+for k, t, m in itens[-9:]:
+    print(f"  {m[:19].replace('T', ' ')}  {t/1024:9.1f} KB  {k}")
+reais = [i for i in itens if '/teste/' not in i[0]]
+if reais:
+    ult = datetime.datetime.fromisoformat(reais[-1][2].replace('Z', '+00:00'))
+    h = (datetime.datetime.now(datetime.timezone.utc) - ult).total_seconds() / 3600
+    print(("  ok" if h < 26 else "  !") + f" último backup no R2 há {h:.0f} h")
+else:
+    print("  ! nenhum backup de verdade no R2 ainda")
+PY
+  rm -f "$xml"
 }
 
 # ------------------------------------------------------------------ firewall
@@ -492,6 +671,12 @@ status() {
       *) aviso "https://$h.$DOMINIO -> $code" ;;
     esac
   done
+  if [ -s "$FORA_CONF" ] && [ -s "$BACKUPS/.fora-ultimo" ]; then
+    local h; h=$(( ($(date +%s) - $(date -d "$(cat "$BACKUPS/.fora-ultimo")" +%s)) / 3600 ))
+    if [ "$h" -lt 26 ]; then ok "último backup no R2 há ${h} h"; else aviso "último backup no R2 há ${h} h: ver $BACKUPS/backup.log"; fi
+  else
+    aviso "backup fora da VPS não configurado (backup-chave, backup-fora-config)"
+  fi
   if [ -s "$PAINEL_IPS_ARQ" ]; then
     echo "  painel. liberado só para: $(paste -sd' ' "$PAINEL_IPS_ARQ")"
   else
@@ -1025,6 +1210,9 @@ case "$CMD" in
   docker-api) docker_api ;;
   backup) backup ;;
   backup-cron) backup_cron ;;
+  backup-chave) shift; backup_chave "$@" ;;
+  backup-fora-config) backup_fora_config ;;
+  backup-conferir) backup_conferir ;;
   firewall) firewall ;;
   seguranca) seguranca ;;
   painel-restringir) shift; painel_restringir "$@" ;;
