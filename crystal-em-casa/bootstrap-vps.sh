@@ -388,7 +388,16 @@ app_definir() {
       if [ "$item" != "$nome" ]; then secreto=1; fi
     fi
   done
-  [ "$aceito" -eq 1 ] || falha "$nome não é aceito. Rode 'bash $0 app-definir' pra ver a lista"
+  if [ "$aceito" -ne 1 ]; then
+    # Nunca repetir o que foi digitado: quase sempre é um segredo colado no
+    # lugar do nome, e aí ele iria pra tela e pra captura do terminal.
+    case "$nome" in
+      re_*|ghp_*|github_pat_*|sk-*|sk_*|eyJ*)
+        falha "isso parece uma CHAVE, não um nome. A chave nunca vai na linha de comando. Rode só: bash $0 app-definir RESEND_API_KEY  e cole a chave quando ele perguntar. Troque essa chave no painel de origem: ela ficou no histórico do terminal (limpe com: history -c && history -w)" ;;
+      *)
+        falha "o primeiro argumento tem que ser um NOME da lista (ex.: RESEND_API_KEY). Rode 'bash $0 app-definir' pra ver a lista" ;;
+    esac
+  fi
   if [ "$secreto" -eq 1 ]; then
     read -rsp "$nome (não aparece na tela): " v; echo
   else
