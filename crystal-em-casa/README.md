@@ -52,7 +52,8 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | GitHub | **Feito em 29/09**: repositório privado `LFcrystal766/crystal-ia` (com "ia", não "ai": ajustar `IMAGE_NAME` no workflow). E-mail da conta para o convite da agência: `crystal@leticiafelisberto.com`. Token `write:packages` criado em 29/09 (90 dias, vence por volta de 28/12) e cadastrado no Portainer como registry `ghcr` |
 | Backup do n8n | **Feito em 29/09**: dump diário às 03:30 em `/root/crystal/backups`, 14 dias. Cópia fora da VPS: snapshot/backup semanal da Hostinger (conferir no hPanel). R2 do Cloudflare não está ativado na conta |
 | Firewall | **Feito em 29/09**: ufw com 22, 80 e 443. Portas do Swarm fora da internet |
-| Netlify, Telegram | Faltam |
+| Netlify | Conta criada em 29/09 (com o GitHub), segundo o Luiz. Sem API aqui para conferir |
+| Telegram | Falta (opcional, recomendado) |
 | Respostas da agência | Compute size do Supabase, dono da conta OpenRouter, quem monta a fase 1 |
 
 Boston em vez de São Paulo não fere o guia: o tempo do atendimento é dominado
