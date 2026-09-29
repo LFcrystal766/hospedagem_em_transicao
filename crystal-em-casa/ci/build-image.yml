@@ -13,11 +13,10 @@
 #      "Read and write permissions" (o GITHUB_TOKEN publica o pacote sozinho;
 #      não precisa do token classic pra isso).
 #   3. Publicar uma versão: git tag v1.0.0 && git push origin v1.0.0
-#   4. A imagem sai em ghcr.io/<organizacao>/crystal-ai:v1.0.0. Na VPS, o
+#   4. A imagem sai em ghcr.io/lfcrystal766/crystal-ia:v1.0.0 (o nome segue o do repositório). Na VPS, o
 #      Portainer precisa da credencial do ghcr.io (Registries > Add) pra puxar.
 #
-# Ajustar: IMAGE_NAME se o repositório não se chamar crystal-ai, e o caminho
-# do Dockerfile se a agência entregar em outra pasta.
+# Ajustar: o caminho do Dockerfile (context) se a agência entregar em outra pasta.
 
 name: build-image
 
@@ -32,7 +31,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/crystal-ai
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build:

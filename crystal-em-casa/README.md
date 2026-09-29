@@ -49,7 +49,8 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | Segredos | **Trocados em 29/09** (`recomecar-n8n`), guardados no cofre, fora do chat. E-mail do Let's Encrypt: `crystal@leticiafelisberto.com` |
 | Portainer e n8n | **Admin do Portainer e dono do n8n criados em 29/09.** `editor./healthz` responde ok. Lado do servidor da fase 1 fechado |
 | Supabase Pro + convite | **Feito em 29/09**: convite de Owner para `agencia@academialendaria.ai` na organização Pro do dashboard (decisão do Luiz). Enquanto Owner, a agência enxerga o projeto do dashboard também; rever o papel depois da transferência. Compute size do projeto: perguntar à agência |
-| GitHub, Netlify, Telegram | Faltam |
+| GitHub | **Feito em 29/09**: repositório privado `LFcrystal766/crystal-ia` (com "ia", não "ai": ajustar `IMAGE_NAME` no workflow). E-mail da conta para o convite da agência: `crystal@leticiafelisberto.com`. Token `write:packages` fica para a fase 2 |
+| Netlify, Telegram | Faltam |
 | Respostas da agência | Compute size do Supabase, dono da conta OpenRouter, quem monta a fase 1 |
 
 Boston em vez de São Paulo não fere o guia: o tempo do atendimento é dominado
@@ -78,7 +79,7 @@ Os segredos nunca passam pelo chat nem pelo repositório.
 ## Preparar a fase 2 sem depender da agência
 
 - `ci/build-image.yml`: workflow do GitHub Actions que constrói a imagem do
-  agente em linux/amd64 e publica em `ghcr.io/<org>/crystal-ai:<tag>`, sem
+  agente em linux/amd64 e publica em `ghcr.io/lfcrystal766/crystal-ia:<tag>`, sem
   `latest`. Vai para `.github/workflows/` do repositório privado do agente
   depois que a agência entregar o código. Dispensa build no Mac.
 - `bootstrap-vps.sh backup` e `backup-cron`: dump diário do banco do n8n em
