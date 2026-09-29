@@ -48,7 +48,7 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | Stacks 00 a 06 | **No ar desde 29/09**, 8 serviços 1/1. O Traefik só passou a rotear depois de `docker-api` (Docker 29 recusava a API 1.24 do Traefik v2.11.3). Conferido de fora: `painel` e `editor` respondem 200 em HTTPS, `webhook` 404 na raiz (normal: só serve `/webhook/*`) |
 | Segredos | **Trocados em 29/09** (`recomecar-n8n`), guardados no cofre, fora do chat. E-mail do Let's Encrypt: `crystal@leticiafelisberto.com` |
 | Portainer e n8n | **Admin do Portainer e dono do n8n criados em 29/09.** `editor./healthz` responde ok. Lado do servidor da fase 1 fechado |
-| Supabase Pro + convite | Já existe uma organização Pro (a do dashboard). Decidir: convidar a agência nela (Owner enxerga o projeto do dashboard também) ou criar uma organização só para a Crystal (+US$ 25/mês, separação limpa). Compute size do projeto: perguntar à agência |
+| Supabase Pro + convite | **Feito em 29/09**: convite de Owner para `agencia@academialendaria.ai` na organização Pro do dashboard (decisão do Luiz). Enquanto Owner, a agência enxerga o projeto do dashboard também; rever o papel depois da transferência. Compute size do projeto: perguntar à agência |
 | GitHub, Netlify, Telegram | Faltam |
 | Respostas da agência | Compute size do Supabase, dono da conta OpenRouter, quem monta a fase 1 |
 
