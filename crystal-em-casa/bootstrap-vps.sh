@@ -13,7 +13,10 @@
 #   bash bootstrap-vps.sh tudo                 os quatro acima, na ordem
 #   bash bootstrap-vps.sh status               serviços + HTTPS dos três nomes
 #   bash bootstrap-vps.sh segredos             mostra a senha do banco e a chave do n8n,
-#                                              pra copiar pro cofre (Bitwarden)
+#                                              pra copiar pro cofre (Bitwarden). Não colar em chat
+#   bash bootstrap-vps.sh recomecar-n8n EMAIL --confirmo
+#                                              só ANTES de o n8n ter fluxo salvo: apaga o banco
+#                                              do n8n e refaz com segredos novos
 #
 # Onde ficam as coisas:
 #   /root/crystal/.segredos      senha do banco e chave de criptografia (chmod 600).
@@ -41,7 +44,7 @@ falha() { echo "ERRO: $*" >&2; exit 2; }
 ok() { echo "  ok $*"; }
 aviso() { echo "  ! $*"; }
 
-[ -n "$CMD" ] || { sed -n '2,29p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ -n "$CMD" ] || { sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 
 # ------------------------------------------------------------------ fundação
 conferir_fundacao() {
@@ -176,13 +179,44 @@ status() {
 
 segredos() {
   [ -f "$SEGREDOS" ] || falha "ainda não há segredos: rode 'preparar'"
-  echo "Copie os dois pro cofre (Bitwarden), em itens separados:"
+  echo "Copie os dois pro cofre (Bitwarden), em itens separados. NÃO cole esta saída em chat nem em documento:"
   grep -E '^(DB_SENHA|N8N_CHAVE)=' "$SEGREDOS" | sed 's/^/  /'
   echo "A chave N8N_CHAVE nunca pode mudar. Sem ela, um backup do banco do n8n não restaura as credenciais."
 }
 
+# Só serve ANTES de o n8n ter qualquer fluxo ou credencial salva. Apaga o banco
+# do n8n, os segredos e refaz tudo com segredos novos. Uso:
+#   bash bootstrap-vps.sh recomecar-n8n SEU_EMAIL --confirmo
+recomecar_n8n() {
+  local email="${2:-}" conf="${3:-}"
+  [ "$conf" = "--confirmo" ] || falha "isto apaga o banco do n8n. Se for isso mesmo: bash $0 recomecar-n8n SEU_EMAIL --confirmo"
+  [ -n "$email" ] || falha "informe o e-mail do Let's Encrypt"
+  if docker service ls --format '{{.Name}}' | grep -q '^n8n_editor$'; then
+    local fluxos
+    fluxos=$(docker exec "$(docker ps -q -f name=n8n_postgres_n8n_postgres | head -1)" \
+      psql -U postgres -d n8n_queue -tAc 'select count(*) from workflow_entity' 2>/dev/null || echo "?")
+    [ "$fluxos" = "0" ] || [ "$fluxos" = "?" ] || falha "o n8n já tem $fluxos fluxo(s) salvos. Trocar a chave agora os tornaria ilegíveis. Não recomece"
+  fi
+  echo "== removendo stacks do n8n"
+  docker stack rm n8n_worker n8n_webhook n8n_editor n8n_redis n8n_postgres 2>/dev/null || true
+  local t=0
+  while docker ps -q -f name=n8n_ | grep -q . && [ $t -lt 90 ]; do sleep 3; t=$((t+3)); done
+  echo "== recriando os volumes do n8n (banco antigo apagado)"
+  docker volume rm n8n_postgres_data n8n_redis_data >/dev/null
+  docker volume create n8n_postgres_data >/dev/null
+  docker volume create n8n_redis_data >/dev/null
+  rm -f "$SEGREDOS"
+  preparar preparar "$email"
+  # O Traefik também é regravado (e-mail do ACME). Se a conta ACME já existe no
+  # acme.json, o e-mail antigo fica; não importa: o Let's Encrypt não manda mais
+  # aviso de vencimento por e-mail desde 2025 e o Traefik renova sozinho.
+  docker stack deploy -c "$STACKS/00-traefik.yaml" traefik --detach=true >/dev/null
+  bancos; n8n; echo; status
+}
+
 case "$CMD" in
   preparar) preparar "$@" ;;
+  recomecar-n8n) recomecar_n8n "$@" ;;
   traefik|portainer|bancos|n8n|tudo|status|segredos) "$CMD" ;;
   *) falha "comando desconhecido: $CMD" ;;
 esac
