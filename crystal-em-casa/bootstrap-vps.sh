@@ -6,6 +6,8 @@
 # Roda NA VPS, como root. Uso:
 #   bash bootstrap-vps.sh preparar SEU_EMAIL   baixa os yaml, gera os segredos (uma vez só)
 #                                              e grava os arquivos prontos em /root/crystal/stacks
+#   bash bootstrap-vps.sh docker-api           Docker 29 recusa o Traefik v2 (API 1.24): grava
+#                                              min-api-version=1.24 no daemon.json e reinicia o Docker
 #   bash bootstrap-vps.sh traefik              sobe 00 e espera ficar 1/1
 #   bash bootstrap-vps.sh portainer            sobe 01
 #   bash bootstrap-vps.sh bancos               sobe 02 e 03
@@ -44,7 +46,7 @@ falha() { echo "ERRO: $*" >&2; exit 2; }
 ok() { echo "  ok $*"; }
 aviso() { echo "  ! $*"; }
 
-[ -n "$CMD" ] || { sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ -n "$CMD" ] || { sed -n '2,34p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 
 # ------------------------------------------------------------------ fundação
 conferir_fundacao() {
@@ -62,6 +64,35 @@ conferir_fundacao() {
     docker node update --label-add app=n8n "$no" >/dev/null
   fi
   ok "Swarm ativo, rede overlay, 4 volumes e rótulo app=n8n em $no"
+  local min; min=$(docker version --format '{{.Server.MinAPIVersion}}' 2>/dev/null || echo "?")
+  [ "$min" = "1.24" ] || aviso "o daemon exige API $min e o Traefik v2 usa 1.24: rode 'bash $0 docker-api' antes de subir o Traefik"
+}
+
+# ------------------------------------------------------------------ docker-api
+# O Traefik v2.11 da agência fala com o Docker pela API 1.24. O Docker 29 exige
+# 1.44 por padrão e recusa o Traefik ("client version 1.24 is too old"): sem
+# isso o Traefik não descobre serviço nenhum e não pede certificado. A saída
+# documentada é baixar o piso do daemon em /etc/docker/daemon.json.
+docker_api() {
+  local min; min=$(docker version --format '{{.Server.MinAPIVersion}}' 2>/dev/null || echo "?")
+  if [ "$min" = "1.24" ]; then ok "daemon já aceita API 1.24"; return 0; fi
+  echo "  piso atual do daemon: $min. Gravando min-api-version=1.24 em /etc/docker/daemon.json"
+  python3 - <<'PY'
+import json, os
+p = '/etc/docker/daemon.json'
+d = {}
+if os.path.exists(p) and os.path.getsize(p) > 0:
+    d = json.load(open(p))
+d['min-api-version'] = '1.24'
+json.dump(d, open(p, 'w'), indent=2)
+PY
+  dockerd --validate --config-file=/etc/docker/daemon.json >/dev/null || falha "daemon.json inválido; ver /etc/docker/daemon.json"
+  systemctl restart docker
+  local t=0
+  until docker info >/dev/null 2>&1 || [ $t -ge 60 ]; do sleep 3; t=$((t+3)); done
+  min=$(docker version --format '{{.Server.MinAPIVersion}}' 2>/dev/null || echo "?")
+  [ "$min" = "1.24" ] && ok "daemon reiniciado, piso da API = 1.24" || falha "piso continua $min"
+  echo "  os serviços do Swarm voltam sozinhos em até 1 min. Depois: bash $0 status"
 }
 
 # ------------------------------------------------------------------ preparar
@@ -223,6 +254,7 @@ recomecar_n8n() {
 case "$CMD" in
   preparar) preparar "$@" ;;
   recomecar-n8n) recomecar_n8n "$@" ;;
+  docker-api) docker_api ;;
   traefik|portainer|bancos|n8n|tudo|status|segredos) "$CMD" ;;
   *) falha "comando desconhecido: $CMD" ;;
 esac

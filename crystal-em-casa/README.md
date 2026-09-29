@@ -45,7 +45,7 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | VPS | **Contratada.** Hostinger KVM 4: 4 vCPU, 16 GB, 200 GB, Ubuntu 24.04, Boston (EUA), IP `177.7.61.136`. Porta 80 ainda fechada (nada instalado) |
 | DNS `painel`, `editor`, `webhook` | **Feito em 29/09**, pelo painel: A → `177.7.61.136`, cinza. Conferido de fora (AdGuard DoH) |
 | Docker + Swarm, rede, volumes, label do nó | **Feito em 29/09** pelo Web console: Docker 29.8.1, Swarm ativo (nó `srv2006998`, manager), rede overlay e 4 volumes. O rótulo `app=n8n` o `bootstrap-vps.sh` aplica se faltar |
-| Stacks 00 a 06 | **Próximo.** `bootstrap-vps.sh preparar EMAIL` e depois `tudo` |
+| Stacks 00 a 06 | **No ar desde 29/09**, 8 serviços 1/1. Traefik só passou a emitir certificado depois de `docker-api` (Docker 29 recusava a API 1.24 do Traefik v2.11.3) |
 | Supabase Pro + convite | Falta. Antes, perguntar à agência o compute size do projeto |
 | GitHub, Netlify, Telegram | Faltam |
 | Respostas da agência | Compute size do Supabase, dono da conta OpenRouter, quem monta a fase 1 |
@@ -64,6 +64,7 @@ máquina** (`/root/crystal/.segredos`, uma vez só), grava os arquivos prontos e
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/claude/gracious-shannon-6x9l5j/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+bash bootstrap-vps.sh docker-api                  # Docker 29 x Traefik v2: piso da API em 1.24
 bash bootstrap-vps.sh preparar voce@exemplo.com   # e-mail do Let's Encrypt
 bash bootstrap-vps.sh segredos                    # copiar os dois pro cofre
 bash bootstrap-vps.sh tudo                        # traefik → portainer → bancos → n8n
