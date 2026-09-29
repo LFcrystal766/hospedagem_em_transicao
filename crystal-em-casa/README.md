@@ -38,13 +38,13 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 - Fase 1 termina com os 16 pontos de "Base pronta" verdadeiros; aí avisa a
   agência e a fase 2 começa (código, transferência do Supabase, imagem, ensaio, corte).
 
-## Situação em 28/09/2026
+## Situação em 29/09/2026
 
 | Item | Estado |
 |---|---|
 | VPS | **Contratada.** Hostinger KVM 4: 4 vCPU, 16 GB, 200 GB, Ubuntu 24.04, Boston (EUA), IP `177.7.61.136`. Porta 80 ainda fechada (nada instalado) |
-| DNS `painel`, `editor`, `webhook` | **Faltam.** NXDOMAIN em 28/09. Criar cinza, A → `177.7.61.136`, com `scripts/cloudflare-crystal-vps-dns.sh criar --aplicar` (precisa do token com DNS Edit) ou pelo painel |
-| Docker + Swarm, rede, volumes, label do nó | Faltam. Só depois do DNS |
+| DNS `painel`, `editor`, `webhook` | **Feito em 29/09**, pelo painel: A → `177.7.61.136`, cinza. Conferido de fora (AdGuard DoH) |
+| Docker + Swarm, rede, volumes, label do nó | **Próximo.** Pelo Web console da Hostinger |
 | Stacks 00 a 06 | Faltam |
 | Supabase Pro + convite | Falta. Antes, perguntar à agência o compute size do projeto |
 | GitHub, Netlify, Telegram | Faltam |

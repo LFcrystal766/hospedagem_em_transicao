@@ -50,13 +50,10 @@ Independe dos degraus do site. Detalhes em `crystal-em-casa/README.md`.
 
 11. **VPS contratada em 28/09**: Hostinger KVM 4, Ubuntu 24.04, Boston, IP
     `177.7.61.136`. Falta tudo o que vem depois.
-12. **DNS dos três nomes** (`painel`, `editor`, `webhook` → `177.7.61.136`,
-    **nuvem cinza**). Dois caminhos:
-    - Sessão do Claude, com `CLOUDFLARE_API_TOKEN` (DNS Edit) no ambiente:
-      `scripts/cloudflare-crystal-vps-dns.sh criar --aplicar`
-    - Painel do Cloudflare (DNS > Records > Add record), Proxy status = DNS only.
-      Depois: `scripts/cloudflare-crystal-vps-dns.sh conferir` prova os três
-    Não criar antes de o token novo existir nem na mesma madrugada do degrau 2.
+12. **DNS dos três nomes: feito em 29/09** (`painel`, `editor`, `webhook` →
+    `177.7.61.136`, cinza, pelo painel). Conferido de fora: os três respondem
+    o IP da VPS. Reconferir a qualquer hora com
+    `scripts/cloudflare-crystal-vps-dns.sh conferir`.
 13. **Três respostas da agência** antes de contratar o Supabase: compute size
     do projeto da Crystal, dono da conta OpenRouter, quem monta a fase 1.
 14. **Docker + Swarm** pelo Web console da Hostinger, depois as stacks 00 a 06

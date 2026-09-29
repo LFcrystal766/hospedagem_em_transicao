@@ -53,3 +53,11 @@ e-mail no item `decidir-email`.
    `aldo`/`jule`). Conferir com `scripts/cloudflare-crystal-vps-dns.sh conferir`.
 2. Decidir `ftp` antes do degrau 2 (A cinza se houver conta FTP em uso; senão apagar).
 3. Registrar de quem é o SES.
+
+## Adendo, 29/09 mais tarde: os três registros da VPS entraram
+
+Criados pelo painel depois do export. Conferência de fora: `painel`, `editor` e
+`webhook` respondem `A 177.7.61.136` no AdGuard DoH (resolvedor sem consulta
+anterior, logo sem cache negativo). 1.1.1.1 e Google ainda mostravam NXDOMAIN
+em um nome cada, por cache negativo das sondagens anteriores (SOA minimum 1800 s).
+IP da VPS na resposta, e não IP do Cloudflare, prova que estão cinza.
