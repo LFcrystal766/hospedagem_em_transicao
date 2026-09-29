@@ -56,8 +56,11 @@ Independe dos degraus do site. Detalhes em `crystal-em-casa/README.md`.
     `scripts/cloudflare-crystal-vps-dns.sh conferir`.
 13. **Três respostas da agência** antes de contratar o Supabase: compute size
     do projeto da Crystal, dono da conta OpenRouter, quem monta a fase 1.
-14. **Docker + Swarm** pelo Web console da Hostinger, depois as stacks 00 a 06
-    de `crystal-em-casa/stacks-exemplo/`, na ordem, com os segredos em cofre.
+14. **Docker, Swarm e as stacks: feito em 29/09.** Traefik, Portainer, Postgres,
+    Redis e os três serviços do n8n em 1/1, HTTPS válido nos três nomes, admin
+    do Portainer e dono do n8n criados. Detalhe que custou uma hora: o Docker 29
+    recusa a API 1.24 do Traefik v2 da agência; `bootstrap-vps.sh docker-api`
+    baixa o piso do daemon. Segredos trocados depois de vazarem no chat.
 15. **Contas**: Supabase Pro + convite Owner para `agencia@academialendaria.ai`,
     GitHub (repo privado, e-mail, token `write:packages`), Netlify, Telegram.
 16. **Avisar a agência** quando os 16 pontos de "Base pronta" do guia estiverem
