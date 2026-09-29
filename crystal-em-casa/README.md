@@ -58,7 +58,7 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | Respostas da agência | Compute size do Supabase, dono da conta OpenRouter, como o agente atende um canal que não é o LendChat, onde está a base de clientes |
 | Código do agente | **Não chegou.** `LFcrystal766/crystal-ia` vazio em 29/09 às 03:00 |
 | App web | Repositório `LFcrystal766/crystal-web-chat`, transferido do Igor em 29/09. Avaliação em `app-web-chat.md` |
-| Stack do app | **Pronta para subir desde 29/09**: imagens no ghcr.io, `stacks-app/`, comandos `app-*` do bootstrap. Ensaiada aqui com as imagens reais: API em produção, migrações, admin. Falta o DNS `api`, a chave do Resend e rodar na VPS |
+| Stack do app | **Pronta para subir desde 29/09**: imagens no ghcr.io, `stacks-app/`, comandos `app-*` do bootstrap. Imagens `sha-1fb80ea` publicadas. Ensaiada aqui com as imagens reais: API em produção, migrações, admin. Falta o DNS `api`, a chave do Resend e rodar na VPS |
 
 Boston em vez de São Paulo não fere o guia: o tempo do atendimento é dominado
 pela resposta do modelo, não pela rede. Vale conferir a região do projeto do
@@ -109,7 +109,7 @@ curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transica
 bash bootstrap-vps.sh app-ghcr                  # token do GitHub com read:packages
 bash bootstrap-vps.sh app-definir RESEND_API_KEY
 bash bootstrap-vps.sh app-definir EMAIL_FROM    # ex.: Crystal <onboarding@resend.dev>
-bash bootstrap-vps.sh app-subir sha-XXXXXXX     # tag do último build verde
+bash bootstrap-vps.sh app-subir sha-1fb80ea     # último build verde (29/09)
 bash bootstrap-vps.sh app-segredos              # copiar pro Bitwarden
 bash bootstrap-vps.sh app-admin                 # primeiro admin: CPF, e-mail e nome
 ```

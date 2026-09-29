@@ -60,7 +60,10 @@ direto, sem Chatwoot nem Bridge. Na `main` esse é o único modo; o transporte
 - O `docker-compose.prod.yml` do app monta os uploads em `/app/uploads`, mas a
   API grava em `apps/api/uploads` porque roda de dentro do pacote. A stack da
   VPS fixa `UPLOAD_DIR=/app/uploads`.
-- O CI da `main` (`ci.yml`) está vermelho desde 07/09, nas três execuções.
+- O CI da `main` (`ci.yml`) está vermelho desde 07/09, nas três execuções, e
+  nenhum teste chega a rodar: o `setup-node` pede cache do pnpm antes de o
+  pnpm existir no runner ("Unable to locate executable file: pnpm"). Falta um
+  passo `pnpm/action-setup` antes dele.
 - A sonda da Meta usa a Graph API v21.0, que deve expirar por volta de
   outubro de 2026.
 
