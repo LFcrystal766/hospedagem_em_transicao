@@ -374,7 +374,8 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   DIRECTORY_API_KEY* DIRECTORY_API_PATH DIRECTORY_API_AUTH_HEADER META_ACCESS_TOKEN*
   META_PHONE_NUMBER_ID ALERT_WEBHOOK_URL* SENTRY_DSN VAPID_SUBJECT
   CHAT_TRANSPORT CHATWOOT_BASE_URL CHATWOOT_INBOX_IDENTIFIER CHATWOOT_INBOX_HMAC_TOKEN*
-  CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS)
+  CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS
+  SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY* SUPABASE_LOGIN_RPC)
 
 app_valor() { # app_valor ARQUIVO NOME -> valor (sem imprimir nada se não houver)
   [ -f "$1" ] || return 0
@@ -490,6 +491,10 @@ app_gerar_env() {
     for k in CHATWOOT_BASE_URL CHATWOOT_INBOX_IDENTIFIER CHATWOOT_WEBHOOK_SECRET; do
       [ -n "$(app_valor "$APP_EXT" $k)" ] || falha "CHAT_TRANSPORT=chatwoot sem $k. Rode: bash $0 app-definir $k"
     done
+  fi
+  # Base de alunos no Supabase dispensa a DIRECTORY_API_*.
+  if [ -n "$(app_valor "$APP_EXT" SUPABASE_URL)" ] && [ -n "$(app_valor "$APP_EXT" SUPABASE_SERVICE_ROLE_KEY)" ]; then
+    chaves=$(echo "$chaves" | sed 's/DIRECTORY_API_URL//; s/DIRECTORY_API_KEY//')
   fi
   for k in $chaves; do
     [ -n "$(app_valor "$APP_EXT" $k)" ] || mock=1

@@ -174,6 +174,24 @@ O aluno precisa ter o telefone do WhatsApp no cadastro; sem ele, a mensagem não
 Para voltar à Crystal provisória: `app-definir CHAT_TRANSPORT` com `crystal` e
 `app-subir` de novo.
 
+## Ligar o login à base de alunos do Supabase
+
+Depois da transferência do projeto do Supabase:
+
+1. No SQL Editor do Supabase, conferir as colunas de `leticia_crystal_customers` e
+   rodar `docs/supabase/app_verificar_login.sql` do repositório do app, ajustando os
+   nomes marcados com `<<< CONFERIR`.
+2. Na VPS:
+
+```bash
+bash bootstrap-vps.sh app-definir SUPABASE_URL               # https://<projeto>.supabase.co
+bash bootstrap-vps.sh app-definir SUPABASE_SERVICE_ROLE_KEY  # Settings > API > service_role
+bash bootstrap-vps.sh app-subir sha-XXXXXXX                  # c7de9fe ou mais nova
+```
+
+A chave service_role abre o banco inteiro: só no cofre e na VPS, nunca no chat, nunca
+no dashboard. Com a base de alunos e o canal ligados, o app deixa de usar simulação.
+
 ## Preparar a fase 2 sem depender da agência
 
 - `ci/build-image.yml`: workflow do GitHub Actions que constrói a imagem do
