@@ -24,6 +24,7 @@
 #   bash bootstrap-vps.sh backup-fora-config   dados do R2 (segredo sem aparecer), testa e agenda:
 #                                              cada backup sobe cifrado para o Cloudflare R2
 #   bash bootstrap-vps.sh backup-conferir      lista o que está no R2 e há quanto tempo foi o último
+#   bash bootstrap-vps.sh backup-testar-trava  tenta apagar um arquivo de teste no R2: tem que ser recusado
 #   bash bootstrap-vps.sh backup-link [TIPO]   link de 10 min para baixar o backup mais novo (teste de
 #                                              restauração no Mac). TIPO: n8n_queue (padrão), crystal_web_chat
 #   bash bootstrap-vps.sh seguranca            atualização de segurança automática, fail2ban no SSH
@@ -474,6 +475,24 @@ print()
 print(f"curl -fo ~/Downloads/{nome} '{base.scheme}://{host}{caminho}?{qs}&X-Amz-Signature={sig}'")
 PY
   rm -f "$xml"
+}
+
+# Prova a trava do bucket: sobe um arquivo de teste e tenta apagá-lo com a própria
+# chave da VPS (que tem permissão de apagar). Com a trava, o R2 recusa.
+backup_testar_trava() {
+  fora_ler_conf
+  local t obj code
+  t=$(mktemp "$BACKUPS/.teste.XXXXXX")
+  echo "teste da trava $(date -u +%FT%TZ)" | age -r "$(cat "$FORA_DEST")" -o "$t"
+  obj="$FORA_PREFIXO/teste/trava-$(date -u +%Y%m%dT%H%M%SZ).age"
+  fora_enviar "$t" "$obj" || { rm -f "$t"; falha "não subiu o arquivo de teste"; }
+  rm -f "$t"
+  code=$(fora_curl -o /dev/null -w '%{http_code}' -X DELETE "$R2_URL/$obj") || code=000
+  case "$code" in
+    200|204) aviso "o R2 APAGOU o arquivo (resposta $code): a trava NÃO está valendo. Conferir Settings > Bucket lock rules (prefixo vazio, 30 dias)"; exit 1 ;;
+    000) aviso "sem resposta do R2; rode de novo" ; exit 1 ;;
+    *) ok "o R2 recusou apagar (resposta $code): a trava está valendo. Quem invadir a VPS não apaga os backups" ;;
+  esac
 }
 
 backup_conferir() {
@@ -1257,6 +1276,7 @@ case "$CMD" in
   backup-chave) shift; backup_chave "$@" ;;
   backup-fora-config) backup_fora_config ;;
   backup-conferir) backup_conferir ;;
+  backup-testar-trava) backup_testar_trava ;;
   backup-link) shift; backup_link "$@" ;;
   firewall) firewall ;;
   seguranca) seguranca ;;
