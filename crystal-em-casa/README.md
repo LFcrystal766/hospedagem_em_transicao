@@ -54,7 +54,7 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | Portainer e n8n | **Admin do Portainer e dono do n8n criados em 29/09** (dono recriado depois da última troca de segredos). `editor./healthz` responde ok. Lado do servidor da fase 1 fechado |
 | Supabase Pro + convite | **Feito em 29/09**: convite de Owner para `agencia@academialendaria.ai` na organização Pro do dashboard (decisão do Luiz). Enquanto Owner, a agência enxerga o projeto do dashboard também; rever o papel depois da transferência. Compute size do projeto: perguntar à agência |
 | GitHub | **Feito em 29/09**: repositório privado `LFcrystal766/crystal-ia` (com "ia", não "ai": ajustar `IMAGE_NAME` no workflow). E-mail da conta para o convite da agência: `crystal@leticiafelisberto.com`. Em 29/09 o Luiz também convidou `agencia@academialendaria.ai` como colaborador do `crystal-ia`, para eles poderem enviar o código direto. Token `write:packages` criado em 29/09 (90 dias, vence por volta de 28/12) e cadastrado no Portainer como registry `ghcr` |
-| Backup | **Na VPS e fora dela desde 29/09**: dump diário às 03:30 (n8n, banco do app e uploads), 14 dias na VPS; cada arquivo sobe cifrado com age para o bucket R2 `crystal-backups` (ENAM), token só de objeto nesse bucket. Chave privada do age e chave do R2 no Bitwarden. Conferido em 29/09: dois backups completos no R2 (`backup-conferir`). Falta confirmar a trava de 30 dias e a regra de 60 dias no bucket, apagar o primeiro token do R2 (não usado) e fazer um teste de restauração no Mac |
+| Backup | **Na VPS e fora dela desde 29/09**: dump diário às 03:30 (n8n, banco do app e uploads), 14 dias na VPS; cada arquivo sobe cifrado com age para o bucket R2 `crystal-backups` (ENAM), token só de objeto nesse bucket. Chave privada do age e chave do R2 no Bitwarden. Conferido em 29/09: dois backups completos no R2 (`backup-conferir`). Falta confirmar a trava de 30 dias e a regra de 60 dias no bucket, apagar o primeiro token do R2 (não usado) . **Restauração testada em 29/09** no Mac do Igor: backup do n8n baixado do R2 por `backup-link` e aberto com a chave do Bitwarden (dump do Postgres 16 legível) |
 | Firewall | **Feito em 29/09**: ufw com 22, 80 e 443. Portas do Swarm fora da internet |
 | Portainer restrito | **No ar desde 29/09** (`painel-restringir`): só o IP de casa do Luiz na lista. Conferido de fora: 403 fora da lista; do IP liberado, login e ambiente `primary` funcionando pelo agente na rede interna. Imagens presas em `portainer-ce`/`agent` 2.45.0 (digest). Falta o IP do Igor, se ele for usar |
 | Netlify | Conta criada em 29/09 (com o GitHub), segundo o Luiz. Sem API aqui para conferir |
@@ -245,7 +245,7 @@ brew install age
 # rodar "bash bootstrap-vps.sh backup-link" na VPS e colar no Mac a linha curl
 # que ela mostra (link de 10 minutos, só para aquele arquivo)
 # copiar a chave AGE-SECRET-KEY-... do Bitwarden e, sem colar em lugar nenhum:
-pbpaste | age -d -i - ~/Downloads/n8n_queue-AAAAMMDDTHHMMSSZ.sql.gz.age | gunzip | head -40
+pbpaste | grep -o 'AGE-SECRET-KEY-1[0-9A-Z]*' | age -d -i - ~/Downloads/n8n_queue-AAAAMMDDTHHMMSSZ.sql.gz.age | gunzip | head -40
 ```
 Para restaurar de verdade, sem o `head`: `... | gunzip > n8n.sql`, copiar para a
 VPS nova e `docker exec -i CID psql -U postgres -d n8n_queue < n8n.sql`.
