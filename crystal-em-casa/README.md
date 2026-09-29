@@ -149,6 +149,8 @@ bash bootstrap-vps.sh crystal-provisoria-desligar   # volta à Crystal simulada
   no editor do n8n. O padrão é `openrouter/auto`.
 - **Privacidade:** só o texto e o id da conversa vão ao OpenRouter. O n8n não
   guarda execução com sucesso (só as com erro, que a limpeza apaga em 14 dias).
+- **No ar desde 29/09**: fluxo ativo na VPS, app apontando para ele, teste pela
+  API do app com status 200.
 - Ensaiado em 29/09 com n8n 1.123.10 e Postgres: import, ativação, 403 sem a
   chave, memória entre mensagens, 400 para mensagem inválida, 502 com o
   OpenRouter fora.
