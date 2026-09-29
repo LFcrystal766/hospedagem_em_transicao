@@ -372,7 +372,9 @@ APP_STACK=crystal_app
 APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTAL_API_PATH
   CRYSTAL_API_AUTH_HEADER CRYSTAL_API_REPLY_FIELD CRYSTAL_ONBOARDING_URL DIRECTORY_API_URL
   DIRECTORY_API_KEY* DIRECTORY_API_PATH DIRECTORY_API_AUTH_HEADER META_ACCESS_TOKEN*
-  META_PHONE_NUMBER_ID ALERT_WEBHOOK_URL* SENTRY_DSN VAPID_SUBJECT)
+  META_PHONE_NUMBER_ID ALERT_WEBHOOK_URL* SENTRY_DSN VAPID_SUBJECT
+  CHAT_TRANSPORT CHATWOOT_BASE_URL CHATWOOT_INBOX_IDENTIFIER CHATWOOT_INBOX_HMAC_TOKEN*
+  CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS)
 
 app_valor() { # app_valor ARQUIVO NOME -> valor (sem imprimir nada se não houver)
   [ -f "$1" ] || return 0
@@ -481,7 +483,15 @@ app_gerar_env() {
   for k in RESEND_API_KEY EMAIL_FROM; do
     [ -n "$(app_valor "$APP_EXT" $k)" ] || falha "$k não definido. Em produção o app manda o código de login por e-mail (Resend). Rode: bash $0 app-definir $k"
   done
-  for k in CRYSTAL_API_URL CRYSTAL_API_KEY DIRECTORY_API_URL DIRECTORY_API_KEY; do
+  # Com o canal da inbox (CHAT_TRANSPORT=chatwoot) a Crystal não usa CRYSTAL_API_*.
+  local chaves="CRYSTAL_API_URL CRYSTAL_API_KEY DIRECTORY_API_URL DIRECTORY_API_KEY"
+  if [ "$(app_valor "$APP_EXT" CHAT_TRANSPORT)" = "chatwoot" ]; then
+    chaves="DIRECTORY_API_URL DIRECTORY_API_KEY"
+    for k in CHATWOOT_BASE_URL CHATWOOT_INBOX_IDENTIFIER CHATWOOT_WEBHOOK_SECRET; do
+      [ -n "$(app_valor "$APP_EXT" $k)" ] || falha "CHAT_TRANSPORT=chatwoot sem $k. Rode: bash $0 app-definir $k"
+    done
+  fi
+  for k in $chaves; do
     [ -n "$(app_valor "$APP_EXT" $k)" ] || mock=1
   done
   umask 077

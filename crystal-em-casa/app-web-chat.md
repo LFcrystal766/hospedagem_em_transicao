@@ -79,7 +79,14 @@ webhook assinado. O identificador do aluno é o **telefone em E.164**, igual ao 
 WhatsApp, para a Crystal ter a mesma memória nos dois canais. O login consulta a
 tabela `leticia_crystal_customers` do Supabase, que vem para nós na transferência.
 
-Consequências para o código:
+**Implementado em 29/09** na branch `claude/gracious-shannon-6x9l5j` do app
+(commit `d3e25a5`), com `CHAT_TRANSPORT=chatwoot`. O modo padrão continua o antigo:
+sem configurar a inbox, nada muda. Detalhes em `docs/crystal-api.md` do app.
+Falta receber do lado da agência a confirmação do formato (contrato técnico), se a
+inbox usa `identifier_hash`, e a inbox de teste; e ter o telefone dos alunos, que vem
+da base `leticia_crystal_customers` no login.
+
+Consequências para o código (análise antes da implementação):
 
 - A `main` do app não tem esse modo: ela só sabe chamar a Crystal e esperar a
   resposta inteira. Não serve como está.

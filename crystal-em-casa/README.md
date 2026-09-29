@@ -155,6 +155,25 @@ bash bootstrap-vps.sh crystal-provisoria-desligar   # volta à Crystal simulada
   chave, memória entre mensagens, 400 para mensagem inválida, 502 com o
   OpenRouter fora.
 
+## Ligar o canal do LendChat no app
+
+O app já sabe falar com uma inbox de API no formato do Chatwoot
+(`CHAT_TRANSPORT=chatwoot`). Com a inbox criada do nosso lado no LendChat:
+
+```bash
+bash bootstrap-vps.sh app-definir CHATWOOT_BASE_URL          # base da API da inbox, https
+bash bootstrap-vps.sh app-definir CHATWOOT_INBOX_IDENTIFIER  # identificador da inbox
+bash bootstrap-vps.sh app-definir CHATWOOT_WEBHOOK_SECRET    # segredo que assina o webhook
+bash bootstrap-vps.sh app-definir CHATWOOT_INBOX_HMAC_TOKEN  # só se a inbox tiver HMAC de identidade
+bash bootstrap-vps.sh app-definir CHAT_TRANSPORT             # responder: chatwoot
+bash bootstrap-vps.sh app-subir sha-XXXXXXX                  # imagem com o canal (d3e25a5 ou mais nova)
+```
+
+Na inbox, o webhook aponta para `https://api.crystalnowpp.com.br/webhooks/chatwoot`.
+O aluno precisa ter o telefone do WhatsApp no cadastro; sem ele, a mensagem não sai.
+Para voltar à Crystal provisória: `app-definir CHAT_TRANSPORT` com `crystal` e
+`app-subir` de novo.
+
 ## Preparar a fase 2 sem depender da agência
 
 - `ci/build-image.yml`: workflow do GitHub Actions que constrói a imagem do
