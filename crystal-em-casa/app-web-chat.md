@@ -71,6 +71,35 @@ direto, sem Chatwoot nem Bridge. Na `main` esse é o único modo; o transporte
 - A sonda da Meta usa a Graph API v21.0, que deve expirar por volta de
   outubro de 2026.
 
+## Como o app fala com a Crystal (definido pelo Tuan em 29/09)
+
+O app não chama o agente. Ele usa um **canal de API do LendChat** criado para o app,
+no formato do Chatwoot, e a resposta volta **assíncrona, em várias mensagens**, por
+webhook assinado. O identificador do aluno é o **telefone em E.164**, igual ao do
+WhatsApp, para a Crystal ter a mesma memória nos dois canais. O login consulta a
+tabela `leticia_crystal_customers` do Supabase, que vem para nós na transferência.
+
+Consequências para o código:
+
+- A `main` do app não tem esse modo: ela só sabe chamar a Crystal e esperar a
+  resposta inteira. Não serve como está.
+- A branch `lfchat/g0-discovery` já tem quase tudo: `services/lfchat-channel.ts`
+  cria contato e conversa pela API pública da inbox (`/public/api/v1/inboxes/...`,
+  com `identifier_hash`), manda a mensagem com `echo_id`, e
+  `services/lfchat-webhook.ts` valida `X-Chatwoot-Signature` sobre timestamp e
+  corpo e filtra só as mensagens de saída. Foi feito para o Chatwoot próprio do
+  LFChat, mas o LendChat fala o mesmo formato.
+- Ajustes: o identificador hoje é um id opaco do aluno e precisa virar o telefone
+  E.164 vindo da base; o modo exige a Bridge do LFChat para a exclusão de dados
+  (`LFCHAT_BRIDGE_BASE_URL`), o que precisa ser desacoplado; e as respostas em
+  várias mensagens precisam aparecer no chat conforme chegam.
+- Os 3 críticos abertos da pausa (L-286) são na exclusão e exportação de dados
+  do titular dessa branch. Precisam fechar antes de aluno real, com ou sem Bridge.
+- O LendChat continua sendo da agência. O canal do app passa a depender dele,
+  como o WhatsApp já depende.
+- O Supabase fica em São Paulo e a VPS em Boston. Cada consulta do agente ao banco
+  atravessa essa distância. O tempo do modelo pesa mais, mas vale medir no ensaio.
+
 ## Propriedade da Crystal
 
 Código do agente, prompts e base de conhecimento são nossos (confirmado pelo

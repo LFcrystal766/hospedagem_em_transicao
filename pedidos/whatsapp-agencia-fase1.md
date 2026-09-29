@@ -62,19 +62,35 @@ até 29/09.
 Propriedade: código, prompts e base de conhecimento da Crystal são nossos
 (confirmado pelo Luiz em 29/09). Não precisa perguntar à agência.
 
-## Complemento (29/09), mais curto, com o que já sabemos
+## Resposta do Tuan (29/09, 13:35), resumo
 
-Oi, Tuan! Complementando a mensagem de ontem, com o que avançou por aqui:
+- Supabase: compute Micro (1 GB), região São Paulo. Os dois vêm junto na transferência.
+- OpenRouter: a conta é nossa.
+- O app **não** fala direto com o agente. Usa um canal de API do LendChat criado para o app:
+  o backend manda a mensagem pela API do LendChat, a Crystal responde na mesma conversa e o
+  LendChat entrega as respostas no webhook do app, assinadas.
+- Resposta **assíncrona e em várias mensagens**: a Crystal agrupa mensagens seguidas, divide a
+  resposta com intervalo de digitação, e com áudio ou imagem leva dezenas de segundos.
+- Webhook no formato do LendChat (Chatwoot): `X-Chatwoot-Signature` sobre corpo bruto e
+  timestamp, `X-Chatwoot-Delivery` para deduplicar junto com o id da mensagem. O webhook traz o
+  eco da mensagem do aluno: filtrar por `message_type`.
+- `contact_id` e `conversation_id` são os que o LendChat devolve ao criar contato e conversa.
+- Login: tabela `leticia_crystal_customers` do Supabase.
+- Identificador do aluno no LendChat: **telefone em E.164** (+5511999998888), exatamente o do
+  WhatsApp. Errado não dá erro, abre conversa nova sem memória. CPF nunca vai no identificador.
+- Perguntou se o webhook do app é `https://webhook.crystalnowpp.com.br`.
 
-- O app web da Crystal já está no ar na VPS (app.crystalnowpp.com.br), por enquanto com uma Crystal provisória, só pra equipe testar.
-- OpenRouter: corrigindo a pergunta 2, a conta é nossa. Só me confirma qual chave o agente usa hoje, pra ninguém mexer nela até o corte.
+## Resposta ao Tuan (29/09), no lugar do complemento
 
-O que ainda preciso de vocês:
+Valeu, Tuan, ficou bem claro. A gente adapta do nosso lado.
 
-1. Previsão pro código subir no crystal-ia e pra transferência do Supabase.
-2. Compute size e região do projeto do Supabase.
-3. Como o agente vai atender o app: recebe a mensagem do app e devolve a resposta direto? Hoje ele só conversa com o LendChat.
-4. Login do app: a base de alunos é a do Supabase? Qual tabela, e o agente identifica o aluno pelo telefone ou pelo id do Supabase?
-5. Se der, mandem já o prompt e a base de conhecimento da Crystal, pra gente testar o app com o jeito dela.
+Sobre o webhook: ainda não. Esse endereço é o nosso n8n. Os eventos do LendChat vão direto pro backend do app, e te passo a URL definitiva quando a integração estiver pronta. Por enquanto não apontem nada.
 
-Se ficar mais fácil, marcamos uma call rápida pra fechar isso.
+Pra implementar o canal de API do LendChat, preciso de:
+1. O contrato técnico que você citou.
+2. A URL base da API do LendChat e o identificador da inbox do app. Vocês criam a inbox ou a gente cria?
+3. Como o contato é autenticado na inbox: tem o HMAC de identidade (identifier_hash)? Os segredos, do HMAC e da assinatura do webhook, me manda no privado.
+4. Uma inbox de teste, pra ensaiar sem tocar a produção.
+5. Se der, o prompt e a base de conhecimento da Crystal, pra gente testar o app com o jeito dela até a fase 2.
+
+E continuo aguardando a previsão do código no crystal-ia e da transferência do Supabase.
