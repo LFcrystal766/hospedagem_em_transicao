@@ -28,6 +28,8 @@
 # App da Crystal (crystal-web-chat), em app. e api.crystalnowpp.com.br:
 #   bash bootstrap-vps.sh app-ghcr             docker login no ghcr.io (token read:packages,
 #                                              digitado sem aparecer). As imagens são privadas
+#   bash bootstrap-vps.sh app-resend           pergunta a chave do Resend (sem aparecer) e o
+#                                              remetente. Nada vai na linha de comando
 #   bash bootstrap-vps.sh app-definir NOME     grava um valor externo (RESEND_API_KEY, EMAIL_FROM,
 #                                              CRYSTAL_API_URL, ...). Sem NOME, lista os aceitos
 #   bash bootstrap-vps.sh app-subir TAG        gera segredos (uma vez só), monta api.env e sobe
@@ -415,6 +417,18 @@ app_definir() {
   ok "$nome gravado em $APP_EXT. Vale na próxima 'app-subir'"
 }
 
+# Guiado, sem argumento nenhum: pergunta a chave do Resend (sem eco) e o
+# remetente. Existe pra ninguém precisar escrever valor na linha de comando.
+app_resend() {
+  echo "Chave de API do Resend: cole quando aparecer o pedido abaixo e dê Enter."
+  app_definir app-definir RESEND_API_KEY
+  echo
+  echo "Remetente, com domínio verificado no Resend. Sugestão: Crystal <acesso@$DOMINIO>"
+  app_definir app-definir EMAIL_FROM
+  echo
+  echo "Já definidos: $(cut -d= -f1 "$APP_EXT" | tr '\n' ' ')"
+}
+
 app_gerar_segredos() { # app_gerar_segredos TAG
   mkdir -p "$APP_DIR"; chmod 700 "$APP_DIR"
   umask 077
@@ -600,6 +614,7 @@ app_segredos() {
 case "$CMD" in
   app-ghcr) app_ghcr ;;
   app-definir) app_definir "$@" ;;
+  app-resend) app_resend ;;
   app-subir) app_subir "$@" ;;
   app-status) app_status ;;
   app-admin) app_admin ;;
