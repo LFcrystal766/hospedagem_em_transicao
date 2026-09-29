@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# DNS da VPS da Crystal (o app, não o site): painel, editor e webhook.
+# DNS da VPS da Crystal (o app, não o site): painel, editor, webhook, app e api.
 #
 # Uso: scripts/cloudflare-crystal-vps-dns.sh <comando> [--aplicar]
 #
 # Comandos:
-#   conferir   só leitura, SEM token: resolve os três nomes por DNS-over-HTTPS
-#              e confere se apontam pro IP da VPS. Sai 0 = os três certos,
+#   conferir   só leitura, SEM token: resolve os cinco nomes por DNS-over-HTTPS
+#              e confere se apontam pro IP da VPS. Sai 0 = todos certos,
 #              1 = falta ou divergência
-#   criar      cria os três registros A, cinza (proxied=false), TTL 300. Sem
+#   criar      cria os registros A que faltarem, cinza (proxied=false), TTL 300. Sem
 #              --aplicar só imprime o que faria. Idempotente: registro que já
 #              existe com o mesmo IP e cinza é deixado como está; com IP
 #              diferente ou laranja é corrigido
@@ -20,14 +20,14 @@
 # ar dá pra reavaliar (Full strict com Origin CA), nunca antes.
 #
 # Regra que não muda: server. (Stape), mail. e ftp. ficam sempre cinza. Depois
-# de gravar, o script relê os três e força proxied=false se algum virou laranja.
+# de gravar, o script relê server., mail. e ftp. e força proxied=false se algum virou laranja.
 
 set -uo pipefail
 
 ZONA_ID=c8f015c8ed7347f8900aa90d6701a15c
 DOMINIO=crystalnowpp.com.br
 IP_VPS="${IP_VPS:-177.7.61.136}"
-NOMES=(painel editor webhook)
+NOMES=(painel editor webhook app api)
 API=https://api.cloudflare.com/client/v4
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
@@ -135,7 +135,7 @@ criar() {
   if [ "$APLICAR" -eq 1 ]; then
     regs=$(ler "/zones/$ZONA_ID/dns_records?per_page=100")
     salvar dns_records_depois "$regs"
-    # Os três criados: relê e prova proxied=false
+    # Os nomes da VPS: relê e prova proxied=false
     for n in "${NOMES[@]}"; do
       echo "$regs" | jq -e --arg f "$n.$DOMINIO" --arg ip "$IP_VPS" \
         '.[] | select(.name==$f and .type=="A" and .content==$ip and .proxied==false)' >/dev/null \

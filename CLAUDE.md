@@ -40,9 +40,12 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
   seus DNS" da Hostinger nem ligar a integração Cloudflare do hPanel.
 - Segredos só em variável de ambiente. Nunca em arquivo do repositório nem no chat.
 - Não publicar nada no GTM: a migração não exige mudança lá.
-- `painel.`, `editor.` e `webhook.` (VPS da Crystal) ficam **cinza** enquanto o
-  Traefik emitir o certificado por HTTP. Laranja neles só depois da stack no ar,
-  com decisão explícita. Não são a mesma Hostinger do site: é uma VPS, não o hPanel.
+- `painel.`, `editor.`, `webhook.`, `app.` e `api.` (VPS da Crystal) ficam
+  **cinza** enquanto o Traefik emitir o certificado por HTTP. Laranja neles só
+  depois da stack no ar, com decisão explícita. Não são a mesma Hostinger do
+  site: é uma VPS, não o hPanel.
+- Segredos do app na VPS (`/root/crystal/app/.segredos`): `ENCRYPTION_KEY` e
+  `CPF_SALT` nunca mudam depois de o banco do app ter dado.
 
 ## Onde está cada coisa
 
@@ -52,6 +55,7 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
 | `scripts/cloudflare-degrau2.sh` | Degrau 2 inteiro, com simulação, backup antes de gravar e rollback |
 | `scripts/cloudflare-crystal-vps-dns.sh` | DNS da VPS da Crystal (`painel`, `editor`, `webhook`, cinza). `conferir` roda sem token |
 | `crystal-em-casa/` | Frente do app: guia e stacks da agência, situação da VPS |
+| `crystal-em-casa/stacks-app/` | Stack do app web (`LFcrystal766/crystal-web-chat`) na VPS, subida pelo `bootstrap-vps.sh app-subir` |
 | `auditorias/<data>/` | Evidências de cada rodada |
 | `pedidos/` | Chamado da AZAN e prompt do Cowork |
 | `artefato/` | Cópia do plano e o overview |

@@ -47,9 +47,22 @@ direto, sem Chatwoot nem Bridge. Na `main` esse é o único modo; o transporte
 | Entrada das mensagens proativas em `POST /webhooks/crystal`, assinada | Formato da agência. O webhook `crystal-app` do n8n segura o endereço enquanto isso |
 | Conta no Resend e remetente de e-mail para o OTP | Luiz ou Igor |
 | Endereço do app e registro DNS cinza apontando para a VPS | Decisão. O D-024 do app previa `app.crystalnowpp.com`, sem `.br`, e foi suspenso pelo D-029 |
-| Stack do app na VPS: BFF, PWA, Postgres e Redis próprios, atrás do Traefik | Nós. Cabe na KVM 4 com folga |
-| Segredos de produção (`JWT_SECRET`, `ENCRYPTION_KEY`, `CPF_SALT`, `WEBHOOK_SECRET`, VAPID) | Nós, gerados na VPS e guardados no Bitwarden |
+| Stack do app na VPS: BFF, PWA, Postgres e Redis próprios, atrás do Traefik | **Pronta em 29/09** (`stacks-app/`, `bootstrap-vps.sh app-*`). Falta rodar na VPS |
+| Segredos de produção (`JWT_SECRET`, `ENCRYPTION_KEY`, `CPF_SALT`, `WEBHOOK_SECRET`, VAPID) | **Automático**: o `app-subir` gera na VPS, uma vez só |
 | Apps nas lojas | Contas Apple e Google, chaves de push nativo. Pode ficar para depois da PWA |
+
+### Achados ao montar a stack (29/09)
+
+- Os Dockerfiles da `main` não construíam: a API rodava `prisma generate`
+  antes de copiar o schema, e o web não tinha o `tsconfig.base.json` nem o
+  `package.json` da raiz. Corrigido na branch `claude/gracious-shannon-6x9l5j`
+  do app, junto com o workflow `imagens-vps`. Falta levar para a `main`.
+- O `docker-compose.prod.yml` do app monta os uploads em `/app/uploads`, mas a
+  API grava em `apps/api/uploads` porque roda de dentro do pacote. A stack da
+  VPS fixa `UPLOAD_DIR=/app/uploads`.
+- O CI da `main` (`ci.yml`) está vermelho desde 07/09, nas três execuções.
+- A sonda da Meta usa a Graph API v21.0, que deve expirar por volta de
+  outubro de 2026.
 
 ## LFChat: por que não retomar agora
 

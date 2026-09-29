@@ -58,6 +58,7 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | Respostas da agência | Compute size do Supabase, dono da conta OpenRouter, como o agente atende um canal que não é o LendChat, onde está a base de clientes |
 | Código do agente | **Não chegou.** `LFcrystal766/crystal-ia` vazio em 29/09 às 03:00 |
 | App web | Repositório `LFcrystal766/crystal-web-chat`, transferido do Igor em 29/09. Avaliação em `app-web-chat.md` |
+| Stack do app | **Pronta para subir desde 29/09**: imagens no ghcr.io, `stacks-app/`, comandos `app-*` do bootstrap. Ensaiada aqui com as imagens reais: API em produção, migrações, admin. Falta o DNS `api`, a chave do Resend e rodar na VPS |
 
 Boston em vez de São Paulo não fere o guia: o tempo do atendimento é dominado
 pela resposta do modelo, não pela rede. Vale conferir a região do projeto do
@@ -81,6 +82,46 @@ bash bootstrap-vps.sh status                      # serviços e HTTPS dos três 
 ```
 
 Os segredos nunca passam pelo chat nem pelo repositório.
+
+## Subir o app na VPS (crystal-web-chat)
+
+Stack `crystal_app` em `stacks-app/10-crystal-app.yaml`: PWA em
+`app.crystalnowpp.com.br`, API em `api.crystalnowpp.com.br`, Postgres 16 e
+Redis 7 próprios numa rede interna só do app. Não usa o banco nem o Redis do
+n8n. As imagens saem do GitHub Actions do `LFcrystal766/crystal-web-chat`
+(workflow `imagens-vps`, branch `claude/gracious-shannon-6x9l5j`) para o
+`ghcr.io`, privadas, com tag `sha-XXXXXXX`.
+
+Antes, uma vez só:
+
+1. **DNS:** registro A `api` → `177.7.61.136`, **cinza**, no painel do
+   Cloudflare. O `app` já existe. Conferir com
+   `scripts/cloudflare-crystal-vps-dns.sh conferir`.
+2. **Resend:** conta criada e uma chave de API. Sem ela a API não sobe em
+   produção, porque o login manda um código por e-mail. Para testar, o
+   remetente `onboarding@resend.dev` só entrega no e-mail do dono da conta.
+   Para valer, verificar o domínio no Resend e usar um remetente dele.
+
+Na VPS, pelo Web console, como root:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/claude/gracious-shannon-6x9l5j/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+bash bootstrap-vps.sh app-ghcr                  # token do GitHub com read:packages
+bash bootstrap-vps.sh app-definir RESEND_API_KEY
+bash bootstrap-vps.sh app-definir EMAIL_FROM    # ex.: Crystal <onboarding@resend.dev>
+bash bootstrap-vps.sh app-subir sha-XXXXXXX     # tag do último build verde
+bash bootstrap-vps.sh app-segredos              # copiar pro Bitwarden
+bash bootstrap-vps.sh app-admin                 # primeiro admin: CPF, e-mail e nome
+```
+
+Enquanto a agência não passar os endereços da Crystal e da base de clientes,
+a API sobe com a Crystal **simulada** e só entra quem for criado pelo
+`app-admin`. Quando chegarem: `app-definir CRYSTAL_API_URL` (e as outras
+três) e `app-subir` de novo com a mesma tag.
+
+`ENCRYPTION_KEY` e `CPF_SALT` nunca podem mudar: sem eles os campos cifrados e
+o hash do CPF ficam ilegíveis. O `backup` diário passa a levar também o banco
+do app, que só se restaura com essas duas chaves.
 
 ## Preparar a fase 2 sem depender da agência
 

@@ -1,0 +1,175 @@
+# =============================================================================
+# APP DA CRYSTAL  ·  crystal-web-chat (PWA + API) na VPS
+# =============================================================================
+#
+# O QUE ESTA STACK FAZ
+#   Sobe o app web da Crystal ao lado do n8n, atrás do mesmo Traefik:
+#     app.crystalnowpp.com.br  ->  app_web  (PWA em Next.js, porta 3000)
+#     api.crystalnowpp.com.br  ->  app_api  (API em Fastify, porta 3001)
+#   com Postgres e Redis PRÓPRIOS do app, numa rede interna só dele. Não usa o
+#   Postgres nem o Redis do n8n, e não toca no Supabase da agência.
+#
+# DE ONDE VÊM AS IMAGENS
+#   GitHub Actions do repositório LFcrystal766/crystal-web-chat
+#   (.github/workflows/imagens-vps.yml), em ghcr.io, com tag sha-XXXXXXX ou vX.
+#   Nunca latest. As imagens são privadas: a VPS precisa de "docker login
+#   ghcr.io" antes (bootstrap-vps.sh app-ghcr).
+#
+# O QUE NÃO ESTÁ NESTE ARQUIVO
+#   Segredo nenhum. A API lê /root/crystal/app/api.env e o Postgres lê
+#   /root/crystal/app/postgres.env, os dois gerados na VPS pelo bootstrap
+#   (chmod 600). Os marcadores abaixo são trocados pelo bootstrap:
+#     APP_TAG       tag das imagens
+#     APP_ENV_DIR   pasta dos .env (padrão /root/crystal/app)
+#
+# COMO SUBIR
+#   bash bootstrap-vps.sh app-subir sha-XXXXXXX
+#   (o bootstrap grava /root/crystal/stacks/10-crystal-app.yaml e faz
+#    docker stack deploy --with-registry-auth -c ... crystal_app)
+#
+# DNS: app. e api. em A -> IP da VPS, CINZA. O Traefik emite o certificado por
+# desafio HTTP; com a nuvem laranja a emissão falha.
+# =============================================================================
+
+version: "3.7"
+
+services:
+
+  # ---------------------------------------------------------------- Postgres
+  app_postgres:
+    image: postgres:16-alpine
+    env_file: APP_ENV_DIR/postgres.env
+    networks:
+      - app_interno
+    volumes:
+      - app_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits: {cpus: "1", memory: 1024M}
+      restart_policy: {condition: any, delay: 5s}
+
+  # ---------------------------------------------------------------- Redis
+  # Sessões (janela do refresh) e rate limit vivem aqui: sem despejo de chave
+  # (noeviction) e com persistência, senão um reinício desloga todo mundo.
+  app_redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    networks:
+      - app_interno
+    volumes:
+      - app_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits: {cpus: "0.5", memory: 512M}
+      restart_policy: {condition: any, delay: 5s}
+
+  # ---------------------------------------------------------------- API
+  # Aplica as migrações do Prisma e sobe. UMA réplica: com duas, as duas
+  # migrariam ao mesmo tempo e o fan-out do chat (em memória) se dividiria.
+  app_api:
+    image: ghcr.io/lfcrystal766/crystal-web-chat-api:APP_TAG
+    command:
+      - sh
+      - -c
+      - pnpm --filter @crystal/api db:migrate:deploy && exec pnpm --filter @crystal/api start
+    env_file: APP_ENV_DIR/api.env
+    networks:
+      - app_interno
+      - network_swarm_public
+    volumes:
+      - app_uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      # Migração + boot. O Swarm só troca a tarefa depois disso.
+      start_period: 90s
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits: {cpus: "1", memory: 1024M}
+      update_config:
+        parallelism: 1
+        # stop-first: nunca duas APIs migrando ao mesmo tempo.
+        order: stop-first
+        failure_action: rollback
+        monitor: 120s
+      restart_policy: {condition: any, delay: 10s, max_attempts: 5, window: 300s}
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=network_swarm_public
+        - traefik.http.routers.crystal_app_api.rule=Host(`api.crystalnowpp.com.br`)
+        - traefik.http.routers.crystal_app_api.entrypoints=websecure
+        - traefik.http.routers.crystal_app_api.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.crystal_app_api.service=crystal_app_api
+        - traefik.http.services.crystal_app_api.loadbalancer.server.port=3001
+        - traefik.http.services.crystal_app_api.loadbalancer.passHostHeader=true
+
+  # ---------------------------------------------------------------- Web (PWA)
+  # Nenhum segredo: o endereço da API já está embutido na imagem (build).
+  app_web:
+    image: ghcr.io/lfcrystal766/crystal-web-chat-web:APP_TAG
+    environment:
+      - NODE_ENV=production
+      - HOSTNAME=0.0.0.0
+      - PORT=3000
+    networks:
+      - network_swarm_public
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits: {cpus: "1", memory: 512M}
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        monitor: 60s
+      restart_policy: {condition: any, delay: 5s, max_attempts: 5, window: 300s}
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=network_swarm_public
+        - traefik.http.routers.crystal_app_web.rule=Host(`app.crystalnowpp.com.br`)
+        - traefik.http.routers.crystal_app_web.entrypoints=websecure
+        - traefik.http.routers.crystal_app_web.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.crystal_app_web.service=crystal_app_web
+        - traefik.http.services.crystal_app_web.loadbalancer.server.port=3000
+        - traefik.http.services.crystal_app_web.loadbalancer.passHostHeader=true
+
+networks:
+  app_interno:
+    driver: overlay
+  network_swarm_public:
+    external: true
+    name: network_swarm_public
+
+volumes:
+  app_postgres_data:
+  app_redis_data:
+  app_uploads:
