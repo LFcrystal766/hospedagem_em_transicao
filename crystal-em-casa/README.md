@@ -49,7 +49,7 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | Segredos | Trocados em 29/09 (`recomecar-n8n`), mas a saída do `segredos` foi colada no chat de novo. `segredos` agora abre no `less`, sem deixar rastro no terminal. Trocar mais uma vez antes do primeiro fluxo. E-mail do Let's Encrypt: `crystal@leticiafelisberto.com` |
 | Portainer e n8n | **Admin do Portainer e dono do n8n criados em 29/09.** `editor./healthz` responde ok. Lado do servidor da fase 1 fechado |
 | Supabase Pro + convite | **Feito em 29/09**: convite de Owner para `agencia@academialendaria.ai` na organização Pro do dashboard (decisão do Luiz). Enquanto Owner, a agência enxerga o projeto do dashboard também; rever o papel depois da transferência. Compute size do projeto: perguntar à agência |
-| GitHub | **Feito em 29/09**: repositório privado `LFcrystal766/crystal-ia` (com "ia", não "ai": ajustar `IMAGE_NAME` no workflow). E-mail da conta para o convite da agência: `crystal@leticiafelisberto.com`. Token `write:packages` fica para a fase 2 |
+| GitHub | **Feito em 29/09**: repositório privado `LFcrystal766/crystal-ia` (com "ia", não "ai": ajustar `IMAGE_NAME` no workflow). E-mail da conta para o convite da agência: `crystal@leticiafelisberto.com`. Token `write:packages` criado em 29/09 (90 dias, vence por volta de 28/12) e cadastrado no Portainer como registry `ghcr` |
 | Backup do n8n | **Feito em 29/09**: dump diário às 03:30 em `/root/crystal/backups`, 14 dias. Cópia fora da VPS: snapshot/backup semanal da Hostinger (conferir no hPanel). R2 do Cloudflare não está ativado na conta |
 | Firewall | **Feito em 29/09**: ufw com 22, 80 e 443. Portas do Swarm fora da internet |
 | Netlify, Telegram | Faltam |
