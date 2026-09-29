@@ -13,6 +13,10 @@ LendChat, e diz o que o app manda e espera. Endereços conferidos às 02:57 de
 29/09: health 200, POST sem segredo 403, `editor./healthz` 200, `painel.` 200.
 O repositório `crystal-ia` continua vazio.
 
+29/09, depois: OpenRouter confirmado como conta nossa (o Luiz tem o acesso).
+Nenhuma chave existente pode ser apagada antes do corte: uma delas é a do
+agente em produção. A pergunta 2 virou pedido de confirmação de qual é.
+
 ---
 
 Bom dia, Tuan. Tudo bem?
@@ -35,7 +39,7 @@ Uma dica que pode servir pra outros clientes de vocês: o Docker 29 recusa a API
 Três coisas pra alinhar junto:
 
 1. Supabase: qual o compute size do projeto da Crystal hoje? Pra eu ajustar a organização de destino antes da transferência, se precisar.
-2. OpenRouter: a conta "já existente" está no nome de vocês ou no nosso? Se for de vocês, criamos a nossa e vocês reapontam a chave.
+2. OpenRouter: a conta é nossa e estou com acesso. Na fase 2 eu crio uma chave nova só pra VPS; a atual de vocês segue até o corte. Me confirma qual chave é a que o agente usa hoje, pra eu não mexer nela.
 3. Região do projeto do Supabase: a VPS ficou em Boston (EUA). Se o banco estiver em outro continente, vale alinhar antes.
 
 Sobre o webhook do app: deixamos um endereço fixo no n8n novo, já no ar.

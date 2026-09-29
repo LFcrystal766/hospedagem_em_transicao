@@ -55,7 +55,8 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | Netlify | Conta criada em 29/09 (com o GitHub), segundo o Luiz. Sem API aqui para conferir |
 | Telegram | **Feito em 29/09**: bot e grupo `Crystal · Alertas`, bot como admin, `sendMessage` testado. Token no Bitwarden; `TELEGRAM_ALERT_CHAT_ID=-1003662546162` |
 | Webhook do app | **No ar desde 29/09** no n8n: `n8n/webhook-crystal-app.json`. Health 200, POST sem segredo 403. Formato definitivo depende da agência |
-| Respostas da agência | Compute size do Supabase, dono da conta OpenRouter, como o agente atende um canal que não é o LendChat, onde está a base de clientes |
+| OpenRouter | **Conta nossa**, com acesso do Luiz desde 29/09. Não apagar nem trocar chave antes do corte: uma é a do agente em produção. Na fase 2, chave nova só para a VPS |
+| Respostas da agência | Compute size do Supabase, qual chave do OpenRouter o agente usa hoje, como o agente atende um canal que não é o LendChat, onde está a base de clientes |
 | Código do agente | **Não chegou.** `LFcrystal766/crystal-ia` vazio em 29/09 às 03:00 |
 | App web | Repositório `LFcrystal766/crystal-web-chat`, transferido do Igor em 29/09. Avaliação em `app-web-chat.md` |
 | Stack do app | **No ar desde 29/09**, tag `sha-1fb80ea`, 4 serviços 1/1. Conferido de fora: `app.` 200 e `api./healthz` 200, os dois com certificado do Let's Encrypt; CORS só para `app.`; CSP do app aponta só para `api.`. Crystal e base de clientes **simuladas** até a agência passar os endereços. Resend com domínio verificado (`send.`, `resend._domainkey`, `_dmarc` p=none), remetente `acesso@crystalnowpp.com.br` |
