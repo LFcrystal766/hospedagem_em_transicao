@@ -241,7 +241,9 @@ avisa se o último envio ao R2 tem mais de 26 horas.
 **Restaurar (ou só testar, uma vez por mês), no Mac:**
 ```bash
 brew install age
-# baixar o .age no painel do R2 (bucket > objeto > Download)
+# baixar o .age: no painel do R2 (bucket > objeto > Download) ou, mais fácil,
+# rodar "bash bootstrap-vps.sh backup-link" na VPS e colar no Mac a linha curl
+# que ela mostra (link de 10 minutos, só para aquele arquivo)
 # copiar a chave AGE-SECRET-KEY-... do Bitwarden e, sem colar em lugar nenhum:
 pbpaste | age -d -i - ~/Downloads/n8n_queue-AAAAMMDDTHHMMSSZ.sql.gz.age | gunzip | head -40
 ```

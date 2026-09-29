@@ -24,6 +24,8 @@
 #   bash bootstrap-vps.sh backup-fora-config   dados do R2 (segredo sem aparecer), testa e agenda:
 #                                              cada backup sobe cifrado para o Cloudflare R2
 #   bash bootstrap-vps.sh backup-conferir      lista o que está no R2 e há quanto tempo foi o último
+#   bash bootstrap-vps.sh backup-link [TIPO]   link de 10 min para baixar o backup mais novo (teste de
+#                                              restauração no Mac). TIPO: n8n_queue (padrão), crystal_web_chat
 #   bash bootstrap-vps.sh seguranca            atualização de segurança automática, fail2ban no SSH
 #                                              e relatório (senha no SSH, root, portas, pendências)
 #   bash bootstrap-vps.sh firewall             ufw: só 22, 80 e 443 de fora. As portas do Swarm
@@ -430,6 +432,48 @@ backup_fora_config() {
   ok "R2 aceitou o envio; dados gravados em $FORA_CONF"
   backup_cron
   echo "Próximo: bash $0 backup   (faz um backup agora e manda pro R2)"
+}
+
+# Link temporário (10 min) para baixar o backup mais novo de um tipo, para o teste
+# de restauração no Mac sem passar pelo painel. O link só baixa aquele arquivo, que
+# está cifrado; mesmo assim, não colar em chat.
+backup_link() {
+  local tipo="${1:-n8n_queue}" xml code
+  echo "$tipo" | grep -Eq '^(n8n_queue|crystal_web_chat|crystal_uploads)$' || falha "tipo: n8n_queue, crystal_web_chat ou crystal_uploads"
+  fora_ler_conf
+  xml=$(mktemp)
+  code=$(fora_curl -o "$xml" -w '%{http_code}' "$R2_URL?list-type=2&prefix=$FORA_PREFIXO") || code=000
+  if [ "$code" != 200 ]; then aviso "listagem do R2 respondeu $code"; rm -f "$xml"; exit 1; fi
+  R2_URL="$R2_URL" R2_CHAVE_ID="$R2_CHAVE_ID" R2_SEGREDO="$R2_SEGREDO" R2_REGIAO="${R2_REGIAO:-auto}" \
+    python3 - "$xml" "$FORA_PREFIXO/$tipo/" <<'PY'
+import datetime, hashlib, hmac, os, sys, urllib.parse, xml.etree.ElementTree as ET
+ns = {'s': 'http://s3.amazonaws.com/doc/2006-03-01/'}
+chaves = sorted(c.find('s:Key', ns).text for c in ET.parse(sys.argv[1]).getroot().findall('s:Contents', ns)
+                if c.find('s:Key', ns).text.startswith(sys.argv[2]))
+if not chaves:
+    sys.exit("ERRO: nenhum backup desse tipo no R2")
+chave = chaves[-1]
+base = urllib.parse.urlsplit(os.environ['R2_URL'])
+host, caminho = base.netloc, base.path + '/' + urllib.parse.quote(chave, safe='/')
+agora = datetime.datetime.now(datetime.timezone.utc)
+data, carimbo = agora.strftime('%Y%m%d'), agora.strftime('%Y%m%dT%H%M%SZ')
+escopo = f"{data}/{os.environ['R2_REGIAO']}/s3/aws4_request"
+q = {'X-Amz-Algorithm': 'AWS4-HMAC-SHA256', 'X-Amz-Credential': f"{os.environ['R2_CHAVE_ID']}/{escopo}",
+     'X-Amz-Date': carimbo, 'X-Amz-Expires': '600', 'X-Amz-SignedHeaders': 'host'}
+qs = '&'.join(f"{urllib.parse.quote(k, safe='')}={urllib.parse.quote(v, safe='')}" for k, v in sorted(q.items()))
+canon = '\n'.join(['GET', caminho, qs, f'host:{host}', '', 'host', 'UNSIGNED-PAYLOAD'])
+assinar = '\n'.join(['AWS4-HMAC-SHA256', carimbo, escopo, hashlib.sha256(canon.encode()).hexdigest()])
+k = ('AWS4' + os.environ['R2_SEGREDO']).encode()
+for parte in (data, os.environ['R2_REGIAO'], 's3', 'aws4_request'):
+    k = hmac.new(k, parte.encode(), hashlib.sha256).digest()
+sig = hmac.new(k, assinar.encode(), hashlib.sha256).hexdigest()
+nome = chave.rsplit('/', 1)[-1]
+print(f"Backup: {chave}")
+print("Link válido por 10 minutos. No Terminal do Mac, cole a linha abaixo INTEIRA (não cole em chat):")
+print()
+print(f"curl -fo ~/Downloads/{nome} '{base.scheme}://{host}{caminho}?{qs}&X-Amz-Signature={sig}'")
+PY
+  rm -f "$xml"
 }
 
 backup_conferir() {
@@ -1213,6 +1257,7 @@ case "$CMD" in
   backup-chave) shift; backup_chave "$@" ;;
   backup-fora-config) backup_fora_config ;;
   backup-conferir) backup_conferir ;;
+  backup-link) shift; backup_link "$@" ;;
   firewall) firewall ;;
   seguranca) seguranca ;;
   painel-restringir) shift; painel_restringir "$@" ;;
