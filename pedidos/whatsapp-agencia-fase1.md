@@ -80,17 +80,17 @@ Propriedade: código, prompts e base de conhecimento da Crystal são nossos
   WhatsApp. Errado não dá erro, abre conversa nova sem memória. CPF nunca vai no identificador.
 - Perguntou se o webhook do app é `https://webhook.crystalnowpp.com.br`.
 
-## Resposta ao Tuan (29/09), no lugar do complemento
+## Resposta ao Tuan (29/09), como Igor
 
-Valeu, Tuan, ficou bem claro. A gente adapta do nosso lado.
+Valeu, Tuan! Ficou bem claro, obrigado pelo detalhamento. A gente adapta do nosso lado.
 
-Sobre o webhook: ainda não. Esse endereço é o nosso n8n. Os eventos do LendChat vão direto pro backend do app, e te passo a URL definitiva quando a integração estiver pronta. Por enquanto não apontem nada.
+Sobre o webhook: ainda não. Esse endereço é o nosso n8n. Os eventos do LendChat vão direto pro backend do app, e te passo a URL definitiva quando a integração estiver pronta. Por enquanto não precisa apontar nada.
 
-Pra implementar o canal de API do LendChat, preciso de:
-1. O contrato técnico que você citou.
-2. A URL base da API do LendChat e o identificador da inbox do app. Vocês criam a inbox ou a gente cria?
+Pra implementar o canal de API, me ajuda com:
+1. O contrato técnico que você comentou. Se o LendChat segue a API do Chatwoot, me diz a versão, que facilita os testes.
+2. A URL base da API e o identificador da inbox do app. Vocês criam a inbox ou a gente cria?
 3. Como o contato é autenticado na inbox: tem o HMAC de identidade (identifier_hash)? Os segredos, do HMAC e da assinatura do webhook, me manda no privado.
-4. Uma inbox de teste, pra ensaiar sem tocar a produção.
-5. Se der, o prompt e a base de conhecimento da Crystal, pra gente testar o app com o jeito dela até a fase 2.
+4. Uma inbox de teste, pra gente ensaiar sem tocar a produção.
+5. Se der, o prompt e a base de conhecimento da Crystal, pra testar o app com o jeito dela até a fase 2.
 
-E continuo aguardando a previsão do código no crystal-ia e da transferência do Supabase.
+E fico no aguardo da previsão do código no crystal-ia e da transferência do Supabase.

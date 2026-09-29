@@ -107,25 +107,50 @@ Luiz em 29/09). Na fase 2 eles chegam ao `LFcrystal766/crystal-ia`; depois
 disso, mudar o jeito da Crystal é editar o prompt no repositório e publicar
 uma imagem nova, sem depender da agência.
 
-## LFChat: por que não retomar agora
+## LFChat enxuto: nosso Chatwoot no lugar do LendChat (proposta de 29/09)
 
-- O plano da agência mantém o LendChat e o corte é reapontar o webhook dele. O
-  LFChat troca o LendChat por um Chatwoot próprio. São dois planos para a mesma
-  peça, e só um deles tem o código do agente por trás.
-- O agente da agência fala o formato do LendChat. O LFChat espera que a Crystal
-  fale o contrato da Bridge (`POST /v1/turns` assinado, com callback). Ninguém
-  combinou isso com a agência.
-- Nunca rodou com Chatwoot real nem com a Crystal real. A WABA tem zero
-  templates. Nenhum artefato do fornecedor chegou (`ARTIFACTS.md`).
-- Na pausa havia 3 achados críticos e 2 altos abertos na exclusão e exportação
-  de dados do titular (L-286, L-287). As rodadas de revisão reabriam críticos a
-  cada entrega.
-- O roteiro previa produção em 20/10, condicionado ao material do fornecedor
-  até 25/09. O material não veio, então essa data já não vale.
+A agência não vai passar o LendChat. A ideia é o LFChat substituí-lo. Faz sentido
+como destino, com um desenho bem menor que o original do Igor.
 
-Recomendação: terminar a fase 2 da agência, colocar o app no ar no modo simples
-como canal de reserva, e só então decidir se o LFChat volta, já com o código do
-agente em mãos.
+**Por que dá para encolher.** O LendChat fala o protocolo do Chatwoot (o Tuan citou
+`X-Chatwoot-Signature`, `X-Chatwoot-Delivery`, `message_type`). O agente da agência
+já agrupa mensagens, usa fila com repetição e fila de mensagens mortas, e trata
+áudio e imagem. A Bridge do LFChat repetia esse trabalho e exigia um contrato novo
+da Crystal. Sem ela, o LFChat vira:
+
+| Peça | Papel |
+|---|---|
+| Chatwoot CE na VPS | Substitui o LendChat: WhatsApp, caixa de entrada, tela da equipe |
+| Agente da Crystal | Igual, só aponta para o nosso Chatwoot |
+| App | Canal de API do Chatwoot (código na branch `lfchat/g0-discovery`) |
+
+A maior parte dos achados graves abertos na pausa era da Bridge e do histórico
+importado, e sai junto.
+
+**O app não é feito duas vezes.** A API do LendChat e a do Chatwoot são a mesma.
+Se o app precisar sair antes, usa a inbox de API do LendChat que o Tuan ofereceu;
+no corte, trocam só endereço e chaves.
+
+**Ordem:**
+1. Fase 2 da agência: agente na VPS, ainda com o LendChat. Corte deles.
+2. Chatwoot na VPS em paralelo, testado com um número de teste do WhatsApp.
+3. Segundo corte: o número sai do LendChat para o nosso Chatwoot, e o agente
+   aponta para ele. Reversível: o número volta ao LendChat.
+4. App para os alunos no nosso Chatwoot (ou antes, pelo LendChat, se o prazo apertar).
+
+Nunca os dois cortes juntos: trocar cérebro e canal ao mesmo tempo esconde qual
+lado quebrou.
+
+**A confirmar antes de decidir:**
+- Quais chamadas o agente faz ao LendChat (no código, quando chegar ao `crystal-ia`).
+- Quem controla o app da Meta e a BM ("Contabilizei Tecnologia") do número.
+- O que fazer com o histórico das conversas que está no LendChat.
+- Quem da equipe atende pelo LendChat hoje.
+- Se a VPS comporta o Chatwoot junto com o resto (medir antes).
+- Até quando o contrato com a agência cobre o LendChat.
+
+Aproveitável do trabalho do Igor: o compose e o script de configuração do
+Chatwoot, o canal do app no BFF e o kit de migração. A Bridge fica arquivada.
 
 ## Estimativa
 
@@ -134,4 +159,4 @@ agente em mãos.
 | Base na VPS (fase 1) | Pronta e conferida | Nada |
 | Agente na VPS (fase 2) | Não começou. `crystal-ia` vazio | 1 a 2 semanas depois que o código chegar |
 | App no modo simples | Código pronto | Cerca de 1 semana de trabalho depois de saber o formato do agente. Dá para adiantar a stack na VPS antes |
-| LFChat | Parado, com críticos abertos | Várias semanas, se retomado |
+| LFChat enxuto (Chatwoot no lugar do LendChat) | Proposto em 29/09 | 1 a 2 semanas de montagem depois da fase 2, mais o corte do WhatsApp |
