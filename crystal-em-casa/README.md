@@ -186,7 +186,7 @@ Depois da transferência do projeto do Supabase:
 ```bash
 bash bootstrap-vps.sh app-definir SUPABASE_URL               # https://<projeto>.supabase.co
 bash bootstrap-vps.sh app-definir SUPABASE_SERVICE_ROLE_KEY  # Settings > API > service_role
-bash bootstrap-vps.sh app-subir sha-XXXXXXX                  # c7de9fe ou mais nova
+bash bootstrap-vps.sh app-subir sha-XXXXXXX                  # 516f6a9 ou mais nova
 ```
 
 A chave service_role abre o banco inteiro: só no cofre e na VPS, nunca no chat, nunca

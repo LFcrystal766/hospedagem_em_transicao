@@ -43,7 +43,7 @@ direto, sem Chatwoot nem Bridge. Na `main` esse é o único modo; o transporte
 |---|---|
 | Saber como o agente da agência atende um canal que não é o LendChat | Código do agente no `crystal-ia` ou resposta do Tuan |
 | `CRYSTAL_API_URL`: endereço que recebe a mensagem do app e devolve a resposta | Item acima. Pode ser um fluxo no nosso n8n na frente do agente |
-| Login conferindo a base de alunos | **Código pronto em 29/09** (`c7de9fe`): função `app_verificar_login` na tabela `leticia_crystal_customers`. Falta a transferência do Supabase, conferir as colunas e criar a função |
+| Login conferindo a base de alunos | **Código pronto em 29/09** (`516f6a9`): só aluno ativo entra, conferido a cada login: função `app_verificar_login` na tabela `leticia_crystal_customers`. Falta a transferência do Supabase, conferir as colunas e criar a função |
 | Entrada das mensagens proativas em `POST /webhooks/crystal`, assinada | Formato da agência. O webhook `crystal-app` do n8n segura o endereço enquanto isso |
 | Conta no Resend e remetente de e-mail para o OTP | Luiz ou Igor |
 | Endereço do app e registro DNS cinza apontando para a VPS | Decisão. O D-024 do app previa `app.crystalnowpp.com`, sem `.br`, e foi suspenso pelo D-029 |
