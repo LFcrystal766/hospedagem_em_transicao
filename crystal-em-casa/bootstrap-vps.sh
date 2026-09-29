@@ -160,12 +160,13 @@ tudo()      { traefik; portainer; bancos; n8n; echo; status; }
 # ------------------------------------------------------------------ status
 status() {
   echo "== Serviços"
-  docker service ls --format '  {{.Name}}\t{{.Replicas}}\t{{.Image}}' | column -t
+  docker service ls --format '{{.Name}} {{.Replicas}} {{.Image}}' | awk '{printf "  %-28s %-5s %s\n",$1,$2,$3}'
   echo
   echo "== HTTPS pelos nomes públicos (certificado tem que ser válido, sem -k)"
   for h in painel editor webhook; do
     local code
-    code=$(curl -s -o /dev/null -m 20 -w '%{http_code}' "https://$h.$DOMINIO/" 2>/dev/null); code=${code:-000}
+    code=$(curl -s -o /dev/null -m 20 -w '%{http_code}' "https://$h.$DOMINIO/" 2>/dev/null) || true
+    code=${code:-000}
     case "$code" in
       200|301|302|401|404) ok "https://$h.$DOMINIO -> $code" ;;
       000) aviso "https://$h.$DOMINIO sem resposta ou certificado inválido (Traefik ainda emitindo? DNS? porta 443 fechada?)" ;;
