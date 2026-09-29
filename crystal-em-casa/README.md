@@ -55,7 +55,9 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | Netlify | Conta criada em 29/09 (com o GitHub), segundo o Luiz. Sem API aqui para conferir |
 | Telegram | **Feito em 29/09**: bot e grupo `Crystal · Alertas`, bot como admin, `sendMessage` testado. Token no Bitwarden; `TELEGRAM_ALERT_CHAT_ID=-1003662546162` |
 | Webhook do app | **No ar desde 29/09** no n8n: `n8n/webhook-crystal-app.json`. Health 200, POST sem segredo 403. Formato definitivo depende da agência |
-| Respostas da agência | Compute size do Supabase, dono da conta OpenRouter, quem monta a fase 1 |
+| Respostas da agência | Compute size do Supabase, dono da conta OpenRouter, como o agente atende um canal que não é o LendChat, onde está a base de clientes |
+| Código do agente | **Não chegou.** `LFcrystal766/crystal-ia` vazio em 29/09 às 03:00 |
+| App web | Repositório `LFcrystal766/crystal-web-chat`, transferido do Igor em 29/09. Avaliação em `app-web-chat.md` |
 
 Boston em vez de São Paulo não fere o guia: o tempo do atendimento é dominado
 pela resposta do modelo, não pela rede. Vale conferir a região do projeto do
