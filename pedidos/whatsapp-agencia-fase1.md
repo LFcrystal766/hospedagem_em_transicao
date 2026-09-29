@@ -16,7 +16,8 @@ Do nosso lado, a fase 1 da migração está pronta, seguindo o guia e os arquivo
 - Swarm ativo, rede network_swarm_public, Traefik v2.11.3 com certificado válido em painel., editor. e webhook.crystalnowpp.com.br
 - Portainer, Postgres 16, Redis 7 e n8n 1.123.10 em modo fila (editor, webhook e worker), tudo 1/1, limpeza de execuções ligada, chave do n8n no cofre
 - Supabase: organização no plano Pro, convite de Owner enviado pra agencia@academialendaria.ai
-- GitHub: repositório privado LFcrystal766/crystal-ia. O e-mail da conta, pro convite de vocês, é crystal@leticiafelisberto.com
+- GitHub: repositório privado LFcrystal766/crystal-ia, já com convite de colaborador pra agencia@academialendaria.ai (podem subir o código direto). O e-mail da nossa conta, caso precisem, é crystal@leticiafelisberto.com
+- Netlify: conta criada, esperando o código do dashboard
 
 Então podem mandar o código pro repositório e aceitar o convite do Supabase quando quiserem, que a gente entra na fase 2.
 
@@ -28,4 +29,4 @@ Três coisas pra alinhar junto:
 2. OpenRouter: a conta "já existente" está no nome de vocês ou no nosso? Se for de vocês, criamos a nossa e vocês reapontam a chave.
 3. Região do projeto do Supabase: a VPS ficou em Boston (EUA). Se o banco estiver em outro continente, vale alinhar antes.
 
-Sobre o webhook do app que você perguntou dia 28: [status aqui]
+Sobre o webhook do app: ainda não está no ar, a máquina com o código do app ficou fora desde o dia 21. Me manda o que vocês precisam dele (a URL que a Crystal vai chamar, o formato do que ela envia e como autentica) que a gente cria e te passa o endereço. Isso é separado da migração, não trava a fase 2.
