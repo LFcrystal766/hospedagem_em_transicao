@@ -95,3 +95,12 @@ Pra implementar o canal de API, me ajuda com:
 4. Se der, o prompt e a base de conhecimento da Crystal, pra testar o app com o jeito dela até a fase 2.
 
 E fico no aguardo da previsão do código no crystal-ia e da transferência do Supabase.
+
+## Enviado pelo Igor (29/09, 14:56 a 14:58)
+
+- Webhook: ainda não apontar nada; a URL definitiva vai para o backend do app.
+- Pedidos: contrato técnico (e versão do Chatwoot, se for o caso), se a inbox usa
+  HMAC de identidade (identifier_hash), e uma inbox de teste.
+- **Não foram** nesta rodada: o prompt e a base de conhecimento da Crystal, e a
+  previsão do código no crystal-ia e da transferência do Supabase. Cobrar junto
+  com a próxima resposta dele.
