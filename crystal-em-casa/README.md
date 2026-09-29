@@ -155,6 +155,17 @@ bash bootstrap-vps.sh crystal-provisoria-desligar   # volta à Crystal simulada
   chave, memória entre mensagens, 400 para mensagem inválida, 502 com o
   OpenRouter fora.
 
+## Proteção da VPS contra ataque e malware
+
+```bash
+bash bootstrap-vps.sh seguranca
+```
+
+Liga a atualização de segurança automática do Ubuntu e o fail2ban no SSH (5 erros
+em 10 minutos bloqueiam o IP por 1 hora), e mostra o que ainda depende de decisão:
+SSH aceitando senha, root, portas escutando e atualização pendente. Não mexe em
+nenhum serviço. Regras completas em "Segurança sempre" no CLAUDE.md.
+
 ## Ligar o canal do LendChat no app
 
 O app já sabe falar com uma inbox de API no formato do Chatwoot

@@ -47,6 +47,23 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
 - Segredos do app na VPS (`/root/crystal/app/.segredos`): `ENCRYPTION_KEY` e
   `CPF_SALT` nunca mudam depois de o banco do app ter dado.
 
+## Segurança sempre (pedido em 29/09)
+
+Toda mudança leva em conta ataque e malware, sem precisar pedir:
+
+- Segredo nunca no chat, no repositório, em URL ou em log. Vazou, troca.
+- Menor privilégio: token só com o escopo necessário, chave `service_role` só no
+  servidor, função SQL em vez de acesso à tabela, webhook sempre assinado.
+- Superfície mínima na VPS: só 22, 80 e 443 abertas; nada de porta de banco ou do
+  Docker exposta; painéis (Portainer, n8n) com senha forte e 2FA onde houver.
+- Atualização de segurança automática e bloqueio de força bruta no SSH
+  (`bootstrap-vps.sh seguranca`); imagens com versão fixa, nunca `latest`.
+- Backup fora da VPS (ransomware apaga o que está na máquina).
+- Entrada de fora é sempre validada; nada de `curl | bash` de origem que não seja
+  este repositório com commit fixo.
+- 2FA em todas as contas: GitHub, Hostinger, Cloudflare, Supabase, OpenRouter,
+  Resend, Bitwarden.
+
 ## Onde está cada coisa
 
 | Caminho | O que é |

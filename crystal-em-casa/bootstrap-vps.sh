@@ -19,6 +19,8 @@
 #   bash bootstrap-vps.sh backup               pg_dump do banco do n8n em /root/crystal/backups
 #                                              (guarda 14 dias). A chave do n8n NÃO vai junto
 #   bash bootstrap-vps.sh backup-cron          agenda o backup todo dia às 03:30 (hora da VPS)
+#   bash bootstrap-vps.sh seguranca            atualização de segurança automática, fail2ban no SSH
+#                                              e relatório (senha no SSH, root, portas, pendências)
 #   bash bootstrap-vps.sh firewall             ufw: só 22, 80 e 443 de fora. As portas do Swarm
 #                                              (2377, 7946, 4789) deixam de ficar públicas
 #   bash bootstrap-vps.sh recomecar-n8n EMAIL --confirmo
@@ -282,6 +284,56 @@ firewall() {
   ok "ufw ativo: entrada só 22, 80 e 443"
   ufw status | sed 's/^/  /'
   echo "  Conferir de fora: as três URLs em HTTPS continuam respondendo (bash $0 status)."
+}
+
+# ------------------------------------------------------------------ seguranca
+# Proteções da máquina contra ataque e malware que não mexem em nenhum serviço:
+#   - atualização de segurança automática do Ubuntu (sem reiniciar sozinho);
+#   - fail2ban no SSH: 5 tentativas erradas em 10 min bloqueiam o IP por 1 hora;
+#   - relatório do que ainda depende de decisão: senha no SSH, root, portas abertas.
+# O Web console da Hostinger continua funcionando mesmo com um IP bloqueado.
+seguranca() {
+  export DEBIAN_FRONTEND=noninteractive
+  echo "== pacotes"
+  apt-get -qq update >/dev/null
+  apt-get -y -qq install unattended-upgrades fail2ban python3-systemd >/dev/null || falha "não instalou os pacotes"
+  cat > /etc/apt/apt.conf.d/20auto-upgrades <<'CFG'
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+APT::Periodic::AutocleanInterval "7";
+CFG
+  ok "atualização de segurança automática ligada (sem reinício automático)"
+
+  cat > /etc/fail2ban/jail.d/crystal.local <<'CFG'
+[sshd]
+enabled  = true
+backend  = systemd
+maxretry = 5
+findtime = 10m
+bantime  = 1h
+CFG
+  systemctl enable fail2ban >/dev/null 2>&1 || true
+  systemctl restart fail2ban || falha "fail2ban não subiu: journalctl -u fail2ban"
+  sleep 2
+  fail2ban-client status sshd >/dev/null 2>&1 && ok "fail2ban protegendo o SSH" || aviso "fail2ban no ar, mas a regra do SSH não respondeu: fail2ban-client status sshd"
+
+  echo "== o que ainda depende de decisão"
+  local pw root
+  pw=$(sshd -T 2>/dev/null | awk '/^passwordauthentication /{print $2}')
+  root=$(sshd -T 2>/dev/null | awk '/^permitrootlogin /{print $2}')
+  if [ "$pw" = "yes" ]; then
+    aviso "SSH aceita senha. Mais seguro: só chave. Antes de desligar a senha, confira que sua chave entra"
+    aviso "(o Web console da Hostinger continua como porta de emergência)."
+  else
+    ok "SSH não aceita senha"
+  fi
+  [ "$root" = "yes" ] && aviso "root entra por SSH com senha; com chave só, use: PermitRootLogin prohibit-password" || ok "root: $root"
+  ufw status 2>/dev/null | grep -q "Status: active" && ok "ufw ativo" || aviso "ufw desligado: bash $0 firewall"
+  echo "  Portas escutando (de fora só passam 22, 80 e 443; as do Swarm, 2377, 7946 e 4789, o ufw fecha):"
+  ss -Htlnp 2>/dev/null | awk '{print $4}' | grep -vE '^(127\.|\[::1\])' | sed -E 's/.*:([0-9]+)$/\1/' | sort -un | tr '\n' ' ' | sed 's/^/    /'; echo
+  local up; up=$(apt list --upgradable 2>/dev/null | grep -c -- '-security' || true)
+  [ "${up:-0}" -gt 0 ] && aviso "$up pacote(s) de segurança pendentes; a atualização automática aplica hoje à noite" || ok "sem atualização de segurança pendente"
+  [ -f /var/run/reboot-required ] && aviso "o Ubuntu pede reinício para aplicar atualização do kernel: agende na madrugada" || true
 }
 
 # ------------------------------------------------------------------ status
@@ -829,6 +881,7 @@ case "$CMD" in
   backup) backup ;;
   backup-cron) backup_cron ;;
   firewall) firewall ;;
+  seguranca) seguranca ;;
   traefik|portainer|bancos|n8n|tudo|status|segredos) "$CMD" ;;
   *) falha "comando desconhecido: $CMD" ;;
 esac
