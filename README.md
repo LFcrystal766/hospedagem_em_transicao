@@ -21,6 +21,7 @@ evidências cruas em `evidencias/`.
 
 | Data | Situação |
 |---|---|
+| [2026-09-29](auditorias/2026-09-29/RELATORIO.md) | Export BIND da zona do Cloudflare (21 registros, todos cinza). `painel`/`editor`/`webhook` da VPS ainda não existem. `ftp` CNAME por decidir. Cinco registros do Amazon SES de origem não registrada. |
 | [2026-09-13](auditorias/2026-09-13/RELATORIO.md) | DNS, certificados e rastreamento iguais ao inventário de 11/09. `/crystal-ttk/` publicada em 12/09 (Fase A do TikTok) e os 3 redirects envenenados já limpos. Achados levados para o artefato na versão 2. |
 
 ## Overviews

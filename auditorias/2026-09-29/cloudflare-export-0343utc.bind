@@ -1,0 +1,60 @@
+;;
+;; Domain:     crystalnowpp.com.br.
+;; Exported:   2026-09-29 03:43:43
+;;
+;; This file is intended for use for informational and archival
+;; purposes ONLY and MUST be edited before use on a production
+;; DNS server.  In particular, you must:
+;;   -- update the SOA record with the correct authoritative name server
+;;   -- update the SOA record with the contact e-mail address information
+;;   -- update the NS record(s) with the authoritative name servers for this domain.
+;;
+;; For further information, please consult the BIND documentation
+;; located on the following website:
+;;
+;; http://www.isc.org/
+;;
+;; And RFC 1035:
+;;
+;; http://www.ietf.org/rfc/rfc1035.txt
+;;
+;; Please note that we do NOT offer technical support for any use
+;; of this zone data, the BIND name server, or any other third-party
+;; DNS software.
+;;
+;; Use at your own risk.
+;; SOA Record
+crystalnowpp.com.br	3600	IN	SOA	aldo.ns.cloudflare.com. dns.cloudflare.com. 2054232002 10000 2400 604800 3600
+
+;; NS Records
+crystalnowpp.com.br.	86400	IN	NS	aldo.ns.cloudflare.com.
+crystalnowpp.com.br.	86400	IN	NS	jule.ns.cloudflare.com.
+
+;; A Records
+crystalnowpp.com.br.	1	IN	A	45.224.128.177 ; cf_tags=cf-proxied:false
+mail.crystalnowpp.com.br.	1	IN	A	45.224.128.177 ; cf_tags=cf-proxied:false
+server.crystalnowpp.com.br.	1	IN	A	35.199.71.234 ; cf_tags=cf-proxied:false
+
+;; AAAA Records
+crystalnowpp.com.br.	1	IN	AAAA	2804:3744:0:105::2 ; cf_tags=cf-proxied:false
+ipv6.crystalnowpp.com.br.	1	IN	AAAA	2804:3744:0:105::2 ; cf_tags=cf-proxied:false
+mail.crystalnowpp.com.br.	1	IN	AAAA	2804:3744:0:105::2 ; cf_tags=cf-proxied:false
+server.crystalnowpp.com.br.	1	IN	AAAA	2600:1901:0:17b4:: ; cf_tags=cf-proxied:false
+
+;; CNAME Records
+ftp.crystalnowpp.com.br.	1	IN	CNAME	crystalnowpp.com.br. ; cf_tags=cf-proxied:false
+pwdalqvfgi2b6y5otppjqnhpvbzp3dlf._domainkey.crystalnowpp.com.br.	1	IN	CNAME	pwdalqvfgi2b6y5otppjqnhpvbzp3dlf.dkim.amazonses.com. ; cf_tags=cf-proxied:false
+uim6jorcz4x5drmextrrbwjceasky6j7._domainkey.crystalnowpp.com.br.	1	IN	CNAME	uim6jorcz4x5drmextrrbwjceasky6j7.dkim.amazonses.com. ; cf_tags=cf-proxied:false
+www.crystalnowpp.com.br.	1	IN	CNAME	crystalnowpp.com.br. ; cf_tags=cf-proxied:false
+yaapmi4zdnb6pnsejcjrpmljxge4dvn2._domainkey.crystalnowpp.com.br.	1	IN	CNAME	yaapmi4zdnb6pnsejcjrpmljxge4dvn2.dkim.amazonses.com. ; cf_tags=cf-proxied:false
+
+;; MX Records
+bounce.crystalnowpp.com.br.	1	IN	MX	10 feedback-smtp.us-east-1.amazonses.com.
+crystalnowpp.com.br.	1	IN	MX	0 mail.crystalnowpp.com.br.
+
+;; TXT Records
+bounce.crystalnowpp.com.br.	1	IN	TXT	"v=spf1 include:amazonses.com ~all"
+crystalnowpp.com.br.	1	IN	TXT	"facebook-domain-verification=zo0z05dmsem2pmd5qb4x8txu2bho2z"
+crystalnowpp.com.br.	1	IN	TXT	"v=spf1 +a +mx +ip4:45.224.128.177 include:spf.jupiter.servidor.net.br ~all"
+default._domainkey.crystalnowpp.com.br.	1	IN	TXT	"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2snpShihXIiI/Y3w0LVRgzx3vN+ruEkhH9s5nS1RjyKzkKCpFynGHMTGvvAoBUYrz/7yihbcrLhZS3yVHaYApChezlLxXqAa6RT8XkKpVW7W1Mc8EVKvXHhkvM7PT4JXRtf1zxLkCTva6wtBC4d9MoK/VqS6wgVJ5S+80rdpErfXi7xI7jAbR+qKZRY2E6SMJ" "2i6RMd8CzIVWLTeUletGIZiLFbtkL0gwqqc6ibq0AWoC3W1HFMT1D5+Gr71U7ClJ1GZZVQn3FHqIR7NcR1Auo1MBX3XGRNh3oF+w55Ibk+FuIfozvtO5U40xHF+31+1CriZEssY/1ypmJZ1pm5pQQIDAQAB;"
+_dmarc.crystalnowpp.com.br.	1	IN	TXT	"v=DMARC1; p=none;"
