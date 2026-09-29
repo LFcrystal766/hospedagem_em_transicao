@@ -5,7 +5,11 @@ Python + n8n) saindo da infraestrutura da agência (Academia Lendária) para uma
 VPS nossa. O site WordPress continua no plano dos três degraus, em
 `../PROXIMOS-PASSOS.md`. As duas frentes só se cruzam na zona DNS do Cloudflare.
 
-O checklist interativo está no artefato
+O plano para levar o app aos alunos (roadmap de seis semanas e checklist
+compartilhado das lojas) está no artefato
+[Crystal nas Lojas](https://claude.ai/artifact/C2oPgdhJtGfgbPQ9ko9Q5G).
+
+O checklist interativo da fase 1 está no artefato
 [Crystal em Casa](https://claude.ai/artifact/C6yKAGUMgK9pqRaTeZ7M4W) (25 itens,
 fase 1). Esta pasta guarda o material da agência e o que a sessão do Claude
 precisa para agir.
