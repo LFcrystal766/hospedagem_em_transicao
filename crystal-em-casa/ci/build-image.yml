@@ -1,0 +1,74 @@
+# Constrói a imagem do agente da Crystal no GitHub Actions e publica no
+# registry do GitHub (ghcr.io), como o guia da agência pede: linux/amd64,
+# tag = versão (a tag git), nunca "latest".
+#
+# Por que no Actions e não no Mac: o guia avisa que um Mac recente gera ARM
+# por padrão e a imagem sobe mas não roda na VPS; e o MacBook está fora do ar
+# desde 21/09. Aqui o build é sempre amd64 e não depende de máquina nenhuma.
+#
+# Como usar (fase 2, depois que a agência mandar o código):
+#   1. Copiar este arquivo para .github/workflows/build-image.yml no
+#      repositório privado do agente (o que a agência vai preencher).
+#   2. Em Settings > Actions > General > Workflow permissions, marcar
+#      "Read and write permissions" (o GITHUB_TOKEN publica o pacote sozinho;
+#      não precisa do token classic pra isso).
+#   3. Publicar uma versão: git tag v1.0.0 && git push origin v1.0.0
+#   4. A imagem sai em ghcr.io/<organizacao>/crystal-ai:v1.0.0. Na VPS, o
+#      Portainer precisa da credencial do ghcr.io (Registries > Add) pra puxar.
+#
+# Ajustar: IMAGE_NAME se o repositório não se chamar crystal-ai, e o caminho
+# do Dockerfile se a agência entregar em outra pasta.
+
+name: build-image
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag da imagem (ex.: v1.0.1)"
+        required: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/crystal-ai
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Versão
+        id: v
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build e push (linux/amd64, sem latest)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.v.outputs.tag }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.v.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

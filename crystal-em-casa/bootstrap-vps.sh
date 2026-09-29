@@ -16,6 +16,9 @@
 #   bash bootstrap-vps.sh status               serviços + HTTPS dos três nomes
 #   bash bootstrap-vps.sh segredos             mostra a senha do banco e a chave do n8n,
 #                                              pra copiar pro cofre (Bitwarden). Não colar em chat
+#   bash bootstrap-vps.sh backup               pg_dump do banco do n8n em /root/crystal/backups
+#                                              (guarda 14 dias). A chave do n8n NÃO vai junto
+#   bash bootstrap-vps.sh backup-cron          agenda o backup todo dia às 03:30 (hora da VPS)
 #   bash bootstrap-vps.sh recomecar-n8n EMAIL --confirmo
 #                                              só ANTES de o n8n ter fluxo salvo: apaga o banco
 #                                              do n8n e refaz com segredos novos
@@ -46,7 +49,7 @@ falha() { echo "ERRO: $*" >&2; exit 2; }
 ok() { echo "  ok $*"; }
 aviso() { echo "  ! $*"; }
 
-[ -n "$CMD" ] || { sed -n '2,34p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ -n "$CMD" ] || { sed -n '2,37p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 
 # ------------------------------------------------------------------ fundação
 conferir_fundacao() {
@@ -188,6 +191,35 @@ bancos()    { deploy 02-n8n-postgres.yaml n8n_postgres; deploy 03-n8n-redis.yaml
 n8n()       { deploy 04-n8n-editor.yaml n8n_editor; deploy 05-n8n-webhook.yaml n8n_webhook; deploy 06-n8n-worker.yaml n8n_worker; }
 tudo()      { traefik; portainer; bancos; n8n; echo; status; }
 
+# ------------------------------------------------------------------ backup
+# O guia da agência pede backup do banco do n8n (fluxos e credenciais) e a
+# chave de criptografia guardada SEPARADA. Aqui só o banco; a chave fica no
+# cofre. Um dump sem a chave não restaura credenciais, e é por isso que os
+# dois nunca andam juntos.
+backup() {
+  local dir="$BASE/backups" cid
+  mkdir -p "$dir"; chmod 700 "$dir"
+  cid=$(docker ps -q -f name=n8n_postgres_n8n_postgres | head -1)
+  [ -n "$cid" ] || falha "contêiner do Postgres do n8n não está rodando"
+  local arq="$dir/n8n_queue-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
+  umask 077
+  docker exec "$cid" pg_dump -U postgres -d n8n_queue --no-owner | gzip > "$arq" || falha "pg_dump falhou"
+  [ -s "$arq" ] || falha "dump vazio em $arq"
+  ok "backup em $arq ($(du -h "$arq" | cut -f1))"
+  find "$dir" -name 'n8n_queue-*.sql.gz' -mtime +14 -delete
+  echo "  $(ls "$dir" | wc -l) backup(s) guardados. Restaurar: gunzip -c ARQ | docker exec -i CID psql -U postgres -d n8n_queue"
+  echo "  Lembrete: o backup só restaura credenciais com a N8N_CHAVE do cofre."
+}
+
+backup_cron() {
+  local linha="30 3 * * * root /usr/bin/bash $BASE/bootstrap-vps.sh backup >> $BASE/backups/backup.log 2>&1"
+  cp "$AQUI/$(basename "$0")" "$BASE/bootstrap-vps.sh" 2>/dev/null || true
+  printf '%s\n' "$linha" > /etc/cron.d/crystal-backup-n8n
+  chmod 644 /etc/cron.d/crystal-backup-n8n
+  ok "cron instalado em /etc/cron.d/crystal-backup-n8n: todo dia 03:30, log em $BASE/backups/backup.log"
+  echo "  Fora da VPS: copiar $BASE/backups/ pra outro lugar de tempos em tempos (a VPS sumir leva o backup junto)."
+}
+
 # ------------------------------------------------------------------ status
 status() {
   echo "== Serviços"
@@ -255,6 +287,8 @@ case "$CMD" in
   preparar) preparar "$@" ;;
   recomecar-n8n) recomecar_n8n "$@" ;;
   docker-api) docker_api ;;
+  backup) backup ;;
+  backup-cron) backup_cron ;;
   traefik|portainer|bancos|n8n|tudo|status|segredos) "$CMD" ;;
   *) falha "comando desconhecido: $CMD" ;;
 esac

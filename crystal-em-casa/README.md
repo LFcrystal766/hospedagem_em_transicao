@@ -48,7 +48,7 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | Stacks 00 a 06 | **No ar desde 29/09**, 8 serviços 1/1. O Traefik só passou a rotear depois de `docker-api` (Docker 29 recusava a API 1.24 do Traefik v2.11.3). Conferido de fora: `painel` e `editor` respondem 200 em HTTPS, `webhook` 404 na raiz (normal: só serve `/webhook/*`) |
 | Segredos | **Trocados em 29/09** (`recomecar-n8n`), guardados no cofre, fora do chat. E-mail do Let's Encrypt: `crystal@leticiafelisberto.com` |
 | Portainer e n8n | **Admin do Portainer e dono do n8n criados em 29/09.** `editor./healthz` responde ok. Lado do servidor da fase 1 fechado |
-| Supabase Pro + convite | Falta. Antes, perguntar à agência o compute size do projeto |
+| Supabase Pro + convite | Já existe uma organização Pro (a do dashboard). Decidir: convidar a agência nela (Owner enxerga o projeto do dashboard também) ou criar uma organização só para a Crystal (+US$ 25/mês, separação limpa). Compute size do projeto: perguntar à agência |
 | GitHub, Netlify, Telegram | Faltam |
 | Respostas da agência | Compute size do Supabase, dono da conta OpenRouter, quem monta a fase 1 |
 
@@ -74,6 +74,19 @@ bash bootstrap-vps.sh status                      # serviços e HTTPS dos três 
 ```
 
 Os segredos nunca passam pelo chat nem pelo repositório.
+
+## Preparar a fase 2 sem depender da agência
+
+- `ci/build-image.yml`: workflow do GitHub Actions que constrói a imagem do
+  agente em linux/amd64 e publica em `ghcr.io/<org>/crystal-ai:<tag>`, sem
+  `latest`. Vai para `.github/workflows/` do repositório privado do agente
+  depois que a agência entregar o código. Dispensa build no Mac.
+- `bootstrap-vps.sh backup` e `backup-cron`: dump diário do banco do n8n em
+  `/root/crystal/backups`, 14 dias. A chave do n8n fica só no cofre.
+- Firewall da VPS pelo hPanel (VPS > Firewall): liberar só 22, 80 e 443.
+  As portas do Swarm (2377, 7946, 4789) não precisam ficar públicas num nó só.
+- Portainer > Registries: cadastrar o ghcr.io com o token `write:packages`
+  (ou um token só de `read:packages`) para o deploy puxar a imagem privada.
 
 ## Conferir o DNS a qualquer hora, sem token
 
