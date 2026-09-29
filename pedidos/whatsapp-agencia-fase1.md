@@ -55,21 +55,26 @@ c) O login do app confere CPF + e-mail na base de clientes. Essa base é a do Su
 
 ## Situação
 
-Enviada ao Tuan pelo Luiz (o Luiz diz "ontem", em 29/09). Sem resposta até
-29/09. Qual versão foi enviada não está registrado aqui.
+Enviada ao Tuan pelo Luiz em 28/09, de madrugada, na versão anterior (a
+pergunta 2 ainda perguntava de quem é a conta do OpenRouter). Sem resposta
+até 29/09.
 
 Propriedade: código, prompts e base de conhecimento da Crystal são nossos
 (confirmado pelo Luiz em 29/09). Não precisa perguntar à agência.
 
-## Cobrança (para mandar se não houver resposta até 01/10)
+## Complemento (29/09), mais curto, com o que já sabemos
 
-Oi, Tuan. Tudo certo? Retomando a mensagem de ontem: do nosso lado a fase 1
-está pronta, só esperando vocês pra começar a fase 2.
+Oi, Tuan! Complementando a mensagem de ontem, com o que avançou por aqui:
 
-Somei uma pergunta às que mandei:
+- O app web da Crystal já está no ar na VPS (app.crystalnowpp.com.br), por enquanto com uma Crystal provisória, só pra equipe testar.
+- OpenRouter: corrigindo a pergunta 2, a conta é nossa. Só me confirma qual chave o agente usa hoje, pra ninguém mexer nela até o corte.
 
-4. Prompts da Crystal: vocês conseguem mandar já o prompt e a base de
-conhecimento que ela usa hoje? Queremos testar o app com o mesmo jeito dela
-enquanto a fase 2 não começa.
+O que ainda preciso de vocês:
 
-Consegue me dar uma previsão de quando o código sobe pro repositório?
+1. Previsão pro código subir no crystal-ia e pra transferência do Supabase.
+2. Compute size e região do projeto do Supabase.
+3. Como o agente vai atender o app: recebe a mensagem do app e devolve a resposta direto? Hoje ele só conversa com o LendChat.
+4. Login do app: a base de alunos é a do Supabase? Qual tabela, e o agente identifica o aluno pelo telefone ou pelo id do Supabase?
+5. Se der, mandem já o prompt e a base de conhecimento da Crystal, pra gente testar o app com o jeito dela.
+
+Se ficar mais fácil, marcamos uma call rápida pra fechar isso.
