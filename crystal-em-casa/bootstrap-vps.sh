@@ -165,7 +165,7 @@ status() {
   echo "== HTTPS pelos nomes públicos (certificado tem que ser válido, sem -k)"
   for h in painel editor webhook; do
     local code
-    code=$(curl -s -o /dev/null -m 20 -w '%{http_code}' "https://$h.$DOMINIO/" || echo "000")
+    code=$(curl -s -o /dev/null -m 20 -w '%{http_code}' "https://$h.$DOMINIO/" 2>/dev/null); code=${code:-000}
     case "$code" in
       200|301|302|401|404) ok "https://$h.$DOMINIO -> $code" ;;
       000) aviso "https://$h.$DOMINIO sem resposta ou certificado inválido (Traefik ainda emitindo? DNS? porta 443 fechada?)" ;;
@@ -173,8 +173,13 @@ status() {
     esac
   done
   echo
-  echo "== Últimas linhas do Traefik sobre certificado"
-  docker service logs traefik_traefik --since 10m 2>&1 | grep -iE 'acme|certificate|error' | tail -5 || true
+  echo "== Últimas linhas do Traefik sobre certificado (o log vai pra arquivo dentro do contêiner)"
+  local cid; cid=$(docker ps -q -f name=traefik_traefik | head -1)
+  if [ -n "$cid" ]; then
+    docker exec "$cid" tail -200 /var/log/traefik/traefik.log 2>/dev/null | grep -iE 'acme|certif|error' | tail -8 || echo "  (nada sobre certificado no log ainda)"
+  else
+    aviso "contêiner do Traefik não encontrado"
+  fi
 }
 
 segredos() {
