@@ -45,7 +45,8 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | VPS | **Contratada.** Hostinger KVM 4: 4 vCPU, 16 GB, 200 GB, Ubuntu 24.04, Boston (EUA), IP `177.7.61.136`. Porta 80 ainda fechada (nada instalado) |
 | DNS `painel`, `editor`, `webhook` | **Feito em 29/09**, pelo painel: A → `177.7.61.136`, cinza. Conferido de fora (AdGuard DoH) |
 | Docker + Swarm, rede, volumes, label do nó | **Feito em 29/09** pelo Web console: Docker 29.8.1, Swarm ativo (nó `srv2006998`, manager), rede overlay e 4 volumes. O rótulo `app=n8n` o `bootstrap-vps.sh` aplica se faltar |
-| Stacks 00 a 06 | **No ar desde 29/09**, 8 serviços 1/1. Traefik só passou a emitir certificado depois de `docker-api` (Docker 29 recusava a API 1.24 do Traefik v2.11.3) |
+| Stacks 00 a 06 | **No ar desde 29/09**, 8 serviços 1/1. O Traefik só passou a rotear depois de `docker-api` (Docker 29 recusava a API 1.24 do Traefik v2.11.3). Conferido de fora: `painel` e `editor` respondem 200 em HTTPS, `webhook` 404 na raiz (normal: só serve `/webhook/*`) |
+| Segredos | **Trocar antes do primeiro fluxo**: os gerados em 29/09 foram colados no chat. `recomecar-n8n EMAIL --confirmo` |
 | Supabase Pro + convite | Falta. Antes, perguntar à agência o compute size do projeto |
 | GitHub, Netlify, Telegram | Faltam |
 | Respostas da agência | Compute size do Supabase, dono da conta OpenRouter, quem monta a fase 1 |
