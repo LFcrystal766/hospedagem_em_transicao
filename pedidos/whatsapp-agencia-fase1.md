@@ -58,6 +58,9 @@ c) O login do app confere CPF + e-mail na base de clientes. Essa base é a do Su
 Enviada ao Tuan pelo Luiz (o Luiz diz "ontem", em 29/09). Sem resposta até
 29/09. Qual versão foi enviada não está registrado aqui.
 
+Propriedade: código, prompts e base de conhecimento da Crystal são nossos
+(confirmado pelo Luiz em 29/09). Não precisa perguntar à agência.
+
 ## Cobrança (para mandar se não houver resposta até 01/10)
 
 Oi, Tuan. Tudo certo? Retomando a mensagem de ontem: do nosso lado a fase 1
@@ -67,7 +70,6 @@ Somei uma pergunta às que mandei:
 
 4. Prompts da Crystal: vocês conseguem mandar já o prompt e a base de
 conhecimento que ela usa hoje? Queremos testar o app com o mesmo jeito dela
-enquanto a fase 2 não começa. E só pra confirmar: na fase 2 o código, os
-prompts e a base ficam no nosso repositório e passam a ser nossos, certo?
+enquanto a fase 2 não começa.
 
 Consegue me dar uma previsão de quando o código sobe pro repositório?

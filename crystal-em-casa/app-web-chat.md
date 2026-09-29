@@ -71,6 +71,13 @@ direto, sem Chatwoot nem Bridge. Na `main` esse é o único modo; o transporte
 - A sonda da Meta usa a Graph API v21.0, que deve expirar por volta de
   outubro de 2026.
 
+## Propriedade da Crystal
+
+Código do agente, prompts e base de conhecimento são nossos (confirmado pelo
+Luiz em 29/09). Na fase 2 eles chegam ao `LFcrystal766/crystal-ia`; depois
+disso, mudar o jeito da Crystal é editar o prompt no repositório e publicar
+uma imagem nova, sem depender da agência.
+
 ## LFChat: por que não retomar agora
 
 - O plano da agência mantém o LendChat e o corte é reapontar o webhook dele. O
