@@ -268,9 +268,19 @@ status() {
 
 segredos() {
   [ -f "$SEGREDOS" ] || falha "ainda não há segredos: rode 'preparar'"
-  echo "Copie os dois pro cofre (Bitwarden), em itens separados. NÃO cole esta saída em chat nem em documento:"
-  grep -E '^(DB_SENHA|N8N_CHAVE)=' "$SEGREDOS" | sed 's/^/  /'
-  echo "A chave N8N_CHAVE nunca pode mudar. Sem ela, um backup do banco do n8n não restaura as credenciais."
+  # Abre no less (tela alternativa): ao apertar q, os valores somem da tela e
+  # não ficam no histórico do terminal. É pra copiar direto pro cofre.
+  if [ -t 1 ] && command -v less >/dev/null; then
+    {
+      echo "Copie DB_SENHA e N8N_CHAVE pro Bitwarden, em itens separados."
+      echo "Aperte q pra fechar: os valores somem da tela e não vão pro histórico."
+      echo "A chave N8N_CHAVE nunca pode mudar depois de o n8n ter fluxo salvo."
+      echo
+      grep -E '^(DB_SENHA|N8N_CHAVE)=' "$SEGREDOS"
+    } | less -K
+  else
+    grep -E '^(DB_SENHA|N8N_CHAVE)=' "$SEGREDOS"
+  fi
 }
 
 # Só serve ANTES de o n8n ter qualquer fluxo ou credencial salva. Apaga o banco
