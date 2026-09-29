@@ -59,7 +59,7 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | Respostas da agência | Compute size do Supabase, qual chave do OpenRouter o agente usa hoje, como o agente atende um canal que não é o LendChat, onde está a base de clientes |
 | Código do agente | **Não chegou.** `LFcrystal766/crystal-ia` vazio em 29/09 às 03:00 |
 | App web | Repositório `LFcrystal766/crystal-web-chat`, transferido do Igor em 29/09. Avaliação em `app-web-chat.md` |
-| Stack do app | **No ar desde 29/09**, tag `sha-1fb80ea`, 4 serviços 1/1. Conferido de fora: `app.` 200 e `api./healthz` 200, os dois com certificado do Let's Encrypt; CORS só para `app.`; CSP do app aponta só para `api.`. Crystal e base de clientes **simuladas** até a agência passar os endereços. Resend com domínio verificado (`send.`, `resend._domainkey`, `_dmarc` p=none), remetente `acesso@crystalnowpp.com.br` |
+| Stack do app | **No ar desde 29/09**, tag `sha-1fb80ea`, 4 serviços 1/1. Conferido de fora: `app.` 200 e `api./healthz` 200, os dois com certificado do Let's Encrypt; CORS só para `app.`; CSP do app aponta só para `api.`. Crystal e base de clientes **simuladas** até a agência passar os endereços. Resend com domínio verificado (`send.`, `resend._domainkey`, `_dmarc` p=none), remetente `acesso@crystalnowpp.com.br`. Segredos trocados às 12:17 (`app-recomecar`, os anteriores apareceram no chat). Admin criado (CPF final 3899) e **login ponta a ponta conferido em 29/09**: aceite LGPD, código pelo Resend, entrada no app |
 
 Boston em vez de São Paulo não fere o guia: o tempo do atendimento é dominado
 pela resposta do modelo, não pela rede. Vale conferir a região do projeto do
