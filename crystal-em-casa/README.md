@@ -124,6 +124,31 @@ três) e `app-subir` de novo com a mesma tag.
 o hash do CPF ficam ilegíveis. O `backup` diário passa a levar também o banco
 do app, que só se restaura com essas duas chaves.
 
+## Crystal provisória (n8n + OpenRouter)
+
+Até a agência entregar o agente, o app pode responder com uma Crystal
+provisória: o fluxo `n8n/crystal-provisoria.json` recebe a mensagem do app,
+guarda as últimas 20 mensagens de cada conversa no Redis do n8n (banco 2, 7
+dias) e pergunta ao OpenRouter. Não tem os prompts, a memória nem as regras
+da Crystal de verdade, e o app continua fechado para alunos (a base de
+clientes segue simulada).
+
+```bash
+bash bootstrap-vps.sh crystal-provisoria            # pede a chave do OpenRouter sem aparecer
+bash bootstrap-vps.sh crystal-provisoria-teste      # uma pergunta de teste
+bash bootstrap-vps.sh crystal-provisoria-desligar   # volta à Crystal simulada
+```
+
+- **Chave do OpenRouter:** uma nova, só para isso, com limite de crédito.
+  Nunca a do agente em produção.
+- **Modelo e prompt:** no nó "Monta a conversa (modelo e prompt aqui)" do fluxo,
+  no editor do n8n. O padrão é `openrouter/auto`.
+- **Privacidade:** só o texto e o id da conversa vão ao OpenRouter. O n8n não
+  guarda execução com sucesso (só as com erro, que a limpeza apaga em 14 dias).
+- Ensaiado em 29/09 com n8n 1.123.10 e Postgres: import, ativação, 403 sem a
+  chave, memória entre mensagens, 400 para mensagem inválida, 502 com o
+  OpenRouter fora.
+
 ## Preparar a fase 2 sem depender da agência
 
 - `ci/build-image.yml`: workflow do GitHub Actions que constrói a imagem do

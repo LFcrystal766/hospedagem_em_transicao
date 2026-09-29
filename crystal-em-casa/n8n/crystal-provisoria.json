@@ -1,0 +1,409 @@
+{
+  "id": "crystalProvisor1",
+  "name": "Crystal · provisória (OpenRouter)",
+  "versionId": "7b1c2d3e-0000-4000-8000-000000000001",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "crystal-provisoria",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b1c2d3e4-0001-4000-8000-000000000001",
+      "name": "Recebe do app",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "crystal-provisoria-post",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "crystalProvKey01",
+          "name": "Crystal provisória · chave do app"
+        }
+      },
+      "notes": "O app chama com o header x-api-key. Contrato: docs/crystal-api.md do crystal-web-chat. Recebe {contact_id, conversation_id, message:{type,text}} e devolve {text}."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Confere o que o app mandou. Só o texto e o id da conversa seguem adiante:\n// contact_id e qualquer dado pessoal NÃO vão para o OpenRouter.\nconst corpo = $input.first().json.body ?? {};\nconst texto = typeof corpo?.message?.text === 'string' ? corpo.message.text.trim() : '';\nconst conversa = (typeof corpo.conversation_id === 'string' || typeof corpo.conversation_id === 'number')\n  ? String(corpo.conversation_id) : '';\nconst ok = texto.length > 0 && texto.length <= 4000 && /^[A-Za-z0-9_-]{1,100}$/.test(conversa);\nreturn [{ json: { ok, texto, conversa, chave: `crystal:provisoria:${conversa}` } }];"
+      },
+      "id": "b1c2d3e4-0002-4000-8000-000000000002",
+      "name": "Valida",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1000000-0000-4000-8000-000000000001",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b1c2d3e4-0003-4000-8000-000000000003",
+      "name": "Mensagem válida?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "historico",
+        "key": "={{ $('Valida').first().json.chave }}",
+        "keyType": "string",
+        "options": {}
+      },
+      "id": "b1c2d3e4-0004-4000-8000-000000000004",
+      "name": "Lê histórico",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -120
+      ],
+      "credentials": {
+        "redis": {
+          "id": "crystalProvRedis",
+          "name": "Redis do n8n · banco 2 (Crystal provisória)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ====== AJUSTE AQUI ======\n// Modelo: troque pelo mesmo que a Crystal usa hoje (OpenRouter > Activity).\n// \"openrouter/auto\" deixa o OpenRouter escolher e sempre funciona.\nconst MODELO = 'openrouter/auto';\n\n// Prompt PROVISÓRIO. Não é o prompt da Crystal de verdade, que é da agência.\nconst PROMPT = [\n  'Você é a Crystal, assistente de inteligência artificial que acompanha os alunos da Letícia Felisberto.',\n  'Esta é uma versão provisória, usada só para testar o app. Não invente fatos sobre cursos, preços, prazos ou políticas: se não souber, diga que vai verificar com a equipe.',\n  'Fale em português do Brasil, em primeira pessoa (\"eu\"), com tom caloroso e direto.',\n  'Frases curtas. Uma ideia por frase. Sem exclamações em série, sem jargão, sem infantilizar.',\n  'Responda em no máximo 3 parágrafos curtos, a não ser que a pessoa peça mais detalhe.',\n  'Nunca peça CPF, senha, cartão ou outro dado pessoal.',\n  'Se perguntarem, confirme que você é uma IA.',\n  'Se a pessoa falar em se machucar, em suicídio ou em violência, acolha e indique o CVV (ligue 188 ou cvv.org.br) e, em emergência, o SAMU (192).'\n].join('\\n');\n// =========================\n\nconst base = $('Valida').first().json;\nlet historico = [];\ntry { historico = JSON.parse($input.first().json.historico || '[]'); } catch (e) { historico = []; }\nif (!Array.isArray(historico)) historico = [];\n\nreturn [{ json: {\n  model: MODELO,\n  messages: [\n    { role: 'system', content: PROMPT },\n    ...historico.slice(-20),\n    { role: 'user', content: base.texto }\n  ],\n  max_tokens: 700,\n  temperature: 0.7\n} }];"
+      },
+      "id": "b1c2d3e4-0005-4000-8000-000000000005",
+      "name": "Monta a conversa (modelo e prompt aqui)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "https://app.crystalnowpp.com.br"
+            },
+            {
+              "name": "X-Title",
+              "value": "Crystal provisoria"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 55000
+        }
+      },
+      "id": "b1c2d3e4-0006-4000-8000-000000000006",
+      "name": "OpenRouter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        -120
+      ],
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "crystalProvORkey",
+          "name": "OpenRouter · Crystal provisória"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const r = $input.first().json;\nconst c = r?.choices?.[0]?.message?.content;\nconst texto = typeof c === 'string' ? c.trim() : '';\nconst base = $('Valida').first().json;\nlet historico = [];\ntry { historico = JSON.parse($('Lê histórico').first().json.historico || '[]'); } catch (e) { historico = []; }\nif (!Array.isArray(historico)) historico = [];\nconst novo = [...historico, { role: 'user', content: base.texto }, { role: 'assistant', content: texto }].slice(-20);\nreturn [{ json: { ok: texto.length > 0, text: texto, chave: base.chave, historico: JSON.stringify(novo) } }];"
+      },
+      "id": "b1c2d3e4-0007-4000-8000-000000000007",
+      "name": "Resposta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c2000000-0000-4000-8000-000000000001",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b1c2d3e4-0008-4000-8000-000000000008",
+      "name": "Veio texto?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1680,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $json.chave }}",
+        "value": "={{ $json.historico }}",
+        "keyType": "string",
+        "expire": true,
+        "ttl": 604800
+      },
+      "id": "b1c2d3e4-0009-4000-8000-000000000009",
+      "name": "Guarda histórico (7 dias)",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        -280
+      ],
+      "credentials": {
+        "redis": {
+          "id": "crystalProvRedis",
+          "name": "Redis do n8n · banco 2 (Crystal provisória)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ text: $('Resposta').first().json.text }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b1c2d3e4-0010-4000-8000-000000000010",
+      "name": "Responde ao app",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2160,
+        -280
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ erro: 'a Crystal provisória não conseguiu responder' }) }}",
+        "options": {
+          "responseCode": 502
+        }
+      },
+      "id": "b1c2d3e4-0011-4000-8000-000000000011",
+      "name": "Responde 502",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1920,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ erro: 'mensagem inválida' }) }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "b1c2d3e4-0012-4000-8000-000000000012",
+      "name": "Responde 400",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        160
+      ]
+    }
+  ],
+  "connections": {
+    "Recebe do app": {
+      "main": [
+        [
+          {
+            "node": "Valida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valida": {
+      "main": [
+        [
+          {
+            "node": "Mensagem válida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensagem válida?": {
+      "main": [
+        [
+          {
+            "node": "Lê histórico",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responde 400",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lê histórico": {
+      "main": [
+        [
+          {
+            "node": "Monta a conversa (modelo e prompt aqui)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monta a conversa (modelo e prompt aqui)": {
+      "main": [
+        [
+          {
+            "node": "OpenRouter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter": {
+      "main": [
+        [
+          {
+            "node": "Resposta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responde 502",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resposta": {
+      "main": [
+        [
+          {
+            "node": "Veio texto?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veio texto?": {
+      "main": [
+        [
+          {
+            "node": "Guarda histórico (7 dias)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responde 502",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guarda histórico (7 dias)": {
+      "main": [
+        [
+          {
+            "node": "Responde ao app",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "all"
+  },
+  "active": false,
+  "tags": []
+}

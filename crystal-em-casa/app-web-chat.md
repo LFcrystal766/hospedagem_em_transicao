@@ -60,6 +60,10 @@ direto, sem Chatwoot nem Bridge. Na `main` esse é o único modo; o transporte
 - O `docker-compose.prod.yml` do app monta os uploads em `/app/uploads`, mas a
   API grava em `apps/api/uploads` porque roda de dentro do pacote. A stack da
   VPS fixa `UPLOAD_DIR=/app/uploads`.
+- `docs/n8n/README.md` do app manda deixar `CRYSTAL_API_PATH` vazio, mas o
+  app troca variável vazia pelo padrão `/v1/messages`. Com o n8n, dividir o
+  endereço: base em `CRYSTAL_API_URL` e o caminho do webhook em
+  `CRYSTAL_API_PATH` (é o que o `crystal-provisoria` faz).
 - O CI da `main` (`ci.yml`) está vermelho desde 07/09, nas três execuções, e
   nenhum teste chega a rodar: o `setup-node` pede cache do pnpm antes de o
   pnpm existir no runner ("Unable to locate executable file: pnpm"). Falta um

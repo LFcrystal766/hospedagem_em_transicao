@@ -38,6 +38,10 @@
 #   bash bootstrap-vps.sh app-admin            cria o primeiro admin (CPF digitado sem aparecer,
 #                                              não fica em spec, log nem histórico)
 #   bash bootstrap-vps.sh app-segredos         mostra os segredos do app pra copiar pro cofre
+#   bash bootstrap-vps.sh crystal-provisoria   Crystal provisória no n8n com o OpenRouter (pede a
+#                                              chave sem aparecer) e o app apontando pra ela
+#   bash bootstrap-vps.sh crystal-provisoria-teste      uma pergunta de teste, pela API do app
+#   bash bootstrap-vps.sh crystal-provisoria-desligar   volta o app à Crystal simulada
 #   bash bootstrap-vps.sh app-recomecar TAG --confirmo
 #                                              só com o banco do app VAZIO: apaga o banco e
 #                                              troca todos os segredos do app (vazaram?)
@@ -628,6 +632,141 @@ app_recomecar() {
   app_subir app-subir "$tag"
 }
 
+# ------------------------------------------------------------------ Crystal provisória
+# Fluxo do n8n (n8n/crystal-provisoria.json) que responde no app usando o
+# OpenRouter, até a agência entregar o agente. Importa credenciais e fluxo
+# pela linha de comando do n8n, ativa, reinicia o n8n e aponta o app para ele.
+# Não abre o app para alunos: a base de clientes continua simulada.
+N8N_WF_ID=crystalProvisor1
+app_gravar() { # app_gravar NOME VALOR (sem eco)
+  umask 077; touch "$APP_EXT"
+  grep -vE "^$1=" "$APP_EXT" > "$APP_EXT.tmp" || true
+  printf '%s=%s\n' "$1" "$2" >> "$APP_EXT.tmp"
+  mv "$APP_EXT.tmp" "$APP_EXT"; chmod 600 "$APP_EXT"
+}
+
+app_tag_atual() {
+  docker service inspect ${APP_STACK}_app_api --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}' 2>/dev/null \
+    | sed -E 's/@sha256:.*//; s/.*://'
+}
+
+n8n_reiniciar() {
+  local s
+  for s in n8n_editor_n8n_editor n8n_webhook_n8n_webhook n8n_worker_n8n_worker; do
+    docker service inspect "$s" >/dev/null 2>&1 || continue
+    echo "  reiniciando $s (até 2 min)"
+    docker service update --force --detach=false "$s" >/dev/null 2>&1 || aviso "$s não confirmou a reinicialização; conferir com: docker service ls"
+  done
+}
+
+crystal_provisoria() {
+  local cid wf chave orkey tag
+  cid=$(docker ps -q -f name=n8n_editor_n8n_editor | head -1)
+  [ -n "$cid" ] || falha "o editor do n8n não está rodando"
+  tag=$(app_tag_atual); [ -n "$tag" ] || falha "o app não está no ar: rode 'app-subir TAG' antes"
+
+  mkdir -p "$ORIG"; wf="$ORIG/crystal-provisoria.json"
+  if [ -f "$AQUI/n8n/crystal-provisoria.json" ]; then
+    cp "$AQUI/n8n/crystal-provisoria.json" "$wf"
+  else
+    curl -fsSL -m 60 "${REPO_RAW%/stacks-exemplo}/n8n/crystal-provisoria.json" -o "$wf" || falha "não baixou o fluxo crystal-provisoria.json"
+  fi
+  grep -q "\"$N8N_WF_ID\"" "$wf" || falha "o fluxo baixado não é o esperado"
+
+  echo "Use uma chave NOVA do OpenRouter, só pra isto: Keys > Create Key, nome 'Crystal provisória',"
+  echo "com limite de crédito (ex.: 10 dólares). NUNCA a chave que o agente da agência usa hoje."
+  read -rsp "Chave do OpenRouter (começa com sk-or-, não aparece na tela): " orkey; echo
+  case "$orkey" in sk-or-*) ;; *) unset orkey; falha "isso não parece uma chave do OpenRouter (começa com sk-or-). Nada foi gravado" ;; esac
+  chave=$(app_valor "$APP_EXT" CRYSTAL_API_KEY)
+  [ -n "$chave" ] || chave=$(openssl rand -hex 32)
+
+  echo "== credenciais no n8n (webhook, OpenRouter, Redis banco 2)"
+  CHAVE="$chave" ORKEY="$orkey" python3 - <<'PY' | docker exec -i "$cid" sh -c 'umask 077; cat > /tmp/crystal-cred.json'
+import json, os
+print(json.dumps([
+  {"id": "crystalProvKey01", "name": "Crystal provisória · chave do app", "type": "httpHeaderAuth",
+   "data": {"name": "x-api-key", "value": os.environ["CHAVE"]}},
+  {"id": "crystalProvORkey", "name": "OpenRouter · Crystal provisória", "type": "httpHeaderAuth",
+   "data": {"name": "Authorization", "value": "Bearer " + os.environ["ORKEY"]}},
+  {"id": "crystalProvRedis", "name": "Redis do n8n · banco 2 (Crystal provisória)", "type": "redis",
+   "data": {"host": "n8n_redis", "port": 6379, "database": 2, "password": ""}},
+]))
+PY
+  unset orkey
+  if ! docker exec "$cid" n8n import:credentials --input=/tmp/crystal-cred.json >/dev/null 2>&1; then
+    docker exec "$cid" rm -f /tmp/crystal-cred.json; falha "o n8n recusou as credenciais"
+  fi
+  docker exec "$cid" rm -f /tmp/crystal-cred.json
+  ok "3 credenciais gravadas (cifradas pela chave do n8n)"
+
+  echo "== fluxo"
+  docker exec -i "$cid" sh -c 'cat > /tmp/crystal-wf.json' < "$wf"
+  docker exec "$cid" n8n import:workflow --input=/tmp/crystal-wf.json >/dev/null 2>&1 || falha "o n8n recusou o fluxo"
+  docker exec "$cid" rm -f /tmp/crystal-wf.json
+  # O n8n 1.123 só ativa uma versão que exista no histórico, e o import pela
+  # linha de comando não cria essa versão. Grava (ou atualiza) a versão atual.
+  local pg; pg=$(docker ps -q -f name=n8n_postgres_n8n_postgres | head -1)
+  [ -n "$pg" ] || falha "o Postgres do n8n não está rodando"
+  docker exec -i "$pg" psql -v ON_ERROR_STOP=1 -q -U postgres -d n8n_queue >/dev/null <<SQL || falha "não gravou a versão do fluxo no histórico do n8n"
+INSERT INTO workflow_history ("versionId", "workflowId", nodes, connections, authors, name, "createdAt", "updatedAt")
+SELECT "versionId", id, nodes, connections, 'bootstrap-vps', name, now(), now()
+  FROM workflow_entity WHERE id = '$N8N_WF_ID'
+ON CONFLICT ("versionId") DO UPDATE
+  SET nodes = EXCLUDED.nodes, connections = EXCLUDED.connections, name = EXCLUDED.name, "updatedAt" = now();
+SQL
+  docker exec "$cid" n8n update:workflow --id="$N8N_WF_ID" --active=true >/dev/null 2>&1 || falha "não ativou o fluxo"
+  docker exec "$pg" psql -U postgres -d n8n_queue -tAc "select active::text from workflow_entity where id='$N8N_WF_ID'" | grep -q true \
+    || falha "o fluxo não ficou ativo no banco do n8n"
+  ok "fluxo '$N8N_WF_ID' importado e ativo"
+  n8n_reiniciar
+
+  echo "== app apontando para a Crystal provisória"
+  app_gravar CRYSTAL_API_URL "https://webhook.$DOMINIO/webhook"
+  app_gravar CRYSTAL_API_PATH "/crystal-provisoria"
+  app_gravar CRYSTAL_API_AUTH_HEADER "x-api-key"
+  app_gravar CRYSTAL_API_REPLY_FIELD "text"
+  app_gravar CRYSTAL_API_KEY "$chave"
+  unset chave
+  app_subir app-subir "$tag"
+
+  echo
+  echo "== teste: a API do app pergunta à Crystal provisória"
+  local api; api=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
+  docker exec "$api" node -e '
+    const u = process.env.CRYSTAL_API_URL + process.env.CRYSTAL_API_PATH;
+    fetch(u, { method: "POST", headers: { "x-api-key": process.env.CRYSTAL_API_KEY, "content-type": "application/json" },
+      body: JSON.stringify({ contact_id: null, conversation_id: "teste-bootstrap", message: { type: "text", text: "Oi, Crystal. Responda só: teste ok." } }) })
+      .then(async r => { const t = await r.text(); console.log("  status", r.status, "->", t.slice(0, 160)); process.exit(r.ok ? 0 : 1); })
+      .catch(e => { console.log("  falhou:", e.name); process.exit(1); });' \
+    && ok "Crystal provisória respondendo. Teste no app: https://app.$DOMINIO" \
+    || aviso "não respondeu ainda. O n8n pode levar 1 min depois de reiniciar: rode 'bash $0 crystal-provisoria-teste'"
+}
+
+crystal_provisoria_teste() {
+  local api; api=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
+  [ -n "$api" ] || falha "a API do app não está rodando"
+  docker exec "$api" node -e '
+    const u = process.env.CRYSTAL_API_URL + process.env.CRYSTAL_API_PATH;
+    fetch(u, { method: "POST", headers: { "x-api-key": process.env.CRYSTAL_API_KEY, "content-type": "application/json" },
+      body: JSON.stringify({ contact_id: null, conversation_id: "teste-bootstrap", message: { type: "text", text: "Oi, Crystal. Responda só: teste ok." } }) })
+      .then(async r => console.log("  status", r.status, "->", (await r.text()).slice(0, 160)))
+      .catch(e => console.log("  falhou:", e.name));'
+}
+
+# Volta o app para a Crystal simulada e desativa o fluxo. Não apaga as credenciais.
+crystal_provisoria_desligar() {
+  local cid tag
+  tag=$(app_tag_atual); [ -n "$tag" ] || falha "o app não está no ar"
+  grep -vE '^CRYSTAL_API_(URL|PATH|AUTH_HEADER|REPLY_FIELD|KEY)=' "$APP_EXT" > "$APP_EXT.tmp" || true
+  mv "$APP_EXT.tmp" "$APP_EXT"; chmod 600 "$APP_EXT"
+  app_subir app-subir "$tag"
+  cid=$(docker ps -q -f name=n8n_editor_n8n_editor | head -1)
+  if [ -n "$cid" ]; then
+    docker exec "$cid" n8n update:workflow --id="$N8N_WF_ID" --active=false >/dev/null 2>&1 && n8n_reiniciar
+  fi
+  ok "app de volta à Crystal simulada; fluxo desativado"
+}
+
 app_segredos() {
   [ -f "$APP_SEG" ] || falha "ainda não há segredos do app: rode 'app-subir'"
   if [ -t 1 ] && command -v less >/dev/null; then
@@ -652,6 +791,9 @@ case "$CMD" in
   app-admin) app_admin ;;
   app-segredos) app_segredos ;;
   app-recomecar) app_recomecar "$@" ;;
+  crystal-provisoria) crystal_provisoria ;;
+  crystal-provisoria-teste) crystal_provisoria_teste ;;
+  crystal-provisoria-desligar) crystal_provisoria_desligar ;;
   preparar) preparar "$@" ;;
   recomecar-n8n) recomecar_n8n "$@" ;;
   docker-api) docker_api ;;
