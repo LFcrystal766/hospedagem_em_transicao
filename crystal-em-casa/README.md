@@ -56,6 +56,7 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | GitHub | **Feito em 29/09**: repositório privado `LFcrystal766/crystal-ia` (com "ia", não "ai": ajustar `IMAGE_NAME` no workflow). E-mail da conta para o convite da agência: `crystal@leticiafelisberto.com`. Em 29/09 o Luiz também convidou `agencia@academialendaria.ai` como colaborador do `crystal-ia`, para eles poderem enviar o código direto. Token `write:packages` criado em 29/09 (90 dias, vence por volta de 28/12) e cadastrado no Portainer como registry `ghcr` |
 | Backup do n8n | **Feito em 29/09**: dump diário às 03:30 em `/root/crystal/backups`, 14 dias. Cópia fora da VPS: snapshot/backup semanal da Hostinger (conferir no hPanel). R2 do Cloudflare não está ativado na conta |
 | Firewall | **Feito em 29/09**: ufw com 22, 80 e 443. Portas do Swarm fora da internet |
+| Portainer restrito | **Pronto em 29/09** (`painel-restringir`): 403 fora da lista de IPs, agente em rede interna, imagens presas. Falta rodar na VPS com os IPs do Luiz e do Igor |
 | Netlify | Conta criada em 29/09 (com o GitHub), segundo o Luiz. Sem API aqui para conferir |
 | Telegram | **Feito em 29/09**: bot e grupo `Crystal · Alertas`, bot como admin, `sendMessage` testado. Token no Bitwarden; `TELEGRAM_ALERT_CHAT_ID=-1003662546162` |
 | Webhook do app | **No ar desde 29/09** no n8n: `n8n/webhook-crystal-app.json`. Health 200, POST sem segredo 403. Formato definitivo depende da agência |
@@ -165,6 +166,40 @@ Liga a atualização de segurança automática do Ubuntu e o fail2ban no SSH (5 
 em 10 minutos bloqueiam o IP por 1 hora), e mostra o que ainda depende de decisão:
 SSH aceitando senha, root, portas escutando e atualização pendente. Não mexe em
 nenhum serviço. Regras completas em "Segurança sempre" no CLAUDE.md.
+
+### Portainer só para IPs liberados
+
+O Portainer manda em todo o Docker da VPS e guarda o token do ghcr. No stack da
+agência ele fica aberto na internet, só com a senha (o CE não tem 2FA). Para
+fechar:
+
+1. No computador de quem vai usar o painel, abrir `https://1.1.1.1/cdn-cgi/trace`
+   e anotar o número da linha `ip=`. Repetir para cada pessoa.
+2. No Web console da VPS, com todos os IPs de uma vez (a lista nova substitui a
+   anterior):
+   ```bash
+   bash bootstrap-vps.sh painel-restringir 189.1.2.3 200.4.5.6
+   ```
+3. De um IP liberado, abrir `https://painel.crystalnowpp.com.br` e conferir que o
+   ambiente `primary` aparece como *up*.
+
+O que muda (`stacks-app/01-portainer-restrito.yaml`):
+- Quem não está na lista recebe **403 do Traefik**, antes da tela de login. O
+  Traefik vê o IP real (portas em modo host); um `X-Forwarded-For` forjado não passa.
+- O agente do Portainer (que fala com o `docker.sock`) sai da rede pública para uma
+  rede interna da stack: o n8n e o app não o alcançam mais.
+- Imagens presas no digest que já roda, sem `:sts` flutuante.
+- Cabeçalhos: sem iframe, HSTS, `nosniff`.
+
+`bash bootstrap-vps.sh painel-restringir` sem IP mostra a lista. IP de casa mudou e
+o painel deu 403: pelo Web console da Hostinger (não depende de IP), rodar de novo
+com o IP novo. `painel-desligar` tira o Portainer do ar quando ninguém estiver
+usando; `painel-ligar` volta. O `preparar` refaz a trava sozinho se a lista existir.
+
+Ensaiado em 29/09 com o Traefik v2.11.3 e os mesmos rótulos: IP da lista → 200 com
+os cabeçalhos; fora da lista → 403, inclusive com `X-Forwarded-For` forjado. Num
+Swarm local, o Portainer alcança `tasks.agent:9001` e um vizinho da rede pública
+não resolve o agente.
 
 ## Ligar o canal do LendChat no app
 

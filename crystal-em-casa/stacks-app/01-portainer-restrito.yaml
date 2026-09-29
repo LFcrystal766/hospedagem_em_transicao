@@ -1,0 +1,92 @@
+# =============================================================================
+# PORTAINER RESTRITO  ·  o 01-portainer.yaml da agência com três travas
+# =============================================================================
+#
+# Gerado pelo bootstrap-vps.sh painel-restringir. Não subir à mão: os marcadores
+# abaixo são trocados na VPS.
+#
+# Por que: o Portainer manda em todo o Docker da VPS (e guarda o token do ghcr).
+# No original ele fica aberto na internet, protegido só pela senha, e o agente
+# dele (que fala com o docker.sock) fica na mesma rede do n8n e do app.
+#
+# O que muda em relação ao original da agência:
+#   1. painel. só responde para os IPs liberados (PAINEL_IPS). Qualquer outro
+#      recebe 403 do Traefik, antes de chegar à tela de login. O Traefik vê o IP
+#      real porque as portas dele estão em modo host; nada aqui confia em
+#      X-Forwarded-For.
+#   2. O agente sai da rede pública para uma rede interna só do Portainer. Um
+#      contêiner comprometido (um nó Code do n8n, por exemplo) não alcança mais a
+#      porta 9001 dele.
+#   3. Imagens presas no digest que já estava rodando (nada de :sts flutuante:
+#      um redeploy não atualiza o Portainer sem querer, e o banco dele não
+#      aceita voltar de versão).
+#   Mais cabeçalhos de segurança (sem iframe, HSTS, sem farejar tipo).
+#
+# Marcadores trocados pelo bootstrap:
+#   PAINEL_IPS     lista separada por vírgula (ex.: 189.1.2.3/32,200.4.5.0/24)
+#   PORTAINER_IMG  portainer/portainer-ce:sts@sha256:...
+#   AGENT_IMG      portainer/agent:sts@sha256:...
+# =============================================================================
+
+version: "3.7"
+
+services:
+
+  agent:
+    image: AGENT_IMG
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - portainer_agentes
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.platform.os == linux
+
+  portainer:
+    image: PORTAINER_IMG
+    command: -H tcp://tasks.agent:9001 --tlsskipverify
+    volumes:
+      - portainer_data:/data
+    networks:
+      - portainer_agentes
+      - network_swarm_public
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=network_swarm_public"
+        - "traefik.http.routers.portainer.rule=Host(`painel.crystalnowpp.com.br`)"
+        - "traefik.http.routers.portainer.entrypoints=websecure"
+        - "traefik.http.routers.portainer.priority=1"
+        - "traefik.http.routers.portainer.tls.certresolver=letsencryptresolver"
+        - "traefik.http.routers.portainer.service=portainer"
+        - "traefik.http.routers.portainer.middlewares=portainer-ips,portainer-cabecalhos"
+        # ipallowlist: nome novo (Traefik 2.11 e 3.x); o antigo ipwhitelist está obsoleto.
+        - "traefik.http.middlewares.portainer-ips.ipallowlist.sourcerange=PAINEL_IPS"
+        - "traefik.http.middlewares.portainer-cabecalhos.headers.framedeny=true"
+        - "traefik.http.middlewares.portainer-cabecalhos.headers.contenttypenosniff=true"
+        - "traefik.http.middlewares.portainer-cabecalhos.headers.stsseconds=31536000"
+        - "traefik.http.middlewares.portainer-cabecalhos.headers.referrerpolicy=same-origin"
+        - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+
+networks:
+  network_swarm_public:
+    external: true
+    name: network_swarm_public
+  # Só o Portainer e o agente. internal: sem saída para a internet e sem
+  # ninguém de fora da stack.
+  portainer_agentes:
+    driver: overlay
+    internal: true
+
+volumes:
+  portainer_data:
+    external: true
+    name: portainer_data

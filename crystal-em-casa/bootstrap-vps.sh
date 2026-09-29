@@ -23,6 +23,11 @@
 #                                              e relatório (senha no SSH, root, portas, pendências)
 #   bash bootstrap-vps.sh firewall             ufw: só 22, 80 e 443 de fora. As portas do Swarm
 #                                              (2377, 7946, 4789) deixam de ficar públicas
+#   bash bootstrap-vps.sh painel-restringir IP [IP ...]
+#                                              painel. (Portainer) só para esses IPs; o resto
+#                                              leva 403. Agente numa rede interna e imagens
+#                                              presas na versão que roda. Sem IP: mostra a lista
+#   bash bootstrap-vps.sh painel-desligar      tira o Portainer do ar (painel-ligar volta)
 #   bash bootstrap-vps.sh recomecar-n8n EMAIL --confirmo
 #                                              só ANTES de o n8n ter fluxo salvo: apaga o banco
 #                                              do n8n e refaz com segredos novos
@@ -54,6 +59,7 @@
 #                                pode mudar depois de em uso
 #   /root/crystal/stacks/*.yaml  arquivos prontos, com segredo dentro (chmod 600)
 #   /root/crystal/originais/     os yaml da agência, sem alteração
+#   /root/crystal/.painel-ips    IPs que entram no painel. (um por linha)
 #   /root/crystal/app/.segredos  segredos do app (chmod 600). ENCRYPTION_KEY e CPF_SALT
 #                                nunca podem mudar: sem eles o banco do app fica ilegível
 #   /root/crystal/app/.externos  valores de fora (Resend, Crystal, base de clientes)
@@ -70,6 +76,7 @@ BASE="${CRYSTAL_DIR:-/root/crystal}"
 ORIG="$BASE/originais"
 STACKS="$BASE/stacks"
 SEGREDOS="$BASE/.segredos"
+PAINEL_IPS_ARQ="$BASE/.painel-ips"
 ARQUIVOS=(00-traefik.yaml 01-portainer.yaml 02-n8n-postgres.yaml 03-n8n-redis.yaml 04-n8n-editor.yaml 05-n8n-webhook.yaml 06-n8n-worker.yaml)
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -176,6 +183,10 @@ preparar() {
     fi
   done
   ok "${#ARQUIVOS[@]} arquivos prontos em $STACKS (chmod 600)"
+  # O 01 acima saiu do original, aberto. Se o painel já estava restrito, refaz a trava.
+  if [ -s "$PAINEL_IPS_ARQ" ]; then
+    painel_gerar || aviso "01-portainer.yaml ficou como o original, ABERTO. Depois de subir: bash $0 painel-restringir IP"
+  fi
   echo
   echo "Conferência do que mudou (só linhas com o domínio e o e-mail):"
   grep -hE "Host\(|N8N_HOST=|WEBHOOK_URL=|acme.email=" "$STACKS"/*.yaml | sed 's/^ *//' | sort -u
@@ -336,6 +347,134 @@ CFG
   [ -f /var/run/reboot-required ] && aviso "o Ubuntu pede reinício para aplicar atualização do kernel: agende na madrugada" || true
 }
 
+# ------------------------------------------------------------------ painel (Portainer)
+# O Portainer manda em todo o Docker da VPS e guarda o token do ghcr. Aberto na
+# internet, só a senha o protege (o CE não tem 2FA). painel-restringir sobe o
+# stacks-app/01-portainer-restrito.yaml: 403 do Traefik para quem não está na
+# lista, agente numa rede interna e imagens presas no digest que já roda.
+# IP mudou? Pelo Web console da Hostinger (que não depende de IP), rode de novo
+# com o IP novo.
+PAINEL_YAML=01-portainer-restrito.yaml
+
+painel_validar() { # painel_validar IP... -> lista normalizada, uma por linha
+  python3 - "$@" <<'PY'
+import ipaddress, sys
+saida = []
+for a in sys.argv[1:]:
+    try:
+        n = ipaddress.ip_network(a.strip(), strict=False)
+    except ValueError:
+        sys.exit(f"ERRO: '{a}' não é IP nem faixa (ex.: 189.1.2.3 ou 189.1.2.0/24)")
+    minimo = 16 if n.version == 4 else 48
+    if n.prefixlen < minimo:
+        sys.exit(f"ERRO: {n} é larga demais (mínimo /{minimo})")
+    if not n.is_global:
+        sys.exit(f"ERRO: {n} não é IP público. O seu aparece em https://1.1.1.1/cdn-cgi/trace, na linha ip=")
+    if str(n) not in saida:
+        saida.append(str(n))
+print("\n".join(saida))
+PY
+}
+
+painel_imagem() { # painel_imagem portainer|agent -> imagem@digest que está rodando
+  local img
+  img=$(docker service inspect "portainer_$1" --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}' 2>/dev/null || true)
+  echo "$img" | grep -Eq '^(docker\.io/)?portainer/(portainer-ce|agent):[A-Za-z0-9._-]+@sha256:[0-9a-f]{64}$' || return 1
+  echo "$img"
+}
+
+painel_gerar() { # grava $STACKS/01-portainer.yaml restrito, a partir do modelo e da lista
+  [ -s "$PAINEL_IPS_ARQ" ] || { aviso "sem lista de IPs em $PAINEL_IPS_ARQ"; return 1; }
+  local pimg aimg ips
+  pimg=$(painel_imagem portainer) || { aviso "serviço portainer_portainer não encontrado com imagem@digest: suba antes com 'bash $0 portainer'"; return 1; }
+  aimg=$(painel_imagem agent) || { aviso "serviço portainer_agent não encontrado com imagem@digest"; return 1; }
+  ips=$(paste -sd, "$PAINEL_IPS_ARQ")
+  mkdir -p "$ORIG" "$STACKS"; chmod 700 "$BASE" "$STACKS"
+  if [ -f "$AQUI/stacks-app/$PAINEL_YAML" ]; then
+    cp "$AQUI/stacks-app/$PAINEL_YAML" "$ORIG/$PAINEL_YAML"
+  else
+    curl -fsSL -m 60 "$APP_RAW/$PAINEL_YAML" -o "$ORIG/$PAINEL_YAML" || { aviso "não baixou $PAINEL_YAML de $APP_RAW"; return 1; }
+  fi
+  grep -q 'ipallowlist.sourcerange=PAINEL_IPS' "$ORIG/$PAINEL_YAML" || { aviso "$PAINEL_YAML não é o modelo esperado"; return 1; }
+  umask 077
+  # Guarda a versão aberta uma vez, para voltar atrás se precisar.
+  if [ -f "$STACKS/01-portainer.yaml" ] && ! grep -q ipallowlist "$STACKS/01-portainer.yaml"; then
+    cp "$STACKS/01-portainer.yaml" "$STACKS/01-portainer.yaml.aberto"
+  fi
+  sed -e "s|PAINEL_IPS|$ips|g" -e "s|PORTAINER_IMG|$pimg|g" -e "s|AGENT_IMG|$aimg|g" \
+    "$ORIG/$PAINEL_YAML" > "$STACKS/01-portainer.yaml"
+  chmod 600 "$STACKS/01-portainer.yaml"
+  if grep -nE 'PAINEL_IPS|PORTAINER_IMG|AGENT_IMG' "$STACKS/01-portainer.yaml" | grep -vE '^\s*[0-9]+:\s*#' | grep -q .; then
+    aviso "marcador sobrando em $STACKS/01-portainer.yaml"; return 1
+  fi
+  ok "01-portainer.yaml restrito: $(paste -sd' ' "$PAINEL_IPS_ARQ")"
+  ok "imagens presas: $pimg e $aimg"
+}
+
+painel_restringir() {
+  if [ $# -eq 0 ]; then
+    if [ -s "$PAINEL_IPS_ARQ" ]; then
+      echo "painel. liberado só para:"; sed 's/^/  /' "$PAINEL_IPS_ARQ"
+    else
+      echo "painel. está aberto para qualquer IP."
+    fi
+    echo
+    echo "Para liberar: no computador de quem vai usar o painel, abra https://1.1.1.1/cdn-cgi/trace"
+    echo "e copie o número da linha ip=. Depois: bash $0 painel-restringir ESSE_IP [OUTRO_IP ...]"
+    echo "A lista nova SUBSTITUI a anterior (ponha todos de uma vez)."
+    return 0
+  fi
+  local lista
+  lista=$(painel_validar "$@") || exit 2
+  umask 077
+  printf '%s\n' "$lista" > "$PAINEL_IPS_ARQ.novo"
+  mv "$PAINEL_IPS_ARQ.novo" "$PAINEL_IPS_ARQ"
+  painel_gerar || exit 2
+  echo "== portainer (o painel fica fora do ar por uns segundos)"
+  docker stack deploy -c "$STACKS/01-portainer.yaml" portainer --detach=true >/dev/null
+  sleep 8   # deixa o Swarm registrar a atualização antes de conferir
+  esperar_stack portainer 240 || exit 1
+  painel_conferir
+}
+
+painel_conferir() {
+  echo "== conferindo (o Traefik leva até 30 s para ler a regra nova)"
+  local code="" t=0 cid
+  while :; do
+    code=$(curl -s -o /dev/null -m 10 -w '%{http_code}' "https://painel.$DOMINIO/" 2>/dev/null) || true
+    [ "$code" = "403" ] || [ $t -ge 60 ] && break
+    sleep 5; t=$((t+5))
+  done
+  if [ "$code" = "403" ]; then
+    ok "https://painel.$DOMINIO -> 403 para quem não está na lista (a própria VPS é um deles)"
+  else
+    aviso "https://painel.$DOMINIO -> ${code:-000} vindo da VPS; o esperado era 403. Ver: docker service logs --tail 50 traefik_traefik"
+  fi
+  # Um contêiner da rede pública (o n8n) não pode mais chegar ao agente.
+  cid=$(docker ps -q -f name=n8n_editor_n8n_editor | head -1)
+  if [ -n "$cid" ]; then
+    if docker exec "$cid" node -e "const s=require('net').connect(9001,'portainer_agent');s.on('connect',()=>process.exit(0));s.on('error',()=>process.exit(1));setTimeout(()=>process.exit(1),4000)" >/dev/null 2>&1; then
+      aviso "o n8n ainda alcança o agente do Portainer (porta 9001)"
+    else
+      ok "o n8n não alcança mais o agente do Portainer"
+    fi
+  fi
+  echo "  Agora, de um IP liberado: abra https://painel.$DOMINIO, entre, e confira que o ambiente"
+  echo "  'primary' aparece como up. Se não aparecer: docker service logs --tail 50 portainer_portainer"
+  echo "  Voltar ao aberto (só em emergência): docker stack deploy -c $STACKS/01-portainer.yaml.aberto portainer"
+}
+
+painel_desligar() {
+  docker service scale portainer_portainer=0 --detach=false >/dev/null || falha "não desligou"
+  ok "Portainer fora do ar (o agente segue, na rede interna). Religar: bash $0 painel-ligar"
+}
+
+painel_ligar() {
+  docker service scale portainer_portainer=1 --detach=false >/dev/null || falha "não ligou"
+  ok "Portainer no ar"
+  [ -s "$PAINEL_IPS_ARQ" ] || aviso "painel. aberto para qualquer IP: bash $0 painel-restringir"
+}
+
 # ------------------------------------------------------------------ status
 status() {
   echo "== Serviços"
@@ -346,12 +485,18 @@ status() {
     local code
     code=$(curl -s -o /dev/null -m 20 -w '%{http_code}' "https://$h.$DOMINIO/" 2>/dev/null) || true
     code=${code:-000}
-    case "$code" in
-      200|301|302|401|404) ok "https://$h.$DOMINIO -> $code" ;;
-      000) aviso "https://$h.$DOMINIO sem resposta ou certificado inválido (Traefik ainda emitindo? DNS? porta 443 fechada?)" ;;
+    case "$h:$code" in
+      painel:403) ok "https://$h.$DOMINIO -> 403 (restrito por IP; a VPS não está na lista)" ;;
+      *:200|*:301|*:302|*:401|*:404) ok "https://$h.$DOMINIO -> $code" ;;
+      *:000) aviso "https://$h.$DOMINIO sem resposta ou certificado inválido (Traefik ainda emitindo? DNS? porta 443 fechada?)" ;;
       *) aviso "https://$h.$DOMINIO -> $code" ;;
     esac
   done
+  if [ -s "$PAINEL_IPS_ARQ" ]; then
+    echo "  painel. liberado só para: $(paste -sd' ' "$PAINEL_IPS_ARQ")"
+  else
+    aviso "painel. (Portainer) aberto para qualquer IP: bash $0 painel-restringir"
+  fi
   echo
   echo "== Últimas linhas do Traefik sobre certificado (o log vai pra arquivo dentro do contêiner)"
   local cid; cid=$(docker ps -q -f name=traefik_traefik | head -1)
@@ -882,6 +1027,9 @@ case "$CMD" in
   backup-cron) backup_cron ;;
   firewall) firewall ;;
   seguranca) seguranca ;;
+  painel-restringir) shift; painel_restringir "$@" ;;
+  painel-desligar) painel_desligar ;;
+  painel-ligar) painel_ligar ;;
   traefik|portainer|bancos|n8n|tudo|status|segredos) "$CMD" ;;
   *) falha "comando desconhecido: $CMD" ;;
 esac

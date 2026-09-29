@@ -56,6 +56,7 @@ Toda mudança leva em conta ataque e malware, sem precisar pedir:
   servidor, função SQL em vez de acesso à tabela, webhook sempre assinado.
 - Superfície mínima na VPS: só 22, 80 e 443 abertas; nada de porta de banco ou do
   Docker exposta; painéis (Portainer, n8n) com senha forte e 2FA onde houver.
+  `painel.` (Portainer) só para IPs liberados: `bootstrap-vps.sh painel-restringir`.
 - Atualização de segurança automática e bloqueio de força bruta no SSH
   (`bootstrap-vps.sh seguranca`); imagens com versão fixa, nunca `latest`.
 - Backup fora da VPS (ransomware apaga o que está na máquina).
@@ -72,7 +73,7 @@ Toda mudança leva em conta ataque e malware, sem precisar pedir:
 | `scripts/cloudflare-degrau2.sh` | Degrau 2 inteiro, com simulação, backup antes de gravar e rollback |
 | `scripts/cloudflare-crystal-vps-dns.sh` | DNS da VPS da Crystal (`painel`, `editor`, `webhook`, cinza). `conferir` roda sem token |
 | `crystal-em-casa/` | Frente do app: guia e stacks da agência, situação da VPS |
-| `crystal-em-casa/stacks-app/` | Stack do app web (`LFcrystal766/crystal-web-chat`) na VPS, subida pelo `bootstrap-vps.sh app-subir` |
+| `crystal-em-casa/stacks-app/` | Stack do app web (`LFcrystal766/crystal-web-chat`) na VPS, subida pelo `bootstrap-vps.sh app-subir`, e o Portainer restrito (`painel-restringir`) |
 | `auditorias/<data>/` | Evidências de cada rodada |
 | `pedidos/` | Chamado da AZAN e prompt do Cowork |
 | `artefato/` | Cópia do plano e o overview |
