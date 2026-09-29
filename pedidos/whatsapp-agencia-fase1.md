@@ -29,4 +29,6 @@ Três coisas pra alinhar junto:
 2. OpenRouter: a conta "já existente" está no nome de vocês ou no nosso? Se for de vocês, criamos a nossa e vocês reapontam a chave.
 3. Região do projeto do Supabase: a VPS ficou em Boston (EUA). Se o banco estiver em outro continente, vale alinhar antes.
 
-Sobre o webhook do app: ainda não está no ar, a máquina com o código do app ficou fora desde o dia 21. Me manda o que vocês precisam dele (a URL que a Crystal vai chamar, o formato do que ela envia e como autentica) que a gente cria e te passa o endereço. Isso é separado da migração, não trava a fase 2.
+Sobre o webhook do app: já está no ar, no n8n novo.
+POST https://webhook.crystalnowpp.com.br/webhook/crystal-app, autenticado pelo header X-Webhook-Secret (te mando o valor no privado). Aceita qualquer JSON por enquanto e responde {ok, id, recebido_em}. Teste de alcance sem segredo: GET https://webhook.crystalnowpp.com.br/webhook/crystal-app/health
+Me passa o formato do que a Crystal vai enviar e o que esperam de volta, que eu ajusto.
