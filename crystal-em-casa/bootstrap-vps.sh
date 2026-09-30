@@ -53,6 +53,8 @@
 #   bash bootstrap-vps.sh app-admin            cria o primeiro admin (CPF digitado sem aparecer,
 #                                              não fica em spec, log nem histórico)
 #   bash bootstrap-vps.sh app-segredos         mostra os segredos do app pra copiar pro cofre
+#   bash bootstrap-vps.sh app-revisao          cria (uma vez) e mostra a conta de revisão das lojas;
+#                                              --nova troca CPF e código
 #   bash bootstrap-vps.sh crystal-nossa TAG    a NOSSA Crystal (serviço app_crystal, sem endereço
 #                                              público): pede a chave do OpenRouter sem aparecer,
 #                                              aponta o app para ela e testa. Volta: crystal-provisoria
@@ -1170,6 +1172,57 @@ SQL
   ok "banco crystal_agente pronto (papel próprio, sem acesso ao banco do app)"
 }
 
+# Conta de revisão das lojas (Apple e Google). CPF válido sorteado aqui (não é de
+# ninguém do app), e-mail do nosso domínio e código fixo de 6 dígitos. Os dados
+# só aparecem no less, para ir ao Bitwarden e às notas de revisão das lojas.
+app_revisao() {
+  local nova="${2:-}" v cpf codigo
+  v=$(app_valor "$APP_EXT" REVIEW_ACCOUNTS)
+  if [ -n "$v" ] && [ "$nova" != "--nova" ]; then
+    ok "conta de revisão já existe (trocar: bash $0 app-revisao --nova)"
+  else
+    cpf=$(python3 - <<'PY'
+import secrets
+while True:
+    d = [secrets.randbelow(10) for _ in range(9)]
+    if len(set(d)) > 1:
+        break
+for n in (10, 11):
+    s = sum(x * p for x, p in zip(d, range(n, 1, -1)))
+    r = (s * 10) % 11
+    d.append(0 if r == 10 else r)
+print("".join(map(str, d)))
+PY
+)
+    while :; do
+      codigo=$(python3 -c 'import secrets; print(f"{secrets.randbelow(10**6):06d}")')
+      case "$codigo" in 000000|123456|111111|222222|333333|444444|555555|666666|777777|888888|999999|654321) ;; *) break ;; esac
+    done
+    app_gravar REVIEW_ACCOUNTS "$cpf:revisao@$DOMINIO:Revisão das lojas:$codigo"
+    cpf=""; codigo=""
+    ok "conta de revisão gravada. Vale depois do próximo app-subir"
+    v=$(app_valor "$APP_EXT" REVIEW_ACCOUNTS)
+  fi
+  [ -t 1 ] || { echo "rode num terminal para ver os dados"; return 0; }
+  echo "$v" | awk -F: '{
+    print "CONTA DE REVISÃO DAS LOJAS (Apple App Review e Google Play)";
+    print "Guarde no Bitwarden e cole nas notas de revisão de cada loja. Não cole em chat.";
+    print "";
+    print "CPF:    " $1;
+    print "E-mail: " $2;
+    print "Código de acesso (sempre o mesmo, não chega por e-mail): " $4;
+    print "";
+    print "Texto para as notas de revisão:";
+    print "  Login: open the app, enter CPF " $1 " and e-mail " $2 ", accept the terms,";
+    print "  then type the 6-digit access code " $4 " (it is fixed for this review account;";
+    print "  no e-mail is sent). Account deletion: menu > Excluir minha conta. The review";
+    print "  account is recreated empty on the next login, so it can be tested repeatedly.";
+    print "";
+    print "Aperte q para fechar.";
+  }' | less -K
+  v=""
+}
+
 # Aponta o app para a nossa Crystal. Uso: bash bootstrap-vps.sh crystal-nossa sha-XXXXXXX
 crystal_nossa() {
   local tag="${2:-}" api t=0
@@ -1382,6 +1435,7 @@ case "$CMD" in
   app-segredos) app_segredos ;;
   app-recomecar) app_recomecar "$@" ;;
   crystal-nossa) crystal_nossa "$@" ;;
+  app-revisao) app_revisao "$@" ;;
   crystal-nossa-teste) crystal_nossa_teste ;;
   crystal-provisoria) crystal_provisoria ;;
   crystal-provisoria-teste) crystal_provisoria_teste ;;
