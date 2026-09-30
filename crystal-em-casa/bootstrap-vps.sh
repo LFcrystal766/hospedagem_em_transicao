@@ -53,6 +53,7 @@
 #   bash bootstrap-vps.sh app-admin            cria o primeiro admin (CPF digitado sem aparecer,
 #                                              não fica em spec, log nem histórico)
 #   bash bootstrap-vps.sh app-segredos         mostra os segredos do app pra copiar pro cofre
+#   bash bootstrap-vps.sh app-telefone EMAIL   grava o WhatsApp de uma conta criada aqui (canal da inbox)
 #   bash bootstrap-vps.sh app-revisao          cria (uma vez) e mostra a conta de revisão das lojas;
 #                                              --nova troca CPF e código
 #   bash bootstrap-vps.sh crystal-nossa TAG    a NOSSA Crystal (serviço app_crystal, sem endereço
@@ -1172,6 +1173,33 @@ SQL
   ok "banco crystal_agente pronto (papel próprio, sem acesso ao banco do app)"
 }
 
+# Telefone de uma conta do app (o canal da inbox identifica a pessoa pelo WhatsApp).
+# Para contas criadas aqui (admin, equipe, revisão), que nascem sem telefone. Aluno
+# vindo da base recebe o telefone de lá. Uso: bash bootstrap-vps.sh app-telefone EMAIL
+app_telefone() {
+  local email="${2:-}" tel pg n
+  echo "$email" | grep -Eq '^[^@ ]+@[^@ ]+\.[^@ ]+$' || falha "informe o e-mail da conta: bash $0 app-telefone voce@exemplo.com"
+  read -rp "WhatsApp com DDD (ex.: 11 98888 7777): " tel
+  tel=$(echo "$tel" | tr -cd '0-9')
+  case "${#tel}" in 10|11) tel="55$tel" ;; 12|13) ;; *) falha "telefone inválido" ;; esac
+  echo "$tel" | grep -Eq '^55[1-9][0-9]9?[0-9]{8}$' || falha "telefone inválido (Brasil, com DDD)"
+  pg=$(docker ps -q -f name=${APP_STACK}_app_postgres | head -1); [ -n "$pg" ] || falha "Postgres do app não está rodando"
+  # Valores pela entrada padrão, nunca na linha de comando.
+  n=$(docker exec -i "$pg" psql -v ON_ERROR_STOP=1 -tA -U crystal -d crystal_web_chat <<SQL
+\set tel '+$tel'
+\set email '$(echo "$email" | tr -d "'\\")'
+with u as (
+  update users set phone_e164 = :'tel' where lower(email) = lower(:'email') returning id
+), c as (
+  update conversations set channel_source_id = null, channel_conversation_id = null where user_id in (select id from u)
+)
+select count(*) from u;
+SQL
+) || falha "não gravou"
+  tel=""
+  [ "$n" = "1" ] && ok "telefone gravado na conta $email (vínculo antigo com a inbox desfeito)" || falha "nenhuma conta com o e-mail $email"
+}
+
 # Conta de revisão das lojas (Apple e Google). CPF válido sorteado aqui (não é de
 # ninguém do app), e-mail do nosso domínio e código fixo de 6 dígitos. Os dados
 # só aparecem no less, para ir ao Bitwarden e às notas de revisão das lojas.
@@ -1436,6 +1464,7 @@ case "$CMD" in
   app-recomecar) app_recomecar "$@" ;;
   crystal-nossa) crystal_nossa "$@" ;;
   app-revisao) app_revisao "$@" ;;
+  app-telefone) app_telefone "$@" ;;
   crystal-nossa-teste) crystal_nossa_teste ;;
   crystal-provisoria) crystal_provisoria ;;
   crystal-provisoria-teste) crystal_provisoria_teste ;;
