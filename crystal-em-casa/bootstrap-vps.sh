@@ -829,7 +829,7 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS
   SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY* SUPABASE_LOGIN_RPC
   REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL
-  ANDROID_CERT_SHA256 APPLE_TEAM_ID)
+  ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*)
 
 app_valor() { # app_valor ARQUIVO NOME -> valor (sem imprimir nada se não houver)
   [ -f "$1" ] || return 0
@@ -887,6 +887,14 @@ app_definir() {
     APPLE_TEAM_ID)
       v=$(printf '%s' "$v" | tr 'a-z' 'A-Z')
       printf '%s' "$v" | grep -Eq '^[A-Z0-9]{10}$' || falha "o Team ID tem 10 letras/números (developer.apple.com > Membership)" ;;
+    FCM_PROJECT_ID)
+      printf '%s' "$v" | grep -Eq '^[a-z][a-z0-9-]{4,28}[a-z0-9]$' || falha "ID do projeto do Firebase (ex.: crystal-app-1a2b3), não o nome" ;;
+    FCM_SERVICE_ACCOUNT_JSON)
+      # Base64 do JSON da conta de serviço. Confere o formato sem mostrar nada.
+      printf '%s' "$v" | python3 -c 'import base64,json,sys
+d=json.loads(base64.b64decode(sys.stdin.read().strip(), validate=True))
+assert d.get("type")=="service_account" and d.get("client_email") and "PRIVATE KEY" in d.get("private_key","")' 2>/dev/null \
+        || falha "esperado o JSON da conta de serviço em base64, numa linha só (no Mac: base64 -i chave.json | tr -d '\\n' | pbcopy). Nada gravado" ;;
   esac
   mkdir -p "$APP_DIR"; chmod 700 "$APP_DIR"
   umask 077
