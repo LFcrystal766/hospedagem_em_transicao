@@ -53,6 +53,10 @@
 #   bash bootstrap-vps.sh app-admin            cria o primeiro admin (CPF digitado sem aparecer,
 #                                              não fica em spec, log nem histórico)
 #   bash bootstrap-vps.sh app-segredos         mostra os segredos do app pra copiar pro cofre
+#   bash bootstrap-vps.sh crystal-nossa TAG    a NOSSA Crystal (serviço app_crystal, sem endereço
+#                                              público): pede a chave do OpenRouter sem aparecer,
+#                                              aponta o app para ela e testa. Volta: crystal-provisoria
+#   bash bootstrap-vps.sh crystal-nossa-teste  uma pergunta de teste à nossa Crystal
 #   bash bootstrap-vps.sh crystal-provisoria   Crystal provisória no n8n com o OpenRouter (pede a
 #                                              chave sem aparecer) e o app apontando pra ela
 #   bash bootstrap-vps.sh crystal-provisoria-teste      uma pergunta de teste, pela API do app
@@ -821,7 +825,7 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   CHAT_TRANSPORT CHATWOOT_BASE_URL CHATWOOT_INBOX_IDENTIFIER CHATWOOT_INBOX_HMAC_TOKEN*
   CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS
   SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY* SUPABASE_LOGIN_RPC
-  REVIEW_ACCOUNTS*)
+  REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL)
 
 app_valor() { # app_valor ARQUIVO NOME -> valor (sem imprimir nada se não houver)
   [ -f "$1" ] || return 0
@@ -909,6 +913,16 @@ app_gerar_segredos() { # app_gerar_segredos TAG
   else
     ok "segredos do app já existem em $APP_SEG (mantidos)"
   fi
+  # Nossa Crystal: chave entre app e Crystal, cifra da memória (NUNCA muda depois
+  # de a Crystal ter guardado conversa) e senha do papel crystal_agente no Postgres.
+  if [ -z "$(app_valor "$APP_SEG" CRYSTAL_CHAVE_CIFRA)" ]; then
+    {
+      echo "CRYSTAL_AGENTE_KEY=$(openssl rand -hex 32)"
+      echo "CRYSTAL_CHAVE_CIFRA=$(openssl rand -hex 32)"
+      echo "CRYSTAL_DB_SENHA=$(openssl rand -hex 24)"
+    } >> "$APP_SEG"
+    ok "segredos da nossa Crystal gerados (copie pro cofre: bash $0 app-segredos)"
+  fi
   # VAPID (push web): gerado com a própria biblioteca do app, dentro da imagem.
   if [ -z "$(app_valor "$APP_SEG" VAPID_PUBLIC_KEY)" ]; then
     local chaves
@@ -971,9 +985,17 @@ app_gerar_env() {
     echo "SENTRY_ENVIRONMENT=production"
     [ -n "$(app_valor "$APP_EXT" VAPID_SUBJECT)" ] || echo "VAPID_SUBJECT=mailto:crystal@leticiafelisberto.com"
     grep -E '^(ENCRYPTION_KEY|JWT_SECRET|WEBHOOK_SECRET|CPF_SALT|OTP_PEPPER|VAPID_PUBLIC_KEY|VAPID_PRIVATE_KEY)=' "$APP_SEG"
-    cat "$APP_EXT"
+    # Menor privilégio: a chave do OpenRouter e o modelo são só da Crystal.
+    grep -vE '^(OPENROUTER_API_KEY|CRYSTAL_MODEL)=' "$APP_EXT" || true
   } > "$APP_DIR/api.env"
-  chmod 600 "$APP_DIR/postgres.env" "$APP_DIR/api.env"
+  {
+    echo "# Gerado por bootstrap-vps.sh em $(date -u +%FT%TZ). Não editar: é regravado a cada app-subir."
+    echo "NODE_ENV=production"
+    echo "DATABASE_URL=postgresql://crystal_agente:$(app_valor "$APP_SEG" CRYSTAL_DB_SENHA)@app_postgres:5432/crystal_agente"
+    grep -E '^(CRYSTAL_AGENTE_KEY|CRYSTAL_CHAVE_CIFRA)=' "$APP_SEG"
+    grep -E '^(OPENROUTER_API_KEY|CRYSTAL_MODEL)=' "$APP_EXT" || true
+  } > "$APP_DIR/crystal.env"
+  chmod 600 "$APP_DIR/postgres.env" "$APP_DIR/api.env" "$APP_DIR/crystal.env"
   unset senha
   if [ "$mock" -eq 1 ]; then
     aviso "Crystal e/ou base de clientes ainda sem endereço: API sobe com a Crystal SIMULADA e só entra quem"
@@ -993,8 +1015,9 @@ app_subir() {
 
   echo "== imagens $tag"
   docker pull -q "$APP_IMG-api:$tag" >/dev/null && docker pull -q "$APP_IMG-web:$tag" >/dev/null \
+    && docker pull -q "$APP_IMG-crystal:$tag" >/dev/null \
     || falha "não baixou as imagens $tag. Rodou 'bash $0 app-ghcr'? O build terminou no GitHub?"
-  ok "$APP_IMG-api:$tag e -web:$tag baixadas"
+  ok "$APP_IMG-api, -web e -crystal:$tag baixadas"
 
   echo "== segredos e ambiente"
   app_gerar_segredos "$tag"
@@ -1014,6 +1037,7 @@ app_subir() {
   docker stack deploy --with-registry-auth -c "$STACKS/$APP_YAML" "$APP_STACK" --detach=true >/dev/null
   sleep 8   # deixa o Swarm registrar a atualização antes de conferir
   esperar_stack "$APP_STACK" 420 || { echo "  Logs da API: docker service logs --tail 80 ${APP_STACK}_app_api"; exit 1; }
+  crystal_banco
   echo
   app_status
 }
@@ -1100,6 +1124,80 @@ app_recomecar() {
   rm -f "$APP_SEG" "$APP_DIR/api.env" "$APP_DIR/postgres.env"
   ok "segredos antigos apagados; $APP_EXT mantido"
   app_subir app-subir "$tag"
+}
+
+# ------------------------------------------------------------------ nossa Crystal
+# Banco e papel próprios dentro do app_postgres. O papel crystal_agente só entra no
+# banco crystal_agente; o banco do app deixa de aceitar conexão de quem não é dono.
+# Idempotente: roda a cada app-subir e mantém a senha igual à do .segredos.
+crystal_banco() {
+  local pg senha t=0
+  senha=$(app_valor "$APP_SEG" CRYSTAL_DB_SENHA)
+  [ -n "$senha" ] || { aviso "sem CRYSTAL_DB_SENHA: banco da Crystal não criado"; return 0; }
+  until pg=$(docker ps -q -f name=${APP_STACK}_app_postgres | head -1) && [ -n "$pg" ] \
+        && docker exec "$pg" pg_isready -U crystal -d crystal_web_chat >/dev/null 2>&1; do
+    [ $t -ge 120 ] && { aviso "Postgres do app não respondeu: banco da Crystal não criado"; return 0; }
+    sleep 3; t=$((t+3))
+  done
+  # A senha vai pela entrada padrão (heredoc), não pela linha de comando.
+  docker exec -i "$pg" psql -v ON_ERROR_STOP=1 -q -U crystal -d crystal_web_chat >/dev/null <<SQL || falha "não criou o banco da Crystal"
+do \$\$ begin
+  if not exists (select from pg_roles where rolname = 'crystal_agente') then
+    create role crystal_agente login password '$senha';
+  else
+    alter role crystal_agente login password '$senha';
+  end if;
+end \$\$;
+select 'create database crystal_agente owner crystal_agente'
+ where not exists (select from pg_database where datname = 'crystal_agente')\\gexec
+revoke all on database crystal_agente from public;
+revoke connect on database crystal_web_chat from public;
+SQL
+  unset senha
+  ok "banco crystal_agente pronto (papel próprio, sem acesso ao banco do app)"
+}
+
+# Aponta o app para a nossa Crystal. Uso: bash bootstrap-vps.sh crystal-nossa sha-XXXXXXX
+crystal_nossa() {
+  local tag="${2:-}" api t=0
+  [ -n "$tag" ] || tag=$(app_tag_atual)
+  echo "$tag" | grep -Eq '^(sha-[0-9a-f]{7}|v[0-9][0-9A-Za-z.-]*)$' || falha "informe a tag: bash $0 crystal-nossa sha-XXXXXXX"
+  [ -f "$APP_SEG" ] || falha "o app ainda não subiu: bash $0 app-subir $tag"
+  if [ -z "$(app_valor "$APP_EXT" OPENROUTER_API_KEY)" ]; then
+    echo "Chave do OpenRouter SÓ para a Crystal da VPS (crie uma nova em openrouter.ai > Keys, com limite de crédito)."
+    local k; read -rsp "OPENROUTER_API_KEY (não aparece): " k; echo
+    echo "$k" | grep -Eq '^sk-or-[A-Za-z0-9_-]{20,}$' || { k=""; falha "não parece uma chave do OpenRouter (sk-or-...)"; }
+    app_gravar OPENROUTER_API_KEY "$k"; k=""
+    ok "chave do OpenRouter gravada (só a Crystal recebe)"
+  fi
+  echo "== app apontando para a nossa Crystal"
+  app_gravar CRYSTAL_API_URL "http://app_crystal:8080"
+  app_gravar CRYSTAL_API_PATH "/v1/messages"
+  app_gravar CRYSTAL_API_AUTH_HEADER "authorization"
+  app_gravar CRYSTAL_API_REPLY_FIELD "text"
+  app_gravar CRYSTAL_API_KEY "$(app_valor "$APP_SEG" CRYSTAL_AGENTE_KEY)"
+  app_subir app-subir "$tag"
+  echo
+  echo "== teste: a API do app pergunta à nossa Crystal"
+  while :; do
+    api=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
+    [ -n "$api" ] && docker exec "$api" sh -c '[ "$CRYSTAL_API_URL" = "http://app_crystal:8080" ]' 2>/dev/null && break
+    [ $t -ge 120 ] && break; sleep 5; t=$((t+5))
+  done
+  crystal_nossa_teste
+}
+
+crystal_nossa_teste() {
+  local api; api=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
+  [ -n "$api" ] || falha "API do app não está rodando"
+  docker exec "$api" node -e '
+    const u = process.env.CRYSTAL_API_URL + process.env.CRYSTAL_API_PATH;
+    fetch(u, { method: "POST", headers: { authorization: "Bearer " + process.env.CRYSTAL_API_KEY, "content-type": "application/json" },
+      body: JSON.stringify({ contact_id: null, conversation_id: "teste-bootstrap", message: { type: "text", text: "Oi, Crystal. Responda só: teste ok." } }) })
+      .then(async r => { const t = await r.text(); console.log("  status", r.status, "->", t.slice(0, 160)); process.exit(r.ok ? 0 : 1); })
+      .catch(e => { console.log("  falhou:", e.name); process.exit(1); });' \
+    && ok "nossa Crystal respondendo. Teste no app: https://app.$DOMINIO" \
+    || aviso "não respondeu. Ver: docker service logs --tail 60 ${APP_STACK}_app_crystal"
 }
 
 # ------------------------------------------------------------------ Crystal provisória
@@ -1266,6 +1364,8 @@ case "$CMD" in
   app-admin) app_admin ;;
   app-segredos) app_segredos ;;
   app-recomecar) app_recomecar "$@" ;;
+  crystal-nossa) crystal_nossa "$@" ;;
+  crystal-nossa-teste) crystal_nossa_teste ;;
   crystal-provisoria) crystal_provisoria ;;
   crystal-provisoria-teste) crystal_provisoria_teste ;;
   crystal-provisoria-desligar) crystal_provisoria_desligar ;;

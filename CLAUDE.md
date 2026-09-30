@@ -44,8 +44,10 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
   **cinza** enquanto o Traefik emitir o certificado por HTTP. Laranja neles só
   depois da stack no ar, com decisão explícita. Não são a mesma Hostinger do
   site: é uma VPS, não o hPanel.
-- Segredos do app na VPS (`/root/crystal/app/.segredos`): `ENCRYPTION_KEY` e
-  `CPF_SALT` nunca mudam depois de o banco do app ter dado.
+- Segredos do app na VPS (`/root/crystal/app/.segredos`): `ENCRYPTION_KEY`,
+  `CPF_SALT` e `CRYSTAL_CHAVE_CIFRA` nunca mudam depois de o banco ter dado.
+- A nossa Crystal (`app_crystal`) não tem rota pública; a chave do OpenRouter vai só
+  para o `crystal.env`, nunca para o `api.env`.
 
 ## Segurança sempre (pedido em 29/09)
 

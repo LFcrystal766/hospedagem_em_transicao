@@ -6,6 +6,7 @@
 #   Sobe o app web da Crystal ao lado do n8n, atrás do mesmo Traefik:
 #     app.crystalnowpp.com.br  ->  app_web  (PWA em Next.js, porta 3000)
 #     api.crystalnowpp.com.br  ->  app_api  (API em Fastify, porta 3001)
+#   e a nossa Crystal (app_crystal, porta 8080), sem endereço público,
 #   com Postgres e Redis PRÓPRIOS do app, numa rede interna só dele. Não usa o
 #   Postgres nem o Redis do n8n, e não toca no Supabase da agência.
 #
@@ -16,8 +17,8 @@
 #   ghcr.io" antes (bootstrap-vps.sh app-ghcr).
 #
 # O QUE NÃO ESTÁ NESTE ARQUIVO
-#   Segredo nenhum. A API lê /root/crystal/app/api.env e o Postgres lê
-#   /root/crystal/app/postgres.env, os dois gerados na VPS pelo bootstrap
+#   Segredo nenhum. A API lê /root/crystal/app/api.env, a Crystal lê
+#   crystal.env e o Postgres lê postgres.env, todos gerados na VPS pelo bootstrap
 #   (chmod 600). Os marcadores abaixo são trocados pelo bootstrap:
 #     APP_TAG       tag das imagens
 #     APP_ENV_DIR   pasta dos .env (padrão /root/crystal/app)
@@ -126,6 +127,33 @@ services:
 
   # ---------------------------------------------------------------- Web (PWA)
   # Nenhum segredo: o endereço da API já está embutido na imagem (build).
+  # A nossa Crystal (apps/crystal do crystal-web-chat). Só na rede interna:
+  # sem rota no Traefik, só o app_api a alcança. Memória no app_postgres, em
+  # banco e papel próprios (crystal_agente), criados pelo bootstrap.
+  app_crystal:
+    image: ghcr.io/lfcrystal766/crystal-web-chat-crystal:APP_TAG
+    env_file: APP_ENV_DIR/crystal.env
+    networks:
+      - app_interno
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits: {cpus: "0.5", memory: 384M}
+      update_config:
+        parallelism: 1
+        order: stop-first
+        failure_action: rollback
+        monitor: 60s
+      restart_policy: {condition: any, delay: 5s, max_attempts: 5, window: 300s}
+
   app_web:
     image: ghcr.io/lfcrystal766/crystal-web-chat-web:APP_TAG
     environment:

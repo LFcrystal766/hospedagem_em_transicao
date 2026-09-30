@@ -256,6 +256,37 @@ o R2): envio dos três arquivos, listagem, chave errada recusada (403, backup fa
 e avisa), arquivo abre com a chave privada e não abre sem ela, chave privada nunca
 em arquivo, segredo do R2 nunca na tela, configuração errada não fica gravada.
 
+## A nossa Crystal (em paralelo com a da agência)
+
+Decisão de 30/09: cobrar a agência com prazo e, em paralelo, ter a nossa pronta.
+O código está em `apps/crystal` do `crystal-web-chat` e sobe como o serviço
+`app_crystal` da stack do app: sem endereço público, só o `app_api` a alcança.
+
+- **Mesmo contrato do app**: trocar de Crystal é só mudar para onde o app aponta.
+  `crystal-nossa` aponta para a nossa; `crystal-provisoria` volta para a do n8n.
+- **Modelo**: OpenRouter, com `provider.data_collection: deny`. Ao modelo vai só o
+  texto da conversa. Chave própria da VPS, com limite de crédito no OpenRouter.
+  Modelo padrão `openrouter/auto`; fixar um depois de testar (`app-definir CRYSTAL_MODEL`).
+- **Memória**: últimas 20 mensagens por contato, 180 dias, em banco e papel
+  próprios (`crystal_agente`, sem acesso ao banco do app), texto cifrado e contato
+  em HMAC. `CRYSTAL_CHAVE_CIFRA` nunca muda depois de guardar conversa.
+- **Segurança**: risco à vida ou violência sai sempre com CVV 188, SAMU 192,
+  Ligue 180 e 190, mesmo que o modelo esqueça. Log sem conteúdo.
+- **Prompt**: `apps/crystal/prompt/crystal.md` é RASCUNHO nosso. Quando a agência
+  mandar o prompt e a base, entram em `prompt/` e `conhecimento/`.
+
+```bash
+bash bootstrap-vps.sh crystal-nossa sha-XXXXXXX   # pede a chave do OpenRouter sem aparecer
+bash bootstrap-vps.sh crystal-nossa-teste
+bash bootstrap-vps.sh crystal-provisoria          # volta para a do n8n
+```
+
+Ensaiado em 30/09: 36 testes; o cliente do próprio app (`HttpCrystalClient`) contra
+o serviço em modo produção com Postgres 16 e um OpenRouter falso: streaming,
+memória entre turnos, contatos de ajuda acrescentados, chave errada recusada,
+nenhum id no pedido ao modelo, texto cifrado no banco, log sem conteúdo, papel
+sem acesso ao banco do app.
+
 ## Ligar o canal do LendChat no app
 
 O app já sabe falar com uma inbox de API no formato do Chatwoot
