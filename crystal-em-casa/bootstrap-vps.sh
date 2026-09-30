@@ -828,7 +828,8 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   CHAT_TRANSPORT CHATWOOT_BASE_URL CHATWOOT_INBOX_IDENTIFIER CHATWOOT_INBOX_HMAC_TOKEN*
   CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS
   SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY* SUPABASE_LOGIN_RPC
-  REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL)
+  REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL
+  ANDROID_CERT_SHA256 APPLE_TEAM_ID)
 
 app_valor() { # app_valor ARQUIVO NOME -> valor (sem imprimir nada se não houver)
   [ -f "$1" ] || return 0
@@ -878,6 +879,15 @@ app_definir() {
   fi
   [ -n "$v" ] || falha "valor vazio; nada gravado"
   case "$v" in *$'\n'*|*$'\r'*) falha "valor com quebra de linha" ;; esac
+  case "$nome" in
+    ANDROID_CERT_SHA256)
+      v=$(printf '%s' "$v" | tr 'a-f' 'A-F' | tr -d ' ')
+      printf '%s' "$v" | grep -Eq '^([0-9A-F]{2}(:[0-9A-F]{2}){31})(,[0-9A-F]{2}(:[0-9A-F]{2}){31})*$' \
+        || falha "formato: AA:BB:...(32 pares), várias separadas por vírgula (Play Console > Integridade do app)" ;;
+    APPLE_TEAM_ID)
+      v=$(printf '%s' "$v" | tr 'a-z' 'A-Z')
+      printf '%s' "$v" | grep -Eq '^[A-Z0-9]{10}$' || falha "o Team ID tem 10 letras/números (developer.apple.com > Membership)" ;;
+  esac
   mkdir -p "$APP_DIR"; chmod 700 "$APP_DIR"
   umask 077
   touch "$APP_EXT"
@@ -988,8 +998,9 @@ app_gerar_env() {
     echo "SENTRY_ENVIRONMENT=production"
     [ -n "$(app_valor "$APP_EXT" VAPID_SUBJECT)" ] || echo "VAPID_SUBJECT=mailto:crystal@leticiafelisberto.com"
     grep -E '^(ENCRYPTION_KEY|JWT_SECRET|WEBHOOK_SECRET|CPF_SALT|OTP_PEPPER|VAPID_PUBLIC_KEY|VAPID_PRIVATE_KEY)=' "$APP_SEG"
-    # Menor privilégio: a chave do OpenRouter e o modelo são só da Crystal.
-    grep -vE '^(OPENROUTER_API_KEY|CRYSTAL_MODEL)=' "$APP_EXT" || true
+    # Menor privilégio: a chave do OpenRouter e o modelo são só da Crystal;
+    # o vínculo com as lojas é só do web.
+    grep -vE '^(OPENROUTER_API_KEY|CRYSTAL_MODEL|ANDROID_CERT_SHA256|APPLE_TEAM_ID)=' "$APP_EXT" || true
   } > "$APP_DIR/api.env"
   {
     echo "# Gerado por bootstrap-vps.sh em $(date -u +%FT%TZ). Não editar: é regravado a cada app-subir."
@@ -998,7 +1009,12 @@ app_gerar_env() {
     grep -E '^(CRYSTAL_AGENTE_KEY|CRYSTAL_CHAVE_CIFRA)=' "$APP_SEG"
     grep -E '^(OPENROUTER_API_KEY|CRYSTAL_MODEL)=' "$APP_EXT" || true
   } > "$APP_DIR/crystal.env"
-  chmod 600 "$APP_DIR/postgres.env" "$APP_DIR/api.env" "$APP_DIR/crystal.env"
+  {
+    echo "# Gerado por bootstrap-vps.sh em $(date -u +%FT%TZ). Não editar: é regravado a cada app-subir."
+    # Públicos (vão no /.well-known do app): impressões do certificado Android e Team ID da Apple.
+    grep -E '^(ANDROID_CERT_SHA256|APPLE_TEAM_ID)=' "$APP_EXT" || true
+  } > "$APP_DIR/web.env"
+  chmod 600 "$APP_DIR/postgres.env" "$APP_DIR/api.env" "$APP_DIR/crystal.env" "$APP_DIR/web.env"
   unset senha
   # Diz qual das duas pontas falta, em vez de um aviso só que confundia.
   if [ "$(app_valor "$APP_EXT" CHAT_TRANSPORT)" = "chatwoot" ]; then

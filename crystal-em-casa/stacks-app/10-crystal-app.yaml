@@ -18,7 +18,8 @@
 #
 # O QUE NÃO ESTÁ NESTE ARQUIVO
 #   Segredo nenhum. A API lê /root/crystal/app/api.env, a Crystal lê
-#   crystal.env e o Postgres lê postgres.env, todos gerados na VPS pelo bootstrap
+#   crystal.env, o web lê web.env (só o público do /.well-known) e o Postgres lê
+#   postgres.env, todos gerados na VPS pelo bootstrap
 #   (chmod 600). Os marcadores abaixo são trocados pelo bootstrap:
 #     APP_TAG       tag das imagens
 #     APP_ENV_DIR   pasta dos .env (padrão /root/crystal/app)
@@ -156,6 +157,8 @@ services:
 
   app_web:
     image: ghcr.io/lfcrystal766/crystal-web-chat-web:APP_TAG
+    # Só ANDROID_CERT_SHA256 e APPLE_TEAM_ID (públicos, para o /.well-known).
+    env_file: APP_ENV_DIR/web.env
     environment:
       - NODE_ENV=production
       - HOSTNAME=0.0.0.0
