@@ -997,11 +997,24 @@ app_gerar_env() {
   } > "$APP_DIR/crystal.env"
   chmod 600 "$APP_DIR/postgres.env" "$APP_DIR/api.env" "$APP_DIR/crystal.env"
   unset senha
-  if [ "$mock" -eq 1 ]; then
-    aviso "Crystal e/ou base de clientes ainda sem endereço: API sobe com a Crystal SIMULADA e só entra quem"
-    aviso "for criado aqui (app-admin). Quando a agência passar os endereços: app-definir + app-subir de novo"
+  # Diz qual das duas pontas falta, em vez de um aviso só que confundia.
+  if [ "$(app_valor "$APP_EXT" CHAT_TRANSPORT)" = "chatwoot" ]; then
+    ok "Crystal: canal da inbox (CHAT_TRANSPORT=chatwoot)"
+  elif [ -n "$(app_valor "$APP_EXT" CRYSTAL_API_URL)" ] && [ -n "$(app_valor "$APP_EXT" CRYSTAL_API_KEY)" ]; then
+    case "$(app_valor "$APP_EXT" CRYSTAL_API_URL)" in
+      http://app_crystal:*) ok "Crystal: a nossa (app_crystal)" ;;
+      *webhook.$DOMINIO*) ok "Crystal: a provisória do n8n" ;;
+      *) ok "Crystal: $(app_valor "$APP_EXT" CRYSTAL_API_URL | sed -E 's#^(https?://[^/]+).*#\1#')" ;;
+    esac
   else
-    ok "Crystal e base de clientes reais configuradas (ALLOW_MOCK_INTEGRATIONS=0)"
+    aviso "Crystal SIMULADA (sem endereço): bash $0 crystal-nossa TAG"
+  fi
+  if [ -n "$(app_valor "$APP_EXT" SUPABASE_URL)" ] && [ -n "$(app_valor "$APP_EXT" SUPABASE_SERVICE_ROLE_KEY)" ]; then
+    ok "base de alunos: Supabase"
+  elif [ -n "$(app_valor "$APP_EXT" DIRECTORY_API_URL)" ] && [ -n "$(app_valor "$APP_EXT" DIRECTORY_API_KEY)" ]; then
+    ok "base de alunos: DIRECTORY_API"
+  else
+    aviso "base de alunos ainda não ligada: só entra quem foi criado aqui (app-admin, contas de revisão)"
   fi
 }
 

@@ -258,6 +258,10 @@ em arquivo, segredo do R2 nunca na tela, configuração errada não fica gravada
 
 ## A nossa Crystal (em paralelo com a da agência)
 
+**No ar desde 30/09** (`sha-532523d`): o app aponta para ela e o teste pela API do
+app respondeu 200. Chave do OpenRouter própria da VPS, com limite de crédito. A
+provisória do n8n continua instalada, como caminho de volta.
+
 Decisão de 30/09: cobrar a agência com prazo e, em paralelo, ter a nossa pronta.
 O código está em `apps/crystal` do `crystal-web-chat` e sobe como o serviço
 `app_crystal` da stack do app: sem endereço público, só o `app_api` a alcança.
