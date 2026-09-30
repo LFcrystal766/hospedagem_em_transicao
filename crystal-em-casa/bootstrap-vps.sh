@@ -1170,6 +1170,10 @@ crystal_nossa() {
     app_gravar OPENROUTER_API_KEY "$k"; k=""
     ok "chave do OpenRouter gravada (só a Crystal recebe)"
   fi
+  # Os segredos da Crystal têm que existir ANTES de gravar a chave do app: na
+  # primeira vez eles nascem aqui (antes, a chave do app ficava vazia e dava 401).
+  app_gerar_segredos "$tag"
+  [ -n "$(app_valor "$APP_SEG" CRYSTAL_AGENTE_KEY)" ] || falha "CRYSTAL_AGENTE_KEY não foi gerada em $APP_SEG"
   echo "== app apontando para a nossa Crystal"
   app_gravar CRYSTAL_API_URL "http://app_crystal:8080"
   app_gravar CRYSTAL_API_PATH "/v1/messages"
