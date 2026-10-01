@@ -882,6 +882,9 @@ app_definir() {
   [ -n "$v" ] || falha "valor vazio; nada gravado"
   case "$v" in *$'\n'*|*$'\r'*) falha "valor com quebra de linha" ;; esac
   case "$nome" in
+    CHAT_TRANSPORT)
+      v=$(printf '%s' "$v" | tr 'A-Z' 'a-z' | tr -d ' ')
+      case "$v" in crystal|chatwoot) ;; *) falha "digite só crystal (a nossa Crystal responde) ou chatwoot (LendChat). Nada gravado" ;; esac ;;
     ANDROID_CERT_SHA256)
       v=$(printf '%s' "$v" | tr 'a-f' 'A-F' | tr -d ' ')
       printf '%s' "$v" | grep -Eq '^([0-9A-F]{2}(:[0-9A-F]{2}){31})(,[0-9A-F]{2}(:[0-9A-F]{2}){31})*$' \
