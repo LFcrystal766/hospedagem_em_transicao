@@ -1202,7 +1202,8 @@ SQL
 # vindo da base recebe o telefone de lá. Uso: bash bootstrap-vps.sh app-telefone EMAIL
 app_telefone() {
   local email="${2:-}" tel pg n
-  echo "$email" | grep -Eq '^[^@ ]+@[^@ ]+\.[^@ ]+$' || falha "informe o e-mail da conta: bash $0 app-telefone voce@exemplo.com"
+  # Só caracteres de e-mail comum: sem aspas nem barra, o valor vai seguro para o psql.
+  echo "$email" | grep -Eq '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$' || falha "informe o e-mail da conta: bash $0 app-telefone voce@exemplo.com"
   read -rp "WhatsApp com DDD (ex.: 11 98888 7777): " tel
   tel=$(echo "$tel" | tr -cd '0-9')
   case "${#tel}" in 10|11) tel="55$tel" ;; 12|13) ;; *) falha "telefone inválido" ;; esac
@@ -1211,7 +1212,7 @@ app_telefone() {
   # Valores pela entrada padrão, nunca na linha de comando.
   n=$(docker exec -i "$pg" psql -v ON_ERROR_STOP=1 -tA -U crystal -d crystal_web_chat <<SQL
 \set tel '+$tel'
-\set email '$(echo "$email" | tr -d "'\\")'
+\set email '$email'
 with u as (
   update users set phone_e164 = :'tel' where lower(email) = lower(:'email') returning id
 ), c as (
