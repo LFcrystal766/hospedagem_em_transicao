@@ -54,6 +54,8 @@
 #                                              não fica em spec, log nem histórico)
 #   bash bootstrap-vps.sh app-aluno            cria uma conta de aluno à mão (CPF sem aparecer;
 #                                              pergunta e-mail, nome e WhatsApp)
+#   bash bootstrap-vps.sh vigia-config         liga a vigia do app (a cada 5 min, avisa no Telegram;
+#                                              pede o token do bot sem aparecer)
 #   bash bootstrap-vps.sh app-segredos         mostra os segredos do app pra copiar pro cofre
 #   bash bootstrap-vps.sh app-telefone EMAIL   grava o WhatsApp de uma conta criada aqui (canal da inbox)
 #   bash bootstrap-vps.sh app-revisao          cria (uma vez) e mostra a conta de revisão das lojas;
@@ -830,7 +832,7 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   CHAT_TRANSPORT CHATWOOT_BASE_URL CHATWOOT_INBOX_IDENTIFIER CHATWOOT_INBOX_HMAC_TOKEN*
   CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS
   SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY* SUPABASE_LOGIN_RPC
-  REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL
+  REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL CRYSTAL_MODEL_RESERVA
   ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*)
 
 app_valor() { # app_valor ARQUIVO NOME -> valor (sem imprimir nada se não houver)
@@ -1013,14 +1015,14 @@ app_gerar_env() {
     grep -E '^(ENCRYPTION_KEY|JWT_SECRET|WEBHOOK_SECRET|CPF_SALT|OTP_PEPPER|VAPID_PUBLIC_KEY|VAPID_PRIVATE_KEY)=' "$APP_SEG"
     # Menor privilégio: a chave do OpenRouter e o modelo são só da Crystal;
     # o vínculo com as lojas é só do web.
-    grep -vE '^(OPENROUTER_API_KEY|CRYSTAL_MODEL|ANDROID_CERT_SHA256|APPLE_TEAM_ID)=' "$APP_EXT" || true
+    grep -vE '^(OPENROUTER_API_KEY|CRYSTAL_MODEL|CRYSTAL_MODEL_RESERVA|ANDROID_CERT_SHA256|APPLE_TEAM_ID)=' "$APP_EXT" || true
   } > "$APP_DIR/api.env"
   {
     echo "# Gerado por bootstrap-vps.sh em $(date -u +%FT%TZ). Não editar: é regravado a cada app-subir."
     echo "NODE_ENV=production"
     echo "DATABASE_URL=postgresql://crystal_agente:$(app_valor "$APP_SEG" CRYSTAL_DB_SENHA)@app_postgres:5432/crystal_agente"
     grep -E '^(CRYSTAL_AGENTE_KEY|CRYSTAL_CHAVE_CIFRA)=' "$APP_SEG"
-    grep -E '^(OPENROUTER_API_KEY|CRYSTAL_MODEL)=' "$APP_EXT" || true
+    grep -E '^(OPENROUTER_API_KEY|CRYSTAL_MODEL|CRYSTAL_MODEL_RESERVA)=' "$APP_EXT" || true
   } > "$APP_DIR/crystal.env"
   {
     echo "# Gerado por bootstrap-vps.sh em $(date -u +%FT%TZ). Não editar: é regravado a cada app-subir."
@@ -1397,6 +1399,110 @@ crystal_nossa_teste() {
     || aviso "não respondeu. Ver: docker service logs --tail 60 ${APP_STACK}_app_crystal"
 }
 
+# ------------------------------------------------------------------ vigia do app
+# A cada 5 minutos (cron), confere o app e avisa no Telegram (grupo Crystal ·
+# Alertas). Só manda de novo o mesmo problema depois de 1 hora e avisa quando
+# normaliza. O token do bot fica em $VIGIA_CONF (600), nunca na tela nem no log.
+VIGIA_CONF="$BASE/.vigia"
+VIGIA_ESTADO="$BASE/.vigia-estado"
+VIGIA_LOG="$BASE/vigia.log"
+
+vigia_telegram() { # vigia_telegram TEXTO -> 0 se o Telegram aceitou
+  local token chat
+  token=$(app_valor "$VIGIA_CONF" TOKEN); chat=$(app_valor "$VIGIA_CONF" CHAT)
+  [ -n "$token" ] && [ -n "$chat" ] || return 1
+  # URL com o token pela entrada padrão (-K -): fora da linha de comando e do ps.
+  printf 'url = "https://api.telegram.org/bot%s/sendMessage"\n' "$token" \
+    | curl -s -m 20 -K - --data-urlencode "chat_id=$chat" --data-urlencode "text=$1" \
+    | grep -q '"ok":true'
+}
+
+vigia_config() {
+  local token chat limite
+  read -rsp "Token do bot do Telegram (Bitwarden, não aparece): " token; echo
+  printf '%s' "$token" | grep -Eq '^[0-9]{6,12}:[A-Za-z0-9_-]{30,}$' || falha "token em formato inesperado (123456789:AA...). Nada gravado"
+  read -rp "ID do grupo [-1003662546162]: " chat; chat=${chat:--1003662546162}
+  printf '%s' "$chat" | grep -Eq '^-?[0-9]{5,20}$' || falha "ID do grupo inválido"
+  read -rp "Avisar quando o crédito do OpenRouter ficar abaixo de US$ [5]: " limite; limite=${limite:-5}
+  printf '%s' "$limite" | grep -Eq '^[0-9]+$' || falha "limite: só número inteiro"
+  mkdir -p "$BASE"; chmod 700 "$BASE"; umask 077
+  printf 'TOKEN=%s\nCHAT=%s\nLIMITE=%s\n' "$token" "$chat" "$limite" > "$VIGIA_CONF"; chmod 600 "$VIGIA_CONF"
+  token=""
+  vigia_telegram "✅ Vigia do app da Crystal ligada na VPS. Confere a cada 5 minutos e avisa aqui se algo cair." \
+    || { rm -f "$VIGIA_CONF"; falha "o Telegram recusou (token, ID do grupo ou o bot fora do grupo). Nada gravado"; }
+  ok "mensagem de teste enviada ao grupo"
+  cp "$AQUI/$(basename "$0")" "$BASE/bootstrap-vps.sh" 2>/dev/null || true
+  printf '%s\n' "*/5 * * * * root PATH=/usr/sbin:/usr/bin:/sbin:/bin /usr/bin/bash $BASE/bootstrap-vps.sh vigia >> $VIGIA_LOG 2>&1" \
+    > /etc/cron.d/crystal-vigia
+  chmod 644 /etc/cron.d/crystal-vigia
+  ok "vigia agendada (/etc/cron.d/crystal-vigia, a cada 5 min). Log: $VIGIA_LOG"
+}
+
+vigia() {
+  [ -s "$VIGIA_CONF" ] || { echo "vigia sem configuração: bash $0 vigia-config"; return 0; }
+  local problemas=() u code linha falhas resumo agora anterior quando cid saldo limite r
+  agora=$(date +%s)
+  for u in "https://app.$DOMINIO/login" "https://api.$DOMINIO/healthz"; do
+    code=$(curl -s -o /dev/null -m 20 -w '%{http_code}' "$u" || true)
+    [ "$code" = "200" ] || problemas+=("$u respondeu ${code:-sem resposta}")
+  done
+  while read -r linha; do
+    set -- $linha
+    [ "${2%%/*}" = "${2##*/}" ] || problemas+=("serviço $1 com $2 réplicas")
+  done < <(docker service ls --filter "name=${APP_STACK}_" --format '{{.Name}} {{.Replicas}}' 2>/dev/null)
+  falhas=$(docker service logs --since 6m "${APP_STACK}_app_api" 2>&1 | grep -E 'crystal: resposta falhou|canal: envio para a inbox falhou' || true)
+  if [ -n "$falhas" ]; then
+    resumo=$(printf '%s\n' "$falhas" | grep -oE '"code":"[A-Z_]+"(,"(status|motivo)":("[^"]*"|[0-9]+|null))?' | sort | uniq -c | sort -rn | head -3 | tr -s ' ' | tr '\n' ';')
+    problemas+=("$(printf '%s\n' "$falhas" | wc -l) resposta(s) falharam nos últimos 5 min: ${resumo%;}")
+  fi
+  # Uma vez por hora: a Crystal responde de verdade e o crédito do OpenRouter está ok.
+  if [ $((10#$(date +%M))) -lt 5 ]; then
+    cid=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
+    if [ -n "$cid" ] && [ "$(app_valor "$APP_EXT" CHAT_TRANSPORT)" != "chatwoot" ]; then
+      r=$(docker exec "$cid" node -e '
+        fetch(process.env.CRYSTAL_API_URL + process.env.CRYSTAL_API_PATH, { method: "POST",
+          headers: { authorization: "Bearer " + process.env.CRYSTAL_API_KEY, "content-type": "application/json" },
+          body: JSON.stringify({ contact_id: null, conversation_id: "vigia", message: { type: "text", text: "Responda só: ok" } }),
+          signal: AbortSignal.timeout(60000) }).then(r => console.log(r.status)).catch(e => console.log(e.name))' 2>/dev/null || echo erro)
+      [ "$r" = "200" ] || problemas+=("teste da nossa Crystal: $r")
+    fi
+    cid=$(docker ps -q -f name=${APP_STACK}_app_crystal | head -1)
+    limite=$(app_valor "$VIGIA_CONF" LIMITE)
+    if [ -n "$cid" ] && [ -n "$limite" ]; then
+      saldo=$(docker exec "$cid" node -e '
+        fetch("https://openrouter.ai/api/v1/credits", { headers: { authorization: "Bearer " + process.env.OPENROUTER_API_KEY },
+          signal: AbortSignal.timeout(20000) }).then(r => r.json())
+          .then(j => console.log(Math.floor(j.data.total_credits - j.data.total_usage))).catch(() => console.log(""))' 2>/dev/null || true)
+      if printf '%s' "$saldo" | grep -Eq '^-?[0-9]+$' && [ "$saldo" -lt "$limite" ]; then
+        problemas+=("crédito do OpenRouter em US\$ $saldo (abaixo de $limite): recarregar")
+      fi
+    fi
+  fi
+
+  anterior=$(app_valor "$VIGIA_ESTADO" RESUMO); quando=$(app_valor "$VIGIA_ESTADO" QUANDO)
+  if [ ${#problemas[@]} -gt 0 ]; then
+    resumo=$(printf '%s | ' "${problemas[@]}"); resumo=${resumo% | }
+    # Mesmo problema: repete só depois de 1 hora (as contagens mudam, por isso compara sem números).
+    if [ "$(echo "$resumo" | tr -d '0-9')" = "$(echo "$anterior" | tr -d '0-9')" ] && [ $((agora - ${quando:-0})) -lt 3600 ]; then
+      return 0
+    fi
+    echo "$(date -Is) ALERTA $resumo"
+    if vigia_telegram "⚠️ App da Crystal: $(printf '\n- %s' "${problemas[@]}")
+Na VPS: bash bootstrap-vps.sh crystal-nossa-teste"; then
+      umask 077; printf 'RESUMO=%s\nQUANDO=%s\n' "$resumo" "$agora" > "$VIGIA_ESTADO"
+    else
+      echo "$(date -Is) Telegram recusou o aviso"
+    fi
+  elif [ -n "$anterior" ]; then
+    echo "$(date -Is) normalizado"
+    vigia_telegram "✅ App da Crystal normalizado." && rm -f "$VIGIA_ESTADO"
+  fi
+  # Log pequeno: só as últimas 500 linhas.
+  if [ -f "$VIGIA_LOG" ] && [ "$(wc -l < "$VIGIA_LOG")" -gt 1000 ]; then
+    tail -500 "$VIGIA_LOG" > "$VIGIA_LOG.tmp" && mv "$VIGIA_LOG.tmp" "$VIGIA_LOG"
+  fi
+}
+
 # ------------------------------------------------------------------ Crystal provisória
 # Fluxo do n8n (n8n/crystal-provisoria.json) que responde no app usando o
 # OpenRouter, até a agência entregar o agente. Importa credenciais e fluxo
@@ -1559,6 +1665,8 @@ case "$CMD" in
   app-subir) app_subir "$@" ;;
   app-status) app_status ;;
   app-admin) app_admin ;;
+  vigia-config) vigia_config ;;
+  vigia) vigia ;;
   app-aluno) app_aluno ;;
   app-segredos) app_segredos ;;
   app-recomecar) app_recomecar "$@" ;;
