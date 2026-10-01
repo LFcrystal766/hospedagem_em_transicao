@@ -52,6 +52,8 @@
 #   bash bootstrap-vps.sh app-status           serviços do app + HTTPS de app. e api.
 #   bash bootstrap-vps.sh app-admin            cria o primeiro admin (CPF digitado sem aparecer,
 #                                              não fica em spec, log nem histórico)
+#   bash bootstrap-vps.sh app-aluno            cria uma conta de aluno à mão (CPF sem aparecer;
+#                                              pergunta e-mail, nome e WhatsApp)
 #   bash bootstrap-vps.sh app-segredos         mostra os segredos do app pra copiar pro cofre
 #   bash bootstrap-vps.sh app-telefone EMAIL   grava o WhatsApp de uma conta criada aqui (canal da inbox)
 #   bash bootstrap-vps.sh app-revisao          cria (uma vez) e mostra a conta de revisão das lojas;
@@ -1138,6 +1140,75 @@ TS
   echo "  Próximo: entrar em https://app.$DOMINIO com esse CPF e e-mail (o código chega pelo Resend)."
 }
 
+# Conta de aluno criada à mão (equipe, testes, quem ainda não está na base de
+# alunos). CPF digitado sem eco e validado pelos dígitos; nada na linha de comando.
+# Quando a base do Supabase entrar (autoritativa), o login confere lá também:
+# quem não for aluno ativo na base deixa de entrar.
+app_aluno() {
+  local cid cpf email nome tel
+  cid=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
+  [ -n "$cid" ] || falha "a API do app não está rodando: bash $0 app-subir TAG"
+  read -rsp "CPF, só números (não aparece): " cpf; echo
+  cpf=$(printf '%s' "$cpf" | tr -cd '0-9')
+  [ "${#cpf}" -eq 11 ] || falha "CPF precisa de 11 dígitos"
+  read -rp "E-mail (recebe o código de login): " email
+  echo "$email" | grep -Eq '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$' || falha "e-mail inválido"
+  read -rp "Nome: " nome
+  [ -n "$nome" ] || falha "nome vazio"
+  read -rp "WhatsApp com DDD (Enter para pular): " tel
+  tel=$(printf '%s' "$tel" | tr -cd '0-9')
+  if [ -n "$tel" ]; then
+    case "${#tel}" in 10|11) tel="55$tel" ;; 12|13) ;; *) falha "telefone inválido" ;; esac
+    echo "$tel" | grep -Eq '^55[1-9][0-9]9?[0-9]{8}$' || falha "telefone inválido (Brasil, com DDD)"
+    tel="+$tel"
+  fi
+  docker exec -i -w /app/apps/api "$cid" sh -c 'cat > .aluno.ts' <<'TS'
+import { PrismaClient } from "@prisma/client";
+import { cpfLast4, cpfSchema, emailSchema } from "@crystal/shared";
+import { createPrismaRepos } from "./src/db/prisma";
+import { loadEnv } from "./src/env";
+import { hashCpf } from "./src/lib/crypto";
+
+const env = loadEnv();
+const cpf = cpfSchema.safeParse(process.env.ALUNO_CPF ?? "");
+if (!cpf.success) {
+  console.log("CPF inválido (dígitos verificadores não batem)");
+  process.exit(2);
+}
+const email = emailSchema.parse((process.env.ALUNO_EMAIL ?? "").trim().toLowerCase());
+const prisma = new PrismaClient();
+try {
+  const repos = createPrismaRepos(prisma);
+  const cpfHash = hashCpf(cpf.data, env.CPF_SALT);
+  const existente = await repos.users.findByCpfHash(cpfHash);
+  if (existente) {
+    console.log(`já existe conta com esse CPF (final ${existente.cpfLast4}, papel ${existente.role}); nada feito`);
+  } else if (await repos.users.findByEmail(email)) {
+    console.log("já existe conta com esse e-mail; nada feito");
+  } else {
+    await repos.users.create({
+      cpfHash,
+      cpfLast4: cpfLast4(cpf.data),
+      name: (process.env.ALUNO_NOME ?? "").trim(),
+      role: "user",
+      crystalContactId: null,
+      phoneE164: process.env.ALUNO_TEL || null,
+      email,
+    });
+    console.log(`conta de aluno criada (CPF final ${cpfLast4(cpf.data)})`);
+  }
+} finally {
+  await prisma.$disconnect();
+}
+TS
+  ALUNO_CPF="$cpf" ALUNO_EMAIL="$email" ALUNO_NOME="$nome" ALUNO_TEL="$tel" \
+    docker exec -e ALUNO_CPF -e ALUNO_EMAIL -e ALUNO_NOME -e ALUNO_TEL -w /app/apps/api "$cid" \
+    ./node_modules/.bin/tsx .aluno.ts || { docker exec "$cid" rm -f /app/apps/api/.aluno.ts; unset cpf; falha "não criou a conta"; }
+  docker exec "$cid" rm -f /app/apps/api/.aluno.ts
+  unset cpf
+  echo "  Entrar em https://app.$DOMINIO com esse CPF e e-mail (o código chega por e-mail)."
+}
+
 # Troca TODOS os segredos do app recriando o banco dele do zero. Só enquanto o
 # banco não tem ninguém cadastrado: com usuário dentro, ENCRYPTION_KEY e
 # CPF_SALT novos deixariam os dados ilegíveis. Mantém .externos (Resend etc.).
@@ -1485,6 +1556,7 @@ case "$CMD" in
   app-subir) app_subir "$@" ;;
   app-status) app_status ;;
   app-admin) app_admin ;;
+  app-aluno) app_aluno ;;
   app-segredos) app_segredos ;;
   app-recomecar) app_recomecar "$@" ;;
   crystal-nossa) crystal_nossa "$@" ;;
