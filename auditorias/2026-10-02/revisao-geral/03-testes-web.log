@@ -1,0 +1,52 @@
+== 2026-10-02T21:01:27+00:00 vitest @crystal/web
+
+> @crystal/web@0.1.0 test /home/user/crystal-web-chat/apps/web
+> vitest run --testTimeout\=30000
+
+
+ RUN  v3.2.7 /home/user/crystal-web-chat/apps/web
+
+ ✓ components/prontuario/SuggestionSection.test.tsx (4 tests) 708ms
+   ✓ SuggestionSection > edita um progresso e chama accept com edits  485ms
+ ✓ components/chat/Composer.test.tsx (5 tests) 808ms
+   ✓ Composer > Enter envia e limpa o campo  436ms
+ ✓ components/native/BiometricLock.test.tsx (7 tests) 333ms
+ ✓ components/equipe/StaffLayout.test.tsx (6 tests) 610ms
+ ✓ components/equipe/usuarios/SetPasswordDialog.test.tsx (6 tests) 279ms
+ ✓ components/auth/LoginForm.test.tsx (16 tests) 4483ms
+   ✓ LoginForm > envia CPF limpo + e-mail e chama onSuccess (via verify)  325ms
+   ✓ LoginForm > 409 CONSENT_REQUIRED revela o aceite e reenvia com consentimento (depois segue para OTP)  586ms
+   ✓ LoginForm > login devolve desafio e mostra passo 2 com masked_email  341ms
+   ✓ LoginForm > verify com sucesso chama onSuccess com user e conversation_id  313ms
+ ✓ components/chat/MessageBubble.test.tsx (8 tests) 446ms
+ ✓ components/equipe/integracoes/IntegrationCard.test.tsx (5 tests) 285ms
+ ✓ components/auth/StaffLoginForm.test.tsx (4 tests) 378ms
+ ✓ components/suporte/TicketThread.test.tsx (3 tests) 291ms
+ ✓ components/equipe/financeiro/FinanceList.test.tsx (6 tests) 221ms
+ ✓ components/system/ErrorPage.test.tsx (3 tests) 276ms
+ ✓ components/OnboardingConversation.test.tsx (4 tests) 359ms
+ ✓ lib/tickets.test.ts (10 tests) 35ms
+ ✓ components/equipe/integracoes/AlertsCard.test.tsx (8 tests) 115ms
+ ✓ components/equipe/financeiro/FinanceEntryDrawer.test.tsx (6 tests) 144ms
+ ✓ lib/finance.test.ts (40 tests) 29ms
+ ✓ lib/register-sw.test.ts (2 tests) 51ms
+ ✓ lib/onboarding.test.ts (4 tests) 110ms
+ ✓ lib/format.test.ts (3 tests) 32ms
+ ✓ lib/staff-password.test.ts (19 tests) 13ms
+ ✓ components/system/ErrorReportingInit.test.tsx (1 test) 41ms
+ ✓ lib/api.test.ts (5 tests) 13ms
+ ✓ lib/native.test.ts (20 tests) 22ms
+ ✓ lib/staff.test.ts (10 tests) 41ms
+ ✓ lib/native-push.test.ts (5 tests) 15ms
+ ✓ lib/error-reporting.test.ts (7 tests) 12ms
+ ✓ lib/suggestions.test.ts (2 tests) 13ms
+ ✓ lib/integrations.test.ts (10 tests) 28ms
+ ✓ lib/app-links.test.ts (3 tests) 5ms
+ ✓ lib/offline-queue.test.ts (4 tests) 4ms
+
+ Test Files  31 passed (31)
+      Tests  236 passed (236)
+   Start at  21:01:30
+   Duration  26.23s (transform 2.60s, setup 14.24s, collect 7.39s, tests 10.20s, environment 26.22s, prepare 4.97s)
+
+exit=0

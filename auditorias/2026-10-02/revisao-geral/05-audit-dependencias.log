@@ -1,0 +1,20 @@
+== 2026-10-02T21:01:40+00:00 pnpm audit --prod --audit-level=high
+No known vulnerabilities found
+exit=0
+
+== pnpm audit (todas as severidades, resumo)
+│                     │                                                        │
+│                     │ . > typescript-eslint@8.67.0 >                         │
+│                     │ @typescript-eslint/eslint-plugin@8.67.0 >              │
+│                     │ @typescript-eslint/type-utils@8.67.0 >                 │
+│                     │ @typescript-eslint/utils@8.67.0 >                      │
+│                     │ @typescript-eslint/typescript-estree@8.67.0 >          │
+│                     │ minimatch@10.2.6 > brace-expansion@5.0.9               │
+│                     │                                                        │
+│                     │ ... Found 7 paths, run `pnpm why brace-expansion` for  │
+│                     │ more information                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-q2hr-2g5m-vwhr      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+9 vulnerabilities found
+Severity: 4 moderate | 5 high

@@ -1,0 +1,28 @@
+== 2026-10-02T21:01:33+00:00 bash -n
+ok crystal-em-casa/bootstrap-vps.sh
+ok scripts/auditoria-so-leitura.sh
+ok scripts/cloudflare-crystal-vps-dns.sh
+ok scripts/cloudflare-degrau2.sh
+
+== shellcheck -S warning (avisos e erros)
+
+In scripts/cloudflare-degrau2.sh line 459:
+  for i in 1 2 3 4 5 6 7 8 9 10; do
+  ^-^ SC2034 (warning): i appears unused. Verify use (or export if used externally).
+
+For more information:
+  https://www.shellcheck.net/wiki/SC2034 -- i appears unused. Verify use (or ...
+exit=1
+
+== shellcheck -S style (contagem por código)
+     25 SC2015
+      3 SC2001
+      2 SC2086
+      2 SC2019
+      2 SC2018
+      1 SC2034
+
+== docker compose config dos stacks (sintaxe YAML)
+ok crystal-em-casa/stacks-app/01-portainer-restrito.yaml ['agent', 'portainer']
+ok crystal-em-casa/stacks-app/10-crystal-app.yaml ['app_postgres', 'app_redis', 'app_api', 'app_crystal', 'app_web']
+ok crystal-em-casa/stacks-app/20-atendimento.yaml ['cw_rails', 'cw_sidekiq', 'cw_postgres', 'cw_redis']

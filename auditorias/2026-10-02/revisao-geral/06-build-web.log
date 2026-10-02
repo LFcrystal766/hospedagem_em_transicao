@@ -1,0 +1,60 @@
+== 2026-10-02T21:02:32+00:00 next build @crystal/web
+
+> @crystal/web@0.1.0 build /home/user/crystal-web-chat/apps/web
+> next build
+
+   ▲ Next.js 15.5.25
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 11.5s
+   Linting and checking validity of types ...
+
+ ⚠ The Next.js plugin was not detected in your ESLint configuration. See https://nextjs.org/docs/app/api-reference/config/eslint#migrating-existing-config
+   Collecting page data ...
+   Generating static pages (0/26) ...
+   Generating static pages (6/26) 
+   Generating static pages (12/26) 
+   Generating static pages (19/26) 
+ ✓ Generating static pages (26/26)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                     Size  First Load JS
+┌ ƒ /                                        1.57 kB         104 kB
+├ ƒ /_not-found                                139 B         102 kB
+├ ƒ /.well-known/apple-app-site-association    139 B         102 kB
+├ ƒ /.well-known/assetlinks.json               139 B         102 kB
+├ ƒ /admin                                     139 B         102 kB
+├ ƒ /chat                                    11.8 kB         144 kB
+├ ƒ /equipe                                    341 B         137 kB
+├ ƒ /equipe/auditoria                        4.81 kB         137 kB
+├ ƒ /equipe/canal                            4.39 kB         136 kB
+├ ƒ /equipe/financeiro                       9.41 kB         141 kB
+├ ƒ /equipe/integracoes                      8.26 kB         140 kB
+├ ƒ /equipe/senha                            2.23 kB         131 kB
+├ ƒ /equipe/suporte                          5.04 kB         137 kB
+├ ƒ /equipe/suporte/[id]                     3.85 kB         140 kB
+├ ƒ /equipe/usuarios                         7.29 kB         144 kB
+├ ƒ /excluir-conta                             178 B         106 kB
+├ ƒ /insights                                2.59 kB         116 kB
+├ ƒ /login                                   3.87 kB         136 kB
+├ ƒ /login/equipe                             3.1 kB         135 kB
+├ ƒ /metas                                   1.61 kB         119 kB
+├ ƒ /perfil                                  4.26 kB         117 kB
+├ ƒ /perfil/conversa                         5.12 kB         118 kB
+├ ƒ /privacidade                               178 B         106 kB
+├ ƒ /progresso                               1.67 kB         119 kB
+├ ƒ /suporte                                 4.83 kB         137 kB
+├ ƒ /suporte/[id]                            5.22 kB         137 kB
+└ ƒ /termos                                    178 B         106 kB
++ First Load JS shared by all                 102 kB
+  ├ chunks/2688-e03f80dd26dc9bb4.js            46 kB
+  ├ chunks/61b2b8c9-d3278cabb88571c8.js      54.2 kB
+  └ other shared chunks (total)              2.04 kB
+
+
+ƒ Middleware                                 32.9 kB
+
+ƒ  (Dynamic)  server-rendered on demand
+
+exit=0

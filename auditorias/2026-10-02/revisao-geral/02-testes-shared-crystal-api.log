@@ -1,0 +1,2772 @@
+== 2026-10-02T21:01:24+00:00 vitest @crystal/shared
+
+> @crystal/shared@0.1.0 test /home/user/crystal-web-chat/packages/shared
+> vitest run --testTimeout\=30000
+
+
+ RUN  v3.2.7 /home/user/crystal-web-chat/packages/shared
+
+ ✓ src/sse.test.ts (5 tests) 23ms
+ ✓ src/finance.test.ts (6 tests) 13ms
+ ✓ src/schemas.test.ts (10 tests) 14ms
+ ✓ src/cpf.test.ts (12 tests) 11ms
+ ✓ src/auth-staff.test.ts (5 tests) 7ms
+ ✓ src/tickets.test.ts (5 tests) 12ms
+ ✓ src/staff.test.ts (5 tests) 7ms
+ ✓ src/suggestions.test.ts (4 tests) 6ms
+ ✓ src/integrations.test.ts (4 tests) 7ms
+ ✓ src/onboarding.test.ts (4 tests) 5ms
+ ✓ src/auth-otp.test.ts (4 tests) 8ms
+
+ Test Files  11 passed (11)
+      Tests  64 passed (64)
+   Start at  21:01:25
+   Duration  1.83s (transform 525ms, setup 0ms, collect 950ms, tests 111ms, environment 2ms, prepare 1.37s)
+
+exit=0
+
+== 2026-10-02T21:01:27+00:00 vitest @crystal/agente (nossa Crystal)
+
+> @crystal/agente@0.1.0 test /home/user/crystal-web-chat/apps/crystal
+> vitest run --testTimeout\=30000
+
+
+ RUN  v3.2.7 /home/user/crystal-web-chat/apps/crystal
+
+ ✓ src/partes.test.ts (20 tests) 38ms
+ ✓ src/app.test.ts (18 tests) 258ms
+
+ Test Files  2 passed (2)
+      Tests  38 passed (38)
+   Start at  21:01:29
+   Duration  1.65s (transform 345ms, setup 0ms, collect 1.15s, tests 297ms, environment 0ms, prepare 246ms)
+
+exit=0
+
+== 2026-10-02T21:01:31+00:00 vitest @crystal/api
+
+> @crystal/api@0.1.0 test /home/user/crystal-web-chat/apps/api
+> vitest run --testTimeout\=30000
+
+
+ RUN  v3.2.7 /home/user/crystal-web-chat/apps/api
+
+stdout | src/routes/auth-otp.test.ts > OTP no login (segundo fator por e-mail) > login devolve o desafio (masked_email, prazos, dev_code em test) e sem cookies
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  746412
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-otp.test.ts > OTP no login (segundo fator por e-mail) > código certo abre sessão; o desafio é consumido (segundo verify → 404)
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  687311
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-otp.test.ts > OTP no login (segundo fator por e-mail) > código errado → 401 com tentativas restantes; na 5ª → 429 e o desafio some (o certo já não entra)
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  798714
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-otp.test.ts > OTP no login (segundo fator por e-mail) > código expirado → 410 e o desafio some
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  673150
+
+Ele é válido por 0 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-staff.test.ts > POST /auth/staff/login > login ok → desafio OTP → verify → sessão com papel da equipe
+[email:mock] Para: staff-0795@equipe.demo | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  471764
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-staff.test.ts > PUT /staff/users/:id/password — admin define senha para equipe > admin define senha para support → 204; login com nova senha funciona
+[email:mock] Para: pessoa-8427@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  153499
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-staff.test.ts > PUT /staff/users/:id/password — admin define senha para equipe > admin define senha para support → 204; login com nova senha funciona
+[email:mock] Para: staff-9156@equipe.demo | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  197975
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-staff.test.ts > PUT /staff/users/:id/password — admin define senha para equipe > aluno como alvo → 409 PASSWORD_NOT_ALLOWED
+[email:mock] Para: pessoa-0596@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  268261
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-otp.test.ts > OTP no login (segundo fator por e-mail) > reenvio antes da espera → 429; depois da espera gera código novo e o antigo deixa de valer
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  289796
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-staff.test.ts > PUT /staff/users/:id/password — admin define senha para equipe > senha fraca → 400 PASSWORD_WEAK
+[email:mock] Para: pessoa-1991@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  635378
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/review-accounts.test.ts (18 tests) 1929ms
+   ✓ login de conta de revisão (OTP fixo) > reenvio mantém o código fixo e não manda e-mail  1159ms
+stdout | src/routes/auth-staff.test.ts > PUT /staff/users/:id/password — admin define senha para equipe > support tentando definir senha de outro → 404
+[email:mock] Para: staff-4079@equipe.demo | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  549580
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-staff.test.ts > PUT /staff/users/:id/password — admin define senha para equipe > grava entrada de auditoria user.password_set com by: admin
+[email:mock] Para: pessoa-6870@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  656473
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-staff.test.ts > PUT /me/password — equipe troca a própria senha > troca própria senha → 204; login com nova senha funciona
+[email:mock] Para: staff-8902@equipe.demo | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  668662
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-staff.test.ts > PUT /me/password — equipe troca a própria senha > troca própria senha → 204; login com nova senha funciona
+[email:mock] Para: staff-8902@equipe.demo | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  695595
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-staff.test.ts > PUT /me/password — equipe troca a própria senha > senha atual errada → 401 INVALID_CREDENTIALS
+[email:mock] Para: staff-0397@equipe.demo | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  489676
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-staff.test.ts > PUT /me/password — equipe troca a própria senha > nova senha igual à atual → 400 (regra Zod)
+[email:mock] Para: staff-1792@equipe.demo | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  890527
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-staff.test.ts > PUT /me/password — equipe troca a própria senha > aluno → 404 (mesmo envelope de not-found)
+[email:mock] Para: pessoa-3140@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  011000
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-otp.test.ts > OTP no login (segundo fator por e-mail) > reenvio antes da espera → 429; depois da espera gera código novo e o antigo deixa de valer
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  559513
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-staff.test.ts > PUT /me/password — equipe troca a própria senha > grava auditoria user.password_set com by: self
+[email:mock] Para: staff-3817@equipe.demo | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  494025
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/auth-staff.test.ts (16 tests) 3266ms
+   ✓ POST /auth/staff/login > login ok → desafio OTP → verify → sessão com papel da equipe  646ms
+   ✓ PUT /me/password — equipe troca a própria senha > grava auditoria user.password_set com by: self  467ms
+stdout | src/routes/integrations.test.ts > /staff/integrations — painel técnico (API) > user e support recebem 404 (mesmo envelope do not-found) em todas as rotas
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  273447
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations.test.ts > /staff/integrations — painel técnico (API) > user e support recebem 404 (mesmo envelope do not-found) em todas as rotas
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  760209
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth-otp.test.ts > OTP no login (segundo fator por e-mail) > OTP_MODE=email: dev_code NUNCA aparece; falha no envio → 503 e nenhum desafio fica
+[email:mock] Para: pessoa-4944@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  924335
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations.test.ts > /staff/integrations — painel técnico (API) > tech abre a visão geral: 7 integrações, ambiente e resumo do webhook
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  316652
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/auth-otp.test.ts (9 tests) 3376ms
+   ✓ OTP no login (segundo fator por e-mail) > código expirado → 410 e o desafio some  1138ms
+   ✓ OTP no login (segundo fator por e-mail) > reenvio antes da espera → 429; depois da espera gera código novo e o antigo deixa de valer  1222ms
+   ✓ OTP no login (segundo fator por e-mail) > challenge_id desconhecido → 404 genérico; código malformado → 400  399ms
+stdout | src/routes/integrations.test.ts > /staff/integrations — painel técnico (API) > admin também acessa (área integracoes = admin|tech)
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  966050
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations.test.ts > /staff/integrations — painel técnico (API) > check com sondas fake grava em health_events (status, latência, fatos) e volta em last_check
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  441745
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations.test.ts > /staff/integrations — painel técnico (API) > check sem body roda todas as sondas; sonda pendurada vira down por tempo esgotado
+[email:mock] Para: pessoa-4278@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  668416
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations.test.ts > /staff/integrations — painel técnico (API) > last_check de 'meta' reaproveita o registro up/down do HealthMonitor (up → ok)
+[email:mock] Para: pessoa-4944@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  483280
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations.test.ts > /staff/integrations — painel técnico (API) > check com chave inválida → 400 VALIDATION
+[email:mock] Para: pessoa-5673@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  047650
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/integrations.test.ts (7 tests) 1242ms
+   ✓ /staff/integrations — painel técnico (API) > check sem body roda todas as sondas; sonda pendurada vira down por tempo esgotado  719ms
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > respeita limit
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  796066
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > limit=1 e limit=100 são aceitos (bordas válidas)
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  193070
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > sem limit usa 30 por página
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  864410
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > next_cursor é null na última página (total não múltiplo do limit)
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  554561
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > total múltiplo do limit: a página cheia ainda dá cursor; a seguinte vem vazia com null
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  437823
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > lista vazia: items=[] e next_cursor=null
+[email:mock] Para: pessoa-4278@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  343279
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > percorre tudo sem repetir nem pular, com vários registros no MESMO instante
+[email:mock] Para: pessoa-4944@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  075555
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > limit=1 sobre um único instante compartilhado por 4 registros
+[email:mock] Para: pessoa-5673@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  920185
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > ordem é decrescente por tempo e, no empate, decrescente por id — estável entre páginas
+[email:mock] Para: pessoa-6300@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  249290
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > limit=0 → 400 VALIDATION
+[email:mock] Para: pessoa-7021@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  805271
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > limit=101 → 400 VALIDATION
+[email:mock] Para: pessoa-7706@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  957483
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — acesso por papel > usuário comum recebe 404 (mesmo envelope do not-found) em /staff/* e /admin/*
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  185952
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > limit não numérico ou fracionário → 400
+[email:mock] Para: pessoa-8427@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  370160
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > cursor malformado ('abc') → 400
+[email:mock] Para: pessoa-9156@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  824089
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — acesso por papel > support lista usuários, mas POST/PUT respondem 404
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  858880
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > cursor com timestamp não numérico ('x_y') → 400
+[email:mock] Para: pessoa-9822@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  040352
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/goals > cursor acima de 200 caracteres → 400
+[email:mock] Para: pessoa-0596@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  750204
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > respeita limit
+[email:mock] Para: pessoa-1215@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  998774
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — acesso por papel > tech acessa a área canal (/admin/status) e a lista de usuários
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  907149
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — admin cria, busca e pagina > cria conta de equipe local (201), CPF repetido → 409 USER_EXISTS
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  090261
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — admin cria, busca e pagina > cria conta de equipe local (201), CPF repetido → 409 USER_EXISTS
+[email:mock] Para: sol@demo.crystal | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  594609
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > limit=1 e limit=100 são aceitos (bordas válidas)
+[email:mock] Para: pessoa-1991@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  905982
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > sem limit usa 30 por página
+[email:mock] Para: pessoa-2610@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  065412
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > next_cursor é null na última página (total não múltiplo do limit)
+[email:mock] Para: pessoa-3340@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  446247
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > total múltiplo do limit: a página cheia ainda dá cursor; a seguinte vem vazia com null
+[email:mock] Para: pessoa-4079@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  083460
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > lista vazia: items=[] e next_cursor=null
+[email:mock] Para: pessoa-4745@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  096867
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — admin cria, busca e pagina > busca por nome e e-mail; filtros role/status
+[email:mock] Para: pessoa-4944@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  118802
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > percorre tudo sem repetir nem pular, com vários registros no MESMO instante
+[email:mock] Para: pessoa-5474@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  093277
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — admin cria, busca e pagina > lookup encontra CPF exato e devolve lista vazia quando ele não existe
+[email:mock] Para: pessoa-7706@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  559225
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — admin cria, busca e pagina > lookup rejeita CPF inválido e GET rejeita CPF em query com orientação
+[email:mock] Para: pessoa-9822@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  907882
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > limit=1 sobre um único instante compartilhado por 4 registros
+[email:mock] Para: pessoa-6101@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  274623
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — admin cria, busca e pagina > pagina sem repetir nem pular (limit=3, 7 contas)
+[email:mock] Para: pessoa-0596@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  106777
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > ordem é decrescente por tempo e, no empate, decrescente por id — estável entre páginas
+[email:mock] Para: pessoa-6870@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  487691
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > limit=0 → 400 VALIDATION
+[email:mock] Para: pessoa-7507@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  395334
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > limit=101 → 400 VALIDATION
+[email:mock] Para: pessoa-8228@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  315095
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > limit não numérico ou fracionário → 400
+[email:mock] Para: pessoa-8902@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  149136
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > cursor malformado ('abc') → 400
+[email:mock] Para: pessoa-9623@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  369418
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > cursor com timestamp não numérico ('x_y') → 400
+[email:mock] Para: pessoa-0397@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  917075
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/progress > cursor acima de 200 caracteres → 400
+[email:mock] Para: pessoa-1016@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  440158
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — PUT (papel, status, lockout) > mudar papel revoga a sessão do alvo (cookie antigo → 401) e novo login traz o papel novo
+[email:mock] Para: pessoa-5474@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  704192
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > respeita limit
+[email:mock] Para: pessoa-1792@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  077923
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > limit=1 e limit=100 são aceitos (bordas válidas)
+[email:mock] Para: pessoa-2411@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  641801
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — PUT (papel, status, lockout) > mudar papel revoga a sessão do alvo (cookie antigo → 401) e novo login traz o papel novo
+[email:mock] Para: pessoa-6101@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  011024
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — PUT (papel, status, lockout) > mudar papel revoga a sessão do alvo (cookie antigo → 401) e novo login traz o papel novo
+[email:mock] Para: pessoa-6101@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  482898
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > sem limit usa 30 por página
+[email:mock] Para: pessoa-3140@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  698239
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — PUT (papel, status, lockout) > só nome não derruba a sessão
+[email:mock] Para: pessoa-6870@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  718522
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > next_cursor é null na última página (total não múltiplo do limit)
+[email:mock] Para: pessoa-3817@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  145279
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — PUT (papel, status, lockout) > só nome não derruba a sessão
+[email:mock] Para: pessoa-7507@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  023000
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > total múltiplo do limit: a página cheia ainda dá cursor; a seguinte vem vazia com null
+[email:mock] Para: pessoa-4546@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  335602
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — PUT (papel, status, lockout) > desligar conta: sessão cai e login devolve 403 ACCOUNT_DISABLED
+[email:mock] Para: pessoa-8228@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  369579
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — PUT (papel, status, lockout) > desligar conta: sessão cai e login devolve 403 ACCOUNT_DISABLED
+[email:mock] Para: pessoa-8902@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  114356
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > lista vazia: items=[] e next_cursor=null
+[email:mock] Para: pessoa-5275@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  027002
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — PUT (papel, status, lockout) > desligar conta: sessão cai e login devolve 403 ACCOUNT_DISABLED
+[email:mock] Para: pessoa-8902@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  537090
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > percorre tudo sem repetir nem pular, com vários registros no MESMO instante
+[email:mock] Para: pessoa-5941@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  310238
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — PUT (papel, status, lockout) > ADMIN_LOCKOUT: próprio papel/status e último admin ativo
+[email:mock] Para: pessoa-9623@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  601843
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > limit=1 sobre um único instante compartilhado por 4 registros
+[email:mock] Para: pessoa-6670@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  835226
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-users.test.ts > /staff/users — PUT (papel, status, lockout) > id inexistente → 404; corpo vazio → 400
+[email:mock] Para: pessoa-1016@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  468605
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > ordem é decrescente por tempo e, no empate, decrescente por id — estável entre páginas
+[email:mock] Para: pessoa-7308@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  403913
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/staff-users.test.ts (15 tests) 1391ms
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > limit=0 → 400 VALIDATION
+[email:mock] Para: pessoa-8029@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  560289
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > limit=101 → 400 VALIDATION
+[email:mock] Para: pessoa-8703@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  043762
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > limit não numérico ou fracionário → 400
+[email:mock] Para: pessoa-9424@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  463762
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/webhooks.test.ts (22 tests) 1349ms
+   ✓ POST /webhooks/crystal (entrada n8n → BFF) > autenticação > rejeita assinatura ausente com 401 genérico  308ms
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > cursor malformado ('abc') → 400
+[email:mock] Para: pessoa-0198@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  005769
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > cursor com timestamp não numérico ('x_y') → 400
+[email:mock] Para: pessoa-0864@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  905918
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-paginacao.test.ts > paginação do prontuário (limit/cursor) > GET /me/insights > cursor acima de 200 caracteres → 400
+[email:mock] Para: pessoa-1593@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  483719
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/prontuario-paginacao.test.ts (45 tests) 2625ms
+stdout | src/routes/channel-webhook.test.ts > canal de API da inbox (CHAT_TRANSPORT=chatwoot) > mensagem vai à inbox; a 1ª resposta preenche a bolha, as seguintes entram como novas
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  312939
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/onboarding.test.ts > onboarding do perfil (conversa dirigida pela Crystal) > aluno novo: pending → start → 4 respostas → done, com os 4 campos gravados e cifrados
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  039441
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/onboarding.test.ts > onboarding do perfil (conversa dirigida pela Crystal) > retomar não chama a Crystal: GET devolve a mesma pergunta e a transcrição persistida
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  273539
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/channel-webhook.test.ts > canal de API da inbox (CHAT_TRANSPORT=chatwoot) > webhook com a conversa errada para o contato não chega ao aluno
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  725625
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/onboarding.test.ts > onboarding do perfil (conversa dirigida pela Crystal) > pular mantém a transcrição e start retoma de onde parou
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  852260
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/onboarding.test.ts > onboarding do perfil (conversa dirigida pela Crystal) > aluno migrado com perfil parcial: a Crystal só recebe e pergunta os campos faltantes
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  247364
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/onboarding.test.ts > onboarding do perfil (conversa dirigida pela Crystal) > aluno migrado com perfil parcial: a Crystal só recebe e pergunta os campos faltantes
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  793998
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/channel-webhook.test.ts > canal de API da inbox (CHAT_TRANSPORT=chatwoot) > aluno sem telefone no cadastro recebe erro claro e nada sai para a inbox
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  256847
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/onboarding.test.ts > onboarding do perfil (conversa dirigida pela Crystal) > campo editado pela tela de Perfil conta como respondido; tudo preenchido = done sem conversa
+[email:mock] Para: pessoa-4278@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  520903
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/onboarding.test.ts > onboarding do perfil (conversa dirigida pela Crystal) > extração inválida (Crystal devolve idade 12): nada gravado, pergunta repetida
+[email:mock] Para: pessoa-4944@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  434059
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/onboarding.test.ts > onboarding do perfil (conversa dirigida pela Crystal) > extração inválida (Crystal devolve idade 12): nada gravado, pergunta repetida
+[email:mock] Para: pessoa-5673@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  514373
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stderr | src/routes/channel-webhook.test.ts > canal de API da inbox (CHAT_TRANSPORT=chatwoot) > aluno sem telefone no cadastro recebe erro claro e nada sai para a inbox
+{"msg":"canal: envio para a inbox falhou","code":"CHANNEL_NO_PHONE","status":null,"erro":null}
+
+stdout | src/routes/onboarding.test.ts > onboarding do perfil (conversa dirigida pela Crystal) > sem consentimento sensível: 409 em start e answer
+[email:mock] Para: pessoa-6300@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  777486
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/onboarding.test.ts > onboarding do perfil (conversa dirigida pela Crystal) > sem consentimento sensível: 409 em start e answer
+[email:mock] Para: pessoa-7021@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  826746
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/channel-webhook.test.ts > canal de API da inbox (CHAT_TRANSPORT=chatwoot) > sem resposta no prazo a bolha vira erro, e a resposta atrasada entra como mensagem nova
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  012860
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/onboarding.test.ts > onboarding do perfil (conversa dirigida pela Crystal) > responder antes de começar → 409 ONBOARDING_NOT_STARTED; Crystal fora → 503 sem alterar estado
+[email:mock] Para: pessoa-7706@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  412176
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/onboarding.test.ts > onboarding do perfil (conversa dirigida pela Crystal) > responder antes de começar → 409 ONBOARDING_NOT_STARTED; Crystal fora → 503 sem alterar estado
+[email:mock] Para: pessoa-8427@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  096932
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/onboarding.test.ts > onboarding do perfil (conversa dirigida pela Crystal) > LGPD: export inclui status/progresso; purge apaga o estado do onboarding
+[email:mock] Para: pessoa-9156@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  735045
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/onboarding.test.ts (9 tests) 1034ms
+   ✓ onboarding do perfil (conversa dirigida pela Crystal) > aluno novo: pending → start → 4 respostas → done, com os 4 campos gravados e cifrados  558ms
+ ✓ src/routes/channel-webhook.test.ts (6 tests) 1185ms
+   ✓ canal de API da inbox (CHAT_TRANSPORT=chatwoot) > mensagem vai à inbox; a 1ª resposta preenche a bolha, as seguintes entram como novas  491ms
+ ✓ src/routes/chatwoot-bot.test.ts (13 tests) 881ms
+stdout | src/routes/suggestions.test.ts > sugestões da Crystal > shadow grava e não mostra; on mostra
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  106018
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/suggestions.test.ts > sugestões da Crystal > shadow grava e não mostra; on mostra
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  229455
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/suggestions.test.ts > sugestões da Crystal > off recusa com 422 e registra invalid_payload
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  889093
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/suggestions.test.ts > sugestões da Crystal > idempotência durável não duplica após o nonce expirar
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  779268
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/suggestions.test.ts > sugestões da Crystal > aceita goal com origin crystal, aplica edits e audita create/decide
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  937688
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/suggestions.test.ts > sugestões da Crystal > goal_update só altera no aceite; discard não aplica
+[email:mock] Para: pessoa-4278@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  775128
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/suggestions.test.ts > sugestões da Crystal > retorna 409 para decidida e alvo removido, 404 para outro aluno
+[email:mock] Para: pessoa-4944@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  801095
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > fluxo completo: CPF + e-mail conferidos → sessão → /me
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  557544
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/suggestions.test.ts > sugestões da Crystal > retorna 409 para decidida e alvo removido, 404 para outro aluno
+[email:mock] Para: pessoa-5673@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  001451
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > e-mail aceita maiúsculas e espaços (normalização)
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  513163
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > cada saída do handler vira uma linha (test=false, com header x-webhook-event-id) > invalid_signature → rejected 401
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  469810
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/suggestions.test.ts > sugestões da Crystal > export decifra sugestões e purge as apaga
+[email:mock] Para: pessoa-6300@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  203157
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > cada saída do handler vira uma linha (test=false, com header x-webhook-event-id) > invalid_payload → rejected 400 com o pouco que dá pra ler (type/event_id), resposta VALIDATION intacta
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  133072
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > cada saída do handler vira uma linha (test=false, com header x-webhook-event-id) > replay_window → rejected 401
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  540249
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > usuário fora do espelho local é provisionado pela base do fornecedor
+[email:mock] Para: carla@cliente.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  071162
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > usuário fora do espelho local é provisionado pela base do fornecedor
+[email:mock] Para: carla@cliente.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  369977
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/suggestions.test.ts > sugestões da Crystal > aceita progresso cifrado com origin crystal e bloqueia tudo sem consentimento
+[email:mock] Para: pessoa-7021@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  434364
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/suggestions.test.ts > sugestões da Crystal > aceita progresso cifrado com origin crystal e bloqueia tudo sem consentimento
+[email:mock] Para: pessoa-7706@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  272276
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > e-mail novo confirmado pelo fornecedor atualiza o espelho local
+[email:mock] Para: novo@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  111384
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/suggestions.test.ts (8 tests) 778ms
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > primeiro acesso sem consentimento → 409, retry com consentimento entra
+[email:mock] Para: pessoa-6300@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  812299
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > rate limit por CPF → 429 após o limite
+[email:mock] Para: pessoa-7021@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  363932
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > rate limit por CPF → 429 após o limite
+[email:mock] Para: pessoa-7021@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  379942
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > rate limit por CPF → 429 após o limite
+[email:mock] Para: pessoa-7021@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  628786
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > cada saída do handler vira uma linha (test=false, com header x-webhook-event-id) > accepted matched:true, depois duplicate, depois accepted matched:false
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  630627
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > refresh rotaciona o token e o antigo deixa de valer
+[email:mock] Para: pessoa-7706@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  332783
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > cada saída do handler vira uma linha (test=false, com header x-webhook-event-id) > persist_failed → rejected 500 (nonce liberado, resposta 500 inalterada)
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  330126
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > logout mata o refresh E o access token
+[email:mock] Para: pessoa-8427@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  170999
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > cada saída do handler vira uma linha (test=false, com header x-webhook-event-id) > falha ao gravar o log NÃO altera a resposta ao n8n
+[email:mock] Para: pessoa-4278@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  095686
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > DELETE /me/data revoga o access token imediatamente
+[email:mock] Para: pessoa-9156@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  364373
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > cada saída do handler vira uma linha (test=false, com header x-webhook-event-id) > o corpo NUNCA é armazenado no log
+[email:mock] Para: pessoa-4944@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  654698
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > GET /staff/integrations/webhook/events > filtra por outcome e pagina por cursor (receivedAt desc)
+[email:mock] Para: pessoa-5673@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  881022
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > DELETE /me/data apaga conversas (LGPD)
+[email:mock] Para: pessoa-0596@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  598206
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/auth.test.ts > auth (CPF + e-mail) > DELETE /me/data apaga conversas (LGPD)
+[email:mock] Para: pessoa-0596@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  622369
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > GET /staff/integrations/webhook/events > resumo de 24h da visão geral conta por outcome e motivo
+[email:mock] Para: pessoa-6300@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  610588
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/auth.test.ts (15 tests) 948ms
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > POST /staff/integrations/webhook/test > contato desconhecido: passa pela assinatura e anti-replay, matched:false, nada gravado, test=true, auditado
+[email:mock] Para: pessoa-7021@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  870489
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > POST /staff/integrations/webhook/test > contato real: mensagem de teste criada para o aluno (matched:true) e auditada
+[email:mock] Para: pessoa-7706@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  450885
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > POST /staff/integrations/webhook/test > type insight com contato real: cria insight (cifrado) para o aluno
+[email:mock] Para: pessoa-8427@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  919527
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > POST /staff/integrations/webhook/test > default sem body: type message
+[email:mock] Para: pessoa-9156@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  547348
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/integrations-webhook.test.ts > log do webhook + evento de teste do painel técnico > POST /staff/integrations/webhook/test > rate limit: 10 por hora por usuário, o 11º recebe 429
+[email:mock] Para: pessoa-9822@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  318664
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/integrations-webhook.test.ts (14 tests) 1108ms
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > usuário comum recebe 404 em todas as rotas de /staff/tickets
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  769055
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > lista com filtros de status, categoria, assignee_id (me|none|id) e query
+[email:mock] Para: ana@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  958552
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > lista com filtros de status, categoria, assignee_id (me|none|id) e query
+[email:mock] Para: bruno@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  522348
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > lista com filtros de status, categoria, assignee_id (me|none|id) e query
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  186843
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > pagina sem repetir nem pular (ordem por última mensagem)
+[email:mock] Para: pessoa-4278@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  511265
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > pagina sem repetir nem pular (ordem por última mensagem)
+[email:mock] Para: pessoa-4944@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  469589
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > resposta pública vira waiting_user, dispara push e aparece pro aluno; resposta do aluno reabre
+[email:mock] Para: pessoa-5673@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  067778
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > resposta pública vira waiting_user, dispara push e aparece pro aluno; resposta do aluno reabre
+[email:mock] Para: pessoa-6300@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  715004
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > push que falha não derruba a resposta
+[email:mock] Para: pessoa-7021@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  179422
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > push que falha não derruba a resposta
+[email:mock] Para: pessoa-7706@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  904545
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > nota interna não aparece pro aluno, não conta, não muda status nem dispara push
+[email:mock] Para: pessoa-8427@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  051239
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > nota interna não aparece pro aluno, não conta, não muda status nem dispara push
+[email:mock] Para: pessoa-9156@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  971345
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > PUT status/assignee é auditado com changes; encerrar grava closed_at, reabrir limpa
+[email:mock] Para: pessoa-9822@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  809158
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > PUT status/assignee é auditado com changes; encerrar grava closed_at, reabrir limpa
+[email:mock] Para: pessoa-0596@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  005773
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > assignee que não é equipe ativa → 400 VALIDATION
+[email:mock] Para: pessoa-1215@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  750660
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > assignee que não é equipe ativa → 400 VALIDATION
+[email:mock] Para: pessoa-2610@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  535829
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-finance.test.ts > financeiro manual > cria, lista e filtra por status, vencido, método, busca e período
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  251591
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > stats conta open, waiting_user e mine_open
+[email:mock] Para: pessoa-3340@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  193934
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-staff.test.ts > /staff/tickets — equipe > stats conta open, waiting_user e mine_open
+[email:mock] Para: pessoa-4079@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  195512
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/tickets-staff.test.ts (9 tests) 634ms
+stdout | src/routes/messages.test.ts > mensagens + streaming SSE > envia texto e recebe resposta em streaming: status → token* → done
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  694247
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-finance.test.ts > financeiro manual > resume o mês com os lançamentos
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  189001
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/messages.test.ts > mensagens + streaming SSE > erro no meio do stream: token* → error, com parcial persistido
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  033224
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stderr | src/routes/messages.test.ts > mensagens + streaming SSE > erro no meio do stream: token* → error, com parcial persistido
+{"msg":"crystal: resposta falhou","code":"CRYSTAL_UNAVAILABLE","motivo":"A conexão com a Crystal caiu no meio da resposta."}
+
+stdout | src/routes/messages.test.ts > mensagens + streaming SSE > reconexão com ?after= não duplica tokens
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  292283
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-finance.test.ts > financeiro manual > deriva active, overdue, inactive e unknown e expõe /me/finance
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  271523
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-finance.test.ts > financeiro manual > deriva active, overdue, inactive e unknown e expõe /me/finance
+[email:mock] Para: ana.finance@example.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  876720
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/messages.test.ts > mensagens + streaming SSE > stream perdido (hub limpo) devolve o done persistido
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  252002
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-finance.test.ts > financeiro manual > rejeita transição, referência duplicada, aluno ausente e valor float
+[email:mock] Para: pessoa-7021@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  709472
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/messages.test.ts > mensagens + streaming SSE > paginação: 75 mensagens percorridas por cursor sem repetição
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  087874
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-finance.test.ts > financeiro manual > esconde staff financeiro de support, tech e aluno
+[email:mock] Para: pessoa-8427@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  997245
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/messages.test.ts > mensagens + streaming SSE > não deixa acessar conversa nem stream de outra pessoa
+[email:mock] Para: pessoa-4278@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  743332
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-finance.test.ts > financeiro manual > esconde staff financeiro de support, tech e aluno
+[email:mock] Para: pessoa-9822@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  411119
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-finance.test.ts > financeiro manual > esconde staff financeiro de support, tech e aluno
+[email:mock] Para: pessoa-0596@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  627413
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/messages.test.ts > mensagens + streaming SSE > não deixa acessar conversa nem stream de outra pessoa
+[email:mock] Para: pessoa-4944@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  725238
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-finance.test.ts > financeiro manual > esconde staff financeiro de support, tech e aluno
+[email:mock] Para: ana.finance@example.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  271206
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/messages.test.ts > mensagens + streaming SSE > rate limit de mensagens por sessão
+[email:mock] Para: pessoa-5673@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  055833
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-finance.test.ts > financeiro manual > audita finance.create e finance.update com changes
+[email:mock] Para: pessoa-1215@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  407699
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/staff-finance.test.ts (6 tests) 786ms
+   ✓ financeiro manual > cria, lista e filtra por status, vencido, método, busca e período  331ms
+stdout | src/routes/messages.test.ts > mensagens + streaming SSE > upload_id com path traversal é barrado na validação
+[email:mock] Para: pessoa-6300@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  435313
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/messages.test.ts > mensagens + streaming SSE > mensagem vazia é rejeitada
+[email:mock] Para: pessoa-7021@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  333106
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/messages.test.ts (10 tests) 765ms
+ ✓ src/services/stream-hub.test.ts (6 tests) 268ms
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > B faz PUT na meta de A → 404 e a meta de A não muda
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  744576
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > B faz PUT na meta de A → 404 e a meta de A não muda
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  820315
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > B faz DELETE na meta de A → 404 e a meta de A continua existindo
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  259371
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > B faz DELETE na meta de A → 404 e a meta de A continua existindo
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  523141
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-me.test.ts > /me/tickets — aluno > cria, lista, detalha, responde e encerra o próprio ticket
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  173630
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > B faz DELETE no progresso de A → 404 e o progresso de A continua existindo
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  970349
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > B faz DELETE no progresso de A → 404 e o progresso de A continua existindo
+[email:mock] Para: pessoa-4278@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  168864
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > GET de B não lista metas, progresso nem insights de A
+[email:mock] Para: pessoa-4944@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  704004
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > GET de B não lista metas, progresso nem insights de A
+[email:mock] Para: pessoa-5673@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  778212
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > GET de B com itens próprios só devolve os próprios (nunca mistura com A)
+[email:mock] Para: pessoa-6300@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  871652
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > GET de B com itens próprios só devolve os próprios (nunca mistura com A)
+[email:mock] Para: pessoa-7021@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  723231
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-me.test.ts > /me/tickets — aluno > outro aluno recebe 404 no detalhe, na resposta e no encerramento
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  169035
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-me.test.ts > /me/tickets — aluno > outro aluno recebe 404 no detalhe, na resposta e no encerramento
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  311200
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > GET paginado de B com cursor derivado de um item de A não vaza itens de A
+[email:mock] Para: pessoa-7706@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  434493
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > GET paginado de B com cursor derivado de um item de A não vaza itens de A
+[email:mock] Para: pessoa-8427@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  668941
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > export de B não contém dados de A
+[email:mock] Para: pessoa-9156@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  917964
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > export de B não contém dados de A
+[email:mock] Para: pessoa-9822@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  362062
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > purge LGPD de B (DELETE /me/data) não toca o prontuário de A
+[email:mock] Para: pessoa-0596@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  173912
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > purge LGPD de B (DELETE /me/data) não toca o prontuário de A
+[email:mock] Para: pessoa-1215@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  742555
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-me.test.ts > /me/tickets — aluno > 6º ticket na mesma hora recebe 429
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  515270
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > B sem consentimento sensível recebe 409 ao tentar mexer na meta de A (guard antes da posse)
+[email:mock] Para: pessoa-1991@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  201122
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > B sem consentimento sensível recebe 409 ao tentar mexer na meta de A (guard antes da posse)
+[email:mock] Para: pessoa-2610@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  685440
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario-cross-user.test.ts > prontuário: isolamento entre usuários > B sem consentimento sensível recebe 409 ao tentar mexer na meta de A (guard antes da posse)
+[email:mock] Para: pessoa-3340@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  542801
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/prontuario-cross-user.test.ts (9 tests) 703ms
+   ✓ prontuário: isolamento entre usuários > B faz PUT na meta de A → 404 e a meta de A não muda  341ms
+stdout | src/routes/tickets-me.test.ts > /me/tickets — aluno > filtra por status e pagina sem repetir nem pular
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  896997
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-me.test.ts > /me/tickets — aluno > corpo fica cifrado em repouso e valida entrada
+[email:mock] Para: pessoa-4278@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  030230
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/tickets-me.test.ts > /me/tickets — aluno > export inclui tickets e purge apaga tickets e mensagens
+[email:mock] Para: pessoa-4944@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  750254
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/tickets-me.test.ts (6 tests) 662ms
+stdout | src/routes/uploads.test.ts > uploads (Fase 3) > aceita imagem, devolve upload_id e serve o arquivo ao dono
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  672037
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/uploads.test.ts > uploads (Fase 3) > tipo não suportado → 415
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  475856
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/uploads.test.ts > uploads (Fase 3) > imagem acima de 5MB → 413
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  844757
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/uploads.test.ts > uploads (Fase 3) > outra pessoa não acessa o arquivo (404)
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  569660
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/uploads.test.ts > uploads (Fase 3) > outra pessoa não acessa o arquivo (404)
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  429121
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/uploads.test.ts > uploads (Fase 3) > upload sem sessão → 401
+[email:mock] Para: pessoa-4278@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  847560
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/uploads.test.ts (5 tests) 495ms
+stdout | src/routes/prontuario.test.ts > prontuário (perfil, metas, progresso, insights) > bloqueia escrita sem consentimento sensível (409 CONSENT_REQUIRED_SENSITIVE)
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  732852
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario.test.ts > prontuário (perfil, metas, progresso, insights) > após consentir, grava e lê o perfil — com texto sensível cifrado em repouso
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  026646
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/me-account-delete.test.ts > DELETE /me/account > apaga a conta: usuário some, sessão cai, conversa some, auditoria registra
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  568415
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario.test.ts > prontuário (perfil, metas, progresso, insights) > CRUD de metas isolado por usuário
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  762368
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/me-account-delete.test.ts > DELETE /me/account > com o robô do Chatwoot ligado, a Crystal também esquece a memória do telefone
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  256273
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario.test.ts > prontuário (perfil, metas, progresso, insights) > progresso: cria e lista com conteúdo cifrado em repouso
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  175263
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/me-account-delete.test.ts > DELETE /me/account > sem a confirmação no corpo, nada é apagado
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  441589
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/prontuario.test.ts > prontuário (perfil, metas, progresso, insights) > insights: leitura devolve o que a Crystal escreveu (cifrado em repouso)
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  208121
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/prontuario.test.ts (5 tests) 438ms
+stdout | src/routes/me-account-delete.test.ts > DELETE /me/account > equipe não se exclui por aqui
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  541446
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/me-account-delete.test.ts > DELETE /me/account > depois de excluir, o mesmo CPF (ainda aluno na base) entra como conta nova e vazia
+[email:mock] Para: aluna@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  743983
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/me-account-delete.test.ts > DELETE /me/account > depois de excluir, o mesmo CPF (ainda aluno na base) entra como conta nova e vazia
+[email:mock] Para: aluna@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  127029
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/me-account-delete.test.ts (6 tests) 448ms
+stdout | src/routes/admin.test.ts > admin + canal > usuário comum não acessa o admin (404, sem revelar a rota)
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  646363
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/admin.test.ts > admin + canal > admin ativa modo backup manual e /health/channel reflete
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  827635
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/admin.test.ts > admin + canal > aceita a forma explícita {mode}
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  546166
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/admin.test.ts > admin + canal > GET /admin/status devolve canal, eventos e métricas
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  160689
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/admin.test.ts (4 tests) 537ms
+stdout | src/routes/staff-audit.test.ts > /staff/audit > support e tech recebem 404
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  402299
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-audit.test.ts > /staff/audit > support e tech recebem 404
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  431401
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-audit.test.ts > /staff/audit > grava create/update/backup-mode e lista com ator, alvo, filtros e paginação
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  653369
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/staff-audit.test.ts > /staff/audit > ator removido aparece como 'Conta removida' com o papel da época
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  476939
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/staff-audit.test.ts (3 tests) 340ms
+stdout | src/routes/push-devices.test.ts > Rotas /me/push/devices > POST /me/push/devices — registra dispositivo e devolve token_hint
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  661445
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/push-devices.test.ts > Rotas /me/push/devices > POST /me/push/devices — idempotente: segundo registro com mesmo token retorna 201 sem duplicar
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  690285
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/push-devices.test.ts > Rotas /me/push/devices > POST /me/push/devices — token migra de dono quando outro usuário registra o mesmo token
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  787176
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/push-devices.test.ts > Rotas /me/push/devices > POST /me/push/devices — token migra de dono quando outro usuário registra o mesmo token
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  800194
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/push-devices.test.ts > Rotas /me/push/devices > DELETE /me/push/devices — remove o token
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  200432
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/push-devices.test.ts > Rotas /me/push/devices > GET /me/push/devices — lista com token_hint (sem token completo)
+[email:mock] Para: pessoa-4278@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  413134
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/push-devices.test.ts (6 tests) 463ms
+stdout | src/routes/me-prontuario.test.ts > /me/export e /me/data (LGPD do prontuário) > GET /me/export devolve o prontuário completo em claro
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  513047
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/me-prontuario.test.ts > /me/export e /me/data (LGPD do prontuário) > DELETE /me/data apaga TODO o prontuário
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  562637
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/me-prontuario.test.ts > /me/export e /me/data (LGPD do prontuário) > DELETE /me/data também apaga conversas, mensagens e push (cascata completa)
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  491560
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/me-prontuario.test.ts > /me/export e /me/data (LGPD do prontuário) > DELETE /me/data é tudo-ou-nada: falha no meio não apaga nada (sem exclusão parcial)
+[email:mock] Para: pessoa-2810@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  484407
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/me-prontuario.test.ts (4 tests) 363ms
+ ✓ src/cors.test.ts (6 tests) 386ms
+stdout | src/routes/daily-summary.test.ts > GET /crystal/contacts/:id/daily-summary > GET /me persiste somente um x-timezone IANA válido quando muda
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  898632
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/daily-summary.test.ts (3 tests) 244ms
+ ✓ src/seed.test.ts (10 tests) 209ms
+stdout | src/services/anonymous-copy.test.ts > exclusão da conta guarda a cópia anônima > conversa e experiência ficam; nome, contatos, CPF, ids e data exata saem
+[email:mock] Para: kaline.prado88@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  398656
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/services/anonymous-copy.test.ts > exclusão da conta guarda a cópia anônima > conta sem nada não gera cópia; conta de revisão das lojas também não
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  453260
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/services/anonymous-copy.test.ts > exclusão da conta guarda a cópia anônima > apagar só as conversas (/me/data) não guarda cópia
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  801728
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/services/anonymous-copy.test.ts (19 tests) 215ms
+stdout | src/routes/finance-anonymize.test.ts > purge LGPD anonimiza o financeiro em vez de apagar > export do aluno inclui os lançamentos, sem created_by
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  173474
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/finance-anonymize.test.ts > purge LGPD anonimiza o financeiro em vez de apagar > export do aluno inclui os lançamentos, sem created_by
+[email:mock] Para: ana.purge@example.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  212968
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/finance-anonymize.test.ts > purge LGPD anonimiza o financeiro em vez de apagar > DELETE /me/data mantém os lançamentos anonimizados e o resumo continua somando
+[email:mock] Para: pessoa-2143@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  897830
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/routes/finance-anonymize.test.ts > purge LGPD anonimiza o financeiro em vez de apagar > DELETE /me/data mantém os lançamentos anonimizados e o resumo continua somando
+[email:mock] Para: ana.purge@example.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  474365
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/routes/finance-anonymize.test.ts (2 tests) 213ms
+stdout | src/services/directory-supabase.test.ts > login com a base do Supabase > primeiro acesso cria o aluno com o telefone da base, que o canal usa depois
+[email:mock] Para: aluna@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  633252
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/services/directory-supabase.test.ts > só aluno ativo entra (base autoritativa, conferida a cada login) > aluno que saiu da base não entra mais, com mensagem própria
+[email:mock] Para: aluna@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  816645
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/services/directory-supabase.test.ts > só aluno ativo entra (base autoritativa, conferida a cada login) > aluno que saiu da base não entra mais, com mensagem própria
+[email:mock] Para: aluna@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  819063
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/services/directory-supabase.test.ts > só aluno ativo entra (base autoritativa, conferida a cada login) > base fora do ar no login de quem já entrou: 503, sem deixar passar
+[email:mock] Para: aluna@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  387062
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/services/directory-supabase.test.ts > só aluno ativo entra (base autoritativa, conferida a cada login) > telefone novo na base atualiza o aluno e desfaz o vínculo com a inbox
+[email:mock] Para: aluna@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  141384
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/services/directory-supabase.test.ts > só aluno ativo entra (base autoritativa, conferida a cada login) > telefone novo na base atualiza o aluno e desfaz o vínculo com a inbox
+[email:mock] Para: aluna@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  815586
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/services/directory-supabase.test.ts > só aluno ativo entra (base autoritativa, conferida a cada login) > equipe e admin são locais: não passam pela base
+[email:mock] Para: pessoa-4278@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  720005
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/services/directory-supabase.test.ts (9 tests) 308ms
+stdout | src/services/alerts.test.ts > AlertService > overview HTTP inclui configuração e os últimos alertas
+[email:mock] Para: pessoa-3549@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  786708
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/services/alerts.test.ts (6 tests) 286ms
+ ✓ src/services/error-reporter.test.ts (4 tests) 174ms
+ ✓ src/env.test.ts (30 tests) 66ms
+stdout | src/services/crystal-forget.test.ts > exclusão no app pede à Crystal que esqueça o contato > DELETE /me/account
+[email:mock] Para: pessoa-0795@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  955001
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+stdout | src/services/crystal-forget.test.ts > exclusão no app pede à Crystal que esqueça o contato > DELETE /me/data
+[email:mock] Para: pessoa-1414@exemplo.com | Assunto: Seu código de acesso à Crystal
+Oi! Aqui está o seu código de acesso:
+
+  912575
+
+Ele é válido por 5 minutos. Se não foi você quem pediu, pode ignorar este e-mail.
+
+— Crystal
+
+ ✓ src/services/crystal-forget.test.ts (5 tests) 166ms
+ ✓ src/services/crystal.test.ts (12 tests) 55ms
+ ✓ src/services/chatwoot-channel.test.ts (9 tests) 49ms
+ ✓ src/services/retention.test.ts (5 tests) 32ms
+ ✓ src/services/native-push.test.ts (14 tests) 16ms
+ ✓ src/services/backup-health.test.ts (10 tests) 14ms
+ ✓ src/services/directory.test.ts (5 tests) 9ms
+ ✓ src/lib/kv.test.ts (3 tests) 2ms
+ ✓ src/lib/field-crypto.test.ts (4 tests) 9ms
+
+ Test Files  44 passed (44)
+      Tests  432 passed (432)
+   Start at  21:01:32
+   Duration  27.28s (transform 2.43s, setup 0ms, collect 26.71s, tests 30.47s, environment 15ms, prepare 6.05s)
+
+exit=0

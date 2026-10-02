@@ -1,0 +1,26 @@
+== typecheck
+--- @crystal/shared
+
+> @crystal/shared@0.1.0 typecheck /home/user/crystal-web-chat/packages/shared
+> tsc --noEmit
+
+--- @crystal/api
+
+> @crystal/api@0.1.0 typecheck /home/user/crystal-web-chat/apps/api
+> tsc --noEmit
+
+--- @crystal/web
+
+> @crystal/web@0.1.0 typecheck /home/user/crystal-web-chat/apps/web
+> tsc --noEmit
+
+--- @crystal/agente
+
+> @crystal/agente@0.1.0 typecheck /home/user/crystal-web-chat/apps/crystal
+> tsc --noEmit
+
+== lint
+
+> crystal-web-chat@ lint /home/user/crystal-web-chat
+> eslint .
+
