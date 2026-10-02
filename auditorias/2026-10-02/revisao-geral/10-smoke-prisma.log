@@ -1,0 +1,18 @@
+== 2026-10-02T21:09:12+00:00 smoke real da API contra o Postgres (camada Prisma, que não tem teste automatizado)
+(rodadas anteriores: campo de login e caminho da listagem errados no script; o resultado da API foi o mesmo)
+1. GET /healthz -> {"ok":true}
+2. POST /auth/login -> {"step":"otp","challenge_id":"RO1ZxcfFeCOpt5usgNOQEdPG--KjWfuxnPFtM9MJFAQ","masked_email":"a***@demo.crystal","expires_in_s":300,"resend_in_s":60,"dev_code":"(oculto)"}
+3. POST /auth/verify -> 200 (cookies: 5 linhas no jar)
+4. GET /me -> {"user":{"id":"5bfb1a1d-7e0c-4dd1-9c98-42f3bfe612d7","name":"Ana Souza","cpf_masked":"•••.•••.•••-05","role":"user"},"conversation_id":"e07ca246-f0a6-4633-be58-ada38a8b2764","channel":{"meta":"unknown",
+5. POST /messages -> status 201; corpo: {"message_id":"2464b696-3629-4bf0-8628-751e8b83e127","reply_message_id":"a482134f-9a7f-49c7-ab12-ea346d366222","conversation_id":"e07ca246-f0a6-4633-be58-ada38a
+6. GET /conversations/e07ca246-f0a6-4633-be58-ada38a8b2764/messages -> 2 mensagens: [('out', 'done', 'Oi! Que bom te ver por aqui. Eu sou a Crystal'), ('in', 'read', 'Oi, Crystal. Teste contra o Postgres.')]
+7. GET /me/export -> 200, 914 bytes
+8. DELETE /me/account -> 204
+9. GET /me depois da exclusão -> 401
+10. No Postgres:
+    users: 3
+    users com email ana: 0
+    messages: 0
+    anonymous_conversations: 3
+    audit user.delete: 3
+11. Erros no log da API: 0 linha(s)

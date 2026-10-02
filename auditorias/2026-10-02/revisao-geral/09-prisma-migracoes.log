@@ -1,0 +1,72 @@
+== 2026-10-02T21:06:09+00:00 prisma migrate deploy num banco vazio (as 13 migrações aplicam do zero?)
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "crystal_revisao", schema "public" at "127.0.0.1:5432"
+
+14 migrations found in prisma/migrations
+
+Applying migration `0_init`
+Applying migration `1_prontuario`
+Applying migration `10_finance`
+Applying migration `11_finance_anonymize`
+Applying migration `12_channel_link`
+Applying migration `13_anonymous_conversations`
+Applying migration `2_staff`
+Applying migration `3_tickets`
+Applying migration `4_integrations`
+Applying migration `5_onboarding`
+Applying migration `6_suggestions`
+Applying migration `7_push_devices`
+Applying migration `8_review_accounts`
+Applying migration `9_staff_password`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 0_init/
+    └─ migration.sql
+  └─ 1_prontuario/
+    └─ migration.sql
+  └─ 10_finance/
+    └─ migration.sql
+  └─ 11_finance_anonymize/
+    └─ migration.sql
+  └─ 12_channel_link/
+    └─ migration.sql
+  └─ 13_anonymous_conversations/
+    └─ migration.sql
+  └─ 2_staff/
+    └─ migration.sql
+  └─ 3_tickets/
+    └─ migration.sql
+  └─ 4_integrations/
+    └─ migration.sql
+  └─ 5_onboarding/
+    └─ migration.sql
+  └─ 6_suggestions/
+    └─ migration.sql
+  └─ 7_push_devices/
+    └─ migration.sql
+  └─ 8_review_accounts/
+    └─ migration.sql
+  └─ 9_staff_password/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
+exit=0
+
+== prisma migrate diff: migrações x schema.prisma (vazio = iguais)
+
+[*] Changed the `finance_entries` table
+  [-] Removed foreign key on columns (created_by)
+  [-] Removed foreign key on columns (user_id)
+  [*] Altered column `paid_at` (type changed)
+  [*] Altered column `created_at` (type changed)
+  [*] Altered column `updated_at` (type changed)
+  [*] Altered column `anonymized_at` (type changed)
+  [+] Added foreign key on columns (user_id)
+  [+] Added foreign key on columns (created_by)
+exit=2 (0 = sem diferença)
+
+== prisma validate
+Prisma schema loaded from prisma/schema.prisma
+The schema at prisma/schema.prisma is valid 🚀

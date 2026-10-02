@@ -1,0 +1,478 @@
+== 2026-10-02T21:04:29+00:00 cobertura @crystal/shared
+ RUN  v3.2.7 /home/user/crystal-web-chat/packages/shared
+      Coverage enabled with v8
+ ✓ src/sse.test.ts (5 tests) 16ms
+ ✓ src/finance.test.ts (6 tests) 22ms
+ ✓ src/schemas.test.ts (10 tests) 16ms
+ ✓ src/cpf.test.ts (12 tests) 7ms
+ ✓ src/tickets.test.ts (5 tests) 6ms
+ ✓ src/auth-otp.test.ts (4 tests) 7ms
+ ✓ src/auth-staff.test.ts (5 tests) 8ms
+ ✓ src/integrations.test.ts (4 tests) 22ms
+ ✓ src/staff.test.ts (5 tests) 12ms
+ ✓ src/suggestions.test.ts (4 tests) 11ms
+ ✓ src/onboarding.test.ts (4 tests) 6ms
+ Test Files  11 passed (11)
+      Tests  64 passed (64)
+   Start at  21:04:30
+   Duration  2.08s (transform 375ms, setup 0ms, collect 798ms, tests 134ms, environment 2ms, prepare 1.29s)
+ % Coverage report from v8
+=============================== Coverage summary ===============================
+Statements   : 96.46% ( 1064/1103 )
+Branches     : 89.18% ( 66/74 )
+Functions    : 86.95% ( 20/23 )
+Lines        : 96.46% ( 1064/1103 )
+================================================================================
+-----------------|---------|----------|---------|---------|-------------------
+File             | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-----------------|---------|----------|---------|---------|-------------------
+All files        |   96.46 |    89.18 |   86.95 |   96.46 |                   
+ auth-otp.ts     |     100 |      100 |     100 |     100 |                   
+ auth-staff.ts   |     100 |      100 |     100 |     100 |                   
+ cpf.ts          |     100 |     91.3 |     100 |     100 | 10,69             
+ finance.ts      |     100 |      100 |     100 |     100 |                   
+ index.ts        |       0 |        0 |       0 |       0 | 1-16              
+ integrations.ts |     100 |      100 |     100 |     100 |                   
+ onboarding.ts   |     100 |      100 |     100 |     100 |                   
+ origin.ts       |     100 |      100 |     100 |     100 |                   
+ prontuario.ts   |     100 |      100 |       0 |     100 |                   
+ push-devices.ts |       0 |        0 |       0 |       0 | 1-44              
+ roles.ts        |     100 |      100 |     100 |     100 |                   
+ schemas.ts      |     100 |      100 |     100 |     100 |                   
+ sse.ts          |     100 |     82.6 |     100 |     100 | 40,48-49          
+ staff.ts        |     100 |      100 |     100 |     100 |                   
+ suggestions.ts  |     100 |      100 |     100 |     100 |                   
+ tickets.ts      |     100 |      100 |     100 |     100 |                   
+ webhook.ts      |     100 |      100 |     100 |     100 |                   
+-----------------|---------|----------|---------|---------|-------------------
+exit=0
+
+== 2026-10-02T21:04:33+00:00 cobertura @crystal/agente
+ RUN  v3.2.7 /home/user/crystal-web-chat/apps/crystal
+      Coverage enabled with v8
+ ✓ src/partes.test.ts (20 tests) 50ms
+ ✓ src/app.test.ts (18 tests) 257ms
+ Test Files  2 passed (2)
+      Tests  38 passed (38)
+   Start at  21:04:34
+   Duration  1.19s (transform 283ms, setup 0ms, collect 526ms, tests 307ms, environment 1ms, prepare 237ms)
+ % Coverage report from v8
+=============================== Coverage summary ===============================
+Statements   : 73.74% ( 441/598 )
+Branches     : 82.75% ( 144/174 )
+Functions    : 88.37% ( 38/43 )
+Lines        : 73.74% ( 441/598 )
+================================================================================
+---------------|---------|----------|---------|---------|-----------------------
+File           | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s     
+---------------|---------|----------|---------|---------|-----------------------
+All files      |   73.74 |    82.75 |   88.37 |   73.74 |                       
+ app.ts        |   91.97 |    82.19 |   86.66 |   91.97 | ...25,155-156,165-166 
+ cifra.ts      |     100 |     87.5 |     100 |     100 | 25                    
+ env.ts        |   95.55 |     92.3 |     100 |   95.55 | 45-46                 
+ memoria.ts    |   30.66 |       75 |   71.42 |   30.66 | 38-46,54-111          
+ openrouter.ts |   90.62 |    79.06 |     100 |   90.62 | 86-88,100-103,140-141 
+ prompt.ts     |   92.59 |       80 |     100 |   92.59 | 30-31                 
+ seguranca.ts  |     100 |      100 |     100 |     100 |                       
+ server.ts     |       0 |        0 |       0 |       0 | 1-88                  
+---------------|---------|----------|---------|---------|-----------------------
+exit=0
+
+== 2026-10-02T21:04:36+00:00 cobertura @crystal/web
+ RUN  v3.2.7 /home/user/crystal-web-chat/apps/web
+      Coverage enabled with v8
+ ✓ components/chat/Composer.test.tsx (5 tests) 525ms
+ ✓ components/prontuario/SuggestionSection.test.tsx (4 tests) 581ms
+   ✓ SuggestionSection > edita um progresso e chama accept com edits  431ms
+ ✓ components/chat/MessageBubble.test.tsx (8 tests) 182ms
+ ✓ components/equipe/StaffLayout.test.tsx (6 tests) 462ms
+ ✓ components/auth/StaffLoginForm.test.tsx (4 tests) 243ms
+ ✓ components/auth/LoginForm.test.tsx (16 tests) 3603ms
+   ✓ LoginForm > envia CPF limpo + e-mail e chama onSuccess (via verify)  309ms
+   ✓ LoginForm > 409 CONSENT_REQUIRED revela o aceite e reenvia com consentimento (depois segue para OTP)  388ms
+ ✓ components/OnboardingConversation.test.tsx (4 tests) 194ms
+ ✓ components/native/BiometricLock.test.tsx (7 tests) 260ms
+ ✓ components/equipe/integracoes/IntegrationCard.test.tsx (5 tests) 225ms
+ ✓ components/suporte/TicketThread.test.tsx (3 tests) 267ms
+ ✓ components/system/ErrorPage.test.tsx (3 tests) 173ms
+ ✓ components/equipe/usuarios/SetPasswordDialog.test.tsx (6 tests) 352ms
+ ✓ components/equipe/financeiro/FinanceList.test.tsx (6 tests) 154ms
+ ✓ lib/onboarding.test.ts (4 tests) 62ms
+ ✓ components/equipe/financeiro/FinanceEntryDrawer.test.tsx (6 tests) 175ms
+ ✓ components/equipe/integracoes/AlertsCard.test.tsx (8 tests) 198ms
+ ✓ lib/register-sw.test.ts (2 tests) 39ms
+ ✓ components/system/ErrorReportingInit.test.tsx (1 test) 21ms
+ ✓ lib/staff.test.ts (10 tests) 11ms
+ ✓ lib/tickets.test.ts (10 tests) 26ms
+ ✓ lib/format.test.ts (3 tests) 31ms
+ ✓ lib/finance.test.ts (40 tests) 40ms
+ ✓ lib/integrations.test.ts (10 tests) 10ms
+ ✓ lib/native.test.ts (20 tests) 23ms
+ ✓ lib/native-push.test.ts (5 tests) 12ms
+ ✓ lib/suggestions.test.ts (2 tests) 5ms
+ ✓ lib/staff-password.test.ts (19 tests) 12ms
+ ✓ lib/api.test.ts (5 tests) 21ms
+ ✓ lib/error-reporting.test.ts (7 tests) 29ms
+ ✓ lib/app-links.test.ts (3 tests) 5ms
+ ✓ lib/offline-queue.test.ts (4 tests) 5ms
+ Test Files  31 passed (31)
+      Tests  236 passed (236)
+   Start at  21:04:37
+   Duration  21.07s (transform 1.33s, setup 8.00s, collect 3.69s, tests 7.94s, environment 21.43s, prepare 4.48s)
+ % Coverage report from v8
+=============================== Coverage summary ===============================
+Statements   : 35.17% ( 3338/9490 )
+Branches     : 82.85% ( 773/933 )
+Functions    : 67.79% ( 240/354 )
+Lines        : 35.17% ( 3338/9490 )
+================================================================================
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   35.17 |    82.85 |   67.79 |   35.17 |                   
+ web               |       0 |    33.33 |   33.33 |       0 |                   
+  middleware.ts    |       0 |        0 |       0 |       0 | 1-70              
+  next.config.ts   |       0 |      100 |     100 |       0 | 3-32              
+  ...ss.config.mjs |       0 |        0 |       0 |       0 | 1-5               
+ web/app           |   18.62 |    83.33 |      80 |   18.62 |                   
+  error.tsx        |     100 |      100 |     100 |     100 |                   
+  global-error.tsx |       0 |      100 |     100 |       0 | 3-36              
+  layout.tsx       |       0 |      100 |     100 |       0 | 2-66              
+  not-found.tsx    |       0 |        0 |       0 |       0 | 1-23              
+  page.tsx         |       0 |      100 |     100 |       0 | 3-34              
+ web/app/(auth)    |       0 |        0 |       0 |       0 |                   
+  layout.tsx       |       0 |        0 |       0 |       0 | 1-35              
+ ...p/(auth)/login |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-55              
+ ...)/login/equipe |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-21              
+ web/app/(chat)    |       0 |        0 |       0 |       0 |                   
+  layout.tsx       |       0 |        0 |       0 |       0 | 1-21              
+ ...p/(chat)/admin |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-6               
+ ...pp/(chat)/chat |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-308             
+ ...chat)/insights |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 4-46              
+ ...p/(chat)/metas |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-171             
+ .../(chat)/perfil |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-184             
+ ...erfil/conversa |   45.81 |    78.94 |      25 |   45.81 |                   
+  page.tsx         |   45.81 |    78.94 |      25 |   45.81 | ...28-137,195-324 
+ ...hat)/progresso |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-174             
+ ...(chat)/suporte |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-124             
+ ...)/suporte/[id] |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-16              
+ ...equipe)/equipe |       0 |      100 |     100 |       0 |                   
+  layout.tsx       |       0 |      100 |     100 |       0 | 3-7               
+  page.tsx         |       0 |      100 |     100 |       0 | 3-19              
+ ...uipe/auditoria |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-139             
+ ...)/equipe/canal |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-7               
+ ...ipe/financeiro |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-197             
+ ...pe/integracoes |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-139             
+ ...)/equipe/senha |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-132             
+ ...equipe/suporte |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-99              
+ ...e/suporte/[id] |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-143             
+ ...quipe/usuarios |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-144             
+ .../excluir-conta |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-78              
+ ...pp/privacidade |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-160             
+ web/app/termos    |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-220             
+ web/components    |   59.25 |      100 |     100 |   59.25 |                   
+  AppInit.tsx      |       0 |      100 |     100 |       0 | 3-15              
+  CrystalMark.tsx  |     100 |      100 |     100 |     100 |                   
+ ...omponents/auth |   94.69 |    87.85 |   84.61 |   94.69 |                   
+  LoginForm.tsx    |    97.7 |    97.72 |   81.81 |    97.7 | 26-27,200-201     
+  OtpStep.tsx      |   92.67 |    76.74 |     100 |   92.67 | ...00-101,123-129 
+  ...LoginForm.tsx |    93.6 |       90 |   77.77 |    93.6 | ...35-137,153-155 
+ ...omponents/chat |   33.55 |    84.48 |   63.15 |   33.55 |                   
+  BackupBanner.tsx |       0 |      100 |     100 |       0 | 2-11              
+  ChatHeader.tsx   |       0 |      100 |     100 |       0 | 3-254             
+  Composer.tsx     |   52.97 |    76.92 |      40 |   52.97 | ...48-169,237-239 
+  DayDivider.tsx   |       0 |        0 |       0 |       0 | 1-9               
+  ...ageBubble.tsx |   94.54 |    81.48 |     100 |   94.54 | 40-42,51          
+  MessageList.tsx  |       0 |      100 |     100 |       0 | 3-99              
+  StatusTicks.tsx  |     100 |      100 |     100 |     100 |                   
+  ...Indicator.tsx |       0 |      100 |     100 |       0 | 2-16              
+ ...ponents/equipe |   31.63 |    85.36 |   46.66 |   31.63 |                   
+  AuditEntry.tsx   |       0 |      100 |     100 |       0 | 3-157             
+  CanalPanel.tsx   |       0 |      100 |     100 |       0 | 3-172             
+  StaffLayout.tsx  |   80.35 |    88.88 |   33.33 |   80.35 | 16-19,51-52,62-67 
+  StaffShell.tsx   |     100 |    92.85 |     100 |     100 | 22                
+  areas.ts         |     100 |    57.14 |     100 |     100 | 26-27,30          
+  ui.tsx           |   25.88 |      100 |       0 |   25.88 | ...8,61-69,76-111 
+ ...ipe/financeiro |   34.78 |    65.51 |   27.27 |   34.78 |                   
+  ...tryDrawer.tsx |   70.95 |    52.94 |    12.5 |   70.95 | ...97-199,271-273 
+  ...ceFilters.tsx |       0 |      100 |     100 |       0 | 4-127             
+  FinanceList.tsx  |   93.24 |    77.77 |   33.33 |   93.24 | 46-47,78-80       
+  ...maryCards.tsx |       0 |      100 |     100 |       0 | 2-29              
+  ...tryDialog.tsx |       0 |      100 |     100 |       0 | 3-299             
+ ...pe/integracoes |   33.79 |    95.65 |     100 |   33.79 |                   
+  AlertsCard.tsx   |     100 |      100 |     100 |     100 |                   
+  ...ationCard.tsx |   96.73 |    93.75 |     100 |   96.73 | 127-129           
+  WebhookPanel.tsx |       0 |      100 |     100 |       0 | 3-205             
+  ...kTestForm.tsx |       0 |      100 |     100 |       0 | 3-154             
+ ...equipe/suporte |   12.21 |    72.72 |     100 |   12.21 |                   
+  SupportBadge.tsx |   84.37 |     62.5 |     100 |   84.37 | 24,35-38          
+  ...etActions.tsx |       0 |      100 |     100 |       0 | 3-97              
+  ...etFilters.tsx |       0 |      100 |     100 |       0 | 3-97              
+  ...InboxList.tsx |       0 |      100 |     100 |       0 | 3-41              
+ ...quipe/usuarios |    19.7 |    91.66 |   81.81 |    19.7 |                   
+  ...fUserForm.tsx |       0 |      100 |     100 |       0 | 3-141             
+  ...ordDialog.tsx |   97.24 |       90 |   71.42 |   97.24 | 26-27,54          
+  ...tailPanel.tsx |       0 |      100 |     100 |       0 | 3-264             
+  UserFilters.tsx  |       0 |      100 |     100 |       0 | 3-78              
+  UserList.tsx     |       0 |      100 |     100 |       0 | 4-52              
+ ...ponents/native |   47.03 |    83.33 |   85.71 |   47.03 |                   
+  ...etricLock.tsx |   85.61 |    82.35 |      80 |   85.61 | ...52,169,218-223 
+  ...ricToggle.tsx |       0 |      100 |     100 |       0 | 14-150            
+  NativePush.tsx   |       0 |      100 |     100 |       0 | 3-26              
+ ...nts/prontuario |   69.25 |    73.01 |   59.09 |   69.25 |                   
+  ...onSection.tsx |   82.12 |    72.88 |   63.15 |   82.12 | ...59,188,193-195 
+  ui.tsx           |   43.95 |       75 |   33.33 |   43.95 | ...,94-99,103-117 
+ ...onents/suporte |   46.72 |    58.97 |   43.75 |   46.72 |                   
+  ...icketForm.tsx |       0 |      100 |     100 |       0 | 3-120             
+  TicketBadges.tsx |     100 |      100 |     100 |     100 |                   
+  TicketCard.tsx   |       0 |      100 |     100 |       0 | 3-29              
+  ...tComposer.tsx |   70.96 |     9.09 |   16.66 |   70.96 | ...40,51-52,60-68 
+  ...tMessages.tsx |    87.8 |    66.66 |     100 |    87.8 | 27,30,40-42       
+  TicketThread.tsx |   64.42 |    83.33 |      20 |   64.42 | ...2,55-67,99-101 
+ ...ponents/system |     100 |      100 |     100 |     100 |                   
+  ...rtingInit.tsx |     100 |      100 |     100 |     100 |                   
+ web/lib           |   68.69 |    86.36 |   75.81 |   68.69 |                   
+  api.ts           |   77.41 |     91.3 |   83.33 |   77.41 | 80-94             
+  app-links.ts     |     100 |    86.66 |     100 |     100 | 17,21             
+  ...-reporting.ts |   33.87 |       50 |      40 |   33.87 | ...62,65-77,82-88 
+  finance.ts       |   72.04 |     82.6 |   46.66 |   72.04 | ...39,66-67,70-80 
+  format.ts        |     100 |      100 |     100 |     100 |                   
+  integrations.ts  |   98.29 |    93.68 |     100 |   98.29 | 124-125           
+  ...ocopy-chat.ts |    99.3 |    83.33 |     100 |    99.3 | 143               
+  ...opy-equipe.ts |     100 |      100 |      50 |     100 |                   
+  ...py-finance.ts |     100 |      100 |     100 |     100 |                   
+  microcopy.ts     |     100 |      100 |     100 |     100 |                   
+  native-push.ts   |   89.61 |     82.5 |     100 |   89.61 | ...05-106,120,125 
+  native.ts        |   92.18 |    83.72 |     100 |   92.18 | ...34,158,162-163 
+  offline-queue.ts |   93.33 |    63.15 |     100 |   93.33 | 18,21-22          
+  onboarding.ts    |   90.47 |    85.71 |   85.71 |   90.47 | 25-26             
+  prontuario.ts    |   46.66 |       25 |    7.14 |   46.66 | ...60,70,72,77,82 
+  push.ts          |       0 |        0 |       0 |       0 | 1-47              
+  register-sw.ts   |   78.46 |       85 |   77.77 |   78.46 | ...28,47-49,79-87 
+  sse-client.ts    |       0 |        0 |       0 |       0 | 1-37              
+  ...f-password.ts |     100 |    91.66 |     100 |     100 | 41                
+  staff.ts         |   98.07 |    82.75 |    87.5 |   98.07 | 50                
+  suggestions.ts   |     100 |      100 |     100 |     100 |                   
+  theme-colors.ts  |       0 |      100 |     100 |       0 | 6-11              
+  theme.ts         |       0 |      100 |     100 |       0 | 3-32              
+  tickets.ts       |   93.42 |    95.45 |   77.77 |   93.42 | 64,84-85,104-105  
+  use-async.ts     |     100 |    83.33 |      50 |     100 | 24                
+  use-chat.ts      |       0 |      100 |     100 |       0 | 3-445             
+ web/public        |       0 |        0 |       0 |       0 |                   
+  sw.js            |       0 |        0 |       0 |       0 | 1-106             
+ web/scripts       |       0 |        0 |       0 |       0 |                   
+  gen-icons.mjs    |       0 |        0 |       0 |       0 | 1-203             
+  gerar-icones.mjs |       0 |        0 |       0 |       0 | 1-94              
+  ...reenshots.mjs |       0 |        0 |       0 |       0 | 1-197             
+-------------------|---------|----------|---------|---------|-------------------
+exit=0
+
+== 2026-10-02T21:04:58+00:00 cobertura @crystal/api
+ RUN  v3.2.7 /home/user/crystal-web-chat/apps/api
+      Coverage enabled with v8
+ ✓ src/routes/prontuario-paginacao.test.ts (45 tests) 1211ms
+ ✓ src/routes/auth-staff.test.ts (16 tests) 2162ms
+   ✓ POST /auth/staff/login > login ok → desafio OTP → verify → sessão com papel da equipe  367ms
+   ✓ PUT /me/password — equipe troca a própria senha > troca própria senha → 204; login com nova senha funciona  383ms
+ ✓ src/routes/auth-otp.test.ts (9 tests) 2753ms
+   ✓ OTP no login (segundo fator por e-mail) > código expirado → 410 e o desafio some  1165ms
+   ✓ OTP no login (segundo fator por e-mail) > reenvio antes da espera → 429; depois da espera gera código novo e o antigo deixa de valer  1186ms
+ ✓ src/routes/staff-users.test.ts (15 tests) 601ms
+ ✓ src/routes/review-accounts.test.ts (18 tests) 1557ms
+   ✓ login de conta de revisão (OTP fixo) > reenvio mantém o código fixo e não manda e-mail  1156ms
+ ✓ src/routes/webhooks.test.ts (22 tests) 849ms
+{"msg":"canal: envio para a inbox falhou","code":"CHANNEL_NO_PHONE","status":null,"erro":null}
+ ✓ src/routes/channel-webhook.test.ts (6 tests) 852ms
+   ✓ canal de API da inbox (CHAT_TRANSPORT=chatwoot) > mensagem vai à inbox; a 1ª resposta preenche a bolha, as seguintes entram como novas  312ms
+ ✓ src/routes/integrations.test.ts (7 tests) 1062ms
+   ✓ /staff/integrations — painel técnico (API) > check sem body roda todas as sondas; sonda pendurada vira down por tempo esgotado  559ms
+ ✓ src/routes/integrations-webhook.test.ts (14 tests) 936ms
+ ✓ src/routes/onboarding.test.ts (9 tests) 866ms
+ ✓ src/routes/auth.test.ts (15 tests) 899ms
+ ✓ src/routes/chatwoot-bot.test.ts (13 tests) 898ms
+   ✓ POST /webhooks/chatwoot-bot > sem os CHATWOOT_BOT_* a rota não existe  366ms
+ ✓ src/routes/staff-finance.test.ts (6 tests) 585ms
+ ✓ src/routes/suggestions.test.ts (8 tests) 775ms
+{"msg":"crystal: resposta falhou","code":"CRYSTAL_UNAVAILABLE","motivo":"A conexão com a Crystal caiu no meio da resposta."}
+ ✓ src/routes/messages.test.ts (10 tests) 1444ms
+   ✓ mensagens + streaming SSE > envia texto e recebe resposta em streaming: status → token* → done  305ms
+ ✓ src/routes/prontuario-cross-user.test.ts (9 tests) 644ms
+ ✓ src/routes/tickets-me.test.ts (6 tests) 687ms
+   ✓ /me/tickets — aluno > cria, lista, detalha, responde e encerra o próprio ticket  303ms
+ ✓ src/routes/tickets-staff.test.ts (9 tests) 694ms
+ ✓ src/routes/admin.test.ts (4 tests) 791ms
+   ✓ admin + canal > usuário comum não acessa o admin (404, sem revelar a rota)  516ms
+ ✓ src/routes/uploads.test.ts (5 tests) 1181ms
+   ✓ uploads (Fase 3) > aceita imagem, devolve upload_id e serve o arquivo ao dono  504ms
+   ✓ uploads (Fase 3) > imagem acima de 5MB → 413  331ms
+ ✓ src/routes/push-devices.test.ts (6 tests) 462ms
+ ✓ src/routes/me-account-delete.test.ts (6 tests) 430ms
+ ✓ src/routes/prontuario.test.ts (5 tests) 433ms
+ ✓ src/cors.test.ts (6 tests) 406ms
+ ✓ src/routes/me-prontuario.test.ts (4 tests) 468ms
+ ✓ src/routes/staff-audit.test.ts (3 tests) 375ms
+ ✓ src/services/directory-supabase.test.ts (9 tests) 415ms
+ ✓ src/services/alerts.test.ts (6 tests) 266ms
+ ✓ src/services/stream-hub.test.ts (6 tests) 274ms
+ ✓ src/routes/daily-summary.test.ts (3 tests) 301ms
+ ✓ src/services/anonymous-copy.test.ts (19 tests) 272ms
+ ✓ src/routes/finance-anonymize.test.ts (2 tests) 360ms
+ ✓ src/seed.test.ts (10 tests) 199ms
+ ✓ src/env.test.ts (30 tests) 55ms
+ ✓ src/services/error-reporter.test.ts (4 tests) 209ms
+ ✓ src/services/crystal-forget.test.ts (5 tests) 269ms
+ ✓ src/services/crystal.test.ts (12 tests) 47ms
+ ✓ src/services/chatwoot-channel.test.ts (9 tests) 63ms
+ ✓ src/services/retention.test.ts (5 tests) 20ms
+ ✓ src/services/native-push.test.ts (14 tests) 44ms
+ ✓ src/services/backup-health.test.ts (10 tests) 30ms
+ ✓ src/lib/field-crypto.test.ts (4 tests) 12ms
+ ✓ src/services/directory.test.ts (5 tests) 9ms
+ ✓ src/lib/kv.test.ts (3 tests) 6ms
+ Test Files  44 passed (44)
+      Tests  432 passed (432)
+   Start at  21:04:59
+   Duration  26.41s (transform 1.80s, setup 0ms, collect 22.68s, tests 26.88s, environment 13ms, prepare 7.15s)
+ % Coverage report from v8
+=============================== Coverage summary ===============================
+Statements   : 78.16% ( 6906/8835 )
+Branches     : 83.76% ( 2250/2686 )
+Functions    : 94% ( 533/567 )
+Lines        : 78.16% ( 6906/8835 )
+================================================================================
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   78.16 |    83.76 |      94 |   78.16 |                   
+ src               |   65.01 |    83.43 |   94.11 |   65.01 |                   
+  app.ts           |    93.1 |       70 |     100 |    93.1 | 37-41,82-87       
+  deps.ts          |     100 |       50 |     100 |     100 | 59                
+  env.ts           |   98.54 |    96.42 |     100 |   98.54 | 304,306-307       
+  seed.ts          |   98.39 |    80.88 |     100 |   98.39 | 53-54,57-58       
+  server.ts        |       0 |        0 |       0 |       0 | 1-370             
+ src/db            |   52.24 |    90.46 |   97.72 |   52.24 |                   
+  archive-types.ts |       0 |        0 |       0 |       0 |                   
+  chat-types.ts    |       0 |        0 |       0 |       0 |                   
+  finance-types.ts |       0 |        0 |       0 |       0 |                   
+  ...ry-archive.ts |    92.3 |      100 |      80 |    92.3 | 18-19             
+  memory-audit.ts  |     100 |    95.23 |     100 |     100 | 34                
+  memory-chat.ts   |   91.94 |    86.56 |   94.73 |   91.94 | 43-44,76,136-144  
+  ...ry-finance.ts |   95.18 |    84.14 |     100 |   95.18 | 21-22,36-37       
+  ...onboarding.ts |     100 |    83.33 |     100 |     100 | 18,33             
+  ...prontuario.ts |   98.72 |    94.73 |     100 |   98.72 | 141-142           
+  ...sh-devices.ts |   97.05 |     90.9 |   88.88 |   97.05 | 51-52             
+  ...uggestions.ts |     100 |    95.23 |     100 |     100 | 31                
+  memory-system.ts |   89.02 |    92.85 |   91.66 |   89.02 | 59-61,68-73       
+  ...ry-tickets.ts |     100 |    91.02 |     100 |     100 | ...,83,90,133,156 
+  memory-users.ts  |     100 |    91.02 |     100 |     100 | ...,90,95,106,129 
+  ...ook-events.ts |     100 |    91.42 |     100 |     100 | 39,53,68          
+  memory.ts        |     100 |      100 |     100 |     100 |                   
+  ...ding-types.ts |       0 |        0 |       0 |       0 |                   
+  ...ma-archive.ts |       0 |      100 |     100 |       0 | 4-13              
+  prisma-audit.ts  |       0 |      100 |     100 |       0 | 2-68              
+  prisma-chat.ts   |       0 |      100 |     100 |       0 | 3-120             
+  ...ma-finance.ts |       0 |      100 |     100 |       0 | 2-91              
+  ...onboarding.ts |       0 |      100 |     100 |       0 | 2-47              
+  ...prontuario.ts |       0 |      100 |     100 |       0 | 11-166            
+  ...uggestions.ts |       0 |      100 |     100 |       0 | 5-41              
+  prisma-system.ts |       0 |      100 |     100 |       0 | 6-138             
+  ...ma-tickets.ts |       0 |      100 |     100 |       0 | 2-144             
+  prisma-users.ts  |       0 |      100 |     100 |       0 | 2-154             
+  ...ook-events.ts |       0 |      100 |     100 |       0 | 2-83              
+  prisma.ts        |       0 |      100 |     100 |       0 | 3-58              
+  ...tion-types.ts |       0 |        0 |       0 |       0 |                   
+  system-types.ts  |       0 |        0 |       0 |       0 |                   
+  ticket-types.ts  |       0 |        0 |       0 |       0 |                   
+  types.ts         |     100 |       60 |     100 |     100 | 64-67             
+  user-types.ts    |       0 |        0 |       0 |       0 |                   
+  ...vent-types.ts |       0 |        0 |       0 |       0 |                   
+ src/lib           |   92.59 |    91.25 |   97.43 |   92.59 |                   
+  crypto.ts        |     100 |    88.88 |     100 |     100 | 31                
+  dto.ts           |     100 |    88.88 |     100 |     100 | 26                
+  field-crypto.ts  |   92.59 |    83.33 |     100 |   92.59 | 34-35             
+  kv.ts            |   66.07 |      100 |    87.5 |   66.07 | 68-90             
+  microcopy.ts     |     100 |      100 |     100 |     100 |                   
+  otp-challenge.ts |     100 |      100 |     100 |     100 |                   
+  otp-email.ts     |     100 |      100 |     100 |     100 |                   
+  password.ts      |   91.42 |       80 |     100 |   91.42 | 37-39             
+  timezone.ts      |     100 |       90 |     100 |     100 | 5                 
+  webhook-log.ts   |     100 |    93.33 |     100 |     100 | 44                
+ src/plugins       |   97.54 |    76.66 |   95.65 |   97.54 |                   
+  auth.ts          |   98.21 |    84.37 |     100 |   98.21 | 49-50             
+  rate-limit.ts    |     100 |    55.55 |     100 |     100 | ...45,52-54,60,64 
+  sse.ts           |   93.87 |       90 |      80 |   93.87 | 40,65-66          
+ src/routes        |      93 |    80.29 |     100 |      93 |                   
+  admin.ts         |     100 |       80 |     100 |     100 | 13,27             
+  auth-otp.ts      |   71.25 |    82.05 |     100 |   71.25 | ...66-172,189-195 
+  auth-staff.ts    |     100 |    92.85 |     100 |     100 | 57                
+  auth.ts          |   95.67 |     87.3 |     100 |   95.67 | 142-143,174-178   
+  ...el-webhook.ts |   90.52 |       75 |     100 |   90.52 | ...13-115,127-128 
+  chatwoot-bot.ts  |   93.03 |    76.66 |     100 |   93.03 | ...86-187,197-199 
+  health.ts        |     100 |      100 |     100 |     100 |                   
+  integrations.ts  |     100 |       60 |     100 |     100 | 64-101            
+  me.ts            |   85.27 |    68.25 |     100 |   85.27 | ...30-134,188-192 
+  messages.ts      |   89.25 |    83.78 |     100 |   89.25 | ...06-107,130-136 
+  onboarding.ts    |   96.49 |    77.27 |     100 |   96.49 | 33-34             
+  prontuario.ts    |   98.94 |    84.84 |     100 |   98.94 | 127               
+  push.ts          |    86.3 |       70 |     100 |    86.3 | 12-16,20-24       
+  staff-audit.ts   |     100 |      100 |     100 |     100 |                   
+  staff-finance.ts |   97.36 |    68.18 |     100 |   97.36 | 23                
+  staff-users.ts   |     100 |    85.71 |     100 |     100 | ...82,196,206,225 
+  staff.ts         |     100 |      100 |     100 |     100 |                   
+  suggestions.ts   |     100 |       92 |     100 |     100 | 31,37             
+  tickets-me.ts    |     100 |       75 |     100 |     100 | 31,38,45,56,71    
+  tickets-staff.ts |     100 |    55.55 |     100 |     100 | ...37,46-50,57-59 
+  uploads.ts       |   90.29 |    66.66 |     100 |   90.29 | ...,83-86,117-118 
+  webhooks.ts      |   98.04 |     89.7 |     100 |   98.04 | 89-90,277-278     
+ src/services      |   86.42 |    82.28 |   89.76 |   86.42 |                   
+  alerts.ts        |   91.91 |    97.36 |   77.77 |   91.91 | 127-130,133-136   
+  ...ymous-copy.ts |   95.41 |    89.65 |     100 |   95.41 | ...65-166,169-170 
+  backup.ts        |   97.67 |       95 |     100 |   97.67 | 62                
+  chatwoot-bot.ts  |     100 |      100 |     100 |     100 |                   
+  ...ot-channel.ts |   91.89 |    88.23 |   94.11 |   91.89 | ...09,149,188-189 
+  crystal.ts       |   92.77 |       80 |    92.3 |   92.77 | ...15-217,247-253 
+  daily-summary.ts |    90.9 |    71.42 |     100 |    90.9 | 29-31,58-59,63    
+  directory.ts     |     100 |    86.04 |     100 |     100 | ...86,119-132,145 
+  email.ts         |   91.89 |    77.77 |     100 |   91.89 | 43-45             
+  ...r-reporter.ts |   19.04 |       60 |    37.5 |   19.04 | ...0,44-57,66-110 
+  finance.ts       |   91.12 |    76.92 |   78.57 |   91.12 | ...,90-91,125-127 
+  health.ts        |   58.22 |       75 |   57.14 |   58.22 | ...03-110,113-117 
+  ...ion-probes.ts |   41.87 |    59.09 |   72.72 |   41.87 | ...05,219,224,226 
+  integrations.ts  |   96.22 |    75.34 |     100 |   96.22 | ...26-131,152,162 
+  messages.ts      |   94.17 |    67.27 |      90 |   94.17 | ...39-144,248-249 
+  native-push.ts   |   67.32 |     64.7 |     100 |   67.32 | ...17-118,148-154 
+  ...ng-crystal.ts |   69.38 |    70.83 |      75 |   69.38 | ...,86-91,104-110 
+  onboarding.ts    |   96.29 |    82.65 |     100 |   96.29 | ...64-165,200-201 
+  otp-login.ts     |   83.33 |    91.66 |     100 |   83.33 | 64-72             
+  prontuario.ts    |     100 |    88.57 |     100 |     100 | ...52-154,199,297 
+  push.ts          |   67.54 |       84 |   55.55 |   67.54 | ...98,111-115,143 
+  retention.ts     |   73.91 |     92.3 |   66.66 |   73.91 | 52-59,62-66       
+  stream-hub.ts    |   94.79 |    88.57 |     100 |   94.79 | 73-77             
+  suggestions.ts   |    98.6 |    81.66 |     100 |    98.6 | 158-159           
+  tickets.ts       |   98.85 |    83.87 |     100 |   98.85 | 210,236-237       
+ src/test          |   96.44 |     87.8 |    87.5 |   96.44 |                   
+  helpers.ts       |   96.44 |     87.8 |    87.5 |   96.44 | ...84-185,193-194 
+-------------------|---------|----------|---------|---------|-------------------
+exit=0
+

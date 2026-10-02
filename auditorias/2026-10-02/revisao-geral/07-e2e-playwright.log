@@ -1,0 +1,69 @@
+== 2026-10-02T21:07:24+00:00 playwright e2e (chromium, build de produção do web + API em modo demo)
+(tentativas anteriores falharam por ambiente: faltava rsync e o Chromium na versão do Playwright 1.62; corrigido e repetido)
+[WebServer] 
+[WebServer]  ⚠ The Next.js plugin was not detected in your ESLint configuration. See https://nextjs.org/docs/app/api-reference/config/eslint#migrating-existing-config
+[WebServer]  ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+
+Running 20 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/a11y.spec.ts:11:7 › acessibilidade › tela de login (1.0s)
+  ✓   2 [chromium] › e2e/a11y.spec.ts:18:7 › acessibilidade › tela de chat (1.8s)
+  ✓   3 [chromium] › e2e/a11y.spec.ts:25:7 › acessibilidade › admin: backup manual liga o banner no chat (2.0s)
+  ✓   4 [chromium] › e2e/equipe-senha.spec.ts:36:7 › login e senhas da equipe › Rui entra por senha, confirma o OTP de desenvolvimento e cai na equipe (531ms)
+  ✓   5 [chromium] › e2e/equipe-senha.spec.ts:41:7 › login e senhas da equipe › senha errada mostra somente a mensagem de credenciais inválidas (457ms)
+  ✓   6 [chromium] › e2e/equipe-senha.spec.ts:53:7 › login e senhas da equipe › admin redefine a senha do suporte e a nova senha abre uma sessão (1.6s)
+  ✓   7 [chromium] › e2e/equipe-senha.spec.ts:75:7 › login e senhas da equipe › suporte valida a senha atual, troca a própria senha e entra com a nova (1.6s)
+  ✓   8 [chromium] › e2e/equipe.spec.ts:5:7 › área da equipe › Rui entra em usuários (2.8s)
+  ✓   9 [chromium] › e2e/equipe.spec.ts:11:7 › área da equipe › Ana recebe a página 404 ao abrir a equipe (2.8s)
+  ✓  10 [chromium] › e2e/errors.spec.ts:6:7 › cenários de erro › CPF válido mas não cadastrado mostra microcopy amigável (400ms)
+  ✓  11 [chromium] › e2e/errors.spec.ts:14:7 › cenários de erro › e-mail que não bate com o CPF recebe a MESMA mensagem (sem oráculo) (366ms)
+[WebServer] {"msg":"crystal: resposta falhou","code":"CRYSTAL_UNAVAILABLE","motivo":"A conexão com a Crystal caiu no meio da resposta."}
+  ✓  12 [chromium] › e2e/errors.spec.ts:24:7 › cenários de erro › queda no meio do streaming falha com dignidade (#erro) (2.9s)
+  ✓  13 [chromium] › e2e/journey.spec.ts:5:7 › jornada principal › CPF + e-mail → mensagem → resposta em streaming → histórico após reload (4.0s)
+  ✓  14 [chromium] › e2e/journey.spec.ts:34:7 › jornada principal › logout encerra a sessão e volta ao login (3.1s)
+  ✘  15 [chromium] › e2e/onboarding.spec.ts:4:5 › Ana nova responde à primeira pergunta do onboarding (17.6s)
+  ✓  16 [chromium] › e2e/onboarding.spec.ts:4:5 › Ana nova responde à primeira pergunta do onboarding (retry #1) (3.0s)
+  ✓  17 [chromium] › e2e/otp.spec.ts:5:7 › login com OTP › código de desenvolvimento já preenchido abre a sessão (2.6s)
+  ✓  18 [chromium] › e2e/otp.spec.ts:13:7 › login com OTP › código errado mostra erro visível (2.6s)
+  ✓  19 [chromium] › e2e/revisao.spec.ts:27:7 › conta de revisão › usa o OTP fixo sem dev_code e entra no chat (875ms)
+  ✓  20 [chromium] › e2e/revisao.spec.ts:38:7 › conta de revisão › código errado é recusado (531ms)
+  ✓  21 [chromium] › e2e/suporte.spec.ts:4:5 › Ana abre um ticket e o vê na lista (3.1s)
+
+
+  1) [chromium] › e2e/onboarding.spec.ts:4:5 › Ana nova responde à primeira pergunta do onboarding ─
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/quantos anos você tem/i)
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByText(/quantos anos você tem/i)
+
+
+      10 |   if (await consent.isVisible()) await consent.click();
+      11 |
+    > 12 |   await expect(page.getByText(/quantos anos você tem/i)).toBeVisible();
+         |                                                          ^
+      13 |   await page.getByLabel("Sua resposta").fill("29");
+      14 |   await page.getByRole("button", { name: "Enviar" }).click();
+      15 |
+        at /home/user/crystal-web-chat/e2e/onboarding.spec.ts:12:58
+
+    Error Context: test-results/onboarding-Ana-nova-respon-f001d-eira-pergunta-do-onboarding-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/onboarding-Ana-nova-respon-f001d-eira-pergunta-do-onboarding-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/onboarding-Ana-nova-respon-f001d-eira-pergunta-do-onboarding-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 flaky
+    [chromium] › e2e/onboarding.spec.ts:4:5 › Ana nova responde à primeira pergunta do onboarding ──
+  19 passed (2.2m)
+exit=0
