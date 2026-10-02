@@ -76,6 +76,15 @@ Independe dos degraus do site. Detalhes em `crystal-em-casa/README.md`.
 - Com as credenciais do passo 5: backup da AZAN, zona real, caixas de e-mail,
   prova venda a venda pelo Stape, e a cópia na Hostinger.
 
+## Revisão geral do código (02/10)
+
+Pedida pelo Luiz em 02/10 e feita no mesmo dia: ~48 mil linhas lidas por seis
+revisores, 770 testes + 20 e2e verdes, smoke real contra o Postgres. Consolidado em
+`auditorias/2026-10-02/revisao-geral/00-RELATORIO.md`. Resultado: 0 críticos, 13
+altos reais (3 não procederam, 2 já mitigados), 71 médios. Decisões pendentes do
+Luiz: DPO, enquadramento da cópia anônima, quando migrar para Docker secrets, quem
+atende no Chatwoot. Ordem de correção em três rodadas está no relatório.
+
 ## Nosso Chatwoot no lugar do LendChat (02/10)
 
 Decisão do Luiz: o LendChat vai sair. O app vai para o nosso Chatwoot
