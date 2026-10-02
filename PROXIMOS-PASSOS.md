@@ -76,6 +76,26 @@ Independe dos degraus do site. Detalhes em `crystal-em-casa/README.md`.
 - Com as credenciais do passo 5: backup da AZAN, zona real, caixas de e-mail,
   prova venda a venda pelo Stape, e a cópia na Hostinger.
 
+## Nosso Chatwoot no lugar do LendChat (02/10)
+
+Decisão do Luiz: o LendChat vai sair. O app vai para o nosso Chatwoot
+(`atendimento.crystalnowpp.com.br`), com a nossa Crystal como robô e a equipe
+podendo assumir a conversa. Passo a passo em `crystal-em-casa/README.md`, seção
+"Ligar o nosso Chatwoot":
+
+1. DNS `atendimento.` cinza no Cloudflare.
+2. `atendimento-subir`, `atendimento-segredos` (Bitwarden), `atendimento-configurar TAG`
+   (o teste no fim tem que mostrar a resposta da Crystal), 2FA no primeiro login.
+3. `app-canal chatwoot` e conversa de teste no app; conferir que ela aparece no Chatwoot.
+
+Depois, sem pressa:
+- WhatsApp no nosso Chatwoot: precisa de quem controla o app da Meta e a BM do
+  número, um número de teste antes e o corte combinado com a agência (reversível).
+- Atendentes da equipe: convidar pelo Chatwoot (Configurações > Agentes), cada um
+  com 2FA.
+- Exclusão de conta também apagar o contato no Chatwoot (hoje a memória da Crystal
+  é apagada; a conversa fica no nosso Chatwoot, não mais num terceiro).
+
 ## Esperando o Tuan (agência), em 02/10
 
 Decisão do Luiz em 02/10: a "alma" da Crystal do app espera o material da
@@ -86,9 +106,9 @@ agência. Nada de improvisar método ou base de conhecimento até lá.
 2. **Base de conhecimento** (aulas e materiais da Letícia) e onde está guardada.
    Se estiver no Supabase a transferir, quais tabelas. Vai para
    `apps/crystal/conhecimento/` (até 60 mil caracteres; acima disso, busca por trechos).
-3. **Conserto do LendChat**: a caixa "Crystal App - Stage" dá 500 ao criar
-   conversa. Antes de voltar `CHAT_TRANSPORT=chatwoot`, conferir daqui que
-   criar conversa responde 200.
+3. ~~Conserto do LendChat~~: consertado em 02/10 (conferido daqui), mas o app
+   não volta para lá: o LendChat vai sair. Pedir ao Tuan para apagar o contato
+   de teste `diagnostico-crystal-app-3`.
 4. **Transferência do Supabase** (base de alunos e, talvez, a base de conhecimento).
 5. **Código do agente** no repositório `crystal-ia`, ainda vazio.
 

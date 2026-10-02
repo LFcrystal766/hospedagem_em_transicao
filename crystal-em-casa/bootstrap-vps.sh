@@ -26,7 +26,8 @@
 #   bash bootstrap-vps.sh backup-conferir      lista o que está no R2 e há quanto tempo foi o último
 #   bash bootstrap-vps.sh backup-testar-trava  tenta apagar um arquivo de teste no R2: tem que ser recusado
 #   bash bootstrap-vps.sh backup-link [TIPO]   link de 10 min para baixar o backup mais novo (teste de
-#                                              restauração no Mac). TIPO: n8n_queue (padrão), crystal_web_chat
+#                                              restauração no Mac). TIPO: n8n_queue (padrão), crystal_web_chat,
+#                                              crystal_uploads, chatwoot, chatwoot_storage
 #   bash bootstrap-vps.sh seguranca            atualização de segurança automática, fail2ban no SSH
 #                                              e relatório (senha no SSH, root, portas, pendências)
 #   bash bootstrap-vps.sh firewall             ufw: só 22, 80 e 443 de fora. As portas do Swarm
@@ -68,6 +69,18 @@
 #                                              chave sem aparecer) e o app apontando pra ela
 #   bash bootstrap-vps.sh crystal-provisoria-teste      uma pergunta de teste, pela API do app
 #   bash bootstrap-vps.sh crystal-provisoria-desligar   volta o app à Crystal simulada
+#
+# Atendimento (o nosso Chatwoot, no lugar do LendChat), em atendimento.crystalnowpp.com.br:
+#   bash bootstrap-vps.sh atendimento-subir    gera segredos (uma vez só) e sobe o Chatwoot
+#                                              (DNS atendimento. cinza antes)
+#   bash bootstrap-vps.sh atendimento-configurar TAG
+#                                              conta, admin (senha no less), inbox do app e a
+#                                              Crystal como robô; grava no app e testa
+#   bash bootstrap-vps.sh atendimento-teste    mensagem de teste na inbox; a Crystal responde
+#   bash bootstrap-vps.sh atendimento-status   serviços + HTTPS de atendimento.
+#   bash bootstrap-vps.sh atendimento-segredos mostra os segredos do Chatwoot pra copiar pro cofre
+#   bash bootstrap-vps.sh app-canal chatwoot   o app passa a conversar pelo nosso Chatwoot
+#                                              (app-canal crystal volta para a Crystal direto)
 #   bash bootstrap-vps.sh app-recomecar TAG --confirmo
 #                                              só com o banco do app VAZIO: apaga o banco e
 #                                              troca todos os segredos do app (vazaram?)
@@ -83,6 +96,8 @@
 #                                nunca podem mudar: sem eles o banco do app fica ilegível
 #   /root/crystal/app/.externos  valores de fora (Resend, Crystal, base de clientes)
 #   /root/crystal/app/*.env      o que a API e o Postgres do app leem (regerados a cada subida)
+#   /root/crystal/atendimento/   segredos (.segredos, chmod 600) e .env do Chatwoot.
+#                                SECRET_KEY_BASE e ACTIVE_RECORD_ENCRYPTION_* nunca mudam
 #
 # O que ele NÃO faz: não instala Docker, não inicia o Swarm, não cria rede nem
 # volumes. Isso já foi feito à mão em 29/09 e o script só confere.
@@ -302,7 +317,24 @@ backup() {
     ok "uploads do app em $arq ($(du -h "$arq" | cut -f1))"
     novos+=("$arq")
   fi
-  find "$dir" -maxdepth 1 \( -name 'n8n_queue-*' -o -name 'crystal_web_chat-*' -o -name 'crystal_uploads-*' \) -mtime +14 -delete
+  # O nosso Chatwoot (conversas da equipe e anexos), se estiver no ar. Segredos
+  # guardados no banco só se leem com as ACTIVE_RECORD_ENCRYPTION_* do cofre.
+  cid=$(docker ps -q -f name=crystal_atendimento_cw_postgres | head -1)
+  if [ -n "$cid" ]; then
+    arq="$dir/chatwoot-$ts.sql.gz"
+    docker exec "$cid" pg_dump -U chatwoot -d chatwoot --no-owner | gzip > "$arq" || falha "pg_dump do Chatwoot falhou"
+    [ -s "$arq" ] || falha "dump do Chatwoot vazio em $arq"
+    ok "backup do Chatwoot em $arq ($(du -h "$arq" | cut -f1))"
+    novos+=("$arq")
+  fi
+  up=/var/lib/docker/volumes/crystal_atendimento_cw_storage/_data
+  if [ -d "$up" ]; then
+    arq="$dir/chatwoot_storage-$ts.tar.gz"
+    tar -C "$up" -czf "$arq" . || falha "tar dos anexos do Chatwoot falhou"
+    ok "anexos do Chatwoot em $arq ($(du -h "$arq" | cut -f1))"
+    novos+=("$arq")
+  fi
+  find "$dir" -maxdepth 1 \( -name 'n8n_queue-*' -o -name 'crystal_web_chat-*' -o -name 'crystal_uploads-*' -o -name 'chatwoot-*' -o -name 'chatwoot_storage-*' \) -mtime +14 -delete
   echo "  $(find "$dir" -maxdepth 1 -name '*.gz' | wc -l) arquivo(s) na VPS (14 dias)"
 
   if [ -s "$FORA_CONF" ] && [ -s "$FORA_DEST" ]; then
@@ -451,7 +483,8 @@ backup_fora_config() {
 # está cifrado; mesmo assim, não colar em chat.
 backup_link() {
   local tipo="${1:-n8n_queue}" xml code
-  echo "$tipo" | grep -Eq '^(n8n_queue|crystal_web_chat|crystal_uploads)$' || falha "tipo: n8n_queue, crystal_web_chat ou crystal_uploads"
+  echo "$tipo" | grep -Eq '^(n8n_queue|crystal_web_chat|crystal_uploads|chatwoot|chatwoot_storage)$' \
+    || falha "tipo: n8n_queue, crystal_web_chat, crystal_uploads, chatwoot ou chatwoot_storage"
   fora_ler_conf
   xml=$(mktemp)
   code=$(fora_curl -o "$xml" -w '%{http_code}' "$R2_URL?list-type=2&prefix=$FORA_PREFIXO") || code=000
@@ -830,7 +863,7 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   DIRECTORY_API_KEY* DIRECTORY_API_PATH DIRECTORY_API_AUTH_HEADER META_ACCESS_TOKEN*
   META_PHONE_NUMBER_ID ALERT_WEBHOOK_URL* SENTRY_DSN VAPID_SUBJECT
   CHAT_TRANSPORT CHATWOOT_BASE_URL CHATWOOT_INBOX_IDENTIFIER CHATWOOT_INBOX_HMAC_TOKEN*
-  CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS
+  CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS CHATWOOT_ACCOUNT_ID CHATWOOT_BOT_TOKEN* CHATWOOT_BOT_SECRET*
   SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY* SUPABASE_LOGIN_RPC
   REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL CRYSTAL_MODEL_RESERVA
   ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*)
@@ -886,7 +919,7 @@ app_definir() {
   case "$nome" in
     CHAT_TRANSPORT)
       v=$(printf '%s' "$v" | tr 'A-Z' 'a-z' | tr -d ' ')
-      case "$v" in crystal|chatwoot) ;; *) falha "digite só crystal (a nossa Crystal responde) ou chatwoot (LendChat). Nada gravado" ;; esac ;;
+      case "$v" in crystal|chatwoot) ;; *) falha "digite só crystal (a nossa Crystal direto) ou chatwoot (pelo nosso Chatwoot; prefira: app-canal chatwoot). Nada gravado" ;; esac ;;
     ANDROID_CERT_SHA256)
       v=$(printf '%s' "$v" | tr 'a-f' 'A-F' | tr -d ' ')
       printf '%s' "$v" | grep -Eq '^([0-9A-F]{2}(:[0-9A-F]{2}){31})(,[0-9A-F]{2}(:[0-9A-F]{2}){31})*$' \
@@ -1449,7 +1482,12 @@ vigia() {
   while read -r linha; do
     set -- $linha
     [ "${2%%/*}" = "${2##*/}" ] || problemas+=("serviço $1 com $2 réplicas")
-  done < <(docker service ls --filter "name=${APP_STACK}_" --format '{{.Name}} {{.Replicas}}' 2>/dev/null)
+  done < <(docker service ls --filter "name=${APP_STACK}_" --filter "name=${CW_STACK}_" --format '{{.Name}} {{.Replicas}}' 2>/dev/null)
+  # O nosso Chatwoot, se estiver no ar.
+  if docker service inspect "${CW_STACK}_cw_rails" >/dev/null 2>&1; then
+    code=$(curl -s -o /dev/null -m 20 -w '%{http_code}' "https://$CW_HOST/api" || true)
+    [ "$code" = "200" ] || problemas+=("https://$CW_HOST/api respondeu ${code:-sem resposta}")
+  fi
   falhas=$(docker service logs --since 6m "${APP_STACK}_app_api" 2>&1 | grep -E 'crystal: resposta falhou|canal: envio para a inbox falhou' || true)
   if [ -n "$falhas" ]; then
     resumo=$(printf '%s\n' "$falhas" | grep -oE '"code":"[A-Z_]+"(,"(status|motivo)":("[^"]*"|[0-9]+|null))?' | sort | uniq -c | sort -rn | head -3 | tr -s ' ' | tr '\n' ';')
@@ -1458,7 +1496,8 @@ vigia() {
   # Uma vez por hora: a Crystal responde de verdade e o crédito do OpenRouter está ok.
   if [ $((10#$(date +%M))) -lt 5 ]; then
     cid=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
-    if [ -n "$cid" ] && [ "$(app_valor "$APP_EXT" CHAT_TRANSPORT)" != "chatwoot" ]; then
+    # Pelo nosso Chatwoot a API também chama a Crystal (robô): o teste vale nos dois canais.
+    if [ -n "$cid" ] && [ -n "$(app_valor "$APP_EXT" CRYSTAL_API_URL)" ]; then
       r=$(docker exec "$cid" node -e '
         fetch(process.env.CRYSTAL_API_URL + process.env.CRYSTAL_API_PATH, { method: "POST",
           headers: { authorization: "Bearer " + process.env.CRYSTAL_API_KEY, "content-type": "application/json" },
@@ -1501,6 +1540,371 @@ Na VPS: bash bootstrap-vps.sh crystal-nossa-teste"; then
   if [ -f "$VIGIA_LOG" ] && [ "$(wc -l < "$VIGIA_LOG")" -gt 1000 ]; then
     tail -500 "$VIGIA_LOG" > "$VIGIA_LOG.tmp" && mv "$VIGIA_LOG.tmp" "$VIGIA_LOG"
   fi
+}
+
+# ================================================================== ATENDIMENTO
+# O nosso Chatwoot CE (stacks-app/20-atendimento.yaml) em atendimento., no lugar
+# do LendChat. A Crystal responde como robô (agent bot) pela API do app
+# (/webhooks/chatwoot-bot). Segredos gerados aqui, uma vez só, em $CW_SEG.
+# SECRET_KEY_BASE e as três chaves ACTIVE_RECORD_ENCRYPTION_* NUNCA mudam depois
+# de o Chatwoot ter dado: sem elas, 2FA e segredos guardados ficam ilegíveis.
+CW_DIR="$BASE/atendimento"
+CW_SEG="$CW_DIR/.segredos"
+CW_YAML=20-atendimento.yaml
+CW_STACK=crystal_atendimento
+CW_VERSAO=v4.18.0-ce
+CW_HOST="atendimento.$DOMINIO"
+CW_CONTA="Crystal"
+CW_INBOX="App da Crystal"
+
+cw_rails() { # id do contêiner do Rails do Chatwoot
+  docker ps -q -f name=${CW_STACK}_cw_rails | head -1
+}
+
+# Roda Ruby no Chatwoot (rails runner). O código vai pela entrada padrão; valores,
+# pelo ambiente do docker exec (-e NOME, sem valor na linha de comando).
+# Saída útil só nas linhas "CW_OUT NOME=valor".
+cw_ruby() { # cw_ruby [NOME_DE_VARIAVEL...] < codigo.rb
+  local cid args=() v
+  cid=$(cw_rails); [ -n "$cid" ] || falha "o Chatwoot não está rodando: bash $0 atendimento-subir"
+  for v in "$@"; do args+=(-e "$v"); done
+  docker exec -i "${args[@]}" "$cid" sh -c \
+    'f=$(mktemp /tmp/cw-XXXXXX.rb); cat > "$f"; RAILS_LOG_TO_STDOUT= bundle exec rails runner "$f" 2>&1; r=$?; rm -f "$f"; exit $r'
+}
+
+cw_gerar_segredos() {
+  mkdir -p "$CW_DIR"; chmod 700 "$CW_DIR"
+  umask 077
+  if [ -f "$CW_SEG" ]; then ok "segredos do atendimento já existem em $CW_SEG (mantidos)"; return 0; fi
+  {
+    echo "CW_DB_SENHA=$(openssl rand -hex 24)"
+    echo "CW_REDIS_SENHA=$(openssl rand -hex 24)"
+    echo "SECRET_KEY_BASE=$(openssl rand -hex 64)"
+    echo "ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY=$(openssl rand -hex 16)"
+    echo "ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY=$(openssl rand -hex 16)"
+    echo "ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT=$(openssl rand -hex 16)"
+    echo "CRIADO_EM=$(date -u +%FT%TZ)"
+  } > "$CW_SEG"
+  chmod 600 "$CW_SEG"
+  ok "segredos do atendimento gerados em $CW_SEG. Copie pro cofre: bash $0 atendimento-segredos"
+}
+
+cw_gerar_env() {
+  local db redis
+  db=$(app_valor "$CW_SEG" CW_DB_SENHA); redis=$(app_valor "$CW_SEG" CW_REDIS_SENHA)
+  [ -n "$db" ] && [ -n "$redis" ] || falha "senhas ausentes em $CW_SEG"
+  umask 077
+  {
+    echo "POSTGRES_DB=chatwoot"
+    echo "POSTGRES_USER=chatwoot"
+    echo "POSTGRES_PASSWORD=$db"
+    echo "POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256"
+  } > "$CW_DIR/postgres.env"
+  echo "REDIS_PASSWORD=$redis" > "$CW_DIR/redis.env"
+  {
+    echo "# Gerado por bootstrap-vps.sh em $(date -u +%FT%TZ). Não editar: é regravado a cada atendimento-subir."
+    echo "FRONTEND_URL=https://$CW_HOST"
+    echo "DEFAULT_LOCALE=pt_BR"
+    # O Traefik termina o TLS; com FORCE_SSL o Rails redirecionaria em círculo.
+    echo "FORCE_SSL=false"
+    echo "ENABLE_ACCOUNT_SIGNUP=false"
+    echo "POSTGRES_HOST=cw_postgres"
+    echo "POSTGRES_PORT=5432"
+    echo "POSTGRES_USERNAME=chatwoot"
+    echo "POSTGRES_PASSWORD=$db"
+    echo "POSTGRES_DATABASE=chatwoot"
+    echo "REDIS_URL=redis://cw_redis:6379"
+    echo "REDIS_PASSWORD=$redis"
+    echo "RAILS_LOG_TO_STDOUT=true"
+    echo "LOG_LEVEL=info"
+    echo "ACTIVE_STORAGE_SERVICE=local"
+    # Nada sai para os servidores do Chatwoot: sem telemetria e sem o relay do app deles.
+    echo "DISABLE_TELEMETRY=true"
+    echo "ENABLE_PUSH_RELAY_SERVER=false"
+    grep -E '^(SECRET_KEY_BASE|ACTIVE_RECORD_ENCRYPTION_[A-Z_]+)=' "$CW_SEG"
+    # E-mail (convite de atendente, troca de senha) pelo SMTP do Resend, com o
+    # mesmo remetente do app. Sem a chave, o Chatwoot fica sem e-mail.
+    local chave remetente
+    chave=$(app_valor "$APP_EXT" RESEND_API_KEY); remetente=$(app_valor "$APP_EXT" EMAIL_FROM)
+    if [ -n "$chave" ] && [ -n "$remetente" ]; then
+      echo "MAILER_SENDER_EMAIL=$remetente"
+      echo "SMTP_DOMAIN=$DOMINIO"
+      echo "SMTP_ADDRESS=smtp.resend.com"
+      echo "SMTP_PORT=587"
+      echo "SMTP_USERNAME=resend"
+      echo "SMTP_PASSWORD=$chave"
+      echo "SMTP_AUTHENTICATION=login"
+      echo "SMTP_ENABLE_STARTTLS_AUTO=true"
+    fi
+  } > "$CW_DIR/chatwoot.env"
+  chmod 600 "$CW_DIR/postgres.env" "$CW_DIR/redis.env" "$CW_DIR/chatwoot.env"
+  unset db redis
+  grep -q '^SMTP_PASSWORD=' "$CW_DIR/chatwoot.env" && ok "e-mail do Chatwoot pelo Resend" \
+    || aviso "Chatwoot sem e-mail (falta RESEND_API_KEY/EMAIL_FROM do app): convite de atendente não chega"
+}
+
+atendimento_subir() {
+  [ "$(docker info --format '{{.Swarm.ControlAvailable}}')" = "true" ] || falha "este nó não é manager do Swarm"
+  docker network inspect network_swarm_public >/dev/null 2>&1 || falha "rede network_swarm_public não existe"
+  docker service ls --format '{{.Name}}' | grep -q '^traefik_traefik$' || aviso "Traefik não encontrado: sem ele $CW_HOST não responde"
+  local ip ips
+  ip=$(getent ahostsv4 "$CW_HOST" 2>/dev/null | awk 'NR==1{print $1}')
+  [ -n "$ip" ] || falha "$CW_HOST ainda não existe no DNS. Crie no Cloudflare: tipo A, nome atendimento, IP desta VPS, nuvem CINZA (Somente DNS)"
+  hostname -I | tr ' ' '\n' | grep -qxF "$ip" \
+    || falha "$CW_HOST aponta para $ip, que não é esta VPS. Nuvem LARANJA? Deixe CINZA (Somente DNS): o certificado é emitido aqui"
+  ok "$CW_HOST -> $ip"
+
+  echo "== imagem chatwoot/chatwoot:$CW_VERSAO (uns 2 minutos na primeira vez)"
+  docker pull -q "chatwoot/chatwoot:$CW_VERSAO" >/dev/null || falha "não baixou chatwoot/chatwoot:$CW_VERSAO"
+  ok "imagem baixada"
+
+  echo "== segredos e ambiente"
+  cw_gerar_segredos
+  cw_gerar_env
+
+  echo "== stack"
+  mkdir -p "$ORIG" "$STACKS"; chmod 700 "$BASE" "$STACKS"
+  if [ -f "$AQUI/stacks-app/$CW_YAML" ]; then
+    cp "$AQUI/stacks-app/$CW_YAML" "$ORIG/$CW_YAML"
+  else
+    curl -fsSL -m 60 "$APP_RAW/$CW_YAML" -o "$ORIG/$CW_YAML" || falha "não baixou $CW_YAML de $APP_RAW"
+  fi
+  grep -q '^services:' "$ORIG/$CW_YAML" || falha "$CW_YAML não parece um compose"
+  # Console de super admin: só os IPs do painel. Sem lista, só a própria VPS (fechado).
+  ips=127.0.0.1/32
+  [ -s "$PAINEL_IPS_ARQ" ] && ips=$(paste -sd, "$PAINEL_IPS_ARQ")
+  umask 077
+  sed -e "s|CW_VERSAO|$CW_VERSAO|g" -e "s|CW_ENV_DIR|$CW_DIR|g" -e "s|CW_IPS_ADMIN|$ips|g" "$ORIG/$CW_YAML" > "$STACKS/$CW_YAML"
+  grep -nE 'CW_VERSAO|CW_ENV_DIR|CW_IPS_ADMIN' "$STACKS/$CW_YAML" | grep -vE '^\s*[0-9]+:\s*#' | grep -q . && falha "marcador sobrando em $CW_YAML"
+  docker stack deploy -c "$STACKS/$CW_YAML" "$CW_STACK" --detach=true >/dev/null
+  sleep 8
+  echo "  na primeira vez o Chatwoot cria o banco inteiro: até 10 minutos"
+  esperar_stack "$CW_STACK" 600 || { echo "  Logs: docker service logs --tail 80 ${CW_STACK}_cw_rails"; exit 1; }
+  echo
+  atendimento_status
+  echo
+  if [ -z "$(app_valor "$APP_EXT" CHATWOOT_BOT_TOKEN)" ]; then
+    echo "Próximo: bash $0 atendimento-configurar"
+  fi
+}
+
+atendimento_status() {
+  echo "== Serviços do atendimento"
+  docker service ls --filter "label=com.docker.stack.namespace=$CW_STACK" --format '{{.Name}} {{.Replicas}} {{.Image}}' \
+    | awk '{printf "  %-34s %-5s %s\n",$1,$2,$3}'
+  local code t=0
+  while :; do
+    code=$(curl -s -o /dev/null -m 20 -w '%{http_code}' "https://$CW_HOST/api" 2>/dev/null) || true
+    [ "$code" = "200" ] || [ $t -ge 120 ] && break
+    sleep 10; t=$((t+10))
+  done
+  case "${code:-000}" in
+    200) ok "https://$CW_HOST/api -> 200 (certificado válido)" ;;
+    000) aviso "https://$CW_HOST sem resposta ou certificado inválido (DNS cinza? Traefik ainda emitindo? tente de novo em 2 min)" ;;
+    *) aviso "https://$CW_HOST/api -> $code" ;;
+  esac
+}
+
+atendimento_segredos() {
+  [ -f "$CW_SEG" ] || falha "ainda não há segredos: bash $0 atendimento-subir"
+  if [ -t 1 ] && command -v less >/dev/null; then
+    {
+      echo "Segredos do Chatwoot (atendimento.). Copie pro Bitwarden, item 'Chatwoot VPS'."
+      echo "SECRET_KEY_BASE e as três ACTIVE_RECORD_ENCRYPTION_* NUNCA podem mudar."
+      echo "Aperte q pra fechar: os valores somem da tela e não vão pro histórico."
+      echo
+      grep -vE '^CRIADO_EM=' "$CW_SEG"
+    } | less -K
+  else
+    echo "rode num terminal para ver os segredos"
+  fi
+}
+
+# Conta, admin, inbox de API do app e o robô (a Crystal). Idempotente: rodar de
+# novo confere e devolve os mesmos valores; a senha do admin só nasce na primeira
+# vez (--nova-senha troca). Grava no app os valores do canal e do robô e sobe a API
+# com a TAG (a imagem precisa ter a rota /webhooks/chatwoot-bot; sem TAG, a que roda).
+# O app continua na nossa Crystal direta até: bash bootstrap-vps.sh app-canal chatwoot
+atendimento_configurar() {
+  local nova="" tag="" a email nome senha="" saida v
+  shift
+  for a in "$@"; do
+    case "$a" in
+      --nova-senha) nova=$a ;;
+      sha-[0-9a-f]*|v[0-9]*) tag=$a ;;
+      *) falha "uso: bash $0 atendimento-configurar [TAG_DO_APP] [--nova-senha]" ;;
+    esac
+  done
+  [ -n "$tag" ] || tag=$(app_tag_atual)
+  echo "$tag" | grep -Eq '^(sha-[0-9a-f]{7}|v[0-9][0-9A-Za-z.-]*)$' || falha "tag do app inválida: $tag"
+  [ -n "$(cw_rails)" ] || falha "o Chatwoot não está rodando: bash $0 atendimento-subir"
+  [ -f "$APP_SEG" ] || falha "o app ainda não subiu: bash $0 app-subir TAG"
+  email=$(app_valor "$CW_SEG" ADMIN_EMAIL)
+  if [ -z "$email" ]; then
+    read -rp "E-mail do administrador do Chatwoot (você): " email
+    echo "$email" | grep -Eq '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$' || falha "e-mail inválido"
+    read -rp "Nome que aparece para a equipe: " nome
+    [ -n "$nome" ] || falha "nome vazio"
+  else
+    nome=""
+    ok "administrador: $email"
+  fi
+  if [ -z "$(app_valor "$CW_SEG" ADMIN_EMAIL)" ] || [ "$nova" = "--nova-senha" ]; then
+    # Maiúscula, minúscula, número e símbolo: o Chatwoot exige os quatro.
+    senha=$(python3 -c 'import secrets,string; a=string.ascii_letters+string.digits; print("".join(secrets.choice(a) for _ in range(20))+"Aa7!")')
+  fi
+
+  echo "== conta, administrador, inbox do app e robô (leva uns 40 s)"
+  saida=$(CW_EMAIL="$email" CW_NOME="$nome" CW_SENHA="$senha" CW_CONTA="$CW_CONTA" CW_INBOX="$CW_INBOX" \
+    CW_WEBHOOK_APP="https://api.$DOMINIO/webhooks/chatwoot" CW_WEBHOOK_ROBO="https://api.$DOMINIO/webhooks/chatwoot-bot" \
+    cw_ruby CW_EMAIL CW_NOME CW_SENHA CW_CONTA CW_INBOX CW_WEBHOOK_APP CW_WEBHOOK_ROBO <<'RUBY'
+conta = Account.find_or_create_by!(name: ENV.fetch("CW_CONTA")) { |a| a.locale = "pt_BR" }
+
+user = User.find_or_initialize_by(email: ENV.fetch("CW_EMAIL").downcase)
+senha = ENV["CW_SENHA"].to_s
+if user.new_record?
+  user.name = ENV.fetch("CW_NOME")
+  user.type = "SuperAdmin"
+  user.confirmed_at = Time.current
+end
+unless senha.empty?
+  user.password = senha
+  user.password_confirmation = senha
+end
+user.save!
+AccountUser.find_or_create_by!(account: conta, user: user) { |au| au.role = :administrator }
+
+inbox = conta.inboxes.find_by(name: ENV.fetch("CW_INBOX"))
+unless inbox
+  canal = Channel::Api.create!(account: conta, webhook_url: ENV.fetch("CW_WEBHOOK_APP"), hmac_mandatory: true)
+  inbox = conta.inboxes.create!(name: ENV.fetch("CW_INBOX"), channel: canal)
+end
+inbox.channel.update!(webhook_url: ENV.fetch("CW_WEBHOOK_APP"), hmac_mandatory: true)
+
+robo = AgentBot.find_or_initialize_by(account_id: conta.id, name: "Crystal")
+robo.description = "A Crystal responde pela API do app (webhooks/chatwoot-bot)"
+robo.outgoing_url = ENV.fetch("CW_WEBHOOK_ROBO")
+robo.save!
+ligacao = AgentBotInbox.find_or_initialize_by(inbox_id: inbox.id)
+ligacao.agent_bot = robo
+ligacao.status = :active
+ligacao.save!
+
+canal = inbox.channel.reload
+raise "inbox sem segredo de webhook" if canal.secret.blank?
+raise "robô sem segredo" if robo.secret.blank?
+raise "robô sem token" if robo.access_token&.token.blank?
+puts "CW_OUT CHATWOOT_ACCOUNT_ID=#{conta.id}"
+puts "CW_OUT CHATWOOT_INBOX_IDENTIFIER=#{canal.identifier}"
+puts "CW_OUT CHATWOOT_INBOX_HMAC_TOKEN=#{canal.hmac_token}"
+puts "CW_OUT CHATWOOT_WEBHOOK_SECRET=#{canal.secret}"
+puts "CW_OUT CHATWOOT_BOT_TOKEN=#{robo.access_token.token}"
+puts "CW_OUT CHATWOOT_BOT_SECRET=#{robo.secret}"
+puts "CW_OUT OK=1"
+RUBY
+) || { saida=""; falha "a configuração no Chatwoot falhou. Ver: docker service logs --tail 80 ${CW_STACK}_cw_rails"; }
+  printf '%s\n' "$saida" | grep -q '^CW_OUT OK=1$' || { saida=""; falha "o Chatwoot não confirmou a configuração"; }
+
+  # Valores do LendChat guardados uma vez, para consulta (não voltam sozinhos).
+  if [ -f "$APP_EXT" ] && [ ! -f "$APP_DIR/.externos.lendchat" ] && grep -q '^CHATWOOT_BASE_URL=' "$APP_EXT" \
+     && ! grep -q "^CHATWOOT_BASE_URL=https://$CW_HOST\$" "$APP_EXT"; then
+    umask 077; grep -E '^CHATWOOT_' "$APP_EXT" > "$APP_DIR/.externos.lendchat"
+    ok "valores antigos do LendChat guardados em $APP_DIR/.externos.lendchat"
+  fi
+  app_gravar CHATWOOT_BASE_URL "https://$CW_HOST"
+  for v in CHATWOOT_ACCOUNT_ID CHATWOOT_INBOX_IDENTIFIER CHATWOOT_INBOX_HMAC_TOKEN CHATWOOT_WEBHOOK_SECRET CHATWOOT_BOT_TOKEN CHATWOOT_BOT_SECRET; do
+    app_gravar "$v" "$(printf '%s\n' "$saida" | sed -n "s/^CW_OUT $v=//p" | tail -1)"
+  done
+  saida=""
+  ok "canal e robô gravados no app (sem aparecer na tela)"
+  if [ -z "$(app_valor "$CW_SEG" ADMIN_EMAIL)" ]; then
+    umask 077; echo "ADMIN_EMAIL=$email" >> "$CW_SEG"
+  fi
+
+  if [ -n "$senha" ]; then
+    if [ -t 1 ] && command -v less >/dev/null; then
+      {
+        echo "LOGIN DO CHATWOOT (guarde no Bitwarden, item 'Chatwoot VPS'). Não cole em chat."
+        echo
+        echo "Endereço: https://$CW_HOST"
+        echo "E-mail:   $email"
+        echo "Senha:    $senha"
+        echo
+        echo "No primeiro login: Perfil > Senha e segurança > ligar a verificação em duas etapas (2FA)."
+        echo "Aperte q para fechar."
+      } | less -K
+    else
+      aviso "rode num terminal para ver a senha (ou: bash $0 atendimento-configurar --nova-senha)"
+    fi
+    senha=""
+  fi
+
+  echo "== API do app ($tag) com o robô ligado"
+  app_subir app-subir "$tag"
+  echo
+  atendimento_teste
+}
+
+# Teste de ponta a ponta sem passar pelo app: um contato de teste escreve na inbox
+# do app e a Crystal tem que responder como robô em até 90 s.
+atendimento_teste() {
+  [ -n "$(app_valor "$APP_EXT" CHATWOOT_INBOX_IDENTIFIER)" ] || falha "ainda não configurado: bash $0 atendimento-configurar"
+  echo "== teste: mensagem na inbox do app, a Crystal responde como robô"
+  python3 - "$APP_EXT" "$CW_HOST" <<'PY' && ok "a Crystal respondeu pelo Chatwoot" \
+    || { aviso "não respondeu. Ver: docker service logs --since 5m ${APP_STACK}_app_api | grep -i chatwoot"; return 1; }
+import hashlib, hmac, json, sys, time, urllib.request
+conf = dict(l.rstrip("\n").split("=", 1) for l in open(sys.argv[1]) if "=" in l)
+base = f"https://{sys.argv[2]}/public/api/v1/inboxes/{conf['CHATWOOT_INBOX_IDENTIFIER']}"
+def chamar(metodo, caminho, corpo=None):
+    req = urllib.request.Request(base + caminho, method=metodo, headers={"content-type": "application/json", "accept": "application/json"},
+                                 data=None if corpo is None else json.dumps(corpo).encode())
+    with urllib.request.urlopen(req, timeout=20) as r:
+        return json.loads(r.read() or b"null")
+ident = "teste-atendimento"
+hash_ = hmac.new(conf["CHATWOOT_INBOX_HMAC_TOKEN"].encode(), ident.encode(), hashlib.sha256).hexdigest()
+contato = chamar("POST", "/contacts", {"identifier": ident, "identifier_hash": hash_, "name": "Teste do bootstrap (ignorar)"})
+src = contato["source_id"]
+conversa = chamar("POST", f"/contacts/{src}/conversations", {})
+cid = conversa["id"]
+chamar("POST", f"/contacts/{src}/conversations/{cid}/messages", {"content": "Oi, Crystal. Responda só: teste ok."})
+fim = time.time() + 90
+while time.time() < fim:
+    time.sleep(5)
+    msgs = chamar("GET", f"/contacts/{src}/conversations/{cid}/messages")
+    saida = [m for m in (msgs or []) if m.get("message_type") in (1, "outgoing")]
+    if saida:
+        print("  resposta:", (saida[-1].get("content") or "")[:160].replace("\n", " "))
+        sys.exit(0)
+print("  sem resposta em 90 s")
+sys.exit(1)
+PY
+}
+
+# Por onde o app conversa: crystal (a nossa Crystal direto, sem Chatwoot) ou
+# chatwoot (pelo nosso Chatwoot, com a equipe vendo e podendo assumir). Volta é
+# o mesmo comando com o outro valor.
+app_canal() {
+  local canal="${2:-}" pg
+  case "$canal" in
+    crystal) ;;
+    chatwoot)
+      [ -n "$(app_valor "$APP_EXT" CHATWOOT_BOT_TOKEN)" ] || falha "o nosso Chatwoot ainda não está configurado: bash $0 atendimento-configurar"
+      [ "$(app_valor "$APP_EXT" CHATWOOT_BASE_URL)" = "https://$CW_HOST" ] || falha "CHATWOOT_BASE_URL não é o nosso Chatwoot: bash $0 atendimento-configurar" ;;
+    *) falha "uso: bash $0 app-canal chatwoot   (ou crystal para voltar)" ;;
+  esac
+  app_gravar CHAT_TRANSPORT "$canal"
+  if [ "$canal" = "chatwoot" ]; then
+    # Vínculos antigos apontam para contatos do LendChat: o app refaz no nosso.
+    pg=$(docker ps -q -f name=${APP_STACK}_app_postgres | head -1)
+    [ -n "$pg" ] && docker exec -i "$pg" psql -q -U crystal -d crystal_web_chat \
+      -c "update conversations set channel_source_id = null, channel_conversation_id = null where channel_source_id is not null" >/dev/null \
+      && ok "vínculos antigos com a inbox desfeitos"
+  fi
+  app_subir app-subir "$(app_tag_atual)"
+  echo
+  ok "app conversando por: $canal. Teste no app: https://app.$DOMINIO"
+  [ "$canal" = "chatwoot" ] && echo "  A conversa aparece em https://$CW_HOST (Conversas > Pendentes)."
+  return 0
 }
 
 # ------------------------------------------------------------------ Crystal provisória
@@ -1666,6 +2070,12 @@ case "$CMD" in
   app-status) app_status ;;
   app-admin) app_admin ;;
   vigia-config) vigia_config ;;
+  atendimento-subir) atendimento_subir ;;
+  atendimento-status) atendimento_status ;;
+  atendimento-configurar) atendimento_configurar "$@" ;;
+  atendimento-teste) atendimento_teste ;;
+  atendimento-segredos) atendimento_segredos ;;
+  app-canal) app_canal "$@" ;;
   vigia) vigia ;;
   app-aluno) app_aluno ;;
   app-segredos) app_segredos ;;

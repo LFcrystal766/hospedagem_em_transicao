@@ -64,7 +64,8 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | Respostas da agência | Compute size do Supabase, qual chave do OpenRouter o agente usa hoje, como o agente atende um canal que não é o LendChat, onde está a base de clientes |
 | Código do agente | **Não chegou.** `LFcrystal766/crystal-ia` vazio em 29/09 às 03:00 |
 | App web | Repositório `LFcrystal766/crystal-web-chat`, transferido do Igor em 29/09. Avaliação em `app-web-chat.md` |
-| Canal do app (01/10) | **Nossa Crystal respondendo no app** (`CHAT_TRANSPORT=crystal`, imagem `sha-5436c9d`: nova tentativa no modelo e fastify 5.12.5). O LendChat ficou em espera: a caixa "Crystal App - Stage" dá 500 ao criar conversa pela API pública (contato e listagem funcionam). Pedido ao Tuan em 01/10. Quando consertarem: `app-definir CHAT_TRANSPORT` = `chatwoot` e `app-subir`. Conta do Luiz criada com `app-aluno` (CPF final 4906) |
+| Canal do app (02/10) | **Nossa Crystal respondendo no app** (`CHAT_TRANSPORT=crystal`, desde 01/10). O LendChat foi consertado pelo Tuan em 02/10 (criar conversa 200, conferido daqui), mas **não volta**: o LendChat vai sair. Destino do app: o **nosso Chatwoot** (linha abaixo), com `app-canal chatwoot`. Conta do Luiz criada com `app-aluno` (CPF final 4906) |
+| Atendimento (nosso Chatwoot) | **Pronto para subir em 02/10**: Chatwoot CE `v4.18.0-ce` em `atendimento.` (stack `crystal_atendimento`, `stacks-app/20-atendimento.yaml`), Postgres e Redis próprios numa rede interna, cadastro aberto desligado, telemetria desligada, 2FA disponível (chaves de cifra geradas na VPS), `/super_admin` só para os IPs do painel. A Crystal responde como **robô** do Chatwoot pela API do app (`/webhooks/chatwoot-bot`, assinado; imagem `sha-44f356b` ou mais nova): responde nas conversas pendentes e para quando alguém da equipe escreve, quando o aluno pede uma pessoa ou quando falha. Inbox do app com HMAC de identidade obrigatório. Backup e vigia já incluem o Chatwoot. Falta: DNS `atendimento.` cinza e os comandos da seção "Ligar o nosso Chatwoot". WhatsApp fica para depois (BM da Meta e corte com a agência) |
 | Vigia do app | Desde 01/10 (`vigia-config`): a cada 5 min confere app, API, réplicas e falhas de resposta no log; de hora em hora testa a nossa Crystal e o crédito do OpenRouter (avisa abaixo de US$ 5). Avisa no grupo Telegram `Crystal · Alertas`, repete o mesmo problema só depois de 1 h e avisa quando normaliza. Token do bot em `/root/crystal/.vigia` (600). Log em `/root/crystal/vigia.log` |
 | Lojas (preparo) | **Pronto em 30/09, falta só conta e chave**: telas das lojas (iPhone 6,9"/6,5", Android, banner), ícones rosa, textos e formulários de privacidade em `crystal-web-chat/docs/lojas/`. Android: `.aab` pelo workflow `android-aab` (compila no GitHub; falta a chave de envio nos segredos). iOS: projeto do Xcode com Firebase, Face ID e links universais, compila no workflow `ios` (falta conta Apple e projeto Firebase). Na VPS, quando houver: `app-definir ANDROID_CERT_SHA256`, `APPLE_TEAM_ID`, `FCM_PROJECT_ID`, `FCM_SERVICE_ACCOUNT_JSON`. Termos com empresa (LF Produtora de Conteúdo, CNPJ 39.583.272/0001-05) e foro de Florianópolis; falta revisão jurídica |
 | Exclusão de conta | Desde 30/09 (commit `a73fbe3` do app): o aluno exclui a conta pelo app; conta, mensagens e perfil somem, e a conversa e a experiência ficam numa **cópia anônima** (tabela `anonymous_conversations`, migração 13): sem id, nome, contatos, CPF ou data exata, texto redigido e cifrado com a `ENCRYPTION_KEY`. Política, `/excluir-conta` e notas das lojas já dizem isso. Pendente: revisão jurídica do desenho |
@@ -295,24 +296,38 @@ memória entre turnos, contatos de ajuda acrescentados, chave errada recusada,
 nenhum id no pedido ao modelo, texto cifrado no banco, log sem conteúdo, papel
 sem acesso ao banco do app.
 
-## Ligar o canal do LendChat no app
+## Ligar o nosso Chatwoot (atendimento.)
 
-O app já sabe falar com uma inbox de API no formato do Chatwoot
-(`CHAT_TRANSPORT=chatwoot`). Com a inbox criada do nosso lado no LendChat:
+O LendChat vai sair; o app passa a conversar pelo nosso Chatwoot, onde a equipe vê
+as conversas e pode assumir. A Crystal continua a nossa (`app_crystal`), agora como
+robô do Chatwoot.
+
+1. No Cloudflare, zona crystalnowpp.com.br: registro **A**, nome `atendimento`,
+   IP `177.7.61.136`, **Somente DNS (nuvem cinza)**. Ou, com token:
+   `scripts/cloudflare-crystal-vps-dns.sh criar --aplicar`.
+2. Na VPS, um comando de cada vez (REF = commit deste repositório):
 
 ```bash
-bash bootstrap-vps.sh app-definir CHATWOOT_BASE_URL          # base da API da inbox, https
-bash bootstrap-vps.sh app-definir CHATWOOT_INBOX_IDENTIFIER  # identificador da inbox
-bash bootstrap-vps.sh app-definir CHATWOOT_WEBHOOK_SECRET    # segredo que assina o webhook
-bash bootstrap-vps.sh app-definir CHATWOOT_INBOX_HMAC_TOKEN  # só se a inbox tiver HMAC de identidade
-bash bootstrap-vps.sh app-definir CHAT_TRANSPORT             # responder: chatwoot
-bash bootstrap-vps.sh app-subir sha-XXXXXXX                  # imagem com o canal (d3e25a5 ou mais nova)
+REF=<commit> bash bootstrap-vps.sh atendimento-subir              # até 10 min na 1ª vez
+bash bootstrap-vps.sh atendimento-segredos                        # copiar pro Bitwarden
+REF=<commit> bash bootstrap-vps.sh atendimento-configurar sha-XXXXXXX   # admin, inbox, robô; testa
+REF=<commit> bash bootstrap-vps.sh app-canal chatwoot              # o app passa a usar o Chatwoot
 ```
 
-Na inbox, o webhook aponta para `https://api.crystalnowpp.com.br/webhooks/chatwoot`.
-O aluno precisa ter o telefone do WhatsApp no cadastro; sem ele, a mensagem não sai.
-Para voltar à Crystal provisória: `app-definir CHAT_TRANSPORT` com `crystal` e
-`app-subir` de novo.
+3. Entrar em `https://atendimento.crystalnowpp.com.br` com o login do Bitwarden e
+   ligar a verificação em duas etapas (Perfil > Senha e segurança).
+
+Como funciona: a mensagem do aluno vai à inbox "App da Crystal" (API pública,
+contato pelo telefone com HMAC); o Chatwoot avisa o robô em
+`https://api.crystalnowpp.com.br/webhooks/chatwoot-bot`; a API pergunta à Crystal e
+publica a resposta; o Chatwoot devolve ao app por `/webhooks/chatwoot`. Os dois
+webhooks são assinados e passam pelo endereço público de propósito (o Chatwoot
+recusa endereço interno, proteção contra SSRF que fica ligada).
+
+A equipe assume escrevendo na conversa (ela sai de "Pendentes" e o robô para). Para
+devolver ao robô, marcar a conversa como pendente ou resolver: a próxima mensagem do
+aluno reabre como pendente. Voltar o app para a Crystal direto: `app-canal crystal`.
+O aluno precisa de telefone no cadastro (`app-telefone EMAIL` para contas feitas aqui).
 
 ## Ligar o login à base de alunos do Supabase
 

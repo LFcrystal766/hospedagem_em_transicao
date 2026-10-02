@@ -40,12 +40,14 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
   seus DNS" da Hostinger nem ligar a integração Cloudflare do hPanel.
 - Segredos só em variável de ambiente. Nunca em arquivo do repositório nem no chat.
 - Não publicar nada no GTM: a migração não exige mudança lá.
-- `painel.`, `editor.`, `webhook.`, `app.` e `api.` (VPS da Crystal) ficam
+- `painel.`, `editor.`, `webhook.`, `app.`, `api.` e `atendimento.` (VPS da Crystal) ficam
   **cinza** enquanto o Traefik emitir o certificado por HTTP. Laranja neles só
   depois da stack no ar, com decisão explícita. Não são a mesma Hostinger do
   site: é uma VPS, não o hPanel.
 - Segredos do app na VPS (`/root/crystal/app/.segredos`): `ENCRYPTION_KEY`,
   `CPF_SALT` e `CRYSTAL_CHAVE_CIFRA` nunca mudam depois de o banco ter dado.
+  O mesmo vale para o Chatwoot (`/root/crystal/atendimento/.segredos`):
+  `SECRET_KEY_BASE` e as três `ACTIVE_RECORD_ENCRYPTION_*`.
 - A nossa Crystal (`app_crystal`) não tem rota pública; a chave do OpenRouter vai só
   para o `crystal.env`, nunca para o `api.env`.
 
@@ -77,6 +79,7 @@ Toda mudança leva em conta ataque e malware, sem precisar pedir:
 | `scripts/cloudflare-crystal-vps-dns.sh` | DNS da VPS da Crystal (`painel`, `editor`, `webhook`, cinza). `conferir` roda sem token |
 | `crystal-em-casa/` | Frente do app: guia e stacks da agência, situação da VPS |
 | `crystal-em-casa/stacks-app/` | Stack do app web (`LFcrystal766/crystal-web-chat`) na VPS, subida pelo `bootstrap-vps.sh app-subir`, e o Portainer restrito (`painel-restringir`) |
+| `crystal-em-casa/stacks-app/20-atendimento.yaml` | O nosso Chatwoot (no lugar do LendChat) em `atendimento.`, com a Crystal como robô: `atendimento-subir`, `atendimento-configurar`, `app-canal` |
 | `auditorias/<data>/` | Evidências de cada rodada |
 | `pedidos/` | Chamado da AZAN e prompt do Cowork |
 | `artefato/` | Cópia do plano e o overview |

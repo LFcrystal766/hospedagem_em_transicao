@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# DNS da VPS da Crystal (o app, não o site): painel, editor, webhook, app e api.
+# DNS da VPS da Crystal (o app, não o site): painel, editor, webhook, app, api e
+# atendimento (o nosso Chatwoot).
 #
 # Uso: scripts/cloudflare-crystal-vps-dns.sh <comando> [--aplicar]
 #
 # Comandos:
-#   conferir   só leitura, SEM token: resolve os cinco nomes por DNS-over-HTTPS
+#   conferir   só leitura, SEM token: resolve os seis nomes por DNS-over-HTTPS
 #              e confere se apontam pro IP da VPS. Sai 0 = todos certos,
 #              1 = falta ou divergência
 #   criar      cria os registros A que faltarem, cinza (proxied=false), TTL 300. Sem
@@ -27,7 +28,7 @@ set -uo pipefail
 ZONA_ID=c8f015c8ed7347f8900aa90d6701a15c
 DOMINIO=crystalnowpp.com.br
 IP_VPS="${IP_VPS:-177.7.61.136}"
-NOMES=(painel editor webhook app api)
+NOMES=(painel editor webhook app api atendimento)
 API=https://api.cloudflare.com/client/v4
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 

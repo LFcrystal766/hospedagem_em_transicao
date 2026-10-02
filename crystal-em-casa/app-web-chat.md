@@ -116,6 +116,16 @@ uma imagem nova, sem depender da agência.
 
 ## LFChat enxuto: nosso Chatwoot no lugar do LendChat (proposta de 29/09)
 
+**Atualização de 02/10: decidido.** O LendChat vai sair (Luiz, 02/10). O nosso
+Chatwoot sobe agora, começando pelo app, que já está na nossa Crystal desde 01/10:
+mover o app é um corte só (canal), sem trocar cérebro junto. O WhatsApp continua no
+LendChat com o agente da agência até o passo 3, que depende da BM da Meta e da
+agência. O que entrou: `stacks-app/20-atendimento.yaml`, os comandos `atendimento-*`
+e `app-canal` do bootstrap e a rota do robô na API (`/webhooks/chatwoot-bot`, commit
+`44f356b` do app). Passo a passo no README, seção "Ligar o nosso Chatwoot".
+Diferente do desenho de 29/09: quem responde no Chatwoot é a NOSSA Crystal, como robô,
+pela API do app; o agente da agência só entra se for preciso no corte do WhatsApp.
+
 A agência não vai passar o LendChat. A ideia é o LFChat substituí-lo. Faz sentido
 como destino, com um desenho bem menor que o original do Igor.
 

@@ -1,0 +1,183 @@
+# =============================================================================
+# ATENDIMENTO  ·  o nosso Chatwoot CE na VPS (no lugar do LendChat)
+# =============================================================================
+#
+# O QUE ESTA STACK FAZ
+#   atendimento.crystalnowpp.com.br  ->  cw_rails (painel da equipe e API, porta 3000)
+#   cw_sidekiq  filas (webhooks, e-mails, mensagens agendadas)
+#   cw_postgres e cw_redis PRÓPRIOS, numa rede interna só deles: não usa o banco
+#   do app nem o do n8n.
+#
+#   A Crystal responde como robô (agent bot) do Chatwoot: o Chatwoot chama
+#   https://api.crystalnowpp.com.br/webhooks/chatwoot-bot, assinado. Webhook pelo
+#   endereço público de propósito: o Chatwoot recusa endereço interno (proteção
+#   contra SSRF), e assim não precisamos desligar essa proteção.
+#
+# VERSÃO
+#   chatwoot/chatwoot:CW_VERSAO (sempre -ce, nunca latest). Para atualizar: ler as
+#   notas da versão, backup, trocar CW_VERSAO no bootstrap e atendimento-subir.
+#
+# O QUE NÃO ESTÁ NESTE ARQUIVO
+#   Segredo nenhum. Os serviços leem CW_ENV_DIR/{chatwoot,postgres,redis}.env,
+#   gerados na VPS pelo bootstrap (chmod 600). Os marcadores CW_VERSAO,
+#   CW_ENV_DIR e CW_IPS_ADMIN são trocados pelo bootstrap.
+#
+# COMO SUBIR
+#   bash bootstrap-vps.sh atendimento-subir
+#
+# DNS: atendimento. em A -> IP da VPS, CINZA. O Traefik emite o certificado por
+# desafio HTTP; com a nuvem laranja a emissão falha.
+# =============================================================================
+
+version: "3.7"
+
+services:
+
+  # ---------------------------------------------------------------- Rails
+  # Prepara o banco (cria na primeira vez, migra nas atualizações) e sobe.
+  # UMA réplica e stop-first: nunca duas migrações ao mesmo tempo.
+  cw_rails:
+    image: chatwoot/chatwoot:CW_VERSAO
+    env_file: CW_ENV_DIR/chatwoot.env
+    environment:
+      - NODE_ENV=production
+      - RAILS_ENV=production
+      - INSTALLATION_ENV=docker
+    entrypoint: docker/entrypoints/rails.sh
+    command:
+      - sh
+      - -c
+      - bundle exec rails db:chatwoot_prepare && exec bundle exec rails s -p 3000 -b 0.0.0.0
+    networks:
+      - cw_interno
+      - network_swarm_public
+    volumes:
+      - cw_storage:/app/storage
+    healthcheck:
+      # /api devolve a versão e não exige login.
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api >/dev/null 2>&1 || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      # Primeira subida cria o banco inteiro: leva alguns minutos.
+      start_period: 300s
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits: {cpus: "1.5", memory: 1536M}
+      update_config:
+        parallelism: 1
+        order: stop-first
+        failure_action: rollback
+        monitor: 120s
+      restart_policy: {condition: any, delay: 10s, max_attempts: 5, window: 600s}
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=network_swarm_public
+        - traefik.http.routers.crystal_atendimento.rule=Host(`atendimento.crystalnowpp.com.br`)
+        - traefik.http.routers.crystal_atendimento.entrypoints=websecure
+        - traefik.http.routers.crystal_atendimento.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.crystal_atendimento.service=crystal_atendimento
+        # Console de super admin (/super_admin): só dos IPs do painel. (bootstrap-vps.sh
+        # painel-restringir). Sem lista, só a própria VPS, ou seja: fechado. A configuração
+        # do dia a dia é feita pelo bootstrap (rails runner), não por ali.
+        - traefik.http.routers.crystal_atendimento_admin.rule=Host(`atendimento.crystalnowpp.com.br`) && PathPrefix(`/super_admin`)
+        - traefik.http.routers.crystal_atendimento_admin.priority=100
+        - traefik.http.routers.crystal_atendimento_admin.entrypoints=websecure
+        - traefik.http.routers.crystal_atendimento_admin.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.crystal_atendimento_admin.service=crystal_atendimento
+        - traefik.http.routers.crystal_atendimento_admin.middlewares=crystal-atendimento-admin-ips
+        - traefik.http.middlewares.crystal-atendimento-admin-ips.ipallowlist.sourcerange=CW_IPS_ADMIN
+        - traefik.http.services.crystal_atendimento.loadbalancer.server.port=3000
+        - traefik.http.services.crystal_atendimento.loadbalancer.passHostHeader=true
+
+  # ---------------------------------------------------------------- Sidekiq
+  # Manda os webhooks (para a Crystal e para o app): precisa de saída para a
+  # internet, por isso também está na rede pública. Sem rota no Traefik.
+  cw_sidekiq:
+    image: chatwoot/chatwoot:CW_VERSAO
+    env_file: CW_ENV_DIR/chatwoot.env
+    environment:
+      - NODE_ENV=production
+      - RAILS_ENV=production
+      - INSTALLATION_ENV=docker
+    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    networks:
+      - cw_interno
+      - network_swarm_public
+    volumes:
+      - cw_storage:/app/storage
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits: {cpus: "1", memory: 1024M}
+      update_config:
+        parallelism: 1
+        order: stop-first
+        failure_action: rollback
+        monitor: 60s
+      restart_policy: {condition: any, delay: 10s, max_attempts: 10, window: 600s}
+
+  # ---------------------------------------------------------------- Postgres
+  cw_postgres:
+    image: pgvector/pgvector:0.8.7-pg16
+    env_file: CW_ENV_DIR/postgres.env
+    networks:
+      - cw_interno
+    volumes:
+      - cw_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits: {cpus: "1", memory: 1024M}
+      restart_policy: {condition: any, delay: 5s}
+
+  # ---------------------------------------------------------------- Redis
+  # Com senha e persistência; sem despejo de chave (filas do Sidekiq moram aqui).
+  cw_redis:
+    image: redis:7.4.11-alpine
+    env_file: CW_ENV_DIR/redis.env
+    command:
+      - sh
+      - -c
+      - exec redis-server --appendonly yes --maxmemory-policy noeviction --requirepass "$$REDIS_PASSWORD"
+    networks:
+      - cw_interno
+    volumes:
+      - cw_redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits: {cpus: "0.5", memory: 512M}
+      restart_policy: {condition: any, delay: 5s}
+
+networks:
+  # Só a stack de atendimento: Postgres e Redis não ficam na rede pública.
+  cw_interno:
+    driver: overlay
+  network_swarm_public:
+    external: true
+    name: network_swarm_public
+
+volumes:
+  cw_storage:
+  cw_postgres_data:
+  cw_redis_data:
