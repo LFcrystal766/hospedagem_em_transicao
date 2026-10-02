@@ -75,3 +75,22 @@ Independe dos degraus do site. Detalhes em `crystal-em-casa/README.md`.
   do xmlrpc, rewrite do /crystal-teste. Rollback em segundos se algo sair do padrão.
 - Com as credenciais do passo 5: backup da AZAN, zona real, caixas de e-mail,
   prova venda a venda pelo Stape, e a cópia na Hostinger.
+
+## Esperando o Tuan (agência), em 02/10
+
+Decisão do Luiz em 02/10: a "alma" da Crystal do app espera o material da
+agência. Nada de improvisar método ou base de conhecimento até lá.
+
+1. **Prompt completo** do agente em produção (texto de instruções). Vai para
+   `crystal-web-chat/apps/crystal/prompt/crystal.md` e tira o RASCUNHO.
+2. **Base de conhecimento** (aulas e materiais da Letícia) e onde está guardada.
+   Se estiver no Supabase a transferir, quais tabelas. Vai para
+   `apps/crystal/conhecimento/` (até 60 mil caracteres; acima disso, busca por trechos).
+3. **Conserto do LendChat**: a caixa "Crystal App - Stage" dá 500 ao criar
+   conversa. Antes de voltar `CHAT_TRANSPORT=chatwoot`, conferir daqui que
+   criar conversa responde 200.
+4. **Transferência do Supabase** (base de alunos e, talvez, a base de conhecimento).
+5. **Código do agente** no repositório `crystal-ia`, ainda vazio.
+
+Pronto para quando decidirem: a Crystal do app usar o perfil, as metas e o
+progresso da aluna (com consentimento de dados sensíveis) nas respostas.
