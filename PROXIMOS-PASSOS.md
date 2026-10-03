@@ -79,9 +79,38 @@ Independe dos degraus do site. Detalhes em `crystal-em-casa/README.md`.
 ## PRD de Otimização: squad em paralelo (03/10)
 
 O Luiz pediu para pôr o "PRD de Otimização Crystal" (26 itens, 3 etapas) para rodar
-com vários terminais. Análise do PRD e desenho do squad (1 integrador, 4 terminais
-de código, QA em aparelho) em `crystal-em-casa/squad-otimizacao.md`. Trava hoje:
-Android para testes, serviço de transcrição, origem dos eventos de reembolso.
+com vários terminais e deu autorização total. Análise do PRD e desenho do squad em
+`crystal-em-casa/squad-otimizacao.md`; relatório de cada integração em
+`crystal-web-chat/docs/otimizacao/andamento.md`.
+
+Situação em 03/10, fim do dia (branches do `crystal-web-chat`):
+
+| Etapa | Branch | Commit | Testes | Estado |
+|---|---|---|---|---|
+| 1 (8 itens + blindagem) | `otimizacao/etapa-1` → build `claude/gracious-shannon-6x9l5j` | `cdc45f5` | 944 + e2e 20/20, CI verde | Imagens `sha-cdc45f5` prontas. **Falta publicar** (portão 1) |
+| 2 (11 itens) | `otimizacao/etapa-2` | `3b06150` | 1113 + e2e 27/27 | Integrada; migrações `e2_14…e2_18`, fontes locais. Publica depois do portão 1 |
+| 3 (7 itens) | `otimizacao/etapa-3` | `ede085b` | 1224 + e2e 33/33 | Integrada; contém a 2. Zero conflitos. Fase 3 do P12 ligada, com chave de desligar |
+
+Custo das 10 sessões de código: cerca de US$ 200. Nada foi publicado na VPS ainda.
+
+Ordem de publicação combinada, cada passo com `backup` antes e teste em aparelho depois:
+
+1. **Portão 1**: `app-definir REFUND_WEBHOOK_SECRET` e `TRANSCRIPTION_API_KEY` (Groq),
+   `backup`, `app-subir sha-cdc45f5`. Testar áudio (transcrição), foto e reembolso.
+2. **Etapa 2** como um só release: merge de `otimizacao/etapa-2` na branch de build, imagem
+   nova, `app-subir`. Antes, garantir que `CRYSTAL_ONBOARDING_URL` não está no `.externos`.
+3. **Etapa 3** idem. QA em aparelho da fase 3 do P12 (segurar para gravar) decide se ela
+   fica: `SEGURAR_PARA_GRAVAR = false` em `Composer.tsx` desliga numa linha.
+
+Pendências do Luiz para o squad (lista completa em `andamento.md`):
+
+- Exemplo de JSON do webhook de reembolso da **Assiny** (mascarado), para fechar o Q07.
+- Chave do **Groq** (`TRANSCRIPTION_API_KEY`).
+- **Android** com Chrome para os testes.
+- Conferir no iPhone, nos dois temas, as cores do WhatsApp (P16), o papel de parede (P08)
+  e `statusBarStyle`; textos "0:07" do gravador; nomes "Tema"/"Sistema".
+- Decisões: excluir contato no Chatwoot junto com a conversa do WhatsApp; encaminhar erro
+  da Crystal em turno de risco; reembolso quando só o e-mail bate.
 
 ## Revisão geral do código (02/10)
 
