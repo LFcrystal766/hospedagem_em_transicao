@@ -76,6 +76,13 @@ Independe dos degraus do site. Detalhes em `crystal-em-casa/README.md`.
 - Com as credenciais do passo 5: backup da AZAN, zona real, caixas de e-mail,
   prova venda a venda pelo Stape, e a cópia na Hostinger.
 
+## PRD de Otimização: squad em paralelo (03/10)
+
+O Luiz pediu para pôr o "PRD de Otimização Crystal" (26 itens, 3 etapas) para rodar
+com vários terminais. Análise do PRD e desenho do squad (1 integrador, 4 terminais
+de código, QA em aparelho) em `crystal-em-casa/squad-otimizacao.md`. Trava hoje:
+Android para testes, serviço de transcrição, origem dos eventos de reembolso.
+
 ## Revisão geral do código (02/10)
 
 Pedida pelo Luiz em 02/10 e feita no mesmo dia: ~48 mil linhas lidas por seis
