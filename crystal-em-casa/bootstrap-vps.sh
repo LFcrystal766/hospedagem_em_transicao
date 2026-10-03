@@ -88,6 +88,21 @@
 #                                              só com o banco do app VAZIO: apaga o banco e
 #                                              troca todos os segredos do app (vazaram?)
 #
+# Publicar a etapa 1 do PRD de Otimização (API sem root, mídia e transcrição, reembolso):
+#   curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+#   bash bootstrap-vps.sh app-definir REFUND_WEBHOOK_SECRET   gerado com: openssl rand -hex 32 (guardar no Bitwarden)
+#   bash bootstrap-vps.sh app-definir TRANSCRIPTION_API_KEY   chave da Groq; URL e modelo já têm padrão no código
+#                                              (https://api.groq.com/openai/v1/audio/transcriptions, whisper-large-v3-turbo)
+#   bash bootstrap-vps.sh app-definir CHATWOOT_API_TOKEN      opcional: só com o nosso Chatwoot no ar
+#   bash bootstrap-vps.sh app-status           anotar a tag atual, para poder voltar
+#   bash bootstrap-vps.sh backup               banco do app e uploads antes de trocar a imagem
+#   bash bootstrap-vps.sh app-subir sha-XXXXXXX    a tag nova (ajusta o dono do volume de uploads antes)
+#   Volta: bash bootstrap-vps.sh app-subir TAG_ANTERIOR
+#   Conferir no OpenRouter que CRYSTAL_MODEL (anthropic/claude-haiku-4.5) e CRYSTAL_MODEL_RESERVA
+#   (openai/gpt-4.1-mini) leem imagem (os dois leem). Na Assiny, webhook em
+#   https://api.crystalnowpp.com.br/webhooks/reembolso, cabeçalho "Authorization: Bearer <segredo>",
+#   eventos de reembolso, chargeback e cancelamento, todos os produtos.
+#
 # Onde ficam as coisas:
 #   /root/crystal/.segredos      senha do banco e chave de criptografia (chmod 600).
 #                                NUNCA apagar nem regenerar: a chave do n8n não
@@ -1116,6 +1131,26 @@ app_gerar_env() {
   fi
 }
 
+# A API roda sem root desde a etapa 1 do PRD de Otimização (USER node, uid 1000,
+# no Dockerfile de apps/api). O volume app_uploads nasceu com dono root: sem isto a
+# API nova não grava a mídia dos alunos em /app/uploads. Idempotente e calado
+# quando o dono já é 1000:1000; sem a alpine:3.20, avisa e segue.
+app_uploads_dono() {
+  local vol="${APP_STACK}_app_uploads" dono
+  docker volume inspect "$vol" >/dev/null 2>&1 || return 0
+  if ! docker image inspect alpine:3.20 >/dev/null 2>&1 && ! docker pull -q alpine:3.20 >/dev/null 2>&1; then
+    aviso "não baixou alpine:3.20: dono de $vol não conferido (a API, sem root, pode não gravar em /app/uploads)"
+    return 0
+  fi
+  dono=$(docker run --rm -v "$vol:/u" alpine:3.20 stat -c '%u:%g' /u 2>/dev/null) || dono=
+  [ "$dono" = "1000:1000" ] && return 0
+  if docker run --rm -v "$vol:/u" alpine:3.20 chown -R 1000:1000 /u; then
+    ok "volume $vol entregue ao uid 1000 (API sem root)"
+  else
+    aviso "não ajustou o dono de $vol: a API pode não gravar em /app/uploads"
+  fi
+}
+
 app_subir() {
   local tag="${2:-}"
   echo "$tag" | grep -Eq '^(sha-[0-9a-f]{7}|v[0-9][0-9A-Za-z.-]*)$' \
@@ -1145,6 +1180,7 @@ app_subir() {
   umask 077
   sed -e "s|APP_TAG|$tag|g" -e "s|APP_ENV_DIR|$APP_DIR|g" "$ORIG/$APP_YAML" > "$STACKS/$APP_YAML"
   grep -nE 'APP_TAG|APP_ENV_DIR' "$STACKS/$APP_YAML" | grep -vE '^\s*[0-9]+:\s*#' | grep -q . && falha "marcador sobrando em $APP_YAML"
+  app_uploads_dono   # a API sem root (etapa 1) precisa do volume com dono 1000:1000
   docker stack deploy --with-registry-auth -c "$STACKS/$APP_YAML" "$APP_STACK" --detach=true >/dev/null
   sleep 8   # deixa o Swarm registrar a atualização antes de conferir
   esperar_stack "$APP_STACK" 420 || { echo "  Logs da API: docker service logs --tail 80 ${APP_STACK}_app_api"; exit 1; }

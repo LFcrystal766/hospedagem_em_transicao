@@ -64,7 +64,7 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 | Respostas da agência | Compute size do Supabase, qual chave do OpenRouter o agente usa hoje, como o agente atende um canal que não é o LendChat, onde está a base de clientes |
 | Código do agente | **Não chegou.** `LFcrystal766/crystal-ia` vazio em 29/09 às 03:00 |
 | App web | Repositório `LFcrystal766/crystal-web-chat`, transferido do Igor em 29/09. Avaliação em `app-web-chat.md` |
-| Canal do app (02/10) | **Nossa Crystal respondendo no app** (`CHAT_TRANSPORT=crystal`, desde 01/10). O LendChat foi consertado pelo Tuan em 02/10 (criar conversa 200, conferido daqui), mas **não volta**: o LendChat vai sair. Destino do app: o **nosso Chatwoot** (linha abaixo), com `app-canal chatwoot`. Conta do Luiz criada com `app-aluno` (CPF final 4906) |
+| Canal do app (02/10) | **Nossa Crystal respondendo no app** (`CHAT_TRANSPORT=crystal`, desde 01/10). O LendChat foi consertado pelo Tuan em 02/10 (criar conversa 200, conferido daqui), mas **não volta**: o LendChat vai sair. Destino do app: o **nosso Chatwoot** (linha abaixo), com `app-canal chatwoot`. Conta do Luiz criada com `app-aluno` (CPF final 4906). **Etapa 1 do PRD de Otimização integrada em 03/10** em `otimizacao/etapa-1` e na branch de build (commit `cdc45f5` do `crystal-web-chat`): API sem root, mídia com transcrição (Groq), webhook de reembolso. **Aguardando publicação** na VPS: seção "Publicar a etapa 1 do PRD de Otimização" |
 | Atendimento (nosso Chatwoot) | **Pronto para subir em 02/10**: Chatwoot CE `v4.18.0-ce` em `atendimento.` (stack `crystal_atendimento`, `stacks-app/20-atendimento.yaml`), Postgres e Redis próprios numa rede interna, cadastro aberto desligado, telemetria desligada, 2FA disponível (chaves de cifra geradas na VPS), `/super_admin` só para os IPs do painel. A Crystal responde como **robô** do Chatwoot pela API do app (`/webhooks/chatwoot-bot`, assinado; imagem `sha-44f356b` ou mais nova): responde nas conversas pendentes e para quando alguém da equipe escreve, quando o aluno pede uma pessoa ou quando falha. Inbox do app com HMAC de identidade obrigatório. Backup e vigia já incluem o Chatwoot. Falta: DNS `atendimento.` cinza e os comandos da seção "Ligar o nosso Chatwoot". WhatsApp fica para depois (BM da Meta e corte com a agência) |
 | Revisão geral (02/10) | Código dos dois repositórios lido linha a linha (~48 mil linhas, 6 revisores), 770 testes + 20 e2e verdes, migrações aplicadas do zero e smoke real contra o Postgres. **0 críticos, 13 altos reais.** Consolidado e evidências em `auditorias/2026-10-02/revisao-geral/` (`00-RELATORIO.md`). Antes de `app-canal chatwoot`: exclusão de conta também apagar no Chatwoot e senha no Redis do n8n |
 | Vigia do app | Desde 01/10 (`vigia-config`): a cada 5 min confere app, API, réplicas e falhas de resposta no log; de hora em hora testa a nossa Crystal e o crédito do OpenRouter (avisa abaixo de US$ 5). Avisa no grupo Telegram `Crystal · Alertas`, repete o mesmo problema só depois de 1 h e avisa quando normaliza. Token do bot em `/root/crystal/.vigia` (600). Log em `/root/crystal/vigia.log` |
@@ -134,6 +134,40 @@ três) e `app-subir` de novo com a mesma tag.
 `ENCRYPTION_KEY` e `CPF_SALT` nunca podem mudar: sem eles os campos cifrados e
 o hash do CPF ficam ilegíveis. O `backup` diário passa a levar também o banco
 do app, que só se restaura com essas duas chaves.
+
+### Publicar a etapa 1 do PRD de Otimização
+
+A etapa 1 (`otimizacao/etapa-1` do `crystal-web-chat`, commit `cdc45f5`, já na
+branch de build) traz a API **sem root** (`USER node`, uid 1000), mídia dos
+alunos com transcrição de áudio (Groq) e o webhook de reembolso da Assiny. O
+`app-subir` ajusta sozinho o dono do volume `crystal_app_app_uploads` para
+1000:1000 antes do deploy; sem isso a API nova não gravaria em `/app/uploads`.
+
+Na VPS, um comando por vez, nesta ordem (`<commit>` = commit deste repositório):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+bash bootstrap-vps.sh app-definir REFUND_WEBHOOK_SECRET   # gerar com: openssl rand -hex 32; guardar no Bitwarden
+bash bootstrap-vps.sh app-definir TRANSCRIPTION_API_KEY   # chave da Groq (só ela é obrigatória)
+bash bootstrap-vps.sh app-definir CHATWOOT_API_TOKEN      # opcional: só quando o nosso Chatwoot estiver no ar
+bash bootstrap-vps.sh app-status                          # anotar a tag atual, para poder voltar
+bash bootstrap-vps.sh backup                              # banco do app e uploads antes de trocar a imagem
+bash bootstrap-vps.sh app-subir sha-XXXXXXX               # a tag nova (workflow imagens-vps)
+```
+
+Volta, se algo der errado: `bash bootstrap-vps.sh app-subir <tag anterior>`.
+
+Os padrões de URL e modelo da transcrição já estão no código
+(`https://api.groq.com/openai/v1/audio/transcriptions` e `whisper-large-v3-turbo`);
+só definir `TRANSCRIPTION_API_URL` ou `TRANSCRIPTION_MODEL` para trocar.
+
+Fora da VPS:
+
+- **OpenRouter:** conferir que `CRYSTAL_MODEL` (`anthropic/claude-haiku-4.5`) e
+  `CRYSTAL_MODEL_RESERVA` (`openai/gpt-4.1-mini`) leem imagem. Os dois leem.
+- **Assiny:** webhook com URL `https://api.crystalnowpp.com.br/webhooks/reembolso`,
+  cabeçalho `Authorization: Bearer <segredo>` (o mesmo `REFUND_WEBHOOK_SECRET`),
+  eventos de reembolso, chargeback e cancelamento, todos os produtos.
 
 ## Crystal provisória (n8n + OpenRouter)
 
