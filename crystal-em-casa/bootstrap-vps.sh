@@ -14,8 +14,10 @@
 #   bash bootstrap-vps.sh n8n                  sobe 04, 05 e 06
 #   bash bootstrap-vps.sh tudo                 os quatro acima, na ordem
 #   bash bootstrap-vps.sh status               serviços + HTTPS dos três nomes
-#   bash bootstrap-vps.sh segredos             mostra a senha do banco e a chave do n8n,
-#                                              pra copiar pro cofre (Bitwarden). Não colar em chat
+#   bash bootstrap-vps.sh segredos             mostra a senha do banco, a chave do n8n e a senha do
+#                                              Redis, pra copiar pro cofre (Bitwarden). Não colar em chat
+#   O Redis do n8n sobe COM senha (N8N_REDIS_SENHA, gerada no preparar; o original da agência não tem).
+#   Trocá-la exige redeploy de 03, 04, 05 e 06: bash bootstrap-vps.sh preparar EMAIL && bash bootstrap-vps.sh bancos && bash bootstrap-vps.sh n8n
 #   bash bootstrap-vps.sh backup               pg_dump do banco do n8n em /root/crystal/backups
 #                                              (guarda 14 dias). A chave do n8n NÃO vai junto
 #   bash bootstrap-vps.sh backup-cron          agenda o backup todo dia às 03:30 (hora da VPS)
@@ -47,7 +49,8 @@
 #   bash bootstrap-vps.sh app-resend           pergunta a chave do Resend (sem aparecer) e o
 #                                              remetente. Nada vai na linha de comando
 #   bash bootstrap-vps.sh app-definir NOME     grava um valor externo (RESEND_API_KEY, EMAIL_FROM,
-#                                              CRYSTAL_API_URL, ...). Sem NOME, lista os aceitos
+#                                              CRYSTAL_API_URL, REFUND_WEBHOOK_SECRET, TRANSCRIPTION_*,
+#                                              CHATWOOT_API_TOKEN, ...). Sem NOME, lista os aceitos
 #   bash bootstrap-vps.sh app-subir TAG        gera segredos (uma vez só), monta api.env e sobe
 #                                              a stack crystal_app com a tag (ex.: sha-2b3dd56)
 #   bash bootstrap-vps.sh app-status           serviços do app + HTTPS de app. e api.
@@ -200,18 +203,35 @@ preparar() {
     } > "$SEGREDOS"
     ok "segredos gerados em $SEGREDOS. Copie pro cofre: bash $0 segredos"
   fi
+  # Senha do Redis do n8n (revisão de 02/10, A2): o original da agência sobe sem
+  # senha numa rede que o app e o Chatwoot também usam. Acrescentada uma vez a
+  # segredos antigos; trocar exige redeploy de 03, 04, 05 e 06.
+  if ! grep -q '^N8N_REDIS_SENHA=' "$SEGREDOS"; then
+    umask 077
+    echo "N8N_REDIS_SENHA=$(openssl rand -hex 24)" >> "$SEGREDOS"
+    chmod 600 "$SEGREDOS"
+    ok "N8N_REDIS_SENHA gerada em $SEGREDOS. Copie pro cofre: bash $0 segredos"
+  fi
   # shellcheck disable=SC1090
   . "$SEGREDOS"
   [ "${#N8N_CHAVE}" -eq 32 ] || falha "chave do n8n em $SEGREDOS não tem 32 caracteres"
+  printf '%s' "$N8N_REDIS_SENHA" | grep -Eq '^[0-9a-f]{48}$' || falha "N8N_REDIS_SENHA em $SEGREDOS não é hex de 48 caracteres"
 
-  # 3. Arquivos prontos
+  # 3. Arquivos prontos. O 03 ganha --requirepass e o 04/05/06 a senha da fila:
+  # a agência não prevê senha no Redis, então entra aqui, não no original.
   umask 077
   for a in "${ARQUIVOS[@]}"; do
     sed -e "s|seudominio\.com\.br|$DOMINIO|g" \
         -e "s|SEU_EMAIL_AQUI|$email|g" \
         -e "s|SUBSTITUA_PELA_SENHA_DO_BANCO|$DB_SENHA|g" \
         -e "s|SUBSTITUA_PELA_CHAVE_DE_CRIPTOGRAFIA|$N8N_CHAVE|g" \
+        -e "s|^\( *command: redis-server .*--port 6379\)$|\1 --requirepass $N8N_REDIS_SENHA|" \
+        -e "/^ *- QUEUE_BULL_REDIS_PORT=6379$/a\\      - QUEUE_BULL_REDIS_PASSWORD=$N8N_REDIS_SENHA" \
         "$ORIG/$a" > "$STACKS/$a"
+    case "$a" in
+      03-*) grep -q -- "--requirepass " "$STACKS/$a" || falha "$a: o command do redis não recebeu --requirepass (o original mudou?)" ;;
+      04-*|05-*|06-*) grep -q '^ *- QUEUE_BULL_REDIS_PASSWORD=' "$STACKS/$a" || falha "$a: QUEUE_BULL_REDIS_PASSWORD não entrou (o original mudou?)" ;;
+    esac
     if grep -nE 'SUBSTITUA|SEU_EMAIL|seudominio' "$STACKS/$a" | grep -vE '^\s*[0-9]+:\s*#' | grep -q .; then
       falha "$a ainda tem placeholder fora de comentário"
     fi
@@ -805,14 +825,14 @@ segredos() {
   # não ficam no histórico do terminal. É pra copiar direto pro cofre.
   if [ -t 1 ] && command -v less >/dev/null; then
     {
-      echo "Copie DB_SENHA e N8N_CHAVE pro Bitwarden, em itens separados."
+      echo "Copie DB_SENHA, N8N_CHAVE e N8N_REDIS_SENHA pro Bitwarden, em itens separados."
       echo "Aperte q pra fechar: os valores somem da tela e não vão pro histórico."
       echo "A chave N8N_CHAVE nunca pode mudar depois de o n8n ter fluxo salvo."
       echo
-      grep -E '^(DB_SENHA|N8N_CHAVE)=' "$SEGREDOS"
+      grep -E '^(DB_SENHA|N8N_CHAVE|N8N_REDIS_SENHA)=' "$SEGREDOS"
     } | less -K
   else
-    grep -E '^(DB_SENHA|N8N_CHAVE)=' "$SEGREDOS"
+    grep -E '^(DB_SENHA|N8N_CHAVE|N8N_REDIS_SENHA)=' "$SEGREDOS"
   fi
 }
 
@@ -866,7 +886,9 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS CHATWOOT_ACCOUNT_ID CHATWOOT_BOT_TOKEN* CHATWOOT_BOT_SECRET*
   SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY* SUPABASE_LOGIN_RPC
   REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL CRYSTAL_MODEL_RESERVA
-  ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*)
+  ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*
+  REFUND_WEBHOOK_SECRET* TRANSCRIPTION_API_URL TRANSCRIPTION_API_KEY* TRANSCRIPTION_MODEL
+  TRANSCRIPTION_TIMEOUT_MS CHATWOOT_API_TOKEN*)
 
 app_valor() { # app_valor ARQUIVO NOME -> valor (sem imprimir nada se não houver)
   [ -f "$1" ] || return 0
@@ -935,6 +957,15 @@ app_definir() {
 d=json.loads(base64.b64decode(sys.stdin.read().strip(), validate=True))
 assert d.get("type")=="service_account" and d.get("client_email") and "PRIVATE KEY" in d.get("private_key","")' 2>/dev/null \
         || falha "esperado o JSON da conta de serviço em base64, numa linha só (no Mac: base64 -i chave.json | tr -d '\\n' | pbcopy). Nada gravado" ;;
+    REFUND_WEBHOOK_SECRET)
+      # Assina o webhook de reembolso: tem que ser longo e variado, nunca uma palavra.
+      [ "$(printf '%s' "$v" | wc -c)" -ge 32 ] && [ "$(printf '%s' "$v" | fold -w1 | sort -u | wc -l)" -ge 10 ] \
+        || falha "segredo fraco (mínimo 32 bytes e 10 caracteres diferentes). Gere com: openssl rand -hex 32  e cole o resultado. Nada gravado" ;;
+    TRANSCRIPTION_API_URL)
+      case "$v" in https://?*) ;; *) falha "a URL da transcrição tem que começar com https://. Nada gravado" ;; esac ;;
+    TRANSCRIPTION_TIMEOUT_MS)
+      printf '%s' "$v" | grep -Eq '^[0-9]{4,6}$' && [ "$v" -ge 1000 ] && [ "$v" -le 120000 ] \
+        || falha "só inteiro entre 1000 e 120000 (milissegundos). Nada gravado" ;;
   esac
   mkdir -p "$APP_DIR"; chmod 700 "$APP_DIR"
   umask 077
@@ -1954,9 +1985,12 @@ crystal_provisoria() {
   case "$orkey" in sk-or-*) ;; *) unset orkey; falha "isso não parece uma chave do OpenRouter (começa com sk-or-). Nada foi gravado" ;; esac
   chave=$(app_valor "$APP_EXT" CRYSTAL_API_KEY)
   [ -n "$chave" ] || chave=$(openssl rand -hex 32)
+  local redis_senha
+  redis_senha=$(app_valor "$SEGREDOS" N8N_REDIS_SENHA)
+  [ -n "$redis_senha" ] || falha "N8N_REDIS_SENHA ausente em $SEGREDOS: rode 'preparar' (e redeploy de 03 a 06) antes"
 
   echo "== credenciais no n8n (webhook, OpenRouter, Redis banco 2)"
-  CHAVE="$chave" ORKEY="$orkey" python3 - <<'PY' | docker exec -i "$cid" sh -c 'umask 077; cat > /tmp/crystal-cred.json'
+  CHAVE="$chave" ORKEY="$orkey" REDIS_SENHA="$redis_senha" python3 - <<'PY' | docker exec -i "$cid" sh -c 'umask 077; cat > /tmp/crystal-cred.json'
 import json, os
 print(json.dumps([
   {"id": "crystalProvKey01", "name": "Crystal provisória · chave do app", "type": "httpHeaderAuth",
@@ -1964,10 +1998,10 @@ print(json.dumps([
   {"id": "crystalProvORkey", "name": "OpenRouter · Crystal provisória", "type": "httpHeaderAuth",
    "data": {"name": "Authorization", "value": "Bearer " + os.environ["ORKEY"]}},
   {"id": "crystalProvRedis", "name": "Redis do n8n · banco 2 (Crystal provisória)", "type": "redis",
-   "data": {"host": "n8n_redis", "port": 6379, "database": 2, "password": ""}},
+   "data": {"host": "n8n_redis", "port": 6379, "database": 2, "password": os.environ["REDIS_SENHA"]}},
 ]))
 PY
-  unset orkey
+  unset orkey redis_senha
   if ! docker exec "$cid" n8n import:credentials --input=/tmp/crystal-cred.json >/dev/null 2>&1; then
     docker exec "$cid" rm -f /tmp/crystal-cred.json; falha "o n8n recusou as credenciais"
   fi
