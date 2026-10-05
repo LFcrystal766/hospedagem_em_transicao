@@ -48,3 +48,14 @@ depois do `migrate deploy`).
 Volta, se precisar: `app-subir sha-79ba6b7` (etapa 1). Atenção: a etapa 2 apagou
 `onboarding_states`; se a volta para a etapa 1 reclamar da tabela, restaurar o
 backup das 16:25 antes.
+
+## QA em aparelho (iPhone), 05/10
+
+Etapa 1: os 6 itens aprovados pelo Luiz (login, offline, áudio transcrito, foto,
+DPO nos termos, painel da Crystal). Etapas 2 e 3: os 8 itens aprovados (início e
+temas, perfil obrigatório, tiques e bolhas curtas, áudio com tocador e gravação
+por toque, **segurar para gravar funcionou**, topo da Crystal, menu e tutorial,
+avisos e ritmo pela equipe, modo avião). Decisão: a fase 3 do P12 fica ligada.
+
+Pendente: o mesmo roteiro num Android com Chrome (ninguém tinha o aparelho hoje),
+e o teste do reembolso quando a Assiny mandar o JSON de exemplo.
