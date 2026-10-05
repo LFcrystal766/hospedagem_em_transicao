@@ -6,9 +6,16 @@ imagens construídas. Este roteiro é só o que o Luiz roda e confere.
 
 | Release | Branch | Commit no `crystal-web-chat` | Tag da imagem |
 |---|---|---|---|
-| 1 · Base e segurança | `otimizacao/etapa-1` | `cdc45f5` | `sha-cdc45f5` |
-| 2 · Início e perfil | `otimizacao/etapa-2` | `3b06150` (merge na build: `cfe96b3`) | `sha-cfe96b3` |
-| 3 · Conversa e visual | `otimizacao/etapa-3` | `9cf2438` (merge na build: `acfe6c3`) | `sha-acfe6c3` |
+| 1 · Base e segurança | `otimizacao/etapa-1` | `79ba6b7` (hotfix do guard https sobre `cdc45f5`) | `sha-79ba6b7` |
+| 2 · Início e perfil | `otimizacao/etapa-2` | `69ef26c` | `sha-69ef26c` |
+| 3 · Conversa e visual | `otimizacao/etapa-3` | `da617ac` | `sha-da617ac` |
+
+Aprendido em 05/10, na primeira tentativa da etapa 1: a API nova recusou
+`CRYSTAL_API_URL=http://app_crystal:8080` (guard de https em produção), morreu na
+subida e o Swarm voltou sozinho para a imagem anterior, deixando web novo com API
+velha. O guard passou a aceitar http só para host interno do Docker (sem ponto), e o
+`app-subir` agora confere a tag de cada serviço e mostra o log do contêiner que
+morreu. Se isso acontecer de novo: `app-subir <tag anterior>` e mandar o log.
 
 Regras que valem nos três:
 
@@ -43,11 +50,11 @@ bash bootstrap-vps.sh app-definir TRANSCRIPTION_API_KEY   # cola a chave da Groq
 bash bootstrap-vps.sh app-status                          # anotar a tag atual (volta)
 ```
 
-## Release 1 · etapa 1 (`sha-cdc45f5`)
+## Release 1 · etapa 1 (`sha-79ba6b7`)
 
 ```bash
 bash bootstrap-vps.sh backup
-bash bootstrap-vps.sh app-subir sha-cdc45f5
+bash bootstrap-vps.sh app-subir sha-79ba6b7
 bash bootstrap-vps.sh app-status
 ```
 
@@ -64,12 +71,12 @@ Conferir em aparelho (iPhone e Android):
 Se a transcrição falhar, a vigia mostra `transcricao` nos logs da API; a resposta
 fixa "não consegui ouvir" aparece para o aluno e o resto do app segue.
 
-## Release 2 · etapa 2 (`sha-cfe96b3`)
+## Release 2 · etapa 2 (`sha-69ef26c`)
 
 ```bash
 bash bootstrap-vps.sh app-remover CRYSTAL_ONBOARDING_URL   # a etapa 2 não usa mais
 bash bootstrap-vps.sh backup
-bash bootstrap-vps.sh app-subir sha-cfe96b3
+bash bootstrap-vps.sh app-subir sha-69ef26c
 bash bootstrap-vps.sh app-status
 ```
 
@@ -83,11 +90,11 @@ Conferir em aparelho:
 - [ ] Equipe: `/equipe/avisos` manda um aviso de teste; chega no aparelho.
 - [ ] Cards de suporte abrem o WhatsApp e o e-mail certos.
 
-## Release 3 · etapa 3 (`sha-acfe6c3`)
+## Release 3 · etapa 3 (`sha-da617ac`)
 
 ```bash
 bash bootstrap-vps.sh backup
-bash bootstrap-vps.sh app-subir sha-acfe6c3
+bash bootstrap-vps.sh app-subir sha-da617ac
 bash bootstrap-vps.sh app-status
 ```
 

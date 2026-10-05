@@ -87,8 +87,8 @@ Situação em 03/10, fim do dia (branches do `crystal-web-chat`):
 
 | Etapa | Branch | Commit | Testes | Estado |
 |---|---|---|---|---|
-| 1 (8 itens + blindagem) | `otimizacao/etapa-1` → build `claude/gracious-shannon-6x9l5j` | `cdc45f5` | 944 + e2e 20/20, CI verde | Imagens `sha-cdc45f5` prontas. **Falta publicar** (portão 1) |
-| 2 (11 itens) | `otimizacao/etapa-2` | `3b06150` | 1113 + e2e 27/27 | Integrada; migrações `e2_14…e2_18`, fontes locais. Imagem `sha-cfe96b3`. Publica depois do portão 1 |
+| 1 (8 itens + blindagem) | `otimizacao/etapa-1` → build `claude/gracious-shannon-6x9l5j` | `79ba6b7` | 944 + e2e 20/20, CI verde | Imagens `sha-79ba6b7` prontas. **Falta publicar** (portão 1) |
+| 2 (11 itens) | `otimizacao/etapa-2` | `3b06150` | 1113 + e2e 27/27 | Integrada; migrações `e2_14…e2_18`, fontes locais. Imagem `sha-69ef26c`. Publica depois do portão 1 |
 | 3 (7 itens) | `otimizacao/etapa-3` | `ede085b` | 1224 + e2e 33/33 | Integrada; contém a 2. Zero conflitos. Fase 3 do P12 ligada, com chave de desligar |
 
 Custo das 10 sessões de código: cerca de US$ 200. Nada foi publicado na VPS ainda.
@@ -97,7 +97,7 @@ Ordem de publicação combinada (roteiro completo, com as listas de conferência
 aparelho, em `crystal-em-casa/publicar-prd.md`), cada passo com `backup` antes:
 
 1. **Portão 1**: `app-definir REFUND_WEBHOOK_SECRET` e `TRANSCRIPTION_API_KEY` (Groq),
-   `backup`, `app-subir sha-cdc45f5`. Testar áudio (transcrição), foto e reembolso.
+   `backup`, `app-subir sha-79ba6b7`. Testar áudio (transcrição), foto e reembolso.
 2. **Etapa 2** como um só release: merge de `otimizacao/etapa-2` na branch de build, imagem
    nova, `app-subir`. Antes, garantir que `CRYSTAL_ONBOARDING_URL` não está no `.externos`.
 3. **Etapa 3** idem. QA em aparelho da fase 3 do P12 (segurar para gravar) decide se ela
