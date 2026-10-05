@@ -140,8 +140,8 @@ do app, que só se restaura com essas duas chaves.
 Roteiro completo, um comando por vez e com a lista de conferência em aparelho de
 cada release, em **`crystal-em-casa/publicar-prd.md`**. Resumo: `app-definir` do
 segredo do reembolso e da chave da Groq; depois, para cada etapa, `backup`,
-`app-subir <tag>` e `app-status`. Tags: `sha-cdc45f5` (etapa 1), `sha-ETAPA2`
-(etapa 2), `sha-ETAPA3` (etapa 3). Volta: `app-subir <tag anterior>`.
+`app-subir <tag>` e `app-status`. Tags: `sha-cdc45f5` (etapa 1), `sha-cfe96b3`
+(etapa 2), `sha-acfe6c3` (etapa 3). Volta: `app-subir <tag anterior>`.
 
 A etapa 1 traz a API **sem root** (`USER node`, uid 1000); o `app-subir` ajusta
 sozinho o dono do volume `crystal_app_app_uploads` para 1000:1000 antes do deploy.

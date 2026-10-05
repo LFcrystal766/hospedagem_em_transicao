@@ -7,8 +7,8 @@ imagens construídas. Este roteiro é só o que o Luiz roda e confere.
 | Release | Branch | Commit no `crystal-web-chat` | Tag da imagem |
 |---|---|---|---|
 | 1 · Base e segurança | `otimizacao/etapa-1` | `cdc45f5` | `sha-cdc45f5` |
-| 2 · Início e perfil | `otimizacao/etapa-2` | `3b06150` (merge na build: `ETAPA2`) | `sha-ETAPA2` |
-| 3 · Conversa e visual | `otimizacao/etapa-3` | ver `andamento.md` (merge na build: `ETAPA3`) | `sha-ETAPA3` |
+| 2 · Início e perfil | `otimizacao/etapa-2` | `3b06150` (merge na build: `cfe96b3`) | `sha-cfe96b3` |
+| 3 · Conversa e visual | `otimizacao/etapa-3` | `9cf2438` (merge na build: `acfe6c3`) | `sha-acfe6c3` |
 
 Regras que valem nos três:
 
@@ -64,12 +64,12 @@ Conferir em aparelho (iPhone e Android):
 Se a transcrição falhar, a vigia mostra `transcricao` nos logs da API; a resposta
 fixa "não consegui ouvir" aparece para o aluno e o resto do app segue.
 
-## Release 2 · etapa 2 (`sha-ETAPA2`)
+## Release 2 · etapa 2 (`sha-cfe96b3`)
 
 ```bash
 bash bootstrap-vps.sh app-remover CRYSTAL_ONBOARDING_URL   # a etapa 2 não usa mais
 bash bootstrap-vps.sh backup
-bash bootstrap-vps.sh app-subir sha-ETAPA2
+bash bootstrap-vps.sh app-subir sha-cfe96b3
 bash bootstrap-vps.sh app-status
 ```
 
@@ -83,11 +83,11 @@ Conferir em aparelho:
 - [ ] Equipe: `/equipe/avisos` manda um aviso de teste; chega no aparelho.
 - [ ] Cards de suporte abrem o WhatsApp e o e-mail certos.
 
-## Release 3 · etapa 3 (`sha-ETAPA3`)
+## Release 3 · etapa 3 (`sha-acfe6c3`)
 
 ```bash
 bash bootstrap-vps.sh backup
-bash bootstrap-vps.sh app-subir sha-ETAPA3
+bash bootstrap-vps.sh app-subir sha-acfe6c3
 bash bootstrap-vps.sh app-status
 ```
 

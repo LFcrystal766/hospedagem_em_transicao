@@ -88,7 +88,7 @@ Situação em 03/10, fim do dia (branches do `crystal-web-chat`):
 | Etapa | Branch | Commit | Testes | Estado |
 |---|---|---|---|---|
 | 1 (8 itens + blindagem) | `otimizacao/etapa-1` → build `claude/gracious-shannon-6x9l5j` | `cdc45f5` | 944 + e2e 20/20, CI verde | Imagens `sha-cdc45f5` prontas. **Falta publicar** (portão 1) |
-| 2 (11 itens) | `otimizacao/etapa-2` | `3b06150` | 1113 + e2e 27/27 | Integrada; migrações `e2_14…e2_18`, fontes locais. Publica depois do portão 1 |
+| 2 (11 itens) | `otimizacao/etapa-2` | `3b06150` | 1113 + e2e 27/27 | Integrada; migrações `e2_14…e2_18`, fontes locais. Imagem `sha-cfe96b3`. Publica depois do portão 1 |
 | 3 (7 itens) | `otimizacao/etapa-3` | `ede085b` | 1224 + e2e 33/33 | Integrada; contém a 2. Zero conflitos. Fase 3 do P12 ligada, com chave de desligar |
 
 Custo das 10 sessões de código: cerca de US$ 200. Nada foi publicado na VPS ainda.
