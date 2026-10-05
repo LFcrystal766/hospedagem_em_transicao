@@ -1201,9 +1201,47 @@ app_subir() {
   docker stack deploy --with-registry-auth -c "$STACKS/$APP_YAML" "$APP_STACK" --detach=true >/dev/null
   sleep 8   # deixa o Swarm registrar a atualização antes de conferir
   esperar_stack "$APP_STACK" 420 || { echo "  Logs da API: docker service logs --tail 80 ${APP_STACK}_app_api"; exit 1; }
+  app_conferir_troca "$tag"
   crystal_banco
   echo
   app_status
+}
+
+# "1/1" não basta: se a tarefa nova morrer na subida, o Swarm volta sozinho para a
+# imagem anterior e o serviço fica 1/1 com a tag velha (aconteceu em 05/10 com a
+# API da etapa 1). Espera a atualização terminar e confere a tag de cada serviço;
+# se algum voltou, mostra o log do contêiner que morreu e para em erro.
+app_conferir_troca() {
+  local tag="$1" fim=$((SECONDS + 420)) svc estado img pendente voltou=0 cid
+  while :; do
+    pendente=0
+    for svc in app_api app_web app_crystal; do
+      estado=$(docker service inspect -f '{{if .UpdateStatus}}{{.UpdateStatus.State}}{{end}}' "${APP_STACK}_$svc" 2>/dev/null || true)
+      case "$estado" in updating|rollback_started|paused) pendente=1 ;; esac
+    done
+    [ "$pendente" = 0 ] && break
+    [ "$SECONDS" -lt "$fim" ] || { aviso "atualização da stack ainda em andamento depois de 7 min"; break; }
+    sleep 5
+  done
+  for svc in app_api app_web app_crystal; do
+    img=$(docker service inspect -f '{{.Spec.TaskTemplate.ContainerSpec.Image}}' "${APP_STACK}_$svc" 2>/dev/null || true)
+    case "$img" in
+      *":$tag"|*":$tag@"*) ;;
+      *)
+        voltou=1
+        echo "  !! ${APP_STACK}_$svc NÃO está em $tag (está em ${img##*:}): o Swarm desfez a troca porque a tarefa nova morreu"
+        cid=$(docker ps -a -q --filter "label=com.docker.swarm.service.name=${APP_STACK}_$svc" --filter status=exited | head -1)
+        if [ -n "$cid" ]; then
+          echo "  -- últimas linhas do contêiner que morreu:"
+          docker logs --tail 40 "$cid" 2>&1 | grep -vE '"request completed"|"incoming request"' | sed 's/^/     /' | tail -25
+        fi ;;
+    esac
+  done
+  if [ "$voltou" = 1 ]; then
+    echo
+    falha "a troca para $tag não ficou de pé em todos os serviços. Os outros podem estar na tag nova: deixe tudo igual com 'bash $0 app-subir TAG_ANTERIOR' e mande o log acima para a sessão"
+  fi
+  ok "os três serviços estão em $tag"
 }
 
 app_status() {
