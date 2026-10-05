@@ -51,6 +51,8 @@
 #   bash bootstrap-vps.sh app-definir NOME     grava um valor externo (RESEND_API_KEY, EMAIL_FROM,
 #                                              CRYSTAL_API_URL, REFUND_WEBHOOK_SECRET, TRANSCRIPTION_*,
 #                                              CHATWOOT_API_TOKEN, ...). Sem NOME, lista os aceitos
+#   bash bootstrap-vps.sh app-remover NOME     apaga um valor externo que o app não usa mais
+#                                              (ex.: CRYSTAL_ONBOARDING_URL depois da etapa 2)
 #   bash bootstrap-vps.sh app-subir TAG        gera segredos (uma vez só), monta api.env e sobe
 #                                              a stack crystal_app com a tag (ex.: sha-2b3dd56)
 #   bash bootstrap-vps.sh app-status           serviços do app + HTTPS de app. e api.
@@ -990,6 +992,21 @@ assert d.get("type")=="service_account" and d.get("client_email") and "PRIVATE K
   mv "$APP_EXT.tmp" "$APP_EXT"; chmod 600 "$APP_EXT"
   unset v
   ok "$nome gravado em $APP_EXT. Vale na próxima 'app-subir'"
+}
+
+# Apaga um valor do .externos (ex.: CRYSTAL_ONBOARDING_URL, que a etapa 2 do PRD
+# deixou de usar). Só nomes da lista; nunca segredo gerado pelo app-subir.
+app_remover() {
+  local nome="${1:-}"
+  [ -n "$nome" ] || falha "uso: bash $0 app-remover NOME"
+  printf '%s\n' "${APP_EXTERNOS[@]}" | sed 's/\*$//' | grep -qx "$nome" \
+    || falha "$nome não é um valor externo (bash $0 app-definir lista os aceitos)"
+  [ -s "$APP_EXT" ] || { aviso "$APP_EXT não existe; nada a apagar"; return 0; }
+  if ! grep -qE "^$nome=" "$APP_EXT"; then aviso "$nome não estava em $APP_EXT"; return 0; fi
+  umask 077
+  grep -vE "^$nome=" "$APP_EXT" > "$APP_EXT.tmp" || true
+  mv "$APP_EXT.tmp" "$APP_EXT"; chmod 600 "$APP_EXT"
+  ok "$nome apagado de $APP_EXT. Vale na próxima 'app-subir'"
 }
 
 # Guiado, sem argumento nenhum: pergunta a chave do Resend (sem eco) e o
@@ -2135,6 +2152,7 @@ app_segredos() {
 case "$CMD" in
   app-ghcr) app_ghcr ;;
   app-definir) app_definir "$@" ;;
+  app-remover) app_remover "$@" ;;
   app-resend) app_resend ;;
   app-subir) app_subir "$@" ;;
   app-status) app_status ;;

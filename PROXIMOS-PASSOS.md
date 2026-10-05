@@ -93,7 +93,8 @@ Situação em 03/10, fim do dia (branches do `crystal-web-chat`):
 
 Custo das 10 sessões de código: cerca de US$ 200. Nada foi publicado na VPS ainda.
 
-Ordem de publicação combinada, cada passo com `backup` antes e teste em aparelho depois:
+Ordem de publicação combinada (roteiro completo, com as listas de conferência em
+aparelho, em `crystal-em-casa/publicar-prd.md`), cada passo com `backup` antes:
 
 1. **Portão 1**: `app-definir REFUND_WEBHOOK_SECRET` e `TRANSCRIPTION_API_KEY` (Groq),
    `backup`, `app-subir sha-cdc45f5`. Testar áudio (transcrição), foto e reembolso.
