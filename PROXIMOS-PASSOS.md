@@ -91,7 +91,7 @@ Situação em 03/10, fim do dia (branches do `crystal-web-chat`):
 | 2 (11 itens) | `otimizacao/etapa-2` | `3b06150` | 1113 + e2e 27/27 | Integrada; migrações `e2_14…e2_18`, fontes locais. Imagem `sha-69ef26c`. Publica depois do portão 1 |
 | 3 (7 itens) | `otimizacao/etapa-3` | `ede085b` | 1224 + e2e 33/33 | Integrada; contém a 2. Zero conflitos. Fase 3 do P12 ligada, com chave de desligar |
 
-Custo das 10 sessões de código: cerca de US$ 200. Nada foi publicado na VPS ainda.
+Custo das 10 sessões de código: cerca de US$ 200. **Etapa 1 publicada em 05/10** (`sha-79ba6b7`), faltando os testes em aparelho; etapas 2 e 3 esperam.
 
 Ordem de publicação combinada (roteiro completo, com as listas de conferência em
 aparelho, em `crystal-em-casa/publicar-prd.md`), cada passo com `backup` antes:
