@@ -35,11 +35,20 @@
 
 version: "3.7"
 
+# Logs do Docker com rotação (achado 27): sem isto o json-file cresce sem limite e
+# guarda o IP de cada requisição sem prazo. 3 arquivos de 10 MB por contêiner.
+x-logs: &logs
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
 
   # ---------------------------------------------------------------- Postgres
   app_postgres:
     image: postgres:16-alpine
+    logging: *logs
     env_file: APP_ENV_DIR/postgres.env
     networks:
       - app_interno
@@ -63,6 +72,7 @@ services:
   # (noeviction) e com persistência, senão um reinício desloga todo mundo.
   app_redis:
     image: redis:7-alpine
+    logging: *logs
     command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
     networks:
       - app_interno
@@ -84,12 +94,19 @@ services:
   # ---------------------------------------------------------------- API
   # Aplica as migrações do Prisma e sobe. UMA réplica: com duas, as duas
   # migrariam ao mesmo tempo e o fan-out do chat (em memória) se dividiria.
+  # Postgres lento na subida (achado 28): a migração tenta de novo por até 1 min
+  # antes de desistir, e o restart_policy sem max_attempts nunca deixa a API em 0/1.
   app_api:
     image: ghcr.io/lfcrystal766/crystal-web-chat-api:APP_TAG
+    logging: *logs
     command:
       - sh
       - -c
-      - pnpm --filter @crystal/api db:migrate:deploy && exec pnpm --filter @crystal/api start
+      - >-
+        n=0;
+        until pnpm --filter @crystal/api db:migrate:deploy;
+        do n=$$((n+1)); [ $$n -ge 12 ] && exit 1; echo "migração: app_postgres ainda não aceita ($$n/12), de novo em 5 s"; sleep 5; done;
+        exec pnpm --filter @crystal/api start
     env_file: APP_ENV_DIR/api.env
     networks:
       - app_interno
@@ -115,7 +132,9 @@ services:
         order: stop-first
         failure_action: rollback
         monitor: 120s
-      restart_policy: {condition: any, delay: 10s, max_attempts: 5, window: 300s}
+      # Sem max_attempts (achado 28): depois de 5 falhas o Swarm desistia e a API
+      # ficava 0/1 até alguém agir.
+      restart_policy: {condition: any, delay: 10s}
       labels:
         - traefik.enable=true
         - traefik.docker.network=network_swarm_public
@@ -133,6 +152,7 @@ services:
   # banco e papel próprios (crystal_agente), criados pelo bootstrap.
   app_crystal:
     image: ghcr.io/lfcrystal766/crystal-web-chat-crystal:APP_TAG
+    logging: *logs
     env_file: APP_ENV_DIR/crystal.env
     networks:
       - app_interno
@@ -153,10 +173,11 @@ services:
         order: stop-first
         failure_action: rollback
         monitor: 60s
-      restart_policy: {condition: any, delay: 5s, max_attempts: 5, window: 300s}
+      restart_policy: {condition: any, delay: 5s}
 
   app_web:
     image: ghcr.io/lfcrystal766/crystal-web-chat-web:APP_TAG
+    logging: *logs
     # Só ANDROID_CERT_SHA256 e APPLE_TEAM_ID (públicos, para o /.well-known).
     env_file: APP_ENV_DIR/web.env
     environment:
@@ -182,7 +203,7 @@ services:
         order: start-first
         failure_action: rollback
         monitor: 60s
-      restart_policy: {condition: any, delay: 5s, max_attempts: 5, window: 300s}
+      restart_policy: {condition: any, delay: 5s}
       labels:
         - traefik.enable=true
         - traefik.docker.network=network_swarm_public

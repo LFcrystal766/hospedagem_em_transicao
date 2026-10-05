@@ -31,6 +31,13 @@
 
 version: "3.7"
 
+# Logs do Docker com rotação (achado 27): 3 arquivos de 10 MB por contêiner.
+x-logs: &logs
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
 
   # ---------------------------------------------------------------- Rails
@@ -38,6 +45,7 @@ services:
   # UMA réplica e stop-first: nunca duas migrações ao mesmo tempo.
   cw_rails:
     image: chatwoot/chatwoot:CW_VERSAO
+    logging: *logs
     env_file: CW_ENV_DIR/chatwoot.env
     environment:
       - NODE_ENV=production
@@ -72,7 +80,7 @@ services:
         order: stop-first
         failure_action: rollback
         monitor: 120s
-      restart_policy: {condition: any, delay: 10s, max_attempts: 5, window: 600s}
+      restart_policy: {condition: any, delay: 10s}   # sem max_attempts (achado 28)
       labels:
         - traefik.enable=true
         - traefik.docker.network=network_swarm_public
@@ -98,6 +106,7 @@ services:
   # internet, por isso também está na rede pública. Sem rota no Traefik.
   cw_sidekiq:
     image: chatwoot/chatwoot:CW_VERSAO
+    logging: *logs
     env_file: CW_ENV_DIR/chatwoot.env
     environment:
       - NODE_ENV=production
@@ -120,11 +129,12 @@ services:
         order: stop-first
         failure_action: rollback
         monitor: 60s
-      restart_policy: {condition: any, delay: 10s, max_attempts: 10, window: 600s}
+      restart_policy: {condition: any, delay: 10s}
 
   # ---------------------------------------------------------------- Postgres
   cw_postgres:
     image: pgvector/pgvector:0.8.7-pg16
+    logging: *logs
     env_file: CW_ENV_DIR/postgres.env
     networks:
       - cw_interno
@@ -147,6 +157,7 @@ services:
   # Com senha e persistência; sem despejo de chave (filas do Sidekiq moram aqui).
   cw_redis:
     image: redis:7.4.11-alpine
+    logging: *logs
     env_file: CW_ENV_DIR/redis.env
     command:
       - sh

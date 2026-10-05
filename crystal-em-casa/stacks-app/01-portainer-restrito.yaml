@@ -21,6 +21,9 @@
 #      um redeploy não atualiza o Portainer sem querer, e o banco dele não
 #      aceita voltar de versão).
 #   Mais cabeçalhos de segurança (sem iframe, HSTS, sem farejar tipo).
+#   Sem "priority=1" (achado 74): com a prioridade mínima, outro router que casasse
+#   o mesmo pedido passaria na frente, sem a lista de IPs. A prioridade padrão (o
+#   tamanho da regra Host) basta.
 #
 # Marcadores trocados pelo bootstrap:
 #   PAINEL_IPS     lista separada por vírgula (ex.: 189.1.2.3/32,200.4.5.0/24)
@@ -64,7 +67,6 @@ services:
         - "traefik.docker.network=network_swarm_public"
         - "traefik.http.routers.portainer.rule=Host(`painel.crystalnowpp.com.br`)"
         - "traefik.http.routers.portainer.entrypoints=websecure"
-        - "traefik.http.routers.portainer.priority=1"
         - "traefik.http.routers.portainer.tls.certresolver=letsencryptresolver"
         - "traefik.http.routers.portainer.service=portainer"
         - "traefik.http.routers.portainer.middlewares=portainer-ips,portainer-cabecalhos"
