@@ -59,3 +59,10 @@ avisos e ritmo pela equipe, modo avião). Decisão: a fase 3 do P12 fica ligada.
 
 Pendente: o mesmo roteiro num Android com Chrome (ninguém tinha o aparelho hoje),
 e o teste do reembolso quando a Assiny mandar o JSON de exemplo.
+
+## Ajustes pós-QA publicados (17:13 UTC)
+
+`backup` (app 492K, uploads 760K: já há áudio e foto dos testes) e `app-subir sha-8ed9ce8`:
+os três serviços em `sha-8ed9ce8`. Conteúdo: pílula "Manda o print" removida (ícone de
+clipe à direita do campo, como no WhatsApp) e folha de notificações fechando sozinha
+depois do "Pronto!", com botão Fechar. Imagem com CI e e2e verdes (484 web, 32/32 e2e).
