@@ -8,7 +8,7 @@ imagens construídas. Este roteiro é só o que o Luiz roda e confere.
 |---|---|---|---|
 | 1 · Base e segurança | `otimizacao/etapa-1` | `79ba6b7` (hotfix do guard https sobre `cdc45f5`) | `sha-79ba6b7` |
 | 2 · Início e perfil | `otimizacao/etapa-2` | `69ef26c` | `sha-69ef26c` |
-| 3 · Conversa e visual | `otimizacao/etapa-3` | `8ed9ce8` (`da617ac` + ajustes pós-QA) | `sha-8ed9ce8` |
+| 3 · Conversa e visual | `otimizacao/etapa-3` | `398e46e` (`da617ac` + ajustes pós-QA de 05/10) | `sha-398e46e` |
 
 Aprendido em 05/10, na primeira tentativa da etapa 1: a API nova recusou
 `CRYSTAL_API_URL=http://app_crystal:8080` (guard de https em produção), morreu na
@@ -116,7 +116,7 @@ Conferir em aparelho (roteiros completos em `docs/otimizacao/pedidos-e3-*.md` do
 
 ## Ajustes pós-QA (05/10, depois do iPhone aprovar)
 
-Dois pedidos do Luiz entraram na imagem `sha-8ed9ce8`: a pílula "Manda o print" saiu
+Pedidos do Luiz do mesmo dia, em três imagens (`sha-8ed9ce8`, `sha-99d80cf`, `sha-398e46e`, todas publicadas): teclado no iPhone não esconde mais a conversa; foto da Crystal padrão, recortada no rosto; trava de gravação deslizando para cima; e-mail à equipe quando a Crystal falha em turno de risco (`EQUIPE_EMAIL`). Na primeira: a pílula "Manda o print" saiu
 (imagem só pelo ícone de clipe à direita do campo, como no WhatsApp) e a folha de
 notificações fecha sozinha 1,5 s depois do "Pronto!", com botão Fechar. Subida:
 `backup` e `app-subir sha-8ed9ce8`. Conferir: ícone de clipe no lugar da pílula;

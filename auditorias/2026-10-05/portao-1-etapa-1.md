@@ -66,3 +66,13 @@ e o teste do reembolso quando a Assiny mandar o JSON de exemplo.
 os três serviços em `sha-8ed9ce8`. Conteúdo: pílula "Manda o print" removida (ícone de
 clipe à direita do campo, como no WhatsApp) e folha de notificações fechando sozinha
 depois do "Pronto!", com botão Fechar. Imagem com CI e e2e verdes (484 web, 32/32 e2e).
+
+## Releases seguintes do mesmo dia
+
+| Hora (UTC) | Tag | Conteúdo |
+|---|---|---|
+| 17:40 | `sha-99d80cf` | Conversa não some mais com o teclado no iPhone (tela fixa ao visual viewport); foto padrão da Crystal |
+| 17:58 | `sha-398e46e` | Foto recortada no rosto; trava de gravação deslizando para cima (cadeado, como no WhatsApp); erro da Crystal em turno de risco avisa a equipe por e-mail (`EQUIPE_EMAIL`, padrão contato@leticiafelisberto.com, 1 por conversa a cada 30 min) e a bolha mostra os contatos de emergência |
+
+Cada uma com `backup` antes e `ok os três serviços estão em <tag>`. Versão em
+produção ao fim do dia: **`sha-398e46e`**. Volta: `app-subir sha-8ed9ce8` ou anterior.
