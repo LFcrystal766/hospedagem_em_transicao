@@ -66,7 +66,8 @@
 #   bash bootstrap-vps.sh app-status           serviços do app + HTTPS de app. e api.
 #   bash bootstrap-vps.sh app-admin            cria o primeiro admin (CPF digitado sem aparecer,
 #                                              não fica em spec, log nem histórico)
-#   bash bootstrap-vps.sh app-aluno            cria uma conta de aluno à mão (CPF sem aparecer;
+#   bash bootstrap-vps.sh app-aluno            cria uma conta LOCAL de aluno, que não passa pela base de
+#                                              alunas do Supabase (testadores, equipe; CPF sem aparecer;
 #                                              pergunta e-mail, nome e WhatsApp)
 #   bash bootstrap-vps.sh vigia-config         liga a vigia do app (a cada 5 min, avisa no Telegram;
 #                                              pede o token do bot sem aparecer)
@@ -1799,8 +1800,11 @@ try {
       crystalContactId: null,
       phoneE164: process.env.ALUNO_TEL || null,
       email,
+      // Conta local: não passa pela base de alunas (Supabase) no login. Para testadores
+      // e equipe usando como aluna. Precisa da API com o campo (imagens a partir de 05/10).
+      localAccount: true,
     });
-    console.log(`conta de aluno criada (CPF final ${cpfLast4(cpf.data)})`);
+    console.log(`conta local de aluno criada (CPF final ${cpfLast4(cpf.data)}): entra sem passar pela base de alunas`);
   }
 } finally {
   await prisma.$disconnect();
@@ -1814,6 +1818,7 @@ TS
   app_api_ts_apagar "$cid" .aluno.ts
   unset cpf
   echo "  Entrar em https://app.$DOMINIO com esse CPF e e-mail (o código chega por e-mail)."
+  echo "  É uma conta LOCAL: não passa pela base de alunas. Quem está na base com acesso ativo não precisa disto."
 }
 
 # Troca TODOS os segredos do app recriando o banco dele do zero. Só enquanto o
