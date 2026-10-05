@@ -31,3 +31,20 @@ Lições, já aplicadas:
 
 Falta para fechar o portão 1: teste em aparelho (lista em `crystal-em-casa/publicar-prd.md`,
 release 1) e, quando a Assiny mandar o JSON, o teste do reembolso.
+
+## Release único das etapas 2 e 3 (mesmo dia, 16:25 UTC)
+
+Decisão do Luiz: ir ao ar hoje. As etapas 2 e 3 subiram num release só, com a
+imagem `sha-da617ac` (contém a 2), porque o commit tinha CI completo verde (33 e2e)
+e a volta é um comando. Sequência: `app-remover CRYSTAL_ONBOARDING_URL` (não
+existia), `backup` 16:25 UTC (app 488K, uploads 4K, cifrado no R2),
+`app-subir sha-da617ac` → os três serviços em `sha-da617ac`, `1/1`.
+
+Conferido de fora: `POST /messages/x/retry` sem credencial → 401 (rota da etapa 3
+existe); `/papel-de-parede/escuro.png` → 200 (web da etapa 3); `/healthz` ok.
+As migrações `e2_14…e2_18` e `e3_19` rodaram na subida da API (a API só sobe
+depois do `migrate deploy`).
+
+Volta, se precisar: `app-subir sha-79ba6b7` (etapa 1). Atenção: a etapa 2 apagou
+`onboarding_states`; se a volta para a etapa 1 reclamar da tabela, restaurar o
+backup das 16:25 antes.
