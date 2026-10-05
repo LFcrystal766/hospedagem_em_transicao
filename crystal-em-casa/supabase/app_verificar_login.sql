@@ -49,14 +49,26 @@ as $$
           = regexp_replace(coalesce(p_cpf, ''), '\D', '', 'g')
     and lower(trim(c.email)) = lower(trim(coalesce(p_email, '')))
     -- and c.is_in_rollout          -- primeira leva só
+  order by c.created_at asc, c.id asc   -- se houver cadastro repetido, sempre o mesmo
   limit 1;
 $$;
+
+-- Índice na mesma expressão da busca: o login não varre a tabela inteira.
+create index if not exists leticia_crystal_customers_cpf_digitos
+  on public.leticia_crystal_customers ((regexp_replace(coalesce(cpf::text, ''), '\D', '', 'g')));
 
 revoke all on function public.app_verificar_login(text, text) from public;
 revoke all on function public.app_verificar_login(text, text) from anon, authenticated;
 grant execute on function public.app_verificar_login(text, text) to service_role;
 
+-- Se o app der 404 na função logo depois de criar, o cache do PostgREST não viu ainda:
+--   notify pgrst, 'reload schema';
+
 -- Conferências depois de criar (só contagens):
+--   RLS ligado nas tabelas com dado de aluna (rowsecurity tem que ser true; se false,
+--   a chave anon, que é pública, lê a tabela com CPF):
+--     select tablename, rowsecurity from pg_tables
+--      where schemaname = 'public' and tablename like 'leticia_crystal_%' order by 1;
 --   quantas alunas o app aceitaria hoje
 --     select count(*) from public.leticia_crystal_customers c
 --      where length(regexp_replace(coalesce(c.cpf,''),'\D','','g')) = 11

@@ -348,9 +348,10 @@ O aluno precisa de telefone no cadastro (`app-telefone EMAIL` para contas feitas
 
 Depois da transferência do projeto do Supabase:
 
-1. No SQL Editor do Supabase, conferir as colunas de `leticia_crystal_customers` e
-   rodar `docs/supabase/app_verificar_login.sql` do repositório do app, ajustando os
-   nomes marcados com `<<< CONFERIR`.
+1. No SQL Editor do Supabase, rodar `crystal-em-casa/supabase/app_verificar_login.sql`
+   deste repositório (já com as colunas reais do projeto Crystal AI, conferidas em
+   05/10). Não usar o modelo `docs/supabase/` do repositório do app: os nomes de lá
+   não existem e o filtro de acesso ativo é outro.
 2. Na VPS:
 
 ```bash
