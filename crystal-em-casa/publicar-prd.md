@@ -126,7 +126,7 @@ ativar notificações no menu e ver a folha sumir.
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
   Precisa antes do DNS `atendimento` cinza. `app-canal chatwoot` só depois do teste da
-  Crystal respondendo lá e do `CHATWOOT_API_TOKEN` definido (exclusão de conta apaga o
-  contato no Chatwoot).
+  Crystal respondendo lá. Quem atende é a equipe de suporte (decisão de 05/10). Não
+  definir `CHATWOOT_API_TOKEN`: excluir conta não apaga o contato no Chatwoot.
 - **Vigia**: `bash bootstrap-vps.sh vigia-config` se ainda não estiver ligada.
 - **Alma da Crystal**: prompt e base de conhecimento da agência, quando chegarem.

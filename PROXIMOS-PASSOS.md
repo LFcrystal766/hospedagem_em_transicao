@@ -110,8 +110,13 @@ Pendências do Luiz para o squad (lista completa em `andamento.md`):
 - **Android** com Chrome para os testes.
 - Conferir no iPhone, nos dois temas, as cores do WhatsApp (P16), o papel de parede (P08)
   e `statusBarStyle`; textos "0:07" do gravador; nomes "Tema"/"Sistema".
-- Decisões: excluir contato no Chatwoot junto com a conversa do WhatsApp; encaminhar erro
-  da Crystal em turno de risco; reembolso quando só o e-mail bate.
+- Decisões do Luiz em 05/10: **excluir conta NÃO apaga o contato no Chatwoot** (a
+  conversa do WhatsApp fica; não definir `CHATWOOT_API_TOKEN`; a política de privacidade
+  deve dizer que o histórico de atendimento fica com a equipe); **erro da Crystal em turno
+  de risco avisa a equipe por e-mail** (`EQUIPE_EMAIL`, padrão contato@leticiafelisberto.com,
+  em implementação); **quem atende o Chatwoot é a equipe de suporte**; gravação de áudio
+  também **sem segurar**, com a trava de deslizar para cima como no WhatsApp (em
+  implementação). Ainda sem resposta: reembolso quando só o e-mail bate.
 
 ## Revisão geral do código (02/10)
 
