@@ -50,11 +50,16 @@
 #                                              remetente. Nada vai na linha de comando
 #   bash bootstrap-vps.sh app-definir NOME     grava um valor externo (RESEND_API_KEY, EMAIL_FROM,
 #                                              CRYSTAL_API_URL, REFUND_WEBHOOK_SECRET, TRANSCRIPTION_*,
-#                                              CHATWOOT_API_TOKEN, ...). Sem NOME, lista os aceitos
+#                                              SUPABASE_*, EQUIPE_EMAIL, RATE_AUTH_*, ...). Confere o
+#                                              formato antes de gravar. Sem NOME, lista os aceitos
 #   bash bootstrap-vps.sh app-remover NOME     apaga um valor externo que o app não usa mais
 #                                              (ex.: CRYSTAL_ONBOARDING_URL depois da etapa 2)
-#   bash bootstrap-vps.sh app-subir TAG        gera segredos (uma vez só), monta api.env e sobe
-#                                              a stack crystal_app com a tag (ex.: sha-2b3dd56)
+#   bash bootstrap-vps.sh app-subir TAG        gera segredos (uma vez só), monta api.env, confere o
+#                                              api.env no boot da imagem, sobe a stack crystal_app com
+#                                              a tag (ex.: sha-398e46e) e falha se o Swarm desfizer a
+#                                              troca (rollback), mesmo com a tag igual
+#   bash bootstrap-vps.sh app-supabase-teste   chama a função de login do Supabase com CPF fictício:
+#                                              200 ok, 404 função não existe, 401 chave errada
 #   bash bootstrap-vps.sh app-status           serviços do app + HTTPS de app. e api.
 #   bash bootstrap-vps.sh app-admin            cria o primeiro admin (CPF digitado sem aparecer,
 #                                              não fica em spec, log nem histórico)
@@ -95,7 +100,7 @@
 #   bash bootstrap-vps.sh app-definir REFUND_WEBHOOK_SECRET   gerado com: openssl rand -hex 32 (guardar no Bitwarden)
 #   bash bootstrap-vps.sh app-definir TRANSCRIPTION_API_KEY   chave da Groq; URL e modelo já têm padrão no código
 #                                              (https://api.groq.com/openai/v1/audio/transcriptions, whisper-large-v3-turbo)
-#   bash bootstrap-vps.sh app-definir CHATWOOT_API_TOKEN      opcional: só com o nosso Chatwoot no ar
+#   CHATWOOT_API_TOKEN: NÃO definir (decisão de 05/10: excluir conta não apaga o contato no Chatwoot)
 #   bash bootstrap-vps.sh app-status           anotar a tag atual, para poder voltar
 #   bash bootstrap-vps.sh backup               banco do app e uploads antes de trocar a imagem
 #   bash bootstrap-vps.sh app-subir sha-XXXXXXX    a tag nova (ajusta o dono do volume de uploads antes)
@@ -297,11 +302,103 @@ esperar_stack() { # esperar_stack NOME_DA_STACK [SEGUNDOS]
   done
 }
 
+# Estado da última atualização de um serviço, lido do JSON do docker service inspect
+# (nomes de campo da API, sem depender de método em template). Saída:
+# "ATUALIZADO_EM ESTADO INICIO" (epoch UTC; ESTADO "-" se nunca houve atualização,
+# "ausente" se o serviço não existe).
+svc_estado() { # svc_estado SERVIÇO
+  { docker service inspect "$1" 2>/dev/null || true; } | python3 -c '
+import datetime, json, re, sys
+def ep(s):
+    if not s:
+        return 0
+    s = re.sub(r"\.\d+", "", s).replace("Z", "+00:00")
+    try:
+        return int(datetime.datetime.fromisoformat(s).timestamp())
+    except ValueError:
+        return 0
+try:
+    d = json.load(sys.stdin)[0]
+except Exception:
+    print("0 ausente 0"); sys.exit(0)
+u = d.get("UpdateStatus") or {}
+print(ep(d.get("UpdatedAt")), u.get("State") or "-", ep(u.get("StartedAt")))' 2>/dev/null || echo "0 ausente 0"
+}
+
+# Últimas linhas do contêiner mais novo que morreu num serviço, sem as linhas de
+# requisição, e o erro das últimas tarefas.
+servico_log_morto() { # servico_log_morto SERVIÇO
+  local cid
+  docker service ps "$1" --no-trunc --format '{{.Name}} {{.CurrentState}} {{.Error}}' 2>/dev/null | head -4 | sed 's/^/     /' || true
+  cid=$(docker ps -a -q --filter "label=com.docker.swarm.service.name=$1" --filter status=exited 2>/dev/null | head -1 || true)
+  if [ -n "$cid" ]; then
+    echo "  -- últimas linhas do contêiner que morreu ($1):"
+    docker logs --tail 40 "$cid" 2>&1 | grep -vE '"request completed"|"incoming request"' | sed 's/^/     /' | tail -25 || true
+  fi
+}
+
+# Depois de QUALQUER deploy: "1/1" e a tag certa não bastam. Se a tarefa nova morre na
+# subida, o Swarm volta sozinho ao spec anterior (failure_action: rollback). Com a
+# mesma tag (mudança só no .env) a imagem nem muda, e só o UpdateStatus mostra a volta
+# (achado 4 da revisão de 05/10). Espera a atualização terminar e falha quando:
+#   - o estado é rollback_started/rollback_paused/rollback_completed ou paused, numa
+#     atualização que começou depois do deploy (T0). Estado antigo, de um deploy
+#     anterior que já voltou, não conta: é o caso do "app-subir TAG_ANTERIOR";
+#   - a atualização não termina em 7 min;
+#   - com TAG, a imagem do serviço não está nessa tag.
+# Mostra o log do contêiner que morreu. Volta 1 se algo falhou (quem chama decide).
+conferir_atualizacao() { # conferir_atualizacao T0 TAG|- SERVIÇO...
+  local t0=$1 tag=$2 svc upd estado ini pendente agora fim problema img falhou=0
+  shift 2
+  fim=$(( $(date +%s) + 420 ))
+  while :; do
+    pendente=0; agora=$(date +%s)
+    for svc in "$@"; do
+      read -r upd estado ini <<<"$(svc_estado "$svc")"
+      case "$estado" in
+        updating|rollback_started) pendente=1 ;;
+        *) # Spec regravado agora e a atualização ainda não começou: dá até 30 s.
+           if [ "$upd" -ge "$t0" ] && [ "$ini" -lt "$t0" ] && [ "$agora" -lt $((t0 + 30)) ]; then pendente=1; fi ;;
+      esac
+    done
+    [ "$pendente" = 0 ] && break
+    [ "$agora" -lt "$fim" ] || break
+    sleep 5
+  done
+  for svc in "$@"; do
+    read -r upd estado ini <<<"$(svc_estado "$svc")"
+    problema=""
+    case "$estado" in
+      rollback_*|paused) [ "$ini" -lt "$t0" ] || problema="o Swarm desfez a troca (UpdateStatus=$estado): a tarefa nova morreu na subida" ;;
+      updating) problema="a atualização não terminou em 7 min" ;;
+      ausente) problema="o serviço não existe" ;;
+    esac
+    if [ -z "$problema" ] && [ "$tag" != "-" ]; then
+      img=$(docker service inspect -f '{{.Spec.TaskTemplate.ContainerSpec.Image}}' "$svc" 2>/dev/null || true)
+      case "$img" in
+        *":$tag"|*":$tag@"*) ;;
+        *) problema="NÃO está em $tag (está em ${img##*:}): o Swarm desfez a troca" ;;
+      esac
+    fi
+    [ -n "$problema" ] || continue
+    falhou=1
+    echo "  !! $svc: $problema"
+    servico_log_morto "$svc"
+  done
+  return "$falhou"
+}
+
 deploy() { # deploy ARQUIVO STACK
   [ -f "$STACKS/$1" ] || falha "$STACKS/$1 não existe: rode 'preparar' antes"
   echo "== $2 ($1)"
+  local t0 svcs
+  t0=$(date +%s)
   docker stack deploy -c "$STACKS/$1" "$2" --detach=true >/dev/null
+  sleep 3   # deixa o Swarm registrar a atualização antes de conferir
   esperar_stack "$2"
+  svcs=$(docker service ls --filter "label=com.docker.stack.namespace=$2" --format '{{.Name}}' 2>/dev/null || true)
+  # shellcheck disable=SC2086
+  conferir_atualizacao "$t0" - $svcs || falha "a stack $2 não ficou de pé (log acima)"
 }
 
 traefik()   { conferir_fundacao; deploy 00-traefik.yaml traefik; }
@@ -754,9 +851,11 @@ painel_restringir() {
   mv "$PAINEL_IPS_ARQ.novo" "$PAINEL_IPS_ARQ"
   painel_gerar || exit 2
   echo "== portainer (o painel fica fora do ar por uns segundos)"
+  local t0; t0=$(date +%s)
   docker stack deploy -c "$STACKS/01-portainer.yaml" portainer --detach=true >/dev/null
   sleep 8   # deixa o Swarm registrar a atualização antes de conferir
   esperar_stack portainer 240 || exit 1
+  conferir_atualizacao "$t0" - portainer_portainer portainer_agent || falha "o Portainer não ficou de pé com a lista nova (log acima)"
   painel_conferir
 }
 
@@ -849,7 +948,8 @@ segredos() {
       grep -E '^(DB_SENHA|N8N_CHAVE|N8N_REDIS_SENHA)=' "$SEGREDOS"
     } | less -K
   else
-    grep -E '^(DB_SENHA|N8N_CHAVE|N8N_REDIS_SENHA)=' "$SEGREDOS"
+    # Fora de terminal (cron, pipe, log) os valores iriam parar num arquivo (achado 70).
+    falha "rode num terminal: os segredos abrem no less e não ficam em log nem no histórico"
   fi
 }
 
@@ -905,7 +1005,18 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL CRYSTAL_MODEL_RESERVA
   ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*
   REFUND_WEBHOOK_SECRET* TRANSCRIPTION_API_URL TRANSCRIPTION_API_KEY* TRANSCRIPTION_MODEL
-  TRANSCRIPTION_TIMEOUT_MS CHATWOOT_API_TOKEN*)
+  TRANSCRIPTION_TIMEOUT_MS CHATWOOT_API_TOKEN* EQUIPE_EMAIL
+  RATE_AUTH_MAX RATE_AUTH_WINDOW_S OTP_MAX_ATTEMPTS OTP_RESEND_COOLDOWN_S OTP_RESEND_MAX)
+
+# Nome de variável: maiúsculas, números e _. Qualquer outra coisa no lugar do nome
+# pode ser uma chave colada errado, e aí nunca é repetida na tela (achado 70).
+parece_nome() { printf '%s' "$1" | grep -Eq '^[A-Z][A-Z0-9_]{1,40}$'; }
+recusar_nao_nome() { # recusar_nao_nome COMANDO
+  falha "isso não é um NOME da lista e pode ser uma CHAVE colada no lugar (re_, gsk_, sb_secret_, sk-or-, eyJ...). Não repito o que foi digitado. A chave nunca vai na linha de comando: rode só 'bash $0 $1 NOME' e cole quando ele perguntar. Se era uma chave, troque-a no painel de origem: ela ficou no histórico do terminal (limpe com: history -c && history -w)"
+}
+inteiro_entre() { # inteiro_entre VALOR MIN MAX
+  printf '%s' "$1" | grep -Eq '^[0-9]{1,9}$' && [ "$1" -ge "$2" ] && [ "$1" -le "$3" ]
+}
 
 app_valor() { # app_valor ARQUIVO NOME -> valor (sem imprimir nada se não houver)
   [ -f "$1" ] || return 0
@@ -941,21 +1052,75 @@ app_definir() {
   if [ "$aceito" -ne 1 ]; then
     # Nunca repetir o que foi digitado: quase sempre é um segredo colado no
     # lugar do nome, e aí ele iria pra tela e pra captura do terminal.
-    case "$nome" in
-      re_*|ghp_*|github_pat_*|sk-*|sk_*|eyJ*)
-        falha "isso parece uma CHAVE, não um nome. A chave nunca vai na linha de comando. Rode só: bash $0 app-definir RESEND_API_KEY  e cole a chave quando ele perguntar. Troque essa chave no painel de origem: ela ficou no histórico do terminal (limpe com: history -c && history -w)" ;;
-      *)
-        falha "o primeiro argumento tem que ser um NOME da lista (ex.: RESEND_API_KEY). Rode 'bash $0 app-definir' pra ver a lista" ;;
-    esac
+    parece_nome "$nome" || recusar_nao_nome app-definir
+    falha "$nome não está na lista de nomes aceitos. Rode 'bash $0 app-definir' pra ver a lista"
   fi
   if [ "$secreto" -eq 1 ]; then
     read -rsp "$nome (não aparece na tela): " v; echo
   else
     read -rp "$nome: " v
   fi
+  case "$v" in *$'\r'*) v=${v//$'\r'/} ;; esac   # colado do Windows/Mac com CR no fim
+  # Espaço ou tab nas pontas (colar do painel costuma trazer) sai; no meio, fica.
+  v="${v#"${v%%[![:space:]]*}"}"; v="${v%"${v##*[![:space:]]}"}"
   [ -n "$v" ] || falha "valor vazio; nada gravado"
-  case "$v" in *$'\n'*|*$'\r'*) falha "valor com quebra de linha" ;; esac
+  case "$v" in *$'\n'*) falha "valor com quebra de linha" ;; esac
+  local base papel
   case "$nome" in
+    SUPABASE_URL)
+      # Em 05/10 colaram a URL com /rest/v1/ e todo login daria 503: o app acrescenta
+      # /rest/v1/rpc/... sozinho. Corta o caminho e avisa (achado 9).
+      case "$v" in https://*) ;; *) falha "a URL do Supabase começa com https:// (ex.: https://abcdefghijklmnopqrst.supabase.co). Nada gravado" ;; esac
+      base=$(printf '%s' "$v" | sed -E 's;^(https://[^/?#]+).*;\1;')
+      if [ "$base" != "$v" ]; then
+        aviso "cortei '${v#"$base"}' do fim: vale só https://<ref>.supabase.co (o app acrescenta /rest/v1/rpc/... sozinho)"
+        v=$base
+      fi
+      v=$(printf '%s' "$v" | tr 'A-Z' 'a-z')
+      printf '%s' "$v" | grep -Eq '^https://[a-z0-9]{20}\.supabase\.co$' \
+        || falha "formato: https://<ref de 20 letras e números>.supabase.co (Supabase > Settings > API > Project URL). Nada gravado" ;;
+    SUPABASE_SERVICE_ROLE_KEY)
+      # A chave anon/publicável é pública e não passa pelo RLS da base: com ela todo
+      # login de aluna daria 503. Recusa sem mostrar nada.
+      case "$v" in
+        sb_publishable_*) v=""; falha "essa é a chave PUBLICÁVEL (sb_publishable_...), que é pública. Aqui vai a SECRETA (sb_secret_...) ou a service_role legada (eyJ...). Nada gravado" ;;
+        sb_secret_*) printf '%s' "$v" | grep -Eq '^sb_secret_[A-Za-z0-9_-]{20,}$' || { v=""; falha "chave sb_secret_ incompleta ou com caractere estranho. Nada gravado"; } ;;
+        eyJ*)
+          papel=$(printf '%s' "$v" | python3 -c 'import base64,json,sys
+p=sys.stdin.read().strip().split(".")
+try:
+    print(json.loads(base64.urlsafe_b64decode(p[1]+"="*(-len(p[1])%4))).get("role",""))
+except Exception:
+    print("")' 2>/dev/null || true)
+          case "$papel" in
+            service_role) ;;
+            anon) v=""; falha "essa é a chave ANON (pública). Aqui vai a service_role (Settings > API > service_role, ou a nova sb_secret_). Nada gravado" ;;
+            *) v=""; falha "JWT sem role service_role (incompleto?). Nada gravado" ;;
+          esac ;;
+        *) v=""; falha "formato inesperado: a chave começa com sb_secret_ (nova) ou eyJ (service_role legada). Nada gravado" ;;
+      esac ;;
+    SUPABASE_LOGIN_RPC)
+      printf '%s' "$v" | grep -Eq '^[a-z_][a-z0-9_]{0,62}$' || falha "nome da função em minúsculas, números e _ (padrão: app_verificar_login). Nada gravado" ;;
+    VAPID_SUBJECT)
+      printf '%s' "$v" | grep -Eq '^(mailto:[^@ ]+@[^@ ]+\.[^@ ]+|https://[^ ]+)$' || falha "formato: mailto:alguem@dominio.com ou https://... Nada gravado" ;;
+    SENTRY_DSN)
+      printf '%s' "$v" | grep -Eq '^https://[A-Za-z0-9]+@[A-Za-z0-9.-]+(:[0-9]+)?/[0-9]+$' \
+        || falha "formato do DSN: https://CHAVE@oNNN.ingest.sentry.io/NNN (Sentry > Settings > Client Keys). Nada gravado" ;;
+    ALERT_WEBHOOK_URL)
+      printf '%s' "$v" | grep -Eq '^https://[A-Za-z0-9.-]+(:[0-9]+)?(/[^ ]*)?$' || { v=""; falha "a URL do alerta tem que ser https://, sem espaço. Nada gravado"; } ;;
+    CHANNEL_REPLY_TIMEOUT_MS)
+      inteiro_entre "$v" 5000 600000 || falha "só inteiro entre 5000 e 600000 (milissegundos; padrão 180000). Nada gravado" ;;
+    RATE_AUTH_MAX)
+      inteiro_entre "$v" 1 10000 || falha "só inteiro entre 1 e 10000 (tentativas por janela; padrão 5). Nada gravado" ;;
+    RATE_AUTH_WINDOW_S)
+      inteiro_entre "$v" 10 86400 || falha "só inteiro entre 10 e 86400 (segundos; padrão 900). Nada gravado" ;;
+    OTP_MAX_ATTEMPTS|OTP_RESEND_MAX)
+      inteiro_entre "$v" 1 20 || falha "só inteiro entre 1 e 20. Nada gravado" ;;
+    OTP_RESEND_COOLDOWN_S)
+      inteiro_entre "$v" 10 3600 || falha "só inteiro entre 10 e 3600 (segundos; padrão 60). Nada gravado" ;;
+    EQUIPE_EMAIL)
+      v=$(printf '%s' "$v" | tr 'A-Z' 'a-z')
+      printf '%s' "$v" | grep -Eq '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$' || falha "e-mail inválido. Nada gravado" ;;
     CHAT_TRANSPORT)
       v=$(printf '%s' "$v" | tr 'A-Z' 'a-z' | tr -d ' ')
       case "$v" in crystal|chatwoot) ;; *) falha "digite só crystal (a nossa Crystal direto) ou chatwoot (pelo nosso Chatwoot; prefira: app-canal chatwoot). Nada gravado" ;; esac ;;
@@ -999,6 +1164,7 @@ assert d.get("type")=="service_account" and d.get("client_email") and "PRIVATE K
 app_remover() {
   local nome="${2:-}"   # $1 é o próprio "app-remover" (o dispatch passa "$@")
   [ -n "$nome" ] || falha "uso: bash $0 app-remover NOME"
+  parece_nome "$nome" || recusar_nao_nome app-remover   # nunca repete o argumento (achado 70)
   printf '%s\n' "${APP_EXTERNOS[@]}" | sed 's/\*$//' | grep -qx "$nome" \
     || falha "$nome não é um valor externo (bash $0 app-definir lista os aceitos)"
   [ -s "$APP_EXT" ] || { aviso "$APP_EXT não existe; nada a apagar"; return 0; }
@@ -1076,6 +1242,13 @@ app_gerar_env() {
       [ -n "$(app_valor "$APP_EXT" $k)" ] || falha "CHAT_TRANSPORT=chatwoot sem $k. Rode: bash $0 app-definir $k"
     done
   fi
+  # O robô do Chatwoot pergunta à Crystal pela CRYSTAL_API_*: sem ela a API não sobe
+  # (achado 33; aconteceria depois de um crystal-provisoria-desligar).
+  if [ -n "$(app_valor "$APP_EXT" CHATWOOT_BOT_TOKEN)$(app_valor "$APP_EXT" CHATWOOT_BOT_SECRET)$(app_valor "$APP_EXT" CHATWOOT_ACCOUNT_ID)" ]; then
+    for k in CRYSTAL_API_URL CRYSTAL_API_KEY; do
+      [ -n "$(app_valor "$APP_EXT" $k)" ] || falha "o robô do Chatwoot (CHATWOOT_BOT_*) precisa de $k e ela não está definida. Rode: bash $0 crystal-nossa TAG"
+    done
+  fi
   # Base de alunos no Supabase dispensa a DIRECTORY_API_*.
   if [ -n "$(app_valor "$APP_EXT" SUPABASE_URL)" ] && [ -n "$(app_valor "$APP_EXT" SUPABASE_SERVICE_ROLE_KEY)" ]; then
     chaves=$(echo "$chaves" | sed 's/DIRECTORY_API_URL//; s/DIRECTORY_API_KEY//')
@@ -1140,9 +1313,9 @@ app_gerar_env() {
     aviso "Crystal SIMULADA (sem endereço): bash $0 crystal-nossa TAG"
   fi
   if [ -n "$(app_valor "$APP_EXT" SUPABASE_URL)" ] && [ -n "$(app_valor "$APP_EXT" SUPABASE_SERVICE_ROLE_KEY)" ]; then
-    ok "base de alunos: Supabase"
+    ok "base de alunos: Supabase configurada (a confirmação vem depois do deploy, no app-supabase-teste)"
   elif [ -n "$(app_valor "$APP_EXT" DIRECTORY_API_URL)" ] && [ -n "$(app_valor "$APP_EXT" DIRECTORY_API_KEY)" ]; then
-    ok "base de alunos: DIRECTORY_API"
+    ok "base de alunos: DIRECTORY_API configurada"
   else
     aviso "base de alunos ainda não ligada: só entra quem foi criado aqui (app-admin, contas de revisão)"
   fi
@@ -1184,7 +1357,9 @@ app_subir() {
 
   echo "== segredos e ambiente"
   app_gerar_segredos "$tag"
+  crystal_chave_sincronizar
   app_gerar_env
+  app_env_preflight "$tag"
 
   echo "== stack"
   mkdir -p "$ORIG" "$STACKS"; chmod 700 "$BASE" "$STACKS"
@@ -1198,50 +1373,78 @@ app_subir() {
   sed -e "s|APP_TAG|$tag|g" -e "s|APP_ENV_DIR|$APP_DIR|g" "$ORIG/$APP_YAML" > "$STACKS/$APP_YAML"
   grep -nE 'APP_TAG|APP_ENV_DIR' "$STACKS/$APP_YAML" | grep -vE '^\s*[0-9]+:\s*#' | grep -q . && falha "marcador sobrando em $APP_YAML"
   app_uploads_dono   # a API sem root (etapa 1) precisa do volume com dono 1000:1000
+  local t0; t0=$(date +%s)
   docker stack deploy --with-registry-auth -c "$STACKS/$APP_YAML" "$APP_STACK" --detach=true >/dev/null
   sleep 8   # deixa o Swarm registrar a atualização antes de conferir
-  esperar_stack "$APP_STACK" 420 || { echo "  Logs da API: docker service logs --tail 80 ${APP_STACK}_app_api"; exit 1; }
-  app_conferir_troca "$tag"
+  esperar_stack "$APP_STACK" 420 || { servico_log_morto "${APP_STACK}_app_api"; echo "  Logs da API: docker service logs --tail 80 ${APP_STACK}_app_api"; exit 1; }
+  app_conferir_troca "$t0" "$tag"
   crystal_banco
   echo
   app_status
+  if [ -n "$(app_valor "$APP_EXT" SUPABASE_URL)" ] && [ -n "$(app_valor "$APP_EXT" SUPABASE_SERVICE_ROLE_KEY)" ]; then
+    echo
+    if ! app_supabase_teste; then
+      SUPABASE_FALHOU=1
+      echo "  !! a base de alunos NÃO respondeu como devia: todo login de aluna da base vai dar 503 até corrigir (acima)"
+    fi
+  fi
 }
 
-# "1/1" não basta: se a tarefa nova morrer na subida, o Swarm volta sozinho para a
-# imagem anterior e o serviço fica 1/1 com a tag velha (aconteceu em 05/10 com a
-# API da etapa 1). Espera a atualização terminar e confere a tag de cada serviço;
-# se algum voltou, mostra o log do contêiner que morreu e para em erro.
-app_conferir_troca() {
-  local tag="$1" fim=$((SECONDS + 420)) svc estado img pendente voltou=0 cid
-  while :; do
-    pendente=0
-    for svc in app_api app_web app_crystal; do
-      estado=$(docker service inspect -f '{{if .UpdateStatus}}{{.UpdateStatus.State}}{{end}}' "${APP_STACK}_$svc" 2>/dev/null || true)
-      case "$estado" in updating|rollback_started|paused) pendente=1 ;; esac
-    done
-    [ "$pendente" = 0 ] && break
-    [ "$SECONDS" -lt "$fim" ] || { aviso "atualização da stack ainda em andamento depois de 7 min"; break; }
-    sleep 5
-  done
-  for svc in app_api app_web app_crystal; do
-    img=$(docker service inspect -f '{{.Spec.TaskTemplate.ContainerSpec.Image}}' "${APP_STACK}_$svc" 2>/dev/null || true)
-    case "$img" in
-      *":$tag"|*":$tag@"*) ;;
-      *)
-        voltou=1
-        echo "  !! ${APP_STACK}_$svc NÃO está em $tag (está em ${img##*:}): o Swarm desfez a troca porque a tarefa nova morreu"
-        cid=$(docker ps -a -q --filter "label=com.docker.swarm.service.name=${APP_STACK}_$svc" --filter status=exited | head -1)
-        if [ -n "$cid" ]; then
-          echo "  -- últimas linhas do contêiner que morreu:"
-          docker logs --tail 40 "$cid" 2>&1 | grep -vE '"request completed"|"incoming request"' | sed 's/^/     /' | tail -25
-        fi ;;
-    esac
-  done
-  if [ "$voltou" = 1 ]; then
+# "1/1" não basta: se a tarefa nova morrer na subida, o Swarm volta sozinho para o
+# spec anterior e o serviço fica 1/1 (aconteceu em 05/10 com a API da etapa 1). Com
+# tag nova, a imagem denuncia; com a MESMA tag (só o .externos mudou), só o
+# UpdateStatus mostra (achado 4). Ver conferir_atualizacao.
+app_conferir_troca() { # app_conferir_troca T0 TAG
+  local t0="$1" tag="$2" falhou=0
+  conferir_atualizacao "$t0" "$tag" "${APP_STACK}_app_api" "${APP_STACK}_app_web" "${APP_STACK}_app_crystal" || falhou=1
+  conferir_atualizacao "$t0" - "${APP_STACK}_app_postgres" "${APP_STACK}_app_redis" || falhou=1
+  if [ "$falhou" = 1 ]; then
     echo
-    falha "a troca para $tag não ficou de pé em todos os serviços. Os outros podem estar na tag nova: deixe tudo igual com 'bash $0 app-subir TAG_ANTERIOR' e mande o log acima para a sessão"
+    falha "a subida de $tag não ficou de pé (log acima). Se só o .externos mudou, desfaça a mudança (app-definir/app-remover) e rode app-subir de novo; se a tag mudou, volte com 'bash $0 app-subir TAG_ANTERIOR'. Mande o log acima para a sessão"
   fi
-  ok "os três serviços estão em $tag"
+  ok "os três serviços estão em $tag e nenhum voltou (UpdateStatus sem rollback)"
+}
+
+# Antes do deploy: o api.env novo passa pelo loadEnv da própria imagem, num contêiner
+# sem rede que some em seguida. Valor errado aparece aqui, com a API atual ainda no ar,
+# em vez de virar rollback depois. Só nomes e motivos aparecem, nunca valores.
+app_env_preflight() { # app_env_preflight TAG
+  local saida
+  # shellcheck disable=SC2016
+  saida=$(timeout 120 docker run --rm --network none --env-file "$APP_DIR/api.env" -w /app/apps/api \
+    --entrypoint ./node_modules/.bin/tsx "$APP_IMG-api:$1" --eval \
+    'import("./src/env.ts").then(m=>{m.loadEnv();console.log("CRYSTAL_ENV_OK")}).catch(e=>{console.log("CRYSTAL_ENV_ERRO");const i=e&&e.issues;console.log(i?i.map(x=>x.path.join(".")+": "+x.message).join("\n"):String(e&&e.message));process.exit(3)})' \
+    2>&1) || true
+  case "$saida" in
+    *CRYSTAL_ENV_OK*) ok "api.env aceito pelo boot da API $1 (conferido antes do deploy)" ;;
+    *CRYSTAL_ENV_ERRO*)
+      printf '%s\n' "$saida" | sed -n '/CRYSTAL_ENV_ERRO/,$p' | sed '1d; s/^/     /' | head -25
+      falha "o api.env não passa no boot da API $1 (motivos acima). Nada foi trocado: a API atual segue no ar. Corrija com app-definir/app-remover e rode de novo" ;;
+    *) aviso "não deu para conferir o api.env antes do deploy; a conferência depois do deploy continua valendo" ;;
+  esac
+}
+
+# Chama a função de login do Supabase como a API chama, com um CPF fictício (dígitos
+# válidos, de ninguém) e e-mail .invalid. Mostra só o código HTTP e o que ele quer
+# dizer: nunca a chave nem a resposta. A chave vai ao curl pela entrada padrão.
+app_supabase_teste() {
+  local url chave rpc code
+  url=$(app_valor "$APP_EXT" SUPABASE_URL); chave=$(app_valor "$APP_EXT" SUPABASE_SERVICE_ROLE_KEY)
+  rpc=$(app_valor "$APP_EXT" SUPABASE_LOGIN_RPC); rpc=${rpc:-app_verificar_login}
+  [ -n "$url" ] && [ -n "$chave" ] || falha "SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY não estão definidos: bash $0 app-definir SUPABASE_URL"
+  echo "== base de alunos: POST $url/rest/v1/rpc/$rpc com CPF fictício"
+  code=$(printf 'header = "apikey: %s"\nheader = "Authorization: Bearer %s"\n' "$chave" "$chave" \
+    | curl -s -o /dev/null -m 20 -w '%{http_code}' -K - -X POST "$url/rest/v1/rpc/$rpc" \
+        -H 'content-type: application/json' -d '{"p_cpf":"52998224725","p_email":"teste@exemplo.invalid"}') || code=000
+  chave=""
+  case "$code" in
+    200) ok "HTTP 200: a função $rpc existe e a chave vale (base de alunos no ar)" ;;
+    404) aviso "HTTP 404: a função $rpc não existe no Supabase. Rodar crystal-em-casa/supabase/app_verificar_login.sql no SQL Editor; se acabou de criar: notify pgrst, 'reload schema'"; return 1 ;;
+    401) aviso "HTTP 401: chave recusada. É a service_role (sb_secret_ ou JWT service_role), inteira e do mesmo projeto da URL?"; return 1 ;;
+    403) aviso "HTTP 403: a chave entrou mas não pode executar $rpc (grant execute para service_role)"; return 1 ;;
+    000) aviso "sem resposta: URL errada, DNS ou a VPS sem saída para o Supabase"; return 1 ;;
+    *) aviso "HTTP $code: resposta inesperada do Supabase"; return 1 ;;
+  esac
 }
 
 app_status() {
@@ -1416,6 +1619,21 @@ app_recomecar() {
 }
 
 # ------------------------------------------------------------------ nossa Crystal
+# Com o app apontando para a nossa Crystal, a chave que o app manda TEM que ser a
+# CRYSTAL_AGENTE_KEY que a Crystal confere. Depois de um app-recomecar (segredos novos)
+# o .externos ficava com a chave antiga e todo chat dava 401 (achado 30).
+crystal_chave_sincronizar() {
+  local nova
+  case "$(app_valor "$APP_EXT" CRYSTAL_API_URL)" in http://app_crystal:*) ;; *) return 0 ;; esac
+  nova=$(app_valor "$APP_SEG" CRYSTAL_AGENTE_KEY)
+  [ -n "$nova" ] || falha "CRYSTAL_AGENTE_KEY ausente em $APP_SEG"
+  if [ "$(app_valor "$APP_EXT" CRYSTAL_API_KEY)" != "$nova" ]; then
+    app_gravar CRYSTAL_API_KEY "$nova"
+    ok "CRYSTAL_API_KEY do app igualada à CRYSTAL_AGENTE_KEY da nossa Crystal"
+  fi
+  nova=""
+}
+
 # Banco e papel próprios dentro do app_postgres. O papel crystal_agente só entra no
 # banco crystal_agente; o banco do app deixa de aceitar conexão de quem não é dono.
 # Idempotente: roda a cada app-subir e mantém a senha igual à do .segredos.
@@ -1630,7 +1848,7 @@ vigia() {
   fi
   falhas=$(docker service logs --since 6m "${APP_STACK}_app_api" 2>&1 | grep -E 'crystal: resposta falhou|canal: envio para a inbox falhou' || true)
   if [ -n "$falhas" ]; then
-    resumo=$(printf '%s\n' "$falhas" | grep -oE '"code":"[A-Z_]+"(,"(status|motivo)":("[^"]*"|[0-9]+|null))?' | sort | uniq -c | sort -rn | head -3 | tr -s ' ' | tr '\n' ';')
+    resumo=$(printf '%s\n' "$falhas" | grep -oE '"code":"[A-Z_]+"(,"(status|motivo)":("[^"]*"|[0-9]+|null))?' | sort | uniq -c | sort -rn | head -3 | tr -s ' ' | tr '\n' ';' || true)
     problemas+=("$(printf '%s\n' "$falhas" | wc -l) resposta(s) falharam nos últimos 5 min: ${resumo%;}")
   fi
   # Uma vez por hora: a Crystal responde de verdade e o crédito do OpenRouter está ok.
@@ -1638,9 +1856,13 @@ vigia() {
     cid=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
     # Pelo nosso Chatwoot a API também chama a Crystal (robô): o teste vale nos dois canais.
     if [ -n "$cid" ] && [ -n "$(app_valor "$APP_EXT" CRYSTAL_API_URL)" ]; then
+      # Mesmo cabeçalho que a API usa: "authorization" leva Bearer; outro nome (o
+      # x-api-key da provisória) leva a chave crua. Antes era Bearer fixo (achado 33).
       r=$(docker exec "$cid" node -e '
-        fetch(process.env.CRYSTAL_API_URL + process.env.CRYSTAL_API_PATH, { method: "POST",
-          headers: { authorization: "Bearer " + process.env.CRYSTAL_API_KEY, "content-type": "application/json" },
+        const h = (process.env.CRYSTAL_API_AUTH_HEADER || "authorization").toLowerCase();
+        const k = process.env.CRYSTAL_API_KEY || "";
+        fetch(process.env.CRYSTAL_API_URL + (process.env.CRYSTAL_API_PATH ?? "/v1/messages"), { method: "POST",
+          headers: { [h]: h === "authorization" ? "Bearer " + k : k, "content-type": "application/json" },
           body: JSON.stringify({ contact_id: null, conversation_id: "vigia", message: { type: "text", text: "Responda só: ok" } }),
           signal: AbortSignal.timeout(60000) }).then(r => console.log(r.status)).catch(e => console.log(e.name))' 2>/dev/null || echo erro)
       [ "$r" = "200" ] || problemas+=("teste da nossa Crystal: $r")
@@ -1788,7 +2010,7 @@ atendimento_subir() {
   docker network inspect network_swarm_public >/dev/null 2>&1 || falha "rede network_swarm_public não existe"
   docker service ls --format '{{.Name}}' | grep -q '^traefik_traefik$' || aviso "Traefik não encontrado: sem ele $CW_HOST não responde"
   local ip ips
-  ip=$(getent ahostsv4 "$CW_HOST" 2>/dev/null | awk 'NR==1{print $1}')
+  ip=$(getent ahostsv4 "$CW_HOST" 2>/dev/null | awk 'NR==1{print $1}' || true)
   [ -n "$ip" ] || falha "$CW_HOST ainda não existe no DNS. Crie no Cloudflare: tipo A, nome atendimento, IP desta VPS, nuvem CINZA (Somente DNS)"
   hostname -I | tr ' ' '\n' | grep -qxF "$ip" \
     || falha "$CW_HOST aponta para $ip, que não é esta VPS. Nuvem LARANJA? Deixe CINZA (Somente DNS): o certificado é emitido aqui"
@@ -1816,10 +2038,15 @@ atendimento_subir() {
   umask 077
   sed -e "s|CW_VERSAO|$CW_VERSAO|g" -e "s|CW_ENV_DIR|$CW_DIR|g" -e "s|CW_IPS_ADMIN|$ips|g" "$ORIG/$CW_YAML" > "$STACKS/$CW_YAML"
   grep -nE 'CW_VERSAO|CW_ENV_DIR|CW_IPS_ADMIN' "$STACKS/$CW_YAML" | grep -vE '^\s*[0-9]+:\s*#' | grep -q . && falha "marcador sobrando em $CW_YAML"
+  local t0; t0=$(date +%s)
   docker stack deploy -c "$STACKS/$CW_YAML" "$CW_STACK" --detach=true >/dev/null
   sleep 8
   echo "  na primeira vez o Chatwoot cria o banco inteiro: até 10 minutos"
-  esperar_stack "$CW_STACK" 600 || { echo "  Logs: docker service logs --tail 80 ${CW_STACK}_cw_rails"; exit 1; }
+  esperar_stack "$CW_STACK" 600 || { servico_log_morto "${CW_STACK}_cw_rails"; echo "  Logs: docker service logs --tail 80 ${CW_STACK}_cw_rails"; exit 1; }
+  conferir_atualizacao "$t0" "$CW_VERSAO" "${CW_STACK}_cw_rails" "${CW_STACK}_cw_sidekiq" \
+    && conferir_atualizacao "$t0" - "${CW_STACK}_cw_postgres" "${CW_STACK}_cw_redis" \
+    || falha "o Chatwoot não ficou de pé: o Swarm desfez a troca (log acima)"
+  ok "Chatwoot em $CW_VERSAO, sem rollback"
   echo
   atendimento_status
   echo
@@ -2060,17 +2287,19 @@ app_gravar() { # app_gravar NOME VALOR (sem eco)
   mv "$APP_EXT.tmp" "$APP_EXT"; chmod 600 "$APP_EXT"
 }
 
-app_tag_atual() {
-  docker service inspect ${APP_STACK}_app_api --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}' 2>/dev/null \
+app_tag_atual() { # vazio quando a API não existe; nunca derruba o script (achado 32)
+  { docker service inspect ${APP_STACK}_app_api --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}' 2>/dev/null || true; } \
     | sed -E 's/@sha256:.*//; s/.*://'
 }
 
 n8n_reiniciar() {
-  local s
+  local s t0
   for s in n8n_editor_n8n_editor n8n_webhook_n8n_webhook n8n_worker_n8n_worker; do
     docker service inspect "$s" >/dev/null 2>&1 || continue
     echo "  reiniciando $s (até 2 min)"
+    t0=$(date +%s)
     docker service update --force --detach=false "$s" >/dev/null 2>&1 || aviso "$s não confirmou a reinicialização; conferir com: docker service ls"
+    conferir_atualizacao "$t0" - "$s" || falha "$s não voltou depois de reiniciar (log acima)"
   done
 }
 
@@ -2180,6 +2409,9 @@ crystal_provisoria_teste() {
 crystal_provisoria_desligar() {
   local cid tag
   tag=$(app_tag_atual); [ -n "$tag" ] || falha "o app não está no ar"
+  # Sem CRYSTAL_API_* a API com o robô do Chatwoot não sobe (achado 33).
+  [ -z "$(app_valor "$APP_EXT" CHATWOOT_BOT_TOKEN)" ] \
+    || falha "o robô do Chatwoot usa a Crystal pela CRYSTAL_API_*: desligar a provisória derrubaria a API. Para sair da provisória: bash $0 crystal-nossa $tag"
   grep -vE '^CRYSTAL_API_(URL|PATH|AUTH_HEADER|REPLY_FIELD|KEY)=' "$APP_EXT" > "$APP_EXT.tmp" || true
   mv "$APP_EXT.tmp" "$APP_EXT"; chmod 600 "$APP_EXT"
   app_subir app-subir "$tag"
@@ -2201,7 +2433,7 @@ app_segredos() {
       grep -vE '^CRIADO_EM=' "$APP_SEG"
     } | less -K
   else
-    grep -vE '^CRIADO_EM=' "$APP_SEG"
+    falha "rode num terminal: os segredos abrem no less e não ficam em log nem no histórico"
   fi
 }
 
@@ -2210,7 +2442,8 @@ case "$CMD" in
   app-definir) app_definir "$@" ;;
   app-remover) app_remover "$@" ;;
   app-resend) app_resend ;;
-  app-subir) app_subir "$@" ;;
+  app-subir) app_subir "$@"; [ "${SUPABASE_FALHOU:-0}" = 0 ] || exit 1 ;;
+  app-supabase-teste) app_supabase_teste ;;
   app-status) app_status ;;
   app-admin) app_admin ;;
   vigia-config) vigia_config ;;
