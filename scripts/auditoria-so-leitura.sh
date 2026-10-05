@@ -23,6 +23,14 @@ mkdir -p "$EV"
 
 UA_INSTAGRAM='Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 341.0'
 get() { curl -sS -m 40 -A "$UA_INSTAGRAM" "$@"; }
+# Prazo para um comando: timeout do GNU, gtimeout (coreutils no Mac) ou perl. O
+# macOS não tem timeout, e sem ele a seção de certificados saía vazia (achado 76).
+com_prazo() { # com_prazo SEGUNDOS COMANDO...
+  local s=$1; shift
+  if command -v timeout >/dev/null 2>&1; then timeout "$s" "$@"
+  elif command -v gtimeout >/dev/null 2>&1; then gtimeout "$s" "$@"
+  else perl -e 'alarm shift; exec @ARGV or exit 127' "$s" "$@"; fi
+}
 doh() { curl -sS -m 25 -H 'accept: application/dns-json' "https://dns.google/resolve?name=$1&type=$2"; }
 
 echo "auditoria só-leitura de $DOMINIO"
@@ -138,7 +146,8 @@ echo "[5/7] certificados"
     # tem que ser lido de fora (crt.sh ou um host sem proxy).
     proxy_arg=()
     [ -n "${HTTPS_PROXY:-}" ] && proxy_arg=(-proxy "${HTTPS_PROXY#http://}")
-    echo | timeout 30 openssl s_client "${proxy_arg[@]}" -servername "$host" -connect "$host:443" 2>/dev/null \
+    # ${a[@]+...}: com set -u, o bash 3.2 do Mac trata array vazio como variável não definida.
+    echo | com_prazo 30 openssl s_client ${proxy_arg[@]+"${proxy_arg[@]}"} -servername "$host" -connect "$host:443" 2>/dev/null \
       | openssl x509 -noout -issuer -subject -dates -ext subjectAltName 2>/dev/null
     echo
   done
