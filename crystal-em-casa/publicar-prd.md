@@ -4,6 +4,11 @@ Três releases, nesta ordem, cada um com `backup` antes e teste em aparelho depo
 Tudo que não é comando na VPS já está feito: código integrado, testes verdes,
 imagens construídas. Este roteiro é só o que o Luiz roda e confere.
 
+> **Versão no ar desde 05/10: `sha-398e46e`** (as três etapas e os ajustes pós-QA).
+> Qualquer `app-subir` de hoje em diante usa `sha-398e46e` ou uma tag mais nova.
+> As tags `sha-79ba6b7`, `sha-69ef26c` e `sha-da617ac` abaixo são o histórico de
+> cada release: rodar `app-subir` com elas VOLTA a produção para uma versão anterior.
+
 | Release | Branch | Commit no `crystal-web-chat` | Tag da imagem |
 |---|---|---|---|
 | 1 · Base e segurança | `otimizacao/etapa-1` | `79ba6b7` (hotfix do guard https sobre `cdc45f5`) | `sha-79ba6b7` |
@@ -22,10 +27,18 @@ Regras que valem nos três:
 - **Um comando por vez**, no console web da Hostinger, e esperar o `ok`.
 - `<commit>` nas URLs é o commit **deste** repositório (`git log -1` na branch
   `claude/gracious-shannon-6x9l5j`). Nunca `curl | bash`: baixar, depois rodar.
-- Migrações do banco rodam sozinhas na subida da API (serviço `migrate` da stack). São
+- Migrações do banco rodam sozinhas na subida da API: o próprio `app_api` roda
+  `prisma migrate deploy` antes de subir (não existe serviço `migrate` na stack) e tenta
+  de novo por até 1 min se o Postgres ainda estiver subindo. São
   aditivas; a volta de imagem não precisa de volta de banco. A exceção é a etapa 2, que
   apaga a tabela `onboarding_states` (vazia no nosso uso): o `backup` antes cobre.
 - Volta de qualquer release: `bash bootstrap-vps.sh app-subir <tag anterior>`.
+- **O `ok` do `app-subir` agora vale** (revisão de 05/10, achado 4): antes do deploy o
+  `api.env` passa pelo boot da própria imagem (valor errado para ali, com a API atual no
+  ar); depois do deploy, o script falha se o Swarm desfez a troca (`UpdateStatus` em
+  `rollback_*`), mesmo com a tag igual, e mostra o log do contêiner que morreu. Conferir
+  à mão, se quiser: `docker service inspect crystal_app_app_api -f '{{.UpdateStatus.State}}'`
+  (tem que ser `completed` ou vazio).
 - Segredos só pelo `app-definir`, que pergunta sem eco. Nunca na linha de comando.
 
 ## Antes do release 1 (uma vez)
@@ -90,11 +103,11 @@ Conferir em aparelho:
 - [ ] Equipe: `/equipe/avisos` manda um aviso de teste; chega no aparelho.
 - [ ] Cards de suporte abrem o WhatsApp e o e-mail certos.
 
-## Release 3 · etapa 3 (`sha-da617ac`)
+## Release 3 · etapa 3 (publicada em 05/10 como `sha-da617ac`; hoje `sha-398e46e`)
 
 ```bash
 bash bootstrap-vps.sh backup
-bash bootstrap-vps.sh app-subir sha-da617ac
+bash bootstrap-vps.sh app-subir sha-398e46e   # NÃO sha-da617ac: essa voltaria antes dos ajustes pós-QA
 bash bootstrap-vps.sh app-status
 ```
 
@@ -122,11 +135,53 @@ notificações fecha sozinha 1,5 s depois do "Pronto!", com botão Fechar. Subid
 `backup` e `app-subir sha-8ed9ce8`. Conferir: ícone de clipe no lugar da pílula;
 ativar notificações no menu e ver a folha sumir.
 
+## Base de alunos no Supabase (ligada em 05/10)
+
+Feito em 05/10, com alunas reais entrando: a função `app_verificar_login` foi criada no
+SQL Editor do Supabase (`crystal-em-casa/supabase/app_verificar_login.sql`), a URL e a
+chave foram gravadas na VPS e o login de uma aluna real da base foi testado no app. No
+caminho, a URL foi colada com `/rest/v1/` no fim (todo login daria 503) e foi corrigida
+para `https://<ref>.supabase.co`. Desde a revisão de 05/10 o `app-definir` corta esse
+caminho sozinho, avisa, e recusa a chave anon ou publicável.
+
+Para refazer ou trocar a chave (um comando por vez):
+
+```bash
+bash bootstrap-vps.sh app-definir SUPABASE_URL               # https://<ref>.supabase.co, nada depois
+bash bootstrap-vps.sh app-definir SUPABASE_SERVICE_ROLE_KEY  # sb_secret_... ou a service_role (eyJ...), colar no prompt
+bash bootstrap-vps.sh app-supabase-teste                     # 200 ok; 404 função não existe; 401 chave errada
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-398e46e                  # confere o api.env antes, o rollback depois, e roda o app-supabase-teste no fim
+```
+
+O `app-supabase-teste` chama a função com um CPF fictício e mostra só o código HTTP e o
+que ele quer dizer, nunca a chave nem a resposta. Se a base parar (chave trocada no
+painel, função apagada), todo login de aluna da base dá 503: rodar o teste primeiro.
+Contas criadas pelo `app-aluno` também passam pela base a cada login.
+
+## Comandos novos da revisão de 05/10
+
+- `app-supabase-teste`: acima.
+- `app-definir` aceita `EQUIPE_EMAIL` (quem recebe o aviso de risco) e os limites de login
+  `RATE_AUTH_MAX`, `RATE_AUTH_WINDOW_S`, `OTP_MAX_ATTEMPTS`, `OTP_RESEND_COOLDOWN_S`,
+  `OTP_RESEND_MAX`, todos conferidos antes de gravar. Vale na próxima `app-subir`.
+- `backup` leva também a memória da Crystal (`crystal_agente`); uploads em tar
+  incremental (completo no domingo, diferencial nos outros dias). Parte que falha não para
+  as outras nem o envio ao R2; no fim mostra o que falhou e sai 1. `backup-link
+  crystal_agente` dá o link do dump da memória.
+- A vigia avisa backup completo com mais de 26 h, falha no último backup, cópia no R2
+  velha e disco do Docker a partir de 85%.
+- `app-recomecar` e `recomecar-n8n` pedem `APAGAR` digitado, só seguem com o banco
+  comprovadamente vazio e copiam bancos e segredos antes.
+- A primeira `app-subir` depois desta versão reinicia cada serviço do app uma vez (rotação
+  de log e restart_policy novos na stack). Fazer com `backup` antes, fora do pico.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
   Precisa antes do DNS `atendimento` cinza. `app-canal chatwoot` só depois do teste da
-  Crystal respondendo lá. Quem atende é a equipe de suporte (decisão de 05/10). Não
-  definir `CHATWOOT_API_TOKEN`: excluir conta não apaga o contato no Chatwoot.
+  Crystal respondendo lá. Quem atende é a equipe de suporte (decisão de 05/10). **Não
+  definir `CHATWOOT_API_TOKEN`** (decisão de 05/10; o help do bootstrap diz o mesmo):
+  excluir conta não apaga o contato no Chatwoot.
 - **Vigia**: `bash bootstrap-vps.sh vigia-config` se ainda não estiver ligada.
 - **Alma da Crystal**: prompt e base de conhecimento da agência, quando chegarem.

@@ -140,8 +140,14 @@ do app, que só se restaura com essas duas chaves.
 Roteiro completo, um comando por vez e com a lista de conferência em aparelho de
 cada release, em **`crystal-em-casa/publicar-prd.md`**. Resumo: `app-definir` do
 segredo do reembolso e da chave da Groq; depois, para cada etapa, `backup`,
-`app-subir <tag>` e `app-status`. Tags: `sha-79ba6b7` (etapa 1), `sha-69ef26c`
-(etapa 2), `sha-da617ac` (etapa 3). Volta: `app-subir <tag anterior>`.
+`app-subir <tag>` e `app-status`. Tags publicadas: `sha-79ba6b7` (etapa 1),
+`sha-69ef26c` (etapa 2), `sha-da617ac` (etapa 3) e, por cima, os ajustes pós-QA até
+**`sha-398e46e`, a versão no ar desde 05/10**. Subir de novo: `app-subir sha-398e46e`
+(as tags antigas voltariam a produção). Volta: `app-subir <tag anterior>`.
+
+Desde a revisão de 05/10 o `app-subir` confere o `api.env` no boot da própria imagem
+antes do deploy e falha se o Swarm desfizer a troca (rollback), mesmo com a tag igual,
+mostrando o log do contêiner que morreu.
 
 A etapa 1 traz a API **sem root** (`USER node`, uid 1000); o `app-subir` ajusta
 sozinho o dono do volume `crystal_app_app_uploads` para 1000:1000 antes do deploy.
@@ -234,9 +240,14 @@ também sobe para um bucket do R2, com três travas:
 - **Token do R2 só daquele bucket**, "Object Read & Write". A chave vai ao curl pela
   entrada padrão, nunca na linha de comando.
 
-Sobe: banco do n8n, banco do app e uploads do app. Não sobe segredo nenhum:
-`N8N_CHAVE`, `ENCRYPTION_KEY` e `CPF_SALT` ficam no Bitwarden, e sem eles as
-credenciais do n8n e os campos cifrados do app não abrem.
+Sobe: banco do n8n, banco do app, memória da Crystal (`crystal_agente`), uploads do
+app e, com o Chatwoot no ar, o banco e os anexos dele. Pastas vão em tar incremental
+(completo no domingo, diferencial nos outros dias; o `backup-link` dá os dois). Parte
+que falha não para as outras nem o envio ao R2: o backup termina com o resumo do que
+falhou e saída 1, e a vigia avisa (backup com mais de 26 h, falha registrada, R2
+velho, disco a partir de 85%). Não sobe segredo nenhum: `N8N_CHAVE`,
+`ENCRYPTION_KEY`, `CPF_SALT` e `CRYSTAL_CHAVE_CIFRA` ficam no Bitwarden, e sem eles
+as credenciais do n8n, os campos cifrados do app e a memória da Crystal não abrem.
 
 **No Cloudflare (uma vez):**
 1. R2 > ativar (plano gratuito: 10 GB, sem custo de saída).
@@ -256,8 +267,11 @@ bash bootstrap-vps.sh backup               # um backup agora, já indo para o R2
 bash bootstrap-vps.sh backup-conferir      # o que está no R2 e há quanto tempo
 bash bootstrap-vps.sh backup-testar-trava  # tenta apagar um teste no R2 com a chave da VPS: tem que ser recusado
 ```
-O `backup-fora-config` reinstala o cron das 03:30 com o script novo. O `status`
-avisa se o último envio ao R2 tem mais de 26 horas.
+O `backup-fora-config` testa os dados novos antes de trocar (se o teste falha, a
+configuração anterior continua) e reinstala o cron das 03:30. A cópia do script que o
+cron roda é trocada a cada `app-subir` e `atendimento-subir`; o `status` mostra se ela
+é igual ao script e avisa se o último envio ao R2 tem mais de 26 horas. O
+`backup-testar-trava` só dá "trava valendo" com recusa 403 e o arquivo ainda lá.
 
 **Restaurar (ou só testar, uma vez por mês), no Mac:**
 ```bash
@@ -348,6 +362,12 @@ O aluno precisa de telefone no cadastro (`app-telefone EMAIL` para contas feitas
 
 Depois da transferência do projeto do Supabase:
 
+**Ligada em 05/10**, com alunas reais: função criada, URL e chave na VPS, login de
+uma aluna real da base testado no app. A URL foi colada primeiro com `/rest/v1/` no
+fim (todo login daria 503) e corrigida; hoje o `app-definir` corta esse caminho
+sozinho e recusa a chave anon ou publicável. Roteiro em `publicar-prd.md`, seção
+"Base de alunos no Supabase".
+
 1. No SQL Editor do Supabase, rodar `crystal-em-casa/supabase/app_verificar_login.sql`
    deste repositório (já com as colunas reais do projeto Crystal AI, conferidas em
    05/10). Não usar o modelo `docs/supabase/` do repositório do app: os nomes de lá
@@ -355,9 +375,10 @@ Depois da transferência do projeto do Supabase:
 2. Na VPS:
 
 ```bash
-bash bootstrap-vps.sh app-definir SUPABASE_URL               # https://<projeto>.supabase.co
-bash bootstrap-vps.sh app-definir SUPABASE_SERVICE_ROLE_KEY  # Settings > API > service_role
-bash bootstrap-vps.sh app-subir sha-XXXXXXX                  # 516f6a9 ou mais nova
+bash bootstrap-vps.sh app-definir SUPABASE_URL               # https://<ref>.supabase.co, nada depois
+bash bootstrap-vps.sh app-definir SUPABASE_SERVICE_ROLE_KEY  # sb_secret_... ou service_role; nunca a anon
+bash bootstrap-vps.sh app-supabase-teste                     # 200 ok, 404 função não existe, 401 chave errada
+bash bootstrap-vps.sh app-subir sha-398e46e                  # roda o app-supabase-teste no fim
 ```
 
 A chave service_role abre o banco inteiro: só no cofre e na VPS, nunca no chat, nunca
@@ -383,5 +404,6 @@ no dashboard. Com a base de alunos e o canal ligados, o app deixa de usar simula
 scripts/cloudflare-crystal-vps-dns.sh conferir
 ```
 
-Resolve os três nomes por DNS-over-HTTPS e confere se apontam para o IP da VPS
-e se `server.` (Stape) continua cinza. Sai 0 quando os três estão certos.
+Resolve os seis nomes (`painel`, `editor`, `webhook`, `app`, `api` e `atendimento`)
+por DNS-over-HTTPS e confere se apontam para o IP da VPS e se `server.` (Stape)
+continua cinza. Sai 0 quando os seis estão certos.
