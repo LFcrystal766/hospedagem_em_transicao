@@ -1224,7 +1224,8 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*
   REFUND_WEBHOOK_SECRET* TRANSCRIPTION_API_URL TRANSCRIPTION_API_KEY* TRANSCRIPTION_MODEL
   TRANSCRIPTION_TIMEOUT_MS CHATWOOT_API_TOKEN* EQUIPE_EMAIL
-  RATE_AUTH_MAX RATE_AUTH_WINDOW_S OTP_MAX_ATTEMPTS OTP_RESEND_COOLDOWN_S OTP_RESEND_MAX)
+  RATE_AUTH_MAX RATE_AUTH_WINDOW_S OTP_MAX_ATTEMPTS OTP_RESEND_COOLDOWN_S OTP_RESEND_MAX
+  RATE_AUTH_IP_MAX UPLOAD_DAILY_MAX CRYSTAL_PRAZO_TOTAL_MS CRYSTAL_TIMEOUT_MS)
 
 # Nome de variável: maiúsculas, números e _. Qualquer outra coisa no lugar do nome
 # pode ser uma chave colada errado, e aí nunca é repetida na tela (achado 70).
@@ -1330,6 +1331,12 @@ except Exception:
       inteiro_entre "$v" 5000 600000 || falha "só inteiro entre 5000 e 600000 (milissegundos; padrão 180000). Nada gravado" ;;
     RATE_AUTH_MAX)
       inteiro_entre "$v" 1 10000 || falha "só inteiro entre 1 e 10000 (tentativas por janela; padrão 5). Nada gravado" ;;
+    RATE_AUTH_IP_MAX)
+      inteiro_entre "$v" 1 100000 || falha "só inteiro entre 1 e 100000 (tentativas por IP na janela; padrão 50). Nada gravado" ;;
+    UPLOAD_DAILY_MAX)
+      inteiro_entre "$v" 1 100000 || falha "só inteiro entre 1 e 100000 (uploads por aluna por dia; padrão 200). Nada gravado" ;;
+    CRYSTAL_PRAZO_TOTAL_MS|CRYSTAL_TIMEOUT_MS)
+      inteiro_entre "$v" 5000 600000 || falha "só inteiro entre 5000 e 600000 (milissegundos; padrões 50000 e 45000; o prazo total da Crystal tem de ficar abaixo dos 60 s da API). Nada gravado" ;;
     RATE_AUTH_WINDOW_S)
       inteiro_entre "$v" 10 86400 || falha "só inteiro entre 10 e 86400 (segundos; padrão 900). Nada gravado" ;;
     OTP_MAX_ATTEMPTS|OTP_RESEND_MAX)
@@ -2101,7 +2108,7 @@ vigia() {
   if printf '%s' "$uso" | grep -Eq '^[0-9]+$' && [ "$uso" -ge 85 ]; then
     problemas+=("disco da VPS em ${uso}% (/var/lib/docker): limpar ou ampliar antes que o banco pare")
   fi
-  falhas=$(docker service logs --since 6m "${APP_STACK}_app_api" 2>&1 | grep -E 'crystal: resposta falhou|canal: envio para a inbox falhou' || true)
+  falhas=$(docker service logs --since 6m "${APP_STACK}_app_api" 2>&1 | grep -E 'crystal: resposta falhou|canal: envio para a inbox falhou|base de alunos: indisponível|transcrição: falhou|e-mail: envio falhou|risco: aviso à equipe falhou' || true)
   if [ -n "$falhas" ]; then
     resumo=$(printf '%s\n' "$falhas" | grep -oE '"code":"[A-Z_]+"(,"(status|motivo)":("[^"]*"|[0-9]+|null))?' | sort | uniq -c | sort -rn | head -3 | tr -s ' ' | tr '\n' ';' || true)
     problemas+=("$(printf '%s\n' "$falhas" | wc -l) resposta(s) falharam nos últimos 5 min: ${resumo%;}")
