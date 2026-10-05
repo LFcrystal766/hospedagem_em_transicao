@@ -997,7 +997,7 @@ assert d.get("type")=="service_account" and d.get("client_email") and "PRIVATE K
 # Apaga um valor do .externos (ex.: CRYSTAL_ONBOARDING_URL, que a etapa 2 do PRD
 # deixou de usar). Só nomes da lista; nunca segredo gerado pelo app-subir.
 app_remover() {
-  local nome="${1:-}"
+  local nome="${2:-}"   # $1 é o próprio "app-remover" (o dispatch passa "$@")
   [ -n "$nome" ] || falha "uso: bash $0 app-remover NOME"
   printf '%s\n' "${APP_EXTERNOS[@]}" | sed 's/\*$//' | grep -qx "$nome" \
     || falha "$nome não é um valor externo (bash $0 app-definir lista os aceitos)"
