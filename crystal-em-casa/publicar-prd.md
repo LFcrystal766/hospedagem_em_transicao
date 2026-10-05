@@ -176,6 +176,26 @@ Contas criadas pelo `app-aluno` também passam pela base a cada login.
 - A primeira `app-subir` depois desta versão reinicia cada serviço do app uma vez (rotação
   de log e restart_policy novos na stack). Fazer com `backup` antes, fora do pico.
 
+## Correções da revisão completa (05/10, imagem `sha-8eefecd`)
+
+Os 76 achados da revisão (`auditorias/2026-10-05/revisao-completa/`) foram corrigidos,
+menos os três do reembolso, que esperam o JSON da Assiny. Do lado do app: detecção
+de risco também na API e contatos garantidos em qualquer falha; exclusão de conta
+apaga a memória da Crystal; sonda real do Supabase; limite de login por IP em 50;
+`client_message_id` contra mensagem duplicada; 1433 testes, e2e 35/35. Do lado da
+VPS: script `894a7c5` ou mais novo. A primeira subida com ele reinicia cada serviço
+uma vez (a stack mudou): fazer com backup e fora do pico.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-8eefecd      # valida o api.env, confere rollback e testa o Supabase no fim
+```
+
+Conferir depois: login com a conta de aluna; áudio do iPhone e do Android (o upload
+agora recusa bytes que não batem com o tipo, 415); `/equipe` mostra "Supabase (base
+de alunas)" nas integrações.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".

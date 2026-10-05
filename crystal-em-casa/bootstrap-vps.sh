@@ -2108,7 +2108,7 @@ vigia() {
   if printf '%s' "$uso" | grep -Eq '^[0-9]+$' && [ "$uso" -ge 85 ]; then
     problemas+=("disco da VPS em ${uso}% (/var/lib/docker): limpar ou ampliar antes que o banco pare")
   fi
-  falhas=$(docker service logs --since 6m "${APP_STACK}_app_api" 2>&1 | grep -E 'crystal: resposta falhou|canal: envio para a inbox falhou|base de alunos: indisponível|transcrição: falhou|e-mail: envio falhou|risco: aviso à equipe falhou' || true)
+  falhas=$(docker service logs --since 6m "${APP_STACK}_app_api" 2>&1 | grep -E 'crystal: resposta falhou|canal: envio para a inbox falhou|base de alunos: indisponível|transcrição: (falhou|indisponível)|e-mail: envio falhou|risco: aviso à equipe falhou|crystal: forget falhou|mensagem: (geração falhou|erro da resposta não gravado)|uploads: limpeza de órfãos falhou|atendimento: (fila repassada à equipe na saída|não conferiu o acesso)' || true)
   if [ -n "$falhas" ]; then
     resumo=$(printf '%s\n' "$falhas" | grep -oE '"code":"[A-Z_]+"(,"(status|motivo)":("[^"]*"|[0-9]+|null))?' | sort | uniq -c | sort -rn | head -3 | tr -s ' ' | tr '\n' ';' || true)
     problemas+=("$(printf '%s\n' "$falhas" | wc -l) resposta(s) falharam nos últimos 5 min: ${resumo%;}")
