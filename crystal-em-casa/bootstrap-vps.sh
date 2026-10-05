@@ -18,8 +18,10 @@
 #                                              Redis, pra copiar pro cofre (Bitwarden). Não colar em chat
 #   O Redis do n8n sobe COM senha (N8N_REDIS_SENHA, gerada no preparar; o original da agência não tem).
 #   Trocá-la exige redeploy de 03, 04, 05 e 06: bash bootstrap-vps.sh preparar EMAIL && bash bootstrap-vps.sh bancos && bash bootstrap-vps.sh n8n
-#   bash bootstrap-vps.sh backup               pg_dump do banco do n8n em /root/crystal/backups
-#                                              (guarda 14 dias). A chave do n8n NÃO vai junto
+#   bash bootstrap-vps.sh backup               pg_dump dos bancos (n8n, app, memória da Crystal, Chatwoot)
+#                                              e tar incremental dos uploads em /root/crystal/backups
+#                                              (14 dias). Parte que falha não para as outras nem o R2;
+#                                              no fim, resumo e saída 1. A chave do n8n NÃO vai junto
 #   bash bootstrap-vps.sh backup-cron          agenda o backup todo dia às 03:30 (hora da VPS)
 #   bash bootstrap-vps.sh backup-chave         gera a chave dos backups: a privada aparece só no
 #                                              less (vai pro Bitwarden), a pública fica na VPS
@@ -29,7 +31,7 @@
 #   bash bootstrap-vps.sh backup-testar-trava  tenta apagar um arquivo de teste no R2: tem que ser recusado
 #   bash bootstrap-vps.sh backup-link [TIPO]   link de 10 min para baixar o backup mais novo (teste de
 #                                              restauração no Mac). TIPO: n8n_queue (padrão), crystal_web_chat,
-#                                              crystal_uploads, chatwoot, chatwoot_storage
+#                                              crystal_agente, crystal_uploads, chatwoot, chatwoot_storage
 #   bash bootstrap-vps.sh seguranca            atualização de segurança automática, fail2ban no SSH
 #                                              e relatório (senha no SSH, root, portas, pendências)
 #   bash bootstrap-vps.sh firewall             ufw: só 22, 80 e 443 de fora. As portas do Swarm
@@ -416,72 +418,182 @@ BACKUPS="$BASE/backups"
 FORA_CONF="$BASE/.backup-fora"            # conta, bucket e chave do R2 (chmod 600)
 FORA_DEST="$BASE/.backup-destinatario"    # chave PÚBLICA do age; a privada fica só no Bitwarden
 FORA_PREFIXO=vps-crystal
+VOLUMES="${DOCKER_VOLUMES:-/var/lib/docker/volumes}"   # trocável só para teste
+
+# pg_dump de um banco para ARQ.gz. Falha (e apaga o arquivo) se o pg_dump falhar ou
+# o dump vier vazio.
+backup_pg() { # backup_pg CID USUÁRIO BANCO ARQ
+  if docker exec "$1" pg_dump -U "$2" -d "$3" --no-owner | gzip > "$4" \
+     && [ "$(gzip -dc "$4" 2>/dev/null | head -c 1 | wc -c)" = 1 ]; then
+    ok "$3 em $4 ($(du -h "$4" | cut -f1))"
+    return 0
+  fi
+  rm -f "$4"
+  aviso "pg_dump de $3 falhou"
+  return 1
+}
+
+# Cópia de uma pasta (uploads do app, anexos do Chatwoot) em tar incremental: um
+# completo por semana (domingo, ou quando o último completo passou de 6 dias) e, nos
+# outros dias, um diferencial contra o último completo. O disco não enche com 14
+# completos por dia e cada envio ao R2 fica pequeno (achado 25). Restaurar: extrair o
+# -completo e depois o -diferencial mais novo, os dois com --listed-incremental=/dev/null.
+# tar sai 1 quando um arquivo mudou durante a leitura (alguém mandando foto às 03:30):
+# a cópia vale, com aviso; 2 ou mais é falha (achado 22). Ecoa o arquivo gerado.
+backup_tar() { # backup_tar PASTA TIPO TS
+  local orig=$1 tipo=$2 ts=$3 base="$BACKUPS/.$2.snar" novo="$BACKUPS/.$2.snar.novo" modo arq rc=0
+  if [ ! -s "$base" ] || [ "$(date -u +%u)" = 7 ] || [ -n "$(find "$base" -mtime +6 2>/dev/null)" ]; then
+    modo=completo; rm -f "$novo"
+  else
+    modo=diferencial; cp "$base" "$novo"
+  fi
+  arq="$BACKUPS/$tipo-$ts-$modo.tar.gz"
+  tar -C "$orig" --listed-incremental="$novo" -czf "$arq" . 2>"$BACKUPS/.tar-erros" || rc=$?
+  if [ "$rc" -le 1 ] && [ -s "$arq" ]; then
+    [ "$rc" = 1 ] && aviso "$tipo: arquivo mudou durante a cópia (tar saiu 1); a cópia vale: $(head -c 200 "$BACKUPS/.tar-erros" | tr '\n' ' ')" >&2
+    if [ "$modo" = completo ]; then mv "$novo" "$base"; else rm -f "$novo"; fi
+    rm -f "$BACKUPS/.tar-erros"
+    echo "$arq"
+    return 0
+  fi
+  aviso "tar de $tipo falhou (saída $rc): $(head -c 300 "$BACKUPS/.tar-erros" | tr '\n' ' ')" >&2
+  rm -f "$arq" "$novo" "$BACKUPS/.tar-erros"
+  return 1
+}
 
 backup() {
-  local dir="$BACKUPS" cid ts novos=()
+  local dir="$BACKUPS" cid ts arq novos=() falhas=() up
   mkdir -p "$dir"; chmod 700 "$dir"
+  umask 077
   ts=$(date -u +%Y%m%dT%H%M%SZ)
   echo "== backup $ts"
-  cid=$(docker ps -q -f name=n8n_postgres_n8n_postgres | head -1)
-  [ -n "$cid" ] || falha "contêiner do Postgres do n8n não está rodando"
-  local arq="$dir/n8n_queue-$ts.sql.gz"
-  umask 077
-  docker exec "$cid" pg_dump -U postgres -d n8n_queue --no-owner | gzip > "$arq" || falha "pg_dump falhou"
-  [ -s "$arq" ] || falha "dump vazio em $arq"
-  ok "backup em $arq ($(du -h "$arq" | cut -f1))"
-  novos+=("$arq")
-  echo "  Restaurar: gunzip -c ARQ | docker exec -i CID psql -U postgres -d n8n_queue"
-  echo "  Lembrete: o backup só restaura credenciais com a N8N_CHAVE do cofre."
+  # Cada parte é independente (achado 22): a que falha fica registrada e as outras
+  # seguem, inclusive o envio ao R2. No fim, código de erro e resumo do que falhou,
+  # que a vigia lê de $BACKUPS/.backup-falhas.
 
-  # Banco do app, se a stack crystal_app estiver no ar. Campos cifrados e o
-  # hash do CPF só se leem com ENCRYPTION_KEY e CPF_SALT, que ficam no cofre.
-  cid=$(docker ps -q -f name=crystal_app_app_postgres | head -1)
+  # Banco do n8n. Só restaura credenciais com a N8N_CHAVE do cofre.
+  cid=$(docker ps -q -f name=n8n_postgres_n8n_postgres 2>/dev/null | head -1 || true)
+  if [ -z "$cid" ]; then
+    aviso "contêiner do Postgres do n8n não está rodando"; falhas+=("n8n: Postgres fora do ar")
+  else
+    arq="$dir/n8n_queue-$ts.sql.gz"
+    if backup_pg "$cid" postgres n8n_queue "$arq"; then novos+=("$arq"); else falhas+=("n8n: pg_dump falhou"); fi
+  fi
+
+  # Banco do app e a memória da nossa Crystal (crystal_agente, achado 21), se a stack
+  # crystal_app estiver no ar. Campos cifrados e o hash do CPF só se leem com
+  # ENCRYPTION_KEY e CPF_SALT; a memória, com CRYSTAL_CHAVE_CIFRA. Todas no cofre.
+  cid=$(docker ps -q -f name=${APP_STACK}_app_postgres 2>/dev/null | head -1 || true)
   if [ -n "$cid" ]; then
     arq="$dir/crystal_web_chat-$ts.sql.gz"
-    docker exec "$cid" pg_dump -U crystal -d crystal_web_chat --no-owner | gzip > "$arq" || falha "pg_dump do app falhou"
-    [ -s "$arq" ] || falha "dump do app vazio em $arq"
-    ok "backup do app em $arq ($(du -h "$arq" | cut -f1))"
-    novos+=("$arq")
+    if backup_pg "$cid" crystal crystal_web_chat "$arq"; then novos+=("$arq"); else falhas+=("app: pg_dump do crystal_web_chat falhou"); fi
+    if docker exec "$cid" psql -U crystal -d crystal_web_chat -tAc "select 1 from pg_database where datname = 'crystal_agente'" 2>/dev/null | grep -q 1; then
+      arq="$dir/crystal_agente-$ts.sql.gz"
+      if backup_pg "$cid" crystal crystal_agente "$arq"; then novos+=("$arq"); else falhas+=("app: pg_dump do crystal_agente (memória da Crystal) falhou"); fi
+    fi
+  elif docker service inspect "${APP_STACK}_app_postgres" >/dev/null 2>&1; then
+    aviso "o serviço do Postgres do app existe mas não está rodando"; falhas+=("app: Postgres fora do ar")
   fi
   # Arquivos que os alunos mandam pelo app (imagem, áudio).
-  local up=/var/lib/docker/volumes/${APP_STACK}_app_uploads/_data
+  up=$VOLUMES/${APP_STACK}_app_uploads/_data
   if [ -d "$up" ]; then
-    arq="$dir/crystal_uploads-$ts.tar.gz"
-    tar -C "$up" -czf "$arq" . || falha "tar dos uploads falhou"
-    ok "uploads do app em $arq ($(du -h "$arq" | cut -f1))"
-    novos+=("$arq")
+    if arq=$(backup_tar "$up" crystal_uploads "$ts"); then
+      ok "uploads do app em $arq ($(du -h "$arq" | cut -f1))"; novos+=("$arq")
+    else
+      falhas+=("app: tar dos uploads falhou")
+    fi
   fi
   # O nosso Chatwoot (conversas da equipe e anexos), se estiver no ar. Segredos
   # guardados no banco só se leem com as ACTIVE_RECORD_ENCRYPTION_* do cofre.
-  cid=$(docker ps -q -f name=crystal_atendimento_cw_postgres | head -1)
+  cid=$(docker ps -q -f name=crystal_atendimento_cw_postgres 2>/dev/null | head -1 || true)
   if [ -n "$cid" ]; then
     arq="$dir/chatwoot-$ts.sql.gz"
-    docker exec "$cid" pg_dump -U chatwoot -d chatwoot --no-owner | gzip > "$arq" || falha "pg_dump do Chatwoot falhou"
-    [ -s "$arq" ] || falha "dump do Chatwoot vazio em $arq"
-    ok "backup do Chatwoot em $arq ($(du -h "$arq" | cut -f1))"
-    novos+=("$arq")
+    if backup_pg "$cid" chatwoot chatwoot "$arq"; then novos+=("$arq"); else falhas+=("Chatwoot: pg_dump falhou"); fi
+  elif docker service inspect crystal_atendimento_cw_postgres >/dev/null 2>&1; then
+    aviso "o serviço do Postgres do Chatwoot existe mas não está rodando"; falhas+=("Chatwoot: Postgres fora do ar")
   fi
-  up=/var/lib/docker/volumes/crystal_atendimento_cw_storage/_data
+  up=$VOLUMES/crystal_atendimento_cw_storage/_data
   if [ -d "$up" ]; then
-    arq="$dir/chatwoot_storage-$ts.tar.gz"
-    tar -C "$up" -czf "$arq" . || falha "tar dos anexos do Chatwoot falhou"
-    ok "anexos do Chatwoot em $arq ($(du -h "$arq" | cut -f1))"
-    novos+=("$arq")
+    if arq=$(backup_tar "$up" chatwoot_storage "$ts"); then
+      ok "anexos do Chatwoot em $arq ($(du -h "$arq" | cut -f1))"; novos+=("$arq")
+    else
+      falhas+=("Chatwoot: tar dos anexos falhou")
+    fi
   fi
-  find "$dir" -maxdepth 1 \( -name 'n8n_queue-*' -o -name 'crystal_web_chat-*' -o -name 'crystal_uploads-*' -o -name 'chatwoot-*' -o -name 'chatwoot_storage-*' \) -mtime +14 -delete
+  find "$dir" -maxdepth 1 \( -name 'n8n_queue-*' -o -name 'crystal_web_chat-*' -o -name 'crystal_agente-*' -o -name 'crystal_uploads-*' \
+    -o -name 'chatwoot-*' -o -name 'chatwoot_storage-*' \) -mtime +14 -delete || true
   echo "  $(find "$dir" -maxdepth 1 -name '*.gz' | wc -l) arquivo(s) na VPS (14 dias)"
+  echo "  Restaurar banco: gunzip -c ARQ | docker exec -i CID psql -U USUÁRIO -d BANCO"
+  echo "  Restaurar pasta: tar -xzf ...-completo.tar.gz --listed-incremental=/dev/null -C DESTINO, depois o -diferencial mais novo"
 
   if [ -s "$FORA_CONF" ] && [ -s "$FORA_DEST" ]; then
-    backup_fora "${novos[@]}"
+    if [ ${#novos[@]} -gt 0 ]; then
+      backup_fora "${novos[@]}" || falhas+=("R2: nem tudo subiu (ficou só na VPS)")
+    fi
+  elif [ -s "$BACKUPS/.fora-ultimo" ]; then
+    # Já mandava para o R2 e a configuração sumiu: não é "não configurado" (achado 23).
+    falhas+=("R2: a cópia fora da VPS parou (falta $FORA_CONF ou $FORA_DEST)")
   else
     aviso "cópia fora da VPS não configurada (backup-chave e backup-fora-config)"
   fi
+
+  if [ ${#falhas[@]} -eq 0 ]; then
+    date -u +%FT%TZ > "$BACKUPS/.backup-ultimo"
+    rm -f "$BACKUPS/.backup-falhas"
+    ok "backup completo"
+    return 0
+  fi
+  printf '%s\n' "${falhas[@]}" > "$BACKUPS/.backup-falhas"
+  echo "== backup INCOMPLETO: ${#falhas[@]} parte(s) falharam (o resto foi salvo e enviado)"
+  printf '  !! %s\n' "${falhas[@]}"
+  exit 1
+}
+
+# O cron (backup e vigia) roda a cópia em $BASE/bootstrap-vps.sh. Ela é trocada a cada
+# app-subir e atendimento-subir (e no backup-cron e no vigia-config), sem esconder
+# erro (achado 24). Troca por mv: o bash lê o script aos poucos, e sobrescrever no
+# lugar quebraria um backup ou uma vigia rodando naquele instante.
+copia_cron_atualizar() { # copia_cron_atualizar [--criar]
+  local origem destino="$BASE/bootstrap-vps.sh"
+  origem="$AQUI/$(basename "$0")"
+  [ -f "$origem" ] || { aviso "não achei $origem para atualizar a cópia do cron"; return 0; }
+  [ "$origem" -ef "$destino" ] && return 0
+  [ -f "$destino" ] || [ "${1:-}" = "--criar" ] || return 0
+  if [ -f "$destino" ] && cmp -s "$origem" "$destino"; then return 0; fi
+  if cp "$origem" "$destino.novo" && chmod 700 "$destino.novo" && mv "$destino.novo" "$destino"; then
+    ok "cópia do cron atualizada ($destino, sha256 $(sha256sum "$destino" | cut -c1-12))"
+  else
+    rm -f "$destino.novo"
+    aviso "NÃO atualizei $destino: o backup e a vigia seguem com a versão antiga"
+  fi
+}
+
+copia_cron_conferir() {
+  local origem destino="$BASE/bootstrap-vps.sh" h1 h2
+  origem="$AQUI/$(basename "$0")"
+  [ -f "$destino" ] || { aviso "cópia do cron ($destino) não existe: bash $0 backup-cron"; return 0; }
+  if [ "$origem" -ef "$destino" ]; then ok "rodando a própria cópia do cron"; return 0; fi
+  [ -f "$origem" ] || return 0
+  h1=$(sha256sum "$origem" | cut -c1-12); h2=$(sha256sum "$destino" | cut -c1-12)
+  if [ "$h1" = "$h2" ]; then ok "cópia do cron igual a este script ($h1)"
+  else aviso "a cópia do cron ($h2) é diferente deste script ($h1): o backup e a vigia rodam a antiga. Atualize: bash $0 backup-cron"; fi
+}
+
+# Horas desde a data UTC gravada num arquivo (ou desde o arquivo .gz mais novo, para
+# o primeiro dia depois desta versão). "nunca" se não houver nada.
+horas_desde() { # horas_desde ARQUIVO_COM_DATA
+  local t=""
+  [ -s "$1" ] && t=$(date -d "$(cat "$1")" +%s 2>/dev/null || true)
+  if [ -z "$t" ] && [ "$1" = "$BACKUPS/.backup-ultimo" ]; then
+    t=$(find "$BACKUPS" -maxdepth 1 -name '*.gz' -printf '%T@\n' 2>/dev/null | sort -n | tail -1 | cut -d. -f1 || true)
+  fi
+  if [ -n "$t" ]; then echo $(( ($(date +%s) - t) / 3600 )); else echo nunca; fi
 }
 
 backup_cron() {
   local linha="30 3 * * * root /usr/bin/bash $BASE/bootstrap-vps.sh backup >> $BACKUPS/backup.log 2>&1"
   mkdir -p "$BACKUPS"; chmod 700 "$BACKUPS"
-  cp "$AQUI/$(basename "$0")" "$BASE/bootstrap-vps.sh" 2>/dev/null || true
+  copia_cron_atualizar --criar
   printf '%s\n' "$linha" > /etc/cron.d/crystal-backup-n8n
   chmod 644 /etc/cron.d/crystal-backup-n8n
   ok "cron instalado em /etc/cron.d/crystal-backup-n8n: todo dia 03:30, log em $BACKUPS/backup.log"
@@ -497,10 +609,11 @@ backup_cron() {
 #   - não apaga nem sobrescreve: a trava do bucket recusa, mesmo com a chave.
 # Envio pelo curl (assinatura S3 v4), sem instalar cliente; a chave do R2 vai ao
 # curl pela entrada padrão, nunca na linha de comando (que aparece no ps).
-fora_ler_conf() {
-  [ -s "$FORA_CONF" ] || falha "R2 não configurado: bash $0 backup-fora-config"
-  R2_CONTA=$(app_valor "$FORA_CONF" R2_CONTA); R2_BUCKET=$(app_valor "$FORA_CONF" R2_BUCKET)
-  R2_CHAVE_ID=$(app_valor "$FORA_CONF" R2_CHAVE_ID); R2_SEGREDO=$(app_valor "$FORA_CONF" R2_SEGREDO)
+fora_ler_conf() { # fora_ler_conf [ARQUIVO] (padrão: a configuração gravada)
+  local conf="${1:-$FORA_CONF}"
+  [ -s "$conf" ] || falha "R2 não configurado: bash $0 backup-fora-config"
+  R2_CONTA=$(app_valor "$conf" R2_CONTA); R2_BUCKET=$(app_valor "$conf" R2_BUCKET)
+  R2_CHAVE_ID=$(app_valor "$conf" R2_CHAVE_ID); R2_SEGREDO=$(app_valor "$conf" R2_SEGREDO)
   R2_URL="${R2_ENDPOINT:-https://$R2_CONTA.r2.cloudflarestorage.com}/$R2_BUCKET"
 }
 
@@ -510,7 +623,13 @@ fora_curl() { # fora_curl ARGS... (credenciais pela entrada padrão)
 }
 
 fora_enviar() { # fora_enviar ARQUIVO CHAVE_NO_BUCKET -> 0 se o R2 confirmou
-  local sha code resp
+  local sha code resp tam
+  # Envio num PUT só: o R2 recusa acima de 5 GiB. Avisa antes de travar (achado 25).
+  tam=$(stat -c %s "$1" 2>/dev/null || echo 0)
+  if [ "$tam" -gt 4900000000 ]; then
+    aviso "$2 tem $(du -h "$1" | cut -f1): grande demais para um envio só ao R2 (limite 5 GiB). Ficou só na VPS"
+    return 1
+  fi
   sha=$(sha256sum "$1" | cut -d' ' -f1)
   resp=$(mktemp)
   code=$(fora_curl -o "$resp" -w '%{http_code}' -T "$1" -H "x-amz-content-sha256: $sha" "$R2_URL/$2") || code=000
@@ -519,8 +638,8 @@ fora_enviar() { # fora_enviar ARQUIVO CHAVE_NO_BUCKET -> 0 se o R2 confirmou
   rm -f "$resp"; return 1
 }
 
-backup_fora() { # backup_fora ARQUIVO... cifra e envia; falha se algum não subir
-  command -v age >/dev/null || falha "age não instalado: bash $0 backup-chave"
+backup_fora() { # backup_fora ARQUIVO... cifra e envia; volta 1 se algum não subiu
+  command -v age >/dev/null || { aviso "age não instalado: bash $0 backup-chave"; return 1; }
   fora_ler_conf
   local dest a obj tmp erros=0
   dest=$(cat "$FORA_DEST")
@@ -535,7 +654,10 @@ backup_fora() { # backup_fora ARQUIVO... cifra e envia; falha se algum não subi
     fi
     rm -f "$tmp"
   done
-  [ "$erros" -eq 0 ] || falha "$erros arquivo(s) não subiram para o R2. Ficaram só na VPS"
+  if [ "$erros" -gt 0 ]; then
+    aviso "$erros arquivo(s) não subiram para o R2. Ficaram só na VPS"
+    return 1
+  fi
   date -u +%FT%TZ > "$BACKUPS/.fora-ultimo"
 }
 
@@ -594,19 +716,25 @@ backup_fora_config() {
   mkdir -p "$BACKUPS"; chmod 700 "$BACKUPS"
   umask 077
   printf 'R2_CONTA=%s\nR2_BUCKET=%s\nR2_CHAVE_ID=%s\nR2_SEGREDO=%s\n' "$conta" "$bucket" "$id" "$seg" > "$FORA_CONF.novo"
+  chmod 600 "$FORA_CONF.novo"
   seg=""
-  echo "== teste de envio"
+  echo "== teste de envio (com os dados novos; a configuração atual segue valendo até o teste passar)"
   local conf_ok=0
-  mv "$FORA_CONF.novo" "$FORA_CONF"; chmod 600 "$FORA_CONF"
-  fora_ler_conf
+  fora_ler_conf "$FORA_CONF.novo"
   t=$(mktemp "$BACKUPS/.teste.XXXXXX")
   echo "teste $(date -u +%FT%TZ)" | age -r "$(cat "$FORA_DEST")" -o "$t"
   fora_enviar "$t" "$FORA_PREFIXO/teste/$(date -u +%Y%m%dT%H%M%SZ).age" && conf_ok=1
   rm -f "$t"
   if [ "$conf_ok" -ne 1 ]; then
-    rm -f "$FORA_CONF"
+    rm -f "$FORA_CONF.novo"
+    # Antes, a configuração boa era apagada aqui e o backup parava de ir ao R2 em
+    # silêncio (achado 23). Agora ela fica como estava.
+    if [ -s "$FORA_CONF" ]; then
+      falha "o envio de teste falhou (Account ID, bucket ou chave?). A configuração anterior continua valendo; rode de novo"
+    fi
     falha "o envio de teste falhou (Account ID, bucket ou chave?). Nada gravado; rode de novo"
   fi
+  mv "$FORA_CONF.novo" "$FORA_CONF"; chmod 600 "$FORA_CONF"
   ok "R2 aceitou o envio; dados gravados em $FORA_CONF"
   backup_cron
   echo "Próximo: bash $0 backup   (faz um backup agora e manda pro R2)"
@@ -617,8 +745,8 @@ backup_fora_config() {
 # está cifrado; mesmo assim, não colar em chat.
 backup_link() {
   local tipo="${1:-n8n_queue}" xml code
-  echo "$tipo" | grep -Eq '^(n8n_queue|crystal_web_chat|crystal_uploads|chatwoot|chatwoot_storage)$' \
-    || falha "tipo: n8n_queue, crystal_web_chat, crystal_uploads, chatwoot ou chatwoot_storage"
+  echo "$tipo" | grep -Eq '^(n8n_queue|crystal_web_chat|crystal_agente|crystal_uploads|chatwoot|chatwoot_storage)$' \
+    || falha "tipo: n8n_queue, crystal_web_chat, crystal_agente, crystal_uploads, chatwoot ou chatwoot_storage"
   fora_ler_conf
   xml=$(mktemp)
   code=$(fora_curl -o "$xml" -w '%{http_code}' "$R2_URL?list-type=2&prefix=$FORA_PREFIXO") || code=000
@@ -631,26 +759,41 @@ chaves = sorted(c.find('s:Key', ns).text for c in ET.parse(sys.argv[1]).getroot(
                 if c.find('s:Key', ns).text.startswith(sys.argv[2]))
 if not chaves:
     sys.exit("ERRO: nenhum backup desse tipo no R2")
-chave = chaves[-1]
+# Pastas (uploads, anexos) vêm em tar incremental: restaurar pede o último completo
+# (ou um antigo, sem sufixo) e o diferencial mais novo depois dele.
+if sys.argv[2].rstrip('/').endswith(('crystal_uploads', 'chatwoot_storage')):
+    completos = [i for i, c in enumerate(chaves) if '-diferencial' not in c]
+    if not completos:
+        sys.exit("ERRO: nenhum backup completo desse tipo no R2")
+    escolhidas = [chaves[completos[-1]]]
+    dif = [c for c in chaves[completos[-1] + 1:] if '-diferencial' in c]
+    if dif:
+        escolhidas.append(dif[-1])
+else:
+    escolhidas = [chaves[-1]]
 base = urllib.parse.urlsplit(os.environ['R2_URL'])
-host, caminho = base.netloc, base.path + '/' + urllib.parse.quote(chave, safe='/')
 agora = datetime.datetime.now(datetime.timezone.utc)
 data, carimbo = agora.strftime('%Y%m%d'), agora.strftime('%Y%m%dT%H%M%SZ')
 escopo = f"{data}/{os.environ['R2_REGIAO']}/s3/aws4_request"
-q = {'X-Amz-Algorithm': 'AWS4-HMAC-SHA256', 'X-Amz-Credential': f"{os.environ['R2_CHAVE_ID']}/{escopo}",
-     'X-Amz-Date': carimbo, 'X-Amz-Expires': '600', 'X-Amz-SignedHeaders': 'host'}
-qs = '&'.join(f"{urllib.parse.quote(k, safe='')}={urllib.parse.quote(v, safe='')}" for k, v in sorted(q.items()))
-canon = '\n'.join(['GET', caminho, qs, f'host:{host}', '', 'host', 'UNSIGNED-PAYLOAD'])
-assinar = '\n'.join(['AWS4-HMAC-SHA256', carimbo, escopo, hashlib.sha256(canon.encode()).hexdigest()])
 k = ('AWS4' + os.environ['R2_SEGREDO']).encode()
 for parte in (data, os.environ['R2_REGIAO'], 's3', 'aws4_request'):
     k = hmac.new(k, parte.encode(), hashlib.sha256).digest()
-sig = hmac.new(k, assinar.encode(), hashlib.sha256).hexdigest()
-nome = chave.rsplit('/', 1)[-1]
-print(f"Backup: {chave}")
-print("Link válido por 10 minutos. No Terminal do Mac, cole a linha abaixo INTEIRA (não cole em chat):")
-print()
-print(f"curl -fo ~/Downloads/{nome} '{base.scheme}://{host}{caminho}?{qs}&X-Amz-Signature={sig}'")
+print("Link válido por 10 minutos. No Terminal do Mac, cole cada linha curl INTEIRA (não cole em chat):")
+for chave in escolhidas:
+    host, caminho = base.netloc, base.path + '/' + urllib.parse.quote(chave, safe='/')
+    q = {'X-Amz-Algorithm': 'AWS4-HMAC-SHA256', 'X-Amz-Credential': f"{os.environ['R2_CHAVE_ID']}/{escopo}",
+         'X-Amz-Date': carimbo, 'X-Amz-Expires': '600', 'X-Amz-SignedHeaders': 'host'}
+    qs = '&'.join(f"{urllib.parse.quote(kk, safe='')}={urllib.parse.quote(v, safe='')}" for kk, v in sorted(q.items()))
+    canon = '\n'.join(['GET', caminho, qs, f'host:{host}', '', 'host', 'UNSIGNED-PAYLOAD'])
+    assinar = '\n'.join(['AWS4-HMAC-SHA256', carimbo, escopo, hashlib.sha256(canon.encode()).hexdigest()])
+    sig = hmac.new(k, assinar.encode(), hashlib.sha256).hexdigest()
+    nome = chave.rsplit('/', 1)[-1]
+    print()
+    print(f"Backup: {chave}")
+    print(f"curl -fo ~/Downloads/{nome} '{base.scheme}://{host}{caminho}?{qs}&X-Amz-Signature={sig}'")
+if len(escolhidas) > 1:
+    print()
+    print("Restaurar: extrair o -completo e depois o -diferencial, os dois com tar --listed-incremental=/dev/null")
 PY
   rm -f "$xml"
 }
@@ -666,10 +809,20 @@ backup_testar_trava() {
   fora_enviar "$t" "$obj" || { rm -f "$t"; falha "não subiu o arquivo de teste"; }
   rm -f "$t"
   code=$(fora_curl -o /dev/null -w '%{http_code}' -X DELETE "$R2_URL/$obj") || code=000
+  # Só a recusa da retenção (403) seguida do arquivo ainda lá (HEAD 200) prova a
+  # trava. 5xx, 429 e outros códigos são inconclusivos (achado 69).
   case "$code" in
     200|204) aviso "o R2 APAGOU o arquivo (resposta $code): a trava NÃO está valendo. Conferir Settings > Bucket lock rules (prefixo vazio, 30 dias)"; exit 1 ;;
     000) aviso "sem resposta do R2; rode de novo" ; exit 1 ;;
-    *) ok "o R2 recusou apagar (resposta $code): a trava está valendo. Quem invadir a VPS não apaga os backups" ;;
+    403)
+      local h
+      h=$(fora_curl -o /dev/null -w '%{http_code}' -I "$R2_URL/$obj") || h=000
+      if [ "$h" = 200 ]; then
+        ok "o R2 recusou apagar (403) e o arquivo continua lá (HEAD 200): a trava está valendo. Quem invadir a VPS não apaga os backups"
+      else
+        aviso "o R2 recusou apagar (403), mas o HEAD respondeu $h: inconclusivo. Rode de novo"; exit 1
+      fi ;;
+    *) aviso "o R2 respondeu $code ao apagar: não é a recusa da trava (403). Inconclusivo: rode de novo e, se repetir, conferir Settings > Bucket lock rules"; exit 1 ;;
   esac
 }
 
@@ -914,12 +1067,17 @@ status() {
       *) aviso "https://$h.$DOMINIO -> $code" ;;
     esac
   done
+  local h
+  h=$(horas_desde "$BACKUPS/.backup-ultimo")
+  if [ "$h" != nunca ] && [ "$h" -lt 26 ]; then ok "último backup completo na VPS há ${h} h"; else aviso "último backup completo na VPS: há ${h} h (ver $BACKUPS/backup.log)"; fi
+  [ -s "$BACKUPS/.backup-falhas" ] && aviso "último backup com falha: $(paste -sd';' "$BACKUPS/.backup-falhas")"
   if [ -s "$FORA_CONF" ] && [ -s "$BACKUPS/.fora-ultimo" ]; then
-    local h; h=$(( ($(date +%s) - $(date -d "$(cat "$BACKUPS/.fora-ultimo")" +%s)) / 3600 ))
+    h=$(horas_desde "$BACKUPS/.fora-ultimo")
     if [ "$h" -lt 26 ]; then ok "último backup no R2 há ${h} h"; else aviso "último backup no R2 há ${h} h: ver $BACKUPS/backup.log"; fi
   else
     aviso "backup fora da VPS não configurado (backup-chave, backup-fora-config)"
   fi
+  copia_cron_conferir
   if [ -s "$PAINEL_IPS_ARQ" ]; then
     echo "  painel. liberado só para: $(paste -sd' ' "$PAINEL_IPS_ARQ")"
   else
@@ -1379,6 +1537,7 @@ app_subir() {
   esperar_stack "$APP_STACK" 420 || { servico_log_morto "${APP_STACK}_app_api"; echo "  Logs da API: docker service logs --tail 80 ${APP_STACK}_app_api"; exit 1; }
   app_conferir_troca "$t0" "$tag"
   crystal_banco
+  copia_cron_atualizar
   echo
   app_status
   if [ -n "$(app_valor "$APP_EXT" SUPABASE_URL)" ] && [ -n "$(app_valor "$APP_EXT" SUPABASE_SERVICE_ROLE_KEY)" ]; then
@@ -1822,7 +1981,7 @@ vigia_config() {
   vigia_telegram "✅ Vigia do app da Crystal ligada na VPS. Confere a cada 5 minutos e avisa aqui se algo cair." \
     || { rm -f "$VIGIA_CONF"; falha "o Telegram recusou (token, ID do grupo ou o bot fora do grupo). Nada gravado"; }
   ok "mensagem de teste enviada ao grupo"
-  cp "$AQUI/$(basename "$0")" "$BASE/bootstrap-vps.sh" 2>/dev/null || true
+  copia_cron_atualizar --criar
   printf '%s\n' "*/5 * * * * root PATH=/usr/sbin:/usr/bin:/sbin:/bin /usr/bin/bash $BASE/bootstrap-vps.sh vigia >> $VIGIA_LOG 2>&1" \
     > /etc/cron.d/crystal-vigia
   chmod 644 /etc/cron.d/crystal-vigia
@@ -1845,6 +2004,22 @@ vigia() {
   if docker service inspect "${CW_STACK}_cw_rails" >/dev/null 2>&1; then
     code=$(curl -s -o /dev/null -m 20 -w '%{http_code}' "https://$CW_HOST/api" || true)
     [ "$code" = "200" ] || problemas+=("https://$CW_HOST/api respondeu ${code:-sem resposta}")
+  fi
+  # Backup (achados 22 a 25): o último completo, falha registrada pelo backup e a
+  # cópia no R2, todos com 26 h de folga; e o disco do Docker.
+  local h uso
+  if [ -f /etc/cron.d/crystal-backup-n8n ]; then
+    h=$(horas_desde "$BACKUPS/.backup-ultimo")
+    if [ "$h" = nunca ] || [ "$h" -ge 26 ]; then problemas+=("último backup completo na VPS: há ${h} h (ver $BACKUPS/backup.log)"); fi
+    [ -s "$BACKUPS/.backup-falhas" ] && problemas+=("último backup com falha: $(paste -sd';' "$BACKUPS/.backup-falhas" | cut -c1-200)")
+  fi
+  if [ -s "$FORA_CONF" ] || [ -s "$BACKUPS/.fora-ultimo" ]; then
+    h=$(horas_desde "$BACKUPS/.fora-ultimo")
+    if [ "$h" = nunca ] || [ "$h" -ge 26 ]; then problemas+=("última cópia no R2: há ${h} h"); fi
+  fi
+  uso=$(df -P /var/lib/docker 2>/dev/null | awk 'NR==2{gsub("%","",$5); print $5}' || true)
+  if printf '%s' "$uso" | grep -Eq '^[0-9]+$' && [ "$uso" -ge 85 ]; then
+    problemas+=("disco da VPS em ${uso}% (/var/lib/docker): limpar ou ampliar antes que o banco pare")
   fi
   falhas=$(docker service logs --since 6m "${APP_STACK}_app_api" 2>&1 | grep -E 'crystal: resposta falhou|canal: envio para a inbox falhou' || true)
   if [ -n "$falhas" ]; then
@@ -2047,6 +2222,7 @@ atendimento_subir() {
     && conferir_atualizacao "$t0" - "${CW_STACK}_cw_postgres" "${CW_STACK}_cw_redis" \
     || falha "o Chatwoot não ficou de pé: o Swarm desfez a troca (log acima)"
   ok "Chatwoot em $CW_VERSAO, sem rollback"
+  copia_cron_atualizar
   echo
   atendimento_status
   echo
