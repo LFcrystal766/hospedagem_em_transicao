@@ -1262,6 +1262,19 @@ app_status() {
   done
 }
 
+# Script temporário em /app/apps/api, ao lado do src/ que ele importa. Desde a etapa 1
+# a API roda sem root (USER node) e essa pasta é do root: sem -u 0 o 'cat >' dá
+# "Permission denied" (achado 7 da revisão de 05/10). Só gravar e apagar usam root; o
+# tsx roda como node. O arquivo não tem dado pessoal (o CPF vai pelo ambiente do
+# docker exec) e fica 644 para o node ler.
+app_api_ts_gravar() { # app_api_ts_gravar CID NOME < código
+  docker exec -i -u 0 -w /app/apps/api "$1" sh -c 'umask 022; cat > "$1"' sh "$2"
+}
+app_api_ts_apagar() { # app_api_ts_apagar CID NOME
+  docker exec -u 0 "$1" rm -f "/app/apps/api/$2" >/dev/null 2>&1 \
+    || aviso "não apagou /app/apps/api/$2 no contêiner (não tem dado pessoal; some no próximo app-subir)"
+}
+
 # O CPF passa só pelo ambiente de um 'docker exec' que termina em seguida: não
 # entra no spec do serviço (que o Swarm guarda com histórico), nem em log,
 # nem no histórico do shell.
@@ -1276,7 +1289,7 @@ app_admin() {
   echo "$email" | grep -Eq '^[^@ :]+@[^@ :]+\.[^@ :]+$' || falha "e-mail inválido"
   read -rp "Nome do admin: " nome
   [ -n "$nome" ] && [ "${nome#*:}" = "$nome" ] || falha "nome vazio ou com ':'"
-  docker exec -i -w /app/apps/api "$cid" sh -c 'cat > .admin-bootstrap.ts' <<'TS'
+  app_api_ts_gravar "$cid" .admin-bootstrap.ts <<'TS' || { unset cpf; falha "não gravou o script temporário na API (contêiner $cid)"; }
 import { PrismaClient } from "@prisma/client";
 import { createPrismaRepos } from "./src/db/prisma";
 import { loadEnv } from "./src/env";
@@ -1293,9 +1306,12 @@ try {
   await prisma.$disconnect();
 }
 TS
-  ADMIN_BOOTSTRAP="$cpf:$email:$nome" docker exec -e ADMIN_BOOTSTRAP -w /app/apps/api "$cid" \
-    ./node_modules/.bin/tsx .admin-bootstrap.ts || { docker exec "$cid" rm -f /app/apps/api/.admin-bootstrap.ts; falha "bootstrap do admin falhou"; }
-  docker exec "$cid" rm -f /app/apps/api/.admin-bootstrap.ts
+  # tsx roda como o usuário da imagem (node): só a gravação e a remoção usam root.
+  if ! ADMIN_BOOTSTRAP="$cpf:$email:$nome" docker exec -e ADMIN_BOOTSTRAP -w /app/apps/api "$cid" \
+    ./node_modules/.bin/tsx .admin-bootstrap.ts; then
+    app_api_ts_apagar "$cid" .admin-bootstrap.ts; unset cpf; falha "bootstrap do admin falhou"
+  fi
+  app_api_ts_apagar "$cid" .admin-bootstrap.ts
   unset cpf
   echo "  Próximo: entrar em https://app.$DOMINIO com esse CPF e e-mail (o código chega pelo Resend)."
 }
@@ -1322,7 +1338,7 @@ app_aluno() {
     echo "$tel" | grep -Eq '^55[1-9][0-9]9?[0-9]{8}$' || falha "telefone inválido (Brasil, com DDD)"
     tel="+$tel"
   fi
-  docker exec -i -w /app/apps/api "$cid" sh -c 'cat > .aluno.ts' <<'TS'
+  app_api_ts_gravar "$cid" .aluno.ts <<'TS' || { unset cpf; falha "não gravou o script temporário na API (contêiner $cid)"; }
 import { PrismaClient } from "@prisma/client";
 import { cpfLast4, cpfSchema, emailSchema } from "@crystal/shared";
 import { createPrismaRepos } from "./src/db/prisma";
@@ -1361,10 +1377,12 @@ try {
   await prisma.$disconnect();
 }
 TS
-  ALUNO_CPF="$cpf" ALUNO_EMAIL="$email" ALUNO_NOME="$nome" ALUNO_TEL="$tel" \
+  if ! ALUNO_CPF="$cpf" ALUNO_EMAIL="$email" ALUNO_NOME="$nome" ALUNO_TEL="$tel" \
     docker exec -e ALUNO_CPF -e ALUNO_EMAIL -e ALUNO_NOME -e ALUNO_TEL -w /app/apps/api "$cid" \
-    ./node_modules/.bin/tsx .aluno.ts || { docker exec "$cid" rm -f /app/apps/api/.aluno.ts; unset cpf; falha "não criou a conta"; }
-  docker exec "$cid" rm -f /app/apps/api/.aluno.ts
+    ./node_modules/.bin/tsx .aluno.ts; then
+    app_api_ts_apagar "$cid" .aluno.ts; unset cpf; falha "não criou a conta"
+  fi
+  app_api_ts_apagar "$cid" .aluno.ts
   unset cpf
   echo "  Entrar em https://app.$DOMINIO com esse CPF e e-mail (o código chega por e-mail)."
 }
