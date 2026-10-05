@@ -8,7 +8,7 @@ imagens construídas. Este roteiro é só o que o Luiz roda e confere.
 |---|---|---|---|
 | 1 · Base e segurança | `otimizacao/etapa-1` | `79ba6b7` (hotfix do guard https sobre `cdc45f5`) | `sha-79ba6b7` |
 | 2 · Início e perfil | `otimizacao/etapa-2` | `69ef26c` | `sha-69ef26c` |
-| 3 · Conversa e visual | `otimizacao/etapa-3` | `da617ac` | `sha-da617ac` |
+| 3 · Conversa e visual | `otimizacao/etapa-3` | `8ed9ce8` (`da617ac` + ajustes pós-QA) | `sha-8ed9ce8` |
 
 Aprendido em 05/10, na primeira tentativa da etapa 1: a API nova recusou
 `CRYSTAL_API_URL=http://app_crystal:8080` (guard de https em produção), morreu na
@@ -113,6 +113,14 @@ Conferir em aparelho (roteiros completos em `docs/otimizacao/pedidos-e3-*.md` do
   Reprovou em um dos dois aparelhos: `SEGURAR_PARA_GRAVAR = false` em
   `apps/web/components/chat/Composer.tsx`, imagem nova, `app-subir`. O resto fica.
 - [ ] Equipe: `/equipe/crystal` ajusta o ritmo das bolhas e vale na próxima resposta.
+
+## Ajustes pós-QA (05/10, depois do iPhone aprovar)
+
+Dois pedidos do Luiz entraram na imagem `sha-8ed9ce8`: a pílula "Manda o print" saiu
+(imagem só pelo ícone de clipe à direita do campo, como no WhatsApp) e a folha de
+notificações fecha sozinha 1,5 s depois do "Pronto!", com botão Fechar. Subida:
+`backup` e `app-subir sha-8ed9ce8`. Conferir: ícone de clipe no lugar da pílula;
+ativar notificações no menu e ver a folha sumir.
 
 ## Depois dos três (sem pressa, qualquer ordem)
 
