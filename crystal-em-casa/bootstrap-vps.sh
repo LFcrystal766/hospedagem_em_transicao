@@ -42,8 +42,9 @@
 #                                              presas na versão que roda. Sem IP: mostra a lista
 #   bash bootstrap-vps.sh painel-desligar      tira o Portainer do ar (painel-ligar volta)
 #   bash bootstrap-vps.sh recomecar-n8n EMAIL --confirmo
-#                                              só ANTES de o n8n ter fluxo salvo: apaga o banco
-#                                              do n8n e refaz com segredos novos
+#                                              só com o n8n SEM fluxo nem credencial (conferido no
+#                                              banco): pede APAGAR, copia o banco, apaga e refaz
+#                                              com segredos novos
 #
 # App da Crystal (crystal-web-chat), em app. e api.crystalnowpp.com.br:
 #   bash bootstrap-vps.sh app-ghcr             docker login no ghcr.io (token read:packages,
@@ -94,7 +95,8 @@
 #   bash bootstrap-vps.sh app-canal chatwoot   o app passa a conversar pelo nosso Chatwoot
 #                                              (app-canal crystal volta para a Crystal direto)
 #   bash bootstrap-vps.sh app-recomecar TAG --confirmo
-#                                              só com o banco do app VAZIO: apaga o banco e
+#                                              só com o banco do app VAZIO (comprovado): pede
+#                                              APAGAR, copia bancos e segredos, apaga o banco e
 #                                              troca todos os segredos do app (vazaram?)
 #
 # Publicar a etapa 1 do PRD de Otimização (API sem root, mídia e transcrição, reembolso):
@@ -262,8 +264,12 @@ preparar() {
   done
   ok "${#ARQUIVOS[@]} arquivos prontos em $STACKS (chmod 600)"
   # O 01 acima saiu do original, aberto. Se o painel já estava restrito, refaz a trava.
-  if [ -s "$PAINEL_IPS_ARQ" ]; then
-    painel_gerar || aviso "01-portainer.yaml ficou como o original, ABERTO. Depois de subir: bash $0 painel-restringir IP"
+  # Se não conseguir, falha fechado (achado 34): o 01 aberto sai de $STACKS e o
+  # 'portainer' se recusa a subir sem a lista.
+  if [ -s "$PAINEL_IPS_ARQ" ] && ! painel_gerar; then
+    mv -f "$STACKS/01-portainer.yaml" "$STACKS/01-portainer.yaml.aberto"
+    echo "  !! não refiz a trava do painel: 01-portainer.yaml (aberto) foi tirado de $STACKS. O Portainer no ar"
+    echo "  !! continua como está. Para regravar com a lista: bash $0 painel-restringir $(paste -sd' ' "$PAINEL_IPS_ARQ")"
   fi
   echo
   echo "Conferência do que mudou (só linhas com o domínio e o e-mail):"
@@ -404,7 +410,14 @@ deploy() { # deploy ARQUIVO STACK
 }
 
 traefik()   { conferir_fundacao; deploy 00-traefik.yaml traefik; }
-portainer() { deploy 01-portainer.yaml portainer; echo "  Abra https://painel.$DOMINIO AGORA e crie o admin: o Portainer tranca a criação se demorar"; }
+portainer() {
+  # Com lista de IPs, nunca sobe o painel aberto (achado 34).
+  if [ -s "$PAINEL_IPS_ARQ" ] && ! grep -q 'ipallowlist.sourcerange=' "$STACKS/01-portainer.yaml" 2>/dev/null; then
+    falha "o painel. é restrito ($PAINEL_IPS_ARQ) e $STACKS/01-portainer.yaml está sem a lista. Rode: bash $0 painel-restringir $(paste -sd' ' "$PAINEL_IPS_ARQ")"
+  fi
+  deploy 01-portainer.yaml portainer
+  [ -s "$PAINEL_IPS_ARQ" ] || echo "  Abra https://painel.$DOMINIO AGORA e crie o admin: o Portainer tranca a criação se demorar"
+}
 bancos()    { deploy 02-n8n-postgres.yaml n8n_postgres; deploy 03-n8n-redis.yaml n8n_redis; }
 n8n()       { deploy 04-n8n-editor.yaml n8n_editor; deploy 05-n8n-webhook.yaml n8n_webhook; deploy 06-n8n-worker.yaml n8n_worker; }
 tudo()      { traefik; portainer; bancos; n8n; echo; status; }
@@ -852,6 +865,25 @@ PY
   rm -f "$xml"
 }
 
+# ------------------------------------------------------------------ portas do Docker
+# O Docker publica porta por iptables próprio, por cima do ufw: o "só 22, 80 e 443"
+# do ufw não vale para o que um serviço publicar (achado 73). Confere o que está
+# publicado em todas as interfaces e aponta o que não for 80 ou 443.
+portas_docker_conferir() {
+  local extras
+  extras=$( { docker service ls --format '{{.Name}} {{.Ports}}' 2>/dev/null; docker ps --format '{{.Names}} {{.Ports}}' 2>/dev/null; } \
+    | awk '{ n=$1; $1=""; s=$0
+             while (match(s, /(\*|0\.0\.0\.0|::|\[::\]):[0-9]+->/)) {
+               p=substr(s, RSTART, RLENGTH); sub(/->$/, "", p); sub(/.*:/, "", p)
+               if (p != "80" && p != "443") print n " publica a porta " p
+               s=substr(s, RSTART + RLENGTH) } }' | sort -u || true)
+  if [ -z "$extras" ]; then
+    ok "o Docker só publica 80 e 443 (o resto o ufw fecha)"
+  else
+    printf '%s\n' "$extras" | while read -r l; do aviso "PORTA ABERTA PARA A INTERNET pelo Docker, por cima do ufw: $l"; done
+  fi
+}
+
 # ------------------------------------------------------------------ firewall
 # Nó único: ninguém de fora precisa falar com o Swarm. O Docker publica 80 e
 # 443 por conta própria (passa por cima do ufw), então o que o ufw realmente
@@ -865,8 +897,9 @@ firewall() {
   ufw allow 80/tcp comment 'traefik http' >/dev/null
   ufw allow 443/tcp comment 'traefik https' >/dev/null
   ufw --force enable >/dev/null
-  ok "ufw ativo: entrada só 22, 80 e 443"
+  ok "ufw ativo: entrada só 22, 80 e 443 (o que o Docker publica passa por cima: conferido abaixo)"
   ufw status | sed 's/^/  /'
+  portas_docker_conferir
   echo "  Conferir de fora: as três URLs em HTTPS continuam respondendo (bash $0 status)."
 }
 
@@ -913,7 +946,8 @@ CFG
   fi
   [ "$root" = "yes" ] && aviso "root entra por SSH com senha; com chave só, use: PermitRootLogin prohibit-password" || ok "root: $root"
   ufw status 2>/dev/null | grep -q "Status: active" && ok "ufw ativo" || aviso "ufw desligado: bash $0 firewall"
-  echo "  Portas escutando (de fora só passam 22, 80 e 443; as do Swarm, 2377, 7946 e 4789, o ufw fecha):"
+  portas_docker_conferir
+  echo "  Portas escutando (o ufw deixa 22, 80 e 443; as do Swarm, 2377, 7946 e 4789, ele fecha; porta publicada pelo Docker passa por cima, conferida acima):"
   ss -Htlnp 2>/dev/null | awk '{print $4}' | grep -vE '^(127\.|\[::1\])' | sed -E 's/.*:([0-9]+)$/\1/' | sort -un | tr '\n' ' ' | sed 's/^/    /'; echo
   local up; up=$(apt list --upgradable 2>/dev/null | grep -c -- '-security' || true)
   [ "${up:-0}" -gt 0 ] && aviso "$up pacote(s) de segurança pendentes; a atualização automática aplica hoje à noite" || ok "sem atualização de segurança pendente"
@@ -1078,11 +1112,17 @@ status() {
     aviso "backup fora da VPS não configurado (backup-chave, backup-fora-config)"
   fi
   copia_cron_conferir
-  if [ -s "$PAINEL_IPS_ARQ" ]; then
-    echo "  painel. liberado só para: $(paste -sd' ' "$PAINEL_IPS_ARQ")"
+  # A lista do arquivo não basta: confere a trava no serviço que está no ar (achado 34).
+  local trava
+  trava=$(docker service inspect portainer_portainer --format '{{index .Spec.Labels "traefik.http.middlewares.portainer-ips.ipallowlist.sourcerange"}}' 2>/dev/null || true)
+  if [ -s "$PAINEL_IPS_ARQ" ] && [ -n "$trava" ] && [ "$trava" != "<no value>" ]; then
+    ok "painel. liberado só para: $trava (conferido no serviço no ar)"
+  elif [ -s "$PAINEL_IPS_ARQ" ]; then
+    aviso "a lista de IPs existe, mas o Portainer no ar está SEM a trava: bash $0 painel-restringir $(paste -sd' ' "$PAINEL_IPS_ARQ")"
   else
     aviso "painel. (Portainer) aberto para qualquer IP: bash $0 painel-restringir"
   fi
+  portas_docker_conferir
   echo
   echo "== Últimas linhas do Traefik sobre certificado (o log vai pra arquivo dentro do contêiner)"
   local cid; cid=$(docker ps -q -f name=traefik_traefik | head -1)
@@ -1115,21 +1155,41 @@ segredos() {
 # do n8n, os segredos e refaz tudo com segredos novos. Uso:
 #   bash bootstrap-vps.sh recomecar-n8n SEU_EMAIL --confirmo
 recomecar_n8n() {
-  local email="${2:-}" conf="${3:-}"
+  local email="${2:-}" conf="${3:-}" pg n tem v ts t=0
   [ "$conf" = "--confirmo" ] || falha "isto apaga o banco do n8n. Se for isso mesmo: bash $0 recomecar-n8n SEU_EMAIL --confirmo"
   [ -n "$email" ] || falha "informe o e-mail do Let's Encrypt"
-  if docker service ls --format '{{.Name}}' | grep -q '^n8n_editor$'; then
-    local fluxos
-    fluxos=$(docker exec "$(docker ps -q -f name=n8n_postgres_n8n_postgres | head -1)" \
-      psql -U postgres -d n8n_queue -tAc 'select count(*) from workflow_entity' 2>/dev/null || echo "?")
-    [ "$fluxos" = "0" ] || [ "$fluxos" = "?" ] || falha "o n8n já tem $fluxos fluxo(s) salvos. Trocar a chave agora os tornaria ilegíveis. Não recomece"
-  fi
+  # Trava real (achado 31). A guarda antiga procurava o serviço "n8n_editor", mas o
+  # nome é n8n_editor_n8n_editor: nunca conferia nada e apagaria a crystal-provisoria.
+  # Agora confere direto no banco e falha fechado: sem o Postgres no ar, ou sem
+  # resposta, não dá para provar que está vazio, e nada é apagado.
+  pg=$(docker ps -q -f name=n8n_postgres_n8n_postgres 2>/dev/null | head -1 || true)
+  [ -n "$pg" ] || falha "o Postgres do n8n não está rodando: não dá para provar que o n8n está sem fluxo. Nada apagado"
+  tem=$(docker exec "$pg" psql -U postgres -d n8n_queue -tAc "select to_regclass('public.workflow_entity') is not null" 2>/dev/null | tr -d '[:space:]' || true)
+  case "$tem" in
+    f) n=0 ;;   # o n8n nunca criou as tabelas
+    t) n=$(docker exec "$pg" psql -U postgres -d n8n_queue -tAc 'select (select count(*) from workflow_entity) + (select count(*) from credentials_entity)' 2>/dev/null | tr -d '[:space:]' || true) ;;
+    *) n="" ;;
+  esac
+  [ -n "$n" ] || falha "o banco do n8n não respondeu: não dá para provar que está sem fluxo. Nada apagado"
+  [ "$n" = "0" ] || falha "o n8n tem $n fluxo(s)/credencial(is) salvos. Trocar a chave agora os tornaria ilegíveis. Não recomece"
+  [ -t 0 ] || falha "rode num terminal: este comando pede confirmação digitada"
+  read -rp "Digite APAGAR para apagar o banco do n8n e trocar os segredos dele: " v
+  [ "$v" = APAGAR ] || falha "nada apagado"
+  # Cópia antes de apagar: o dump e os segredos antigos (a chave abre o dump).
+  ts=$(date -u +%Y%m%dT%H%M%SZ)
+  mkdir -p "$BACKUPS"; chmod 700 "$BACKUPS"; umask 077
+  backup_pg "$pg" postgres n8n_queue "$BACKUPS/n8n_queue-antes-recomecar-$ts.sql.gz" || falha "não copiei o banco do n8n antes de apagar. Nada apagado"
+  cp -p "$SEGREDOS" "$BASE/.segredos.antes-recomecar-$ts" || falha "não copiei $SEGREDOS. Nada apagado"
   echo "== removendo stacks do n8n"
   docker stack rm n8n_worker n8n_webhook n8n_editor n8n_redis n8n_postgres 2>/dev/null || true
-  local t=0
-  while docker ps -q -f name=n8n_ | grep -q . && [ $t -lt 90 ]; do sleep 3; t=$((t+3)); done
-  echo "== recriando os volumes do n8n (banco antigo apagado)"
-  docker volume rm n8n_postgres_data n8n_redis_data >/dev/null
+  # O volume só solta quando nenhum contêiner (nem parado) o usa.
+  while docker ps -a -q --filter volume=n8n_postgres_data --filter volume=n8n_redis_data 2>/dev/null | grep -q . && [ $t -lt 120 ]; do sleep 3; t=$((t+3)); done
+  echo "== recriando os volumes do n8n (banco antigo apagado; cópia em $BACKUPS)"
+  for v in n8n_postgres_data n8n_redis_data; do
+    if docker volume inspect "$v" >/dev/null 2>&1; then
+      docker volume rm "$v" >/dev/null || falha "não apagou o volume $v (ainda em uso?). Os segredos não foram trocados; rode de novo em 1 min"
+    fi
+  done
   docker volume create n8n_postgres_data >/dev/null
   docker volume create n8n_redis_data >/dev/null
   rm -f "$SEGREDOS"
@@ -1754,26 +1814,46 @@ TS
 # CPF_SALT novos deixariam os dados ilegíveis. Mantém .externos (Resend etc.).
 #   bash bootstrap-vps.sh app-recomecar TAG --confirmo
 app_recomecar() {
-  local tag="${2:-}" conf="${3:-}" cid n
+  local tag="${2:-}" conf="${3:-}" cid n v ts up
   [ "$conf" = "--confirmo" ] || falha "isto apaga o banco do app e troca os segredos. Se for isso: bash $0 app-recomecar TAG --confirmo"
   echo "$tag" | grep -Eq '^(sha-[0-9a-f]{7}|v[0-9][0-9A-Za-z.-]*)$' || falha "informe a tag: bash $0 app-recomecar sha-XXXXXXX --confirmo"
-  cid=$(docker ps -q -f name=${APP_STACK}_app_postgres | head -1)
-  if [ -n "$cid" ]; then
-    n=$(docker exec "$cid" psql -U crystal -d crystal_web_chat -tAc 'select count(*) from users' 2>/dev/null || echo "?")
-    n=$(echo "$n" | tr -d '[:space:]')
-    [ "$n" = "0" ] || [ "$n" = "?" ] || falha "o banco do app já tem $n usuário(s). Trocar ENCRYPTION_KEY e CPF_SALT agora os tornaria ilegíveis. Não recomece"
+  # Trava real (achado 29): antes, contêiner ausente ou resposta "?" deixava passar e
+  # apagava um banco com alunas. Agora só segue com n=0 comprovado.
+  cid=$(docker ps -q -f name=${APP_STACK}_app_postgres 2>/dev/null | head -1 || true)
+  [ -n "$cid" ] || falha "o Postgres do app não está rodando: não dá para provar que o banco está vazio. Nada apagado"
+  n=$(docker exec "$cid" psql -U crystal -d crystal_web_chat -tAc 'select count(*) from users' 2>/dev/null | tr -d '[:space:]' || true)
+  [ -n "$n" ] || falha "o banco do app não respondeu: não dá para provar que está vazio. Nada apagado"
+  [ "$n" = "0" ] || falha "o banco do app tem $n usuário(s). Trocar ENCRYPTION_KEY e CPF_SALT agora os tornaria ilegíveis. Não recomece"
+  [ -t 0 ] || falha "rode num terminal: este comando pede confirmação digitada"
+  read -rp "Digite APAGAR para apagar o banco do app e trocar TODOS os segredos dele: " v
+  [ "$v" = APAGAR ] || falha "nada apagado"
+  # Cópia antes de apagar: bancos (app e memória da Crystal), uploads e os segredos
+  # antigos, que abrem esses dumps. Sem a cópia, nada é apagado.
+  ts=$(date -u +%Y%m%dT%H%M%SZ)
+  mkdir -p "$BACKUPS"; chmod 700 "$BACKUPS"; umask 077
+  backup_pg "$cid" crystal crystal_web_chat "$BACKUPS/crystal_web_chat-antes-recomecar-$ts.sql.gz" || falha "não copiei o banco do app antes de apagar. Nada apagado"
+  if docker exec "$cid" psql -U crystal -d crystal_web_chat -tAc "select 1 from pg_database where datname = 'crystal_agente'" 2>/dev/null | grep -q 1; then
+    backup_pg "$cid" crystal crystal_agente "$BACKUPS/crystal_agente-antes-recomecar-$ts.sql.gz" || falha "não copiei a memória da Crystal antes de apagar. Nada apagado"
   fi
+  up=$VOLUMES/${APP_STACK}_app_uploads/_data
+  if [ -d "$up" ] && [ -n "$(ls -A "$up" 2>/dev/null)" ]; then
+    tar -C "$up" -czf "$BACKUPS/crystal_uploads-antes-recomecar-$ts.tar.gz" . || falha "não copiei os uploads antes de apagar. Nada apagado"
+  fi
+  [ ! -f "$APP_SEG" ] || cp -p "$APP_SEG" "$APP_DIR/.segredos.antes-recomecar-$ts" || falha "não copiei $APP_SEG. Nada apagado"
+  ok "cópia em $BACKUPS (*-antes-recomecar-$ts) e $APP_DIR/.segredos.antes-recomecar-$ts"
   echo "== removendo a stack $APP_STACK"
   docker stack rm "$APP_STACK" >/dev/null 2>&1 || true
   local t=0
-  while docker ps -aq -f "label=com.docker.stack.namespace=$APP_STACK" | grep -q . && [ $t -lt 120 ]; do sleep 3; t=$((t+3)); done
+  while docker ps -aq -f "label=com.docker.stack.namespace=$APP_STACK" 2>/dev/null | grep -q . && [ $t -lt 120 ]; do sleep 3; t=$((t+3)); done
   sleep 5
   echo "== apagando os volumes do app (banco vazio)"
   for v in app_postgres_data app_redis_data app_uploads; do
-    docker volume rm "${APP_STACK}_$v" >/dev/null 2>&1 || true
+    if docker volume inspect "${APP_STACK}_$v" >/dev/null 2>&1; then
+      docker volume rm "${APP_STACK}_$v" >/dev/null || falha "não apagou o volume ${APP_STACK}_$v (ainda em uso?). Os segredos NÃO foram trocados; rode de novo em 1 min"
+    fi
   done
   rm -f "$APP_SEG" "$APP_DIR/api.env" "$APP_DIR/postgres.env"
-  ok "segredos antigos apagados; $APP_EXT mantido"
+  ok "segredos antigos apagados (cópia guardada); $APP_EXT mantido"
   app_subir app-subir "$tag"
 }
 
@@ -2099,14 +2179,17 @@ cw_rails() { # id do contêiner do Rails do Chatwoot
 }
 
 # Roda Ruby no Chatwoot (rails runner). O código vai pela entrada padrão; valores,
-# pelo ambiente do docker exec (-e NOME, sem valor na linha de comando).
+# pelo ambiente do docker exec (-e NOME, sem valor na linha de comando). O mktemp da
+# imagem é o do BusyBox, que só aceita o modelo terminado em XXXXXX: com sufixo .rb ele
+# recusava e o atendimento-configurar nunca terminava (achado 6). O rails runner
+# carrega o arquivo pelo caminho, sem precisar da extensão.
 # Saída útil só nas linhas "CW_OUT NOME=valor".
 cw_ruby() { # cw_ruby [NOME_DE_VARIAVEL...] < codigo.rb
   local cid args=() v
   cid=$(cw_rails); [ -n "$cid" ] || falha "o Chatwoot não está rodando: bash $0 atendimento-subir"
   for v in "$@"; do args+=(-e "$v"); done
   docker exec -i "${args[@]}" "$cid" sh -c \
-    'f=$(mktemp /tmp/cw-XXXXXX.rb); cat > "$f"; RAILS_LOG_TO_STDOUT= bundle exec rails runner "$f" 2>&1; r=$?; rm -f "$f"; exit $r'
+    'f=$(mktemp /tmp/cw.XXXXXX) || exit 1; cat > "$f"; RAILS_LOG_TO_STDOUT= bundle exec rails runner "$f" 2>&1; r=$?; rm -f "$f"; exit $r'
 }
 
 cw_gerar_segredos() {
