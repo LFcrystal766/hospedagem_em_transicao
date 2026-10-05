@@ -30,7 +30,10 @@
 #
 # Regras que o script respeita:
 #   - server., mail. e ftp. ficam SEMPRE cinza. Depois de toda gravação de DNS
-#     o script relê os três e força proxied=false se algum virou laranja.
+#     o script relê os três e força proxied=false se algum virou laranja (e
+#     confere de novo). Também não podem ser CNAME de um nome laranja: o ftp. é
+#     CNAME do apex, e o preparar/laranja o troca por A direto no IP da AZAN.
+#   - Leitura que falha para o script (saída 2): nunca vira "ok" nem "fase vazia".
 #   - URL que responde 301 nunca recebe fbclid/utm/gclid (cache envenenado de
 #     11/09). O validar só manda query de teste pra /crystal-teste, que dá 200.
 
@@ -81,6 +84,20 @@ ler() {
   echo "$r" | jq '.result'
 }
 
+# ler_fase FASE -> .result do entrypoint, ou null quando a fase ainda não existe
+# (código 10003). Qualquer outro erro para: tratar erro como "fase vazia" faria o
+# PUT apagar regras criadas no painel (achado 37). Use: x=$(ler_fase F) || exit 2
+ler_fase() {
+  local r; r=$(api GET "/zones/$ZONA_ID/rulesets/phases/$1/entrypoint")
+  if [ "$(echo "$r" | jq -r '.success' 2>/dev/null)" = "true" ]; then
+    echo "$r" | jq '.result'; return 0
+  fi
+  if echo "$r" | jq -e '[.errors[]?.code] | index(10003)' >/dev/null 2>&1; then
+    echo null; return 0
+  fi
+  falha "GET da fase $1: $(echo "$r" | jq -c '.errors' 2>/dev/null || echo 'sem resposta válida')"
+}
+
 salvar() { # salvar NOME JSON
   mkdir -p "$BACKUP"
   printf '%s\n' "$2" > "$BACKUP/$1.json"
@@ -105,7 +122,7 @@ gravar() {
 # ------------------------------------------------------------------ settings
 setting() { # setting NOME VALOR_DESEJADO   (valor em JSON: "off", 1.2 vira "1.2")
   local nome=$1 desejado=$2 atual
-  atual=$(ler "/zones/$ZONA_ID/settings/$nome")
+  atual=$(ler "/zones/$ZONA_ID/settings/$nome") || exit 2
   salvar "setting_$nome" "$atual"
   local v; v=$(echo "$atual" | jq -c '.value')
   if [ "$v" = "$desejado" ]; then
@@ -114,7 +131,7 @@ setting() { # setting NOME VALOR_DESEJADO   (valor em JSON: "off", 1.2 vira "1.2
   fi
   gravar PATCH "/zones/$ZONA_ID/settings/$nome" "{\"value\":$desejado}" "$nome: $v -> $desejado"
   if [ "$APLICAR" -eq 1 ]; then
-    local depois; depois=$(ler "/zones/$ZONA_ID/settings/$nome" | jq -c '.value')
+    local depois; depois=$(ler "/zones/$ZONA_ID/settings/$nome" | jq -c '.value') || exit 2
     [ "$depois" = "$desejado" ] || falha "$nome releu $depois, esperado $desejado"
   fi
 }
@@ -126,24 +143,84 @@ registro_id() { # registro_id JSON TIPO NOME
   echo "$1" | jq -r --arg t "$2" --arg n "$3" '.[] | select(.type==$t and .name==$n) | .id' | head -1
 }
 
+laranja_proibido() { # laranja_proibido JSON_DOS_REGISTROS -> [{id,type,name}] laranja entre server., mail. e ftp.
+  echo "$1" | jq -c --arg d "$DOMINIO" \
+    '[.[] | select((.name=="server."+$d or .name=="mail."+$d or .name=="ftp."+$d) and .proxied==true) | {id,type,name}]'
+}
+
+cname_para_laranja() { # cname_para_laranja JSON -> [{id,name,alvo}] CNAME entre os três cujo alvo é laranja
+  echo "$1" | jq -c --arg d "$DOMINIO" '. as $todos
+    | [.[] | select((.name=="server."+$d or .name=="mail."+$d or .name=="ftp."+$d) and .type=="CNAME")
+      | . as $c | select(any($todos[]; .name==$c.content and .proxied==true)) | {id, name, alvo: .content}]'
+}
+
 garantir_cinza() {
-  # server. (Stape), mail. e ftp. nunca podem ficar laranja.
-  local regs; regs=$(registros)
-  local problemas; problemas=$(echo "$regs" | jq -c --arg d "$DOMINIO" \
-    '[.[] | select((.name=="server."+$d or .name=="mail."+$d or .name=="ftp."+$d) and .proxied==true) | {id,type,name}]')
-  if [ "$problemas" = "[]" ]; then
-    ok "server., mail. e ftp. seguem cinza"
+  # server. (Stape), mail. e ftp. nunca podem ficar laranja, nem ser CNAME de um nome
+  # laranja (o CNAME cinza para um alvo laranja da zona resolve para o Cloudflare).
+  local regs problemas cn id
+  regs=$(registros) || exit 2
+  problemas=$(laranja_proibido "$regs") || exit 2
+  if [ "$problemas" != "[]" ]; then
+    aviso "laranja onde não pode: $problemas"
+    # Sem pipe: a falha do PATCH para o script aqui, em vez de morrer num subshell
+    # e o comando sair 0 com o server. laranja (achado 36).
+    while read -r id; do
+      gravar PATCH "/zones/$ZONA_ID/dns_records/$id" '{"proxied":false}' "força cinza no registro $id"
+    done < <(echo "$problemas" | jq -r '.[].id')
+    if [ "$APLICAR" -eq 1 ]; then
+      regs=$(registros) || exit 2
+      problemas=$(laranja_proibido "$regs") || exit 2
+      [ "$problemas" = "[]" ] || falha "continuam laranja depois de forçar cinza: $problemas. Voltar tudo: $0 cinza --aplicar"
+    fi
+  fi
+  cn=$(cname_para_laranja "$regs") || exit 2
+  if [ "$cn" != "[]" ]; then
+    aviso "CNAME para um nome laranja (resolve para o Cloudflare): $cn"
+    if [ "$APLICAR" -eq 1 ]; then
+      cname_direto
+      regs=$(registros) || exit 2
+      cn=$(cname_para_laranja "$regs") || exit 2
+      [ "$cn" = "[]" ] || falha "server., mail. ou ftp. ainda é CNAME de nome laranja: $cn. Voltar tudo: $0 cinza --aplicar"
+    fi
+  fi
+  [ "$problemas" = "[]" ] && [ "$cn" = "[]" ] && ok "server., mail. e ftp. seguem cinza (e não são CNAME de nome laranja)"
+  return 0
+}
+
+# server., mail. e ftp. que forem CNAME do apex ou do www viram A (e AAAA, se o apex
+# tiver) direto no IP de origem do apex, cinza. Com o apex laranja, o CNAME cinza
+# passaria a resolver para o Cloudflare e o FTP pelo nome pararia (achado 38). Com
+# tudo cinza a troca não muda o que o nome resolve. Se o Cloudflare recusar trocar o
+# tipo, o script para antes de qualquer laranja: trocar à mão no painel.
+cname_direto() {
+  local regs alvos ip4 ip6 id nome ttl
+  regs=$(registros) || exit 2
+  alvos=$(echo "$regs" | jq -r --arg d "$DOMINIO" '.[] | select((.name=="server."+$d or .name=="mail."+$d or .name=="ftp."+$d)
+    and .type=="CNAME" and (.content==$d or .content=="www."+$d)) | "\(.id) \(.name) \(.ttl)"') || exit 2
+  if [ -z "$alvos" ]; then
+    ok "server., mail. e ftp. não são CNAME do apex nem do www"
     return 0
   fi
-  aviso "laranja onde não pode: $problemas"
-  echo "$problemas" | jq -r '.[].id' | while read -r id; do
-    gravar PATCH "/zones/$ZONA_ID/dns_records/$id" '{"proxied":false}' "força cinza no registro $id"
-  done
+  ip4=$(echo "$regs" | jq -r --arg d "$DOMINIO" '[.[] | select(.type=="A" and .name==$d)][0].content // empty')
+  ip6=$(echo "$regs" | jq -r --arg d "$DOMINIO" '[.[] | select(.type=="AAAA" and .name==$d)][0].content // empty')
+  [ -n "$ip4" ] || falha "não achei o A do apex para apontar $(echo "$alvos" | awk '{print $2}' | tr '\n' ' ')"
+  salvar dns_records_antes_cname "$regs"
+  while read -r id nome ttl; do
+    echo "  $nome é CNAME do apex: vira A $ip4, cinza (se o Cloudflare recusar, trocar à mão no painel e rodar de novo)"
+    gravar PATCH "/zones/$ZONA_ID/dns_records/$id" \
+      "$(jq -nc --arg n "$nome" --arg ip "$ip4" --argjson t "${ttl:-1}" '{type:"A",name:$n,content:$ip,proxied:false,ttl:$t}')" \
+      "$nome: CNAME -> A $ip4 (cinza)"
+    if [ -n "$ip6" ] && ! echo "$regs" | jq -e --arg n "$nome" 'any(.[]; .type=="AAAA" and .name==$n)' >/dev/null; then
+      gravar POST "/zones/$ZONA_ID/dns_records" \
+        "$(jq -nc --arg n "$nome" --arg ip "$ip6" --argjson t "${ttl:-1}" '{type:"AAAA",name:$n,content:$ip,proxied:false,ttl:$t}')" \
+        "$nome: AAAA $ip6 (cinza)"
+    fi
+  done <<<"$alvos"
 }
 
 proxied() { # proxied true|false
   local alvo=$1 regs
-  regs=$(registros)
+  regs=$(registros) || exit 2
   salvar dns_records "$regs"
   local a aaaa www
   a=$(registro_id "$regs" A "$DOMINIO")
@@ -161,12 +238,13 @@ proxied() { # proxied true|false
       gravar PATCH "/zones/$ZONA_ID/dns_records/$id" "{\"proxied\":$alvo}" "$nome proxied $atual -> $alvo"
     fi
   done
-  [ "$APLICAR" -eq 1 ] && garantir_cinza
+  if [ "$APLICAR" -eq 1 ]; then garantir_cinza; fi
+  return 0
 }
 
 tirar_a_do_spf() {
   local regs spf id conteudo novo
-  regs=$(registros)
+  regs=$(registros) || exit 2
   spf=$(echo "$regs" | jq -c --arg d "$DOMINIO" '[.[] | select(.type=="TXT" and .name==$d and (.content|test("v=spf1")))][0]')
   [ "$spf" != "null" ] || { aviso "SPF não encontrado no apex"; return 0; }
   id=$(echo "$spf" | jq -r '.id')
@@ -188,14 +266,10 @@ REF_REWRITE=crystal_teste_sem_barra
 
 # regra_na_fase FASE REF REGRA_JSON : junta a regra no entrypoint, por ref
 regra_na_fase() {
-  local fase=$1 ref=$2 regra=$3 r atual regras novo
-  r=$(api GET "/zones/$ZONA_ID/rulesets/phases/$fase/entrypoint")
-  if [ "$(echo "$r" | jq -r '.success')" = "true" ]; then
-    atual=$(echo "$r" | jq '.result')
-    regras=$(echo "$atual" | jq '[.rules[]? | {ref,expression,action,action_parameters,description,enabled,ratelimit} | with_entries(select(.value!=null))]')
-  else
-    atual='null'; regras='[]'
-  fi
+  local fase=$1 ref=$2 regra=$3 atual regras novo
+  # Só "fase ainda não existe" (10003) vira lista vazia; outro erro para (achado 37).
+  atual=$(ler_fase "$fase") || exit 2
+  regras=$(echo "$atual" | jq '[.rules[]? | {ref,expression,action,action_parameters,description,enabled,ratelimit} | with_entries(select(.value!=null))]') || exit 2
   salvar "ruleset_$fase" "$atual"
   if echo "$regras" | jq -e --arg ref "$ref" 'any(.[]; .ref==$ref)' >/dev/null; then
     ok "regra $ref já existe em $fase"
@@ -208,11 +282,11 @@ regra_na_fase() {
 }
 
 tirar_regra() { # tirar_regra FASE REF
-  local fase=$1 ref=$2 r regras novo
-  r=$(api GET "/zones/$ZONA_ID/rulesets/phases/$fase/entrypoint")
-  [ "$(echo "$r" | jq -r '.success')" = "true" ] || { ok "$fase sem regras"; return 0; }
-  salvar "ruleset_$fase" "$(echo "$r" | jq '.result')"
-  regras=$(echo "$r" | jq '[.result.rules[]? | {ref,expression,action,action_parameters,description,enabled,ratelimit} | with_entries(select(.value!=null))]')
+  local fase=$1 ref=$2 atual regras novo
+  atual=$(ler_fase "$fase") || exit 2
+  [ "$atual" != "null" ] || { ok "$fase sem regras"; return 0; }
+  salvar "ruleset_$fase" "$atual"
+  regras=$(echo "$atual" | jq '[.rules[]? | {ref,expression,action,action_parameters,description,enabled,ratelimit} | with_entries(select(.value!=null))]') || exit 2
   if ! echo "$regras" | jq -e --arg ref "$ref" 'any(.[]; .ref==$ref)' >/dev/null; then
     ok "$ref não existe em $fase"
     return 0
@@ -265,15 +339,15 @@ cmd_preparar() {
   setting always_use_https '"off"'
 
   echo "HSTS:"
-  local hsts; hsts=$(ler "/zones/$ZONA_ID/settings/security_header" | jq -c '.value.strict_transport_security.enabled')
+  local hsts; hsts=$(ler "/zones/$ZONA_ID/settings/security_header" | jq -c '.value.strict_transport_security.enabled') || exit 2
   [ "$hsts" = "false" ] && ok "HSTS desligado" || aviso "HSTS está $hsts: desligar antes do laranja"
 
   echo "Security level:"
-  local nivel; nivel=$(ler "/zones/$ZONA_ID/settings/security_level" | jq -r '.value')
+  local nivel; nivel=$(ler "/zones/$ZONA_ID/settings/security_level" | jq -r '.value') || exit 2
   [ "$nivel" = "under_attack" ] && setting security_level '"medium"' || ok "security_level=$nivel (sem Under Attack)"
 
   echo "Managed headers (Add security headers manda referrer-policy: same-origin):"
-  local mh; mh=$(ler "/zones/$ZONA_ID/managed_headers")
+  local mh; mh=$(ler "/zones/$ZONA_ID/managed_headers") || exit 2
   salvar managed_headers "$mh"
   if echo "$mh" | jq -e '.managed_response_headers[]? | select(.id=="add_security_headers" and .enabled==true)' >/dev/null; then
     gravar PATCH "/zones/$ZONA_ID/managed_headers" \
@@ -284,7 +358,7 @@ cmd_preparar() {
   fi
 
   echo "Bots (Bot Fight Mode, bloqueio de IA e AI Labyrinth desligados):"
-  local bm alvo; bm=$(ler "/zones/$ZONA_ID/bot_management")
+  local bm alvo; bm=$(ler "/zones/$ZONA_ID/bot_management") || exit 2
   salvar bot_management "$bm"
   alvo=$(echo "$bm" | jq '
     (if has("fight_mode") then .fight_mode=false else . end)
@@ -299,17 +373,19 @@ cmd_preparar() {
   fi
 
   echo "Conferências (só leitura):"
-  local pr; pr=$(api GET "/zones/$ZONA_ID/pagerules" | jq -c '[.result[]? | select(.status=="active") | .targets[].constraint.value]')
-  [ "$pr" = "[]" ] || [ "$pr" = "null" ] && ok "nenhuma Page Rule ativa" || aviso "Page Rules ativas: $pr"
-  local cr; cr=$(api GET "/zones/$ZONA_ID/rulesets/phases/http_request_cache_settings/entrypoint" \
-    | jq -c '[.result.rules[]? | select(.action_parameters.cache==true) | .expression]')
-  [ "$cr" = "[]" ] && ok "nenhuma Cache Rule marcando HTML como cacheável" || aviso "Cache Rules com cache ligado: $cr"
+  # Pela ler/ler_fase: leitura que falha para o script, não vira "nenhuma" (achado 35).
+  local pr; pr=$(ler "/zones/$ZONA_ID/pagerules" | jq -c '[.[]? | select(.status=="active") | .targets[].constraint.value]') || exit 2
+  if [ "$pr" = "[]" ]; then ok "nenhuma Page Rule ativa"; else aviso "Page Rules ativas: $pr"; fi
+  local cr; cr=$(ler_fase http_request_cache_settings | jq -c '[.rules[]? | select(.action_parameters.cache==true) | .expression]') || exit 2
+  if [ "$cr" = "[]" ]; then ok "nenhuma Cache Rule marcando HTML como cacheável"; else aviso "Cache Rules com cache ligado: $cr"; fi
+  echo "server., mail. e ftp. (cinza e sem CNAME do apex, que vai ficar laranja):"
+  cname_direto
   garantir_cinza
 }
 
 cmd_cert() {
   precisa_token
-  local packs; packs=$(ler "/zones/$ZONA_ID/ssl/certificate_packs?status=all")
+  local packs; packs=$(ler "/zones/$ZONA_ID/ssl/certificate_packs?status=all") || exit 2
   salvar certificate_packs "$packs"
   echo "$packs" | jq -r '.[] | "  \(.type)\t\(.status)\t\(.hosts|join(","))"'
   if echo "$packs" | jq -e --arg d "$DOMINIO" \
@@ -327,17 +403,25 @@ cmd_laranja() {
     falha "fora da janela 02:00-05:00 BRT (agora ${h}h). Para forçar: FORA_DA_JANELA=sim"
   fi
   cmd_cert
+  echo "server., mail. e ftp. sem CNAME do apex (antes de qualquer laranja):"
+  cname_direto
+  if [ "$APLICAR" -eq 1 ]; then
+    garantir_cinza   # para aqui, antes do apex, se server./mail./ftp. não ficarem cinza
+    echo "Se algo falhar daqui em diante: scripts/cloudflare-degrau2.sh cinza --aplicar"
+  fi
   echo "Laranja em @ A, @ AAAA e www:"
   proxied true
   echo "SPF:"
   tirar_a_do_spf
-  [ "$APLICAR" -eq 1 ] && echo "Rollback em segundos: scripts/cloudflare-degrau2.sh cinza --aplicar"
+  if [ "$APLICAR" -eq 1 ]; then echo "Rollback em segundos: scripts/cloudflare-degrau2.sh cinza --aplicar"; fi
+  return 0   # em simulação, o teste acima saía 1 e parecia erro (achado 75)
 }
 
 cmd_cinza() {
   precisa_token
   echo "ROLLBACK: @ A, @ AAAA e www de volta pra cinza"
   proxied false
+  return 0
 }
 
 cmd_https() {
@@ -456,7 +540,7 @@ cmd_validar() {
   curl -sS -m 30 -o /dev/null -D - "https://$DOMINIO/xmlrpc.php" | tr -d '\r' | grep -iE '^(HTTP/|server:)' | sed 's/^/  /'
 
   echo "TTFB e POP (base da AZAN direta: 0,104 a 0,172 s):"
-  for i in 1 2 3 4 5 6 7 8 9 10; do
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
     curl -sS -m 30 -A "$UA" -o /dev/null -D /tmp/.cab.$$ -w '%{time_starttransfer}\n' "https://$DOMINIO/crystal-teste/" \
       | tr '\n' ' '
     grep -i '^cf-ray:' /tmp/.cab.$$ | tr -d '\r' | sed 's/.*-//'
