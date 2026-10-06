@@ -93,3 +93,5 @@ produção ao fim do dia: **`sha-398e46e`**. Volta: `app-subir sha-8ed9ce8` ou a
 - 01:47 UTC (06/10): `app-subir sha-f866bc0` (login sem cadastro ou inativo mostra os contatos
   do suporte; decisão do Luiz para alunas sem CPF). Três serviços na tag, sem rollback,
   Supabase HTTP 200. Roteiro da Bia publicado como documento.
+- QA no iPhone da `sha-f866bc0` (06/10, Luiz): cartão com o WhatsApp da Bia e o e-mail aparece
+  quando o cadastro não é encontrado. Aprovado.
