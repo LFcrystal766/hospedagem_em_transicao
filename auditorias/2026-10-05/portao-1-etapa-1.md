@@ -88,3 +88,5 @@ produção ao fim do dia: **`sha-398e46e`**. Volta: `app-subir sha-8ed9ce8` ou a
   na base aproveitando o registro manual de 27/08 que já tinha o WhatsApp dele; cadastro de teste
   duplicado apagado.
 - Login de fora com CPF inexistente: 404 LOGIN_NOT_FOUND (base consultada, resposta sem oráculo).
+- QA no iPhone da `sha-9a554f6` (06/10, Luiz): tudo passou, áudio incluído (o upload com
+  conferência de bytes aceitou o formato do iPhone).
