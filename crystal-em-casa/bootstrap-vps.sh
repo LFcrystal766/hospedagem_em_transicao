@@ -1225,6 +1225,7 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS CHATWOOT_ACCOUNT_ID CHATWOOT_BOT_TOKEN* CHATWOOT_BOT_SECRET*
   SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY* SUPABASE_LOGIN_RPC
   REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL CRYSTAL_MODEL_RESERVA CRYSTAL_MODEL_RESUMO
+  CONHECIMENTO_MATCH_COUNT CONHECIMENTO_TIMEOUT_MS
   ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*
   REFUND_WEBHOOK_SECRET* TRANSCRIPTION_API_URL TRANSCRIPTION_API_KEY* TRANSCRIPTION_MODEL
   TRANSCRIPTION_TIMEOUT_MS CHATWOOT_API_TOKEN* EQUIPE_EMAIL
@@ -1343,6 +1344,10 @@ except Exception:
       inteiro_entre "$v" 5000 600000 || falha "só inteiro entre 5000 e 600000 (milissegundos; padrões 50000 e 45000; o prazo total da Crystal tem de ficar abaixo dos 60 s da API). Nada gravado" ;;
     RATE_AUTH_WINDOW_S)
       inteiro_entre "$v" 10 86400 || falha "só inteiro entre 10 e 86400 (segundos; padrão 900). Nada gravado" ;;
+    CONHECIMENTO_MATCH_COUNT)
+      inteiro_entre "$v" 1 20 || falha "só inteiro entre 1 e 20 (trechos da base por mensagem; padrão 6). Nada gravado" ;;
+    CONHECIMENTO_TIMEOUT_MS)
+      inteiro_entre "$v" 1000 15000 || falha "só inteiro entre 1000 e 15000 (milissegundos da busca na base; padrão 5000). Nada gravado" ;;
     OTP_MAX_ATTEMPTS|OTP_RESEND_MAX)
       inteiro_entre "$v" 1 20 || falha "só inteiro entre 1 e 20. Nada gravado" ;;
     OTP_RESEND_COOLDOWN_S)
@@ -1513,14 +1518,18 @@ app_gerar_env() {
     grep -E '^(ENCRYPTION_KEY|JWT_SECRET|WEBHOOK_SECRET|CPF_SALT|OTP_PEPPER|VAPID_PUBLIC_KEY|VAPID_PRIVATE_KEY)=' "$APP_SEG"
     # Menor privilégio: a chave do OpenRouter e o modelo são só da Crystal;
     # o vínculo com as lojas é só do web.
-    grep -vE '^(OPENROUTER_API_KEY|CRYSTAL_MODEL|CRYSTAL_MODEL_RESERVA|CRYSTAL_MODEL_RESUMO|ANDROID_CERT_SHA256|APPLE_TEAM_ID)=' "$APP_EXT" || true
+    grep -vE '^(OPENROUTER_API_KEY|CRYSTAL_MODEL|CRYSTAL_MODEL_RESERVA|CRYSTAL_MODEL_RESUMO|CONHECIMENTO_MATCH_COUNT|CONHECIMENTO_TIMEOUT_MS|ANDROID_CERT_SHA256|APPLE_TEAM_ID)=' "$APP_EXT" || true
   } > "$APP_DIR/api.env"
   {
     echo "# Gerado por bootstrap-vps.sh em $(date -u +%FT%TZ). Não editar: é regravado a cada app-subir."
     echo "NODE_ENV=production"
     echo "DATABASE_URL=postgresql://crystal_agente:$(app_valor "$APP_SEG" CRYSTAL_DB_SENHA)@app_postgres:5432/crystal_agente"
     grep -E '^(CRYSTAL_AGENTE_KEY|CRYSTAL_CHAVE_CIFRA)=' "$APP_SEG"
-    grep -E '^(OPENROUTER_API_KEY|CRYSTAL_MODEL|CRYSTAL_MODEL_RESERVA|CRYSTAL_MODEL_RESUMO)=' "$APP_EXT" || true
+    grep -E '^(OPENROUTER_API_KEY|CRYSTAL_MODEL|CRYSTAL_MODEL_RESERVA|CRYSTAL_MODEL_RESUMO|CONHECIMENTO_MATCH_COUNT|CONHECIMENTO_TIMEOUT_MS)=' "$APP_EXT" || true
+    # Base de conhecimento da Letícia: a Crystal busca trechos na Edge Function
+    # crystal_hybrid_search do mesmo projeto Supabase da base de alunos (imagem com a
+    # alma da agência, branch otimizacao/alma). A URL já vem sem /rest/v1 (app-definir).
+    grep -E '^(SUPABASE_URL|SUPABASE_SERVICE_ROLE_KEY)=' "$APP_EXT" || true
   } > "$APP_DIR/crystal.env"
   {
     echo "# Gerado por bootstrap-vps.sh em $(date -u +%FT%TZ). Não editar: é regravado a cada app-subir."
