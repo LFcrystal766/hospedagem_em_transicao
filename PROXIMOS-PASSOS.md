@@ -3,6 +3,15 @@
 Tudo que dá pra fazer por API é da sessão do Claude. Abaixo, só o que depende
 de você, na ordem, com o tempo estimado.
 
+## Alma da Crystal (06/10): chegou em `LFcrystal766/crystal-ia`
+
+- Conferido: prompt v2.2, prompts auxiliares e código Python da Crystal do WhatsApp.
+  Sem segredo vazado. Leitura em `auditorias/2026-10-06/alma-crystal-ia.md`.
+- A base de conhecimento não veio no Git: está no Supabase (tabela
+  `leticia_crystal_vector_store` + Edge Function `crystal_hybrid_search`). Rodar a
+  consulta e o teste que a sessão passou.
+- Avisar o Tuan: links da Assiny e hosts da agência ficaram no código (não é segredo).
+
 ## OpenRouter (06/10, uns 5 minutos)
 
 - **Saldo da conta: cerca de US$ 44** de US$ 6.220 comprados. A chave da Crystal gastou
