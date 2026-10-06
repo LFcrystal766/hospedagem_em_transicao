@@ -320,6 +320,27 @@ bash bootstrap-vps.sh app-subir sha-88c681f
 Conferir no aparelho: escolher uma foto, escrever a legenda com o teclado aberto, enviar;
 cancelar uma segunda foto e ver o texto voltar ao campo.
 
+## Login sem código, modo de lançamento (imagem `sha-94a2648`, integrada em 06/10)
+
+Decisão do dono em 06/10, depois de ouvir o risco (quem souber CPF e e-mail entra como o
+aluno): por enquanto, aluno entra sem o código do e-mail. Chave `LOGIN_CODIGO` (`email`
+padrão | `nenhum`). Compensações com `nenhum`: 5 erros por 15 min por CPF e por e-mail
+além do limite por IP; e-mail "Alguém entrou na sua conta da Crystal" a cada login novo
+(hora em Brasília, aparelho resumido, contatos da Bia); trocar e-mail revoga sessões;
+auditoria `auth.login { codigo: "nenhum" }`. Equipe e contas de revisão seguem com código.
+A imagem inclui tudo de 06/10 (alma, lotes, reembolso, travessão, painel, legenda).
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/505a5ed/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+bash bootstrap-vps.sh app-definir LOGIN_CODIGO     # digitar: nenhum
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-94a2648
+# Voltar ao código: bash bootstrap-vps.sh app-definir LOGIN_CODIGO (email) e app-subir de novo
+```
+
+Conferir: sair da conta no iPhone e entrar de novo com CPF e e-mail: cai direto no chat, e o
+e-mail "Alguém entrou na sua conta" chega. Equipe no /equipe continua pedindo código.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
