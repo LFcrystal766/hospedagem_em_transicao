@@ -238,6 +238,34 @@ bash bootstrap-vps.sh app-custo 24                 # no dia seguinte: trechos po
 Conferir no aparelho: uma pergunta de conselho (deve vir com o tom da Crystal e tática
 da base), um "oi" (sem busca, resposta curta), um print.
 
+## Lotes de divulgação + webhook da Assiny (imagem `sha-bbfa96b`, integrada em 06/10)
+
+Branch `otimizacao/lotes-reembolso` (= `otimizacao/lotes` + `otimizacao/reembolso-assiny`).
+Decisões do Igor em 06/10. SQL do Supabase já aplicado em 06/10 (função devolve `liberado`;
+1.459 liberados, 9.514 esperando; contas de teste do time liberadas).
+
+- **Lotes**: `ROLLOUT_GATE` (padrão `on`): quem está na base com acesso mas `is_in_rollout`
+  falso vê "Falta pouco! Seu acesso ao app está sendo liberado em lotes" (403
+  `LOGIN_NOT_RELEASED`), sem conta nem código. Liberar um lote = `update ... set
+  is_in_rollout = true where ...` no Supabase. Abrir geral: `app-definir ROLLOUT_GATE` = `off`.
+- **Reembolso**: o webhook lê o envelope real da Assiny. `REFUND_EVENTS` (padrão
+  `refunded_purchase,chargeback,chargedback_purchase,canceled_subscription,subscription_canceled`)
+  e `REFUND_PRODUCT_IDS` (vazio = qualquer produto corta). Idempotente por transação (30 dias).
+  Teste manual no formato antigo `{cpf,email,event_id}` passa a dar 400.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-bbfa96b
+# Volta: bash bootstrap-vps.sh app-subir sha-6cd7626
+```
+
+Conferir: login com conta liberada entra; login com CPF+e-mail de aluno fora do lote mostra
+"Falta pouco!"; na Assiny, o webhook segue em https://api.crystalnowpp.com.br/webhooks/reembolso
+com `Authorization: Bearer <REFUND_WEBHOOK_SECRET>`, eventos de reembolso, chargeback e
+cancelamento, todos os produtos. Um reembolso de teste deve responder 200 `matched: true|false`.
+Depois de um dia: `app-custo 24`.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
