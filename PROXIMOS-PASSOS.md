@@ -3,6 +3,21 @@
 Tudo que dá pra fazer por API é da sessão do Claude. Abaixo, só o que depende
 de você, na ordem, com o tempo estimado.
 
+## Crystal do WhatsApp na VPS (stack do Tuan, 06/10): segredos vazados, trocar antes
+
+A stack `docker-stack-production` veio com quatro segredos de produção em texto puro e foi
+enviada por upload na sessão. Regra da casa: vazou, troca. Coordenar com o Tuan, nesta ordem:
+1. Supabase (projeto Crystal AI): criar chave secreta nova para a agência e outra para o
+   nosso app, trocar na VPS (`app-definir SUPABASE_SERVICE_ROLE_KEY`) e revogar a antiga;
+   trocar a senha do Postgres do projeto (Settings > Database).
+2. OpenRouter: chave nova para a agência; a nossa só se for a mesma (conferir no painel).
+3. LendChat: token de API novo na conta `crystal`.
+Só depois disso a stack sobe aqui. Cópia sem segredos em
+`crystal-em-casa/stacks-app/30-crystal-ia.yaml` (env_file, Host `ia.crystalnowpp.com.br`).
+Pendências para subir: imagem `ghcr.io/lfcrystal766/crystal-ia:0.16.2` (workflow manual no
+repositório `crystal-ia`), DNS `ia` cinza, `LENDCHAT_WEBHOOK_SECRET` preenchido (na stack veio
+vazio, o que desliga a validação do webhook), decisão de onde fica o número do WhatsApp.
+
 ## Decisões do Igor (06/10) e o que a sessão está fazendo com cada uma
 
 - **Divulgação em lotes**: cerca de 500 alunos por dia, decrescente, começando pelos top

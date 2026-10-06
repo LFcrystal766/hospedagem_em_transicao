@@ -1,0 +1,228 @@
+# Crystal do WhatsApp (Crystal AI, Python/LangGraph da agência) na VPS da Crystal.
+# Adaptada da stack que o Tuan entregou em 06/10 (docker-stack-production, v0.16.2):
+#   - os valores de ambiente saíram do arquivo e vão em env_file (crystal-ia.env, chmod 600,
+#     gerado pelo bootstrap-vps.sh a partir dos valores gravados com `ia-definir`), porque a
+#     original trazia segredos inline;
+#   - Host do Traefik: ia.crystalnowpp.com.br (DNS cinza, A -> 177.7.61.136);
+#   - nó único: a restrição por rótulo app_crystal_ai=true fica, o bootstrap aplica o rótulo;
+#   - volume externo crystal_redis_data criado pelo bootstrap antes do deploy.
+# Rede pública: network_swarm_public (Traefik). Redis só na rede interna crystal_ai_network.
+# Variáveis que a aplicação espera (ver .env.example do repositório crystal-ia):
+#   LENDCHAT_BASE_URL LENDCHAT_ACCOUNT_SLUG LENDCHAT_API_TOKEN LENDCHAT_WEBHOOK_SECRET
+#   SUPABASE_URL SUPABASE_SERVICE_KEY DATABASE_URL OPENROUTER_API_KEY REDIS_URL
+#   e os ajustes operacionais (SUMMARIZE_*, TYPING_*, HEALTH_*, WORKER_HEARTBEAT_*, ...).
+version: "3.7"
+
+services:
+  api:
+    image: ghcr.io/lfcrystal766/crystal-ia:0.16.2
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+    # O comando padrão da imagem inicia a API; cada worker define seu próprio command.
+    networks:
+      - network_swarm_public  # rede externa utilizada pelo Traefik
+      - crystal_ai_network        # rede interna para comunicação com o Redis
+    env_file: APP_ENV_DIR/crystal-ia.env
+    volumes:
+      # Persistência dos dumps da DLQ, inclusive quando o comando é executado no container da API.
+      # O volume preserva os arquivos em reinícios e atualizações no mesmo nó.
+      - crystal_dlq_dumps:/var/lib/crystal/dlq-dumps
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          #- node.role == manager
+          - node.labels.app_crystal_ai == true  # nó com o rótulo app_crystal_ai=true
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+      labels:
+        - traefik.enable=true
+        # Rede pela qual o Traefik alcança a API, conectada também à rede interna.
+        # A label deve corresponder à rede externa utilizada pelo proxy.
+        - traefik.docker.network=network_swarm_public
+        - traefik.http.routers.crystal_ai_api.rule=Host(`ia.crystalnowpp.com.br`)
+        - traefik.http.routers.crystal_ai_api.entrypoints=websecure
+        - traefik.http.routers.crystal_ai_api.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.crystal_ai_api.service=crystal_ai_api
+        - traefik.http.services.crystal_ai_api.loadbalancer.server.port=8000
+        # - prometheus_job=crystal-api
+        - traefik.http.services.crystal_ai_api.loadbalancer.passhostheader=true
+      update_config:
+        parallelism: 1
+        delay: 15s
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        # Sem max_attempts, a política mantém as tentativas de reinício após falhas.
+        # Monitore disponibilidade e reinícios recorrentes no sistema de observabilidade do ambiente.
+    healthcheck:
+      # Verifica /health com Python, disponível na imagem da aplicação.
+      test:
+        - CMD-SHELL
+        - python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health',timeout=4).status==200 else 1)"
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  worker-inbound:
+    image: ghcr.io/lfcrystal766/crystal-ia:0.16.2
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+    command: python -m crystal.workers.inbound
+    # Prazo para encerramento ordenado: até 25s de drenagem, 5s de cancelamento,
+    # 8s de flush de tracing e margem para fechar conexões. O total reservado é 45s.
+    # Mantenha o prazo alinhado às configurações de shutdown e tracing da aplicação.
+    stop_grace_period: 45s
+    volumes:
+      # Persistência dos dumps da DLQ, gravados antes da remoção das entradas.
+      # O caminho de montagem deve corresponder a CRYSTAL_DUMP_DIR.
+      - crystal_dlq_dumps:/var/lib/crystal/dlq-dumps
+    networks:
+      - crystal_ai_network
+    env_file: APP_ENV_DIR/crystal-ia.env
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          #- node.role == manager
+          - node.labels.app_crystal_ai == true
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 15s
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        # Sem max_attempts, a política mantém as tentativas de reinício após falhas.
+        # Monitore disponibilidade e reinícios recorrentes no sistema de observabilidade do ambiente.
+    healthcheck:
+      # Verifica no Redis o heartbeat renovado pelo worker em segundo plano.
+      test:
+        - CMD-SHELL
+        - python -c "import os,redis,sys; sys.exit(0 if redis.from_url(os.environ['REDIS_URL']).exists('crystal:heartbeat:inbound') else 1)"
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  worker-sender:
+    image: ghcr.io/lfcrystal766/crystal-ia:0.16.2
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+    command: python -m crystal.workers.sender
+    volumes:
+      # Persistência dos dumps da DLQ, gravados antes da remoção das entradas.
+      # O caminho de montagem deve corresponder a CRYSTAL_DUMP_DIR.
+      - crystal_dlq_dumps:/var/lib/crystal/dlq-dumps
+    networks:
+      - crystal_ai_network
+    env_file: APP_ENV_DIR/crystal-ia.env
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          #- node.role == manager
+          - node.labels.app_crystal_ai == true
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 15s
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        # Reinícios após falhas permanecem sem limite de tentativas na configuração ativa.
+        # A linha comentada abaixo mostra a opção para definir um limite, caso necessário.
+        #max_attempts: 3
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - python -c "import os,redis,sys; sys.exit(0 if redis.from_url(os.environ['REDIS_URL']).exists('crystal:heartbeat:sender') else 1)"
+      interval: 20s
+      timeout: 5s
+      # Reinício por heartbeat ausente após 30 verificações consecutivas malsucedidas.
+      # Com intervalo de 20s, os intervalos somam aproximadamente 10 minutos;
+      # a duração efetiva também depende do tempo de execução de cada verificação.
+      retries: 30
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+    command: redis-server --appendonly yes
+    networks:
+      crystal_ai_network:
+        aliases:
+          - crystal-ai-redis
+    volumes:
+      - crystal_redis_data:/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        # Redis fixado ao nó com o rótulo da aplicação.
+        # O volume externo crystal_redis_data deve estar disponível nesse nó.
+        constraints:
+          #- node.role == manager
+          - node.labels.app_crystal_ai == true
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        # Sem max_attempts, a política mantém as tentativas de reinício após falhas.
+        # Monitore disponibilidade e reinícios recorrentes no sistema de observabilidade do ambiente.
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+networks:
+  network_swarm_public:
+    external: true
+    name: network_swarm_public
+  crystal_ai_network:
+    driver: overlay
+
+volumes:
+  crystal_dlq_dumps:
+  crystal_redis_data:
+    external: true
+    name: crystal_redis_data
