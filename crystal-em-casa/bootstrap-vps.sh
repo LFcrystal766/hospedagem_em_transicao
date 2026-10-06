@@ -53,7 +53,7 @@
 #                                              remetente. Nada vai na linha de comando
 #   bash bootstrap-vps.sh app-definir NOME     grava um valor externo (RESEND_API_KEY, EMAIL_FROM,
 #                                              CRYSTAL_API_URL, REFUND_WEBHOOK_SECRET, TRANSCRIPTION_*,
-#                                              SUPABASE_*, EQUIPE_EMAIL, RATE_AUTH_*, ...). Confere o
+#                                              SUPABASE_*, ROLLOUT_GATE, EQUIPE_EMAIL, RATE_AUTH_*, ...). Confere o
 #                                              formato antes de gravar. Sem NOME, lista os aceitos
 #   bash bootstrap-vps.sh app-remover NOME     apaga um valor externo que o app não usa mais
 #                                              (ex.: CRYSTAL_ONBOARDING_URL depois da etapa 2)
@@ -1223,7 +1223,7 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   META_PHONE_NUMBER_ID ALERT_WEBHOOK_URL* SENTRY_DSN VAPID_SUBJECT
   CHAT_TRANSPORT CHATWOOT_BASE_URL CHATWOOT_INBOX_IDENTIFIER CHATWOOT_INBOX_HMAC_TOKEN*
   CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS CHATWOOT_ACCOUNT_ID CHATWOOT_BOT_TOKEN* CHATWOOT_BOT_SECRET*
-  SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY* SUPABASE_LOGIN_RPC
+  SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY* SUPABASE_LOGIN_RPC ROLLOUT_GATE
   REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL CRYSTAL_MODEL_RESERVA CRYSTAL_MODEL_RESUMO
   CONHECIMENTO_MATCH_COUNT CONHECIMENTO_TIMEOUT_MS
   ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*
@@ -1344,6 +1344,11 @@ except Exception:
       inteiro_entre "$v" 5000 600000 || falha "só inteiro entre 5000 e 600000 (milissegundos; padrões 50000 e 45000; o prazo total da Crystal tem de ficar abaixo dos 60 s da API). Nada gravado" ;;
     RATE_AUTH_WINDOW_S)
       inteiro_entre "$v" 10 86400 || falha "só inteiro entre 10 e 86400 (segundos; padrão 900). Nada gravado" ;;
+    ROLLOUT_GATE)
+      # Liberação do app em lotes (06/10): on barra quem está fora do lote (is_in_rollout)
+      # com 403 LOGIN_NOT_RELEASED; off abre para todas. Vai para o api.env.
+      v=$(printf '%s' "$v" | tr 'A-Z' 'a-z' | tr -d ' ')
+      case "$v" in on|off) ;; *) falha "digite só on (login em lotes: só aluna com is_in_rollout entra; é o padrão do app) ou off (abre para todas). Nada gravado" ;; esac ;;
     CONHECIMENTO_MATCH_COUNT)
       inteiro_entre "$v" 1 20 || falha "só inteiro entre 1 e 20 (trechos da base por mensagem; padrão 6). Nada gravado" ;;
     CONHECIMENTO_TIMEOUT_MS)
