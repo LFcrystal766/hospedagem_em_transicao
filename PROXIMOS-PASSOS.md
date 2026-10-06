@@ -3,6 +3,27 @@
 Tudo que dá pra fazer por API é da sessão do Claude. Abaixo, só o que depende
 de você, na ordem, com o tempo estimado.
 
+## Decisões do Igor (06/10) e o que a sessão está fazendo com cada uma
+
+- **Divulgação em lotes**: cerca de 500 alunos por dia, decrescente, começando pelos top
+  users. A flag `is_in_rollout` do Supabase passa a ser lida no login: quem não foi
+  liberado vê "seu acesso está sendo liberado em lotes" (código `LOGIN_NOT_RELEASED`),
+  com `ROLLOUT_GATE=off` para abrir geral. Em construção na branch `otimizacao/lotes`.
+- **Reembolso**: JSON da Assiny recebido (evento `refunded_purchase`, CPF em
+  `data.client.document`, dois produtos). Webhook sendo adaptado na branch
+  `otimizacao/reembolso-assiny`, com os três achados da revisão. Prazo de reembolso
+  hoje 30 dias; vai a 7 quando a nova VSL entrar (não muda nada no app: o webhook
+  reage ao evento, não ao prazo). Não colar JSON real no chat: traz CPF, e-mail e
+  telefone de aluno; a sessão só guardou uma cópia anonimizada.
+- **Painel da Bia no app**: gestão de alunos no `/equipe` (busca, conta local manual,
+  e-mail e WhatsApp, revogar e reativar acesso). O app não tem senha: o acesso é por
+  código no e-mail, então "trocar senha" vira "trocar e-mail e reenviar código".
+  Escopo proposto; construir depois dos dois acima.
+- **DNS `atendimento` no Cloudflare**: tudo centralizado no Cloudflare, como já previsto.
+  O registro ainda não existe (NXDOMAIN). Criar com
+  `scripts/cloudflare-crystal-vps-dns.sh criar` (precisa de `CLOUDFLARE_API_TOKEN` no
+  ambiente) ou à mão: A `atendimento` -> `177.7.61.136`, nuvem cinza, TTL automático.
+
 ## Alma da Crystal (06/10): chegou em `LFcrystal766/crystal-ia`
 
 - Conferido: prompt v2.2, prompts auxiliares e código Python da Crystal do WhatsApp.
