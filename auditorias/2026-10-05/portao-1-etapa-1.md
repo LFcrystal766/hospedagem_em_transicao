@@ -90,3 +90,6 @@ produção ao fim do dia: **`sha-398e46e`**. Volta: `app-subir sha-8ed9ce8` ou a
 - Login de fora com CPF inexistente: 404 LOGIN_NOT_FOUND (base consultada, resposta sem oráculo).
 - QA no iPhone da `sha-9a554f6` (06/10, Luiz): tudo passou, áudio incluído (o upload com
   conferência de bytes aceitou o formato do iPhone).
+- 01:47 UTC (06/10): `app-subir sha-f866bc0` (login sem cadastro ou inativo mostra os contatos
+  do suporte; decisão do Luiz para alunas sem CPF). Três serviços na tag, sem rollback,
+  Supabase HTTP 200. Roteiro da Bia publicado como documento.

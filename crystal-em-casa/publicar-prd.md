@@ -176,7 +176,7 @@ Contas criadas pelo `app-aluno` também passam pela base a cada login.
 - A primeira `app-subir` depois desta versão reinicia cada serviço do app uma vez (rotação
   de log e restart_policy novos na stack). Fazer com `backup` antes, fora do pico.
 
-## Correções da revisão completa (05/10, imagem `sha-9a554f6`)
+## Correções da revisão completa (05/10, imagem `sha-9a554f6`; depois `sha-f866bc0` com os contatos do suporte no login)
 
 Os 76 achados da revisão (`auditorias/2026-10-05/revisao-completa/`) foram corrigidos,
 menos os três do reembolso, que esperam o JSON da Assiny. Do lado do app: detecção
