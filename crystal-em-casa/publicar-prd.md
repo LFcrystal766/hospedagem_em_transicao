@@ -324,6 +324,7 @@ cancelar uma segunda foto e ver o texto voltar ao campo.
 
 Publicado em 06/10 22:05 UTC com `LOGIN_CODIGO=nenhum`: stack em `sha-94a2648` sem rollback,
 Supabase 200. Conta local criada para o e-mail de contato da equipe (`app-aluno`).
+Aprovado no iPhone em 06/10 (dono): entrou direto sem código; tudo passou.
 
 Decisão do dono em 06/10, depois de ouvir o risco (quem souber CPF e e-mail entra como o
 aluno): por enquanto, aluno entra sem o código do e-mail. Chave `LOGIN_CODIGO` (`email`
