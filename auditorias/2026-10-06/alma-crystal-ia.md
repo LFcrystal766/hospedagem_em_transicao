@@ -19,6 +19,27 @@ A **base de conhecimento não está no repositório.** O prompt obriga a ferrame
 Supabase (projeto Crystal AI) e lê a tabela `leticia_crystal_vector_store`. Os
 textos da Letícia estão lá, não no Git.
 
+## A base de conhecimento (medida em 06/10 no Supabase)
+
+168 trechos, 7 documentos, cerca de 155 mil caracteres (uns 40 mil tokens): não cabe
+no prompt, e a busca por turno (6 trechos, até 12 mil caracteres) é o caminho.
+
+| Documento | Categoria | Trechos | Caracteres |
+|---|---|---|---|
+| Geral | geral | 100 | 92.678 |
+| Conversa Travada: O Que Responder | conversa-travada | 13 | 11.461 |
+| Abordagem Inicial: Primeiro Contato | abordagem-inicial | 12 | 10.758 |
+| Reconquistar: Ex e Reaproximação | reconquistar | 12 | 10.670 |
+| Ela Esfriou: Quando o Interesse Cai | ela-esfriou | 11 | 10.575 |
+| Casamento Sem Tesão: Quando o Desejo Some | casamento-sem-tesao | 10 | 9.564 |
+| Friendzone: Preso na Zona de Amigo | friendzone | 10 | 9.292 |
+
+Todos em versão v2. Seis documentos trazem o tom "sagaz, humana, sexy sem vulgaridade,
+direta"; o "Geral" traz outro ("Crystal, feminino, quente, provocativo, sem travessao"):
+foi escrito em outra leva. Perguntar à Letícia se o "Geral" é a versão que ela quer no
+app. A busca da Edge Function (teste da VPS) respondeu 200 com trechos de 600 a 1.100
+caracteres, com `category` e `score`.
+
 ## Segurança
 
 - Varredura de segredos (chaves OpenRouter/OpenAI/Supabase JWT/Resend/Groq/Telegram/
