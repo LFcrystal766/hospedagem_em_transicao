@@ -320,7 +320,10 @@ bash bootstrap-vps.sh app-subir sha-88c681f
 Conferir no aparelho: escolher uma foto, escrever a legenda com o teclado aberto, enviar;
 cancelar uma segunda foto e ver o texto voltar ao campo.
 
-## Login sem código, modo de lançamento (imagem `sha-94a2648`, integrada em 06/10)
+## Login sem código, modo de lançamento (publicado em 06/10 como `sha-94a2648`)
+
+Publicado em 06/10 22:05 UTC com `LOGIN_CODIGO=nenhum`: stack em `sha-94a2648` sem rollback,
+Supabase 200. Conta local criada para o e-mail de contato da equipe (`app-aluno`).
 
 Decisão do dono em 06/10, depois de ouvir o risco (quem souber CPF e e-mail entra como o
 aluno): por enquanto, aluno entra sem o código do e-mail. Chave `LOGIN_CODIGO` (`email`
