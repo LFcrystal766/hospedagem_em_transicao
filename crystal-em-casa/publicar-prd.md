@@ -238,7 +238,10 @@ bash bootstrap-vps.sh app-custo 24                 # no dia seguinte: trechos po
 Conferir no aparelho: uma pergunta de conselho (deve vir com o tom da Crystal e tática
 da base), um "oi" (sem busca, resposta curta), um print.
 
-## Lotes de divulgação + webhook da Assiny (imagem `sha-bbfa96b`, integrada em 06/10)
+## Lotes de divulgação + webhook da Assiny (publicada em 06/10 como `sha-bbfa96b`)
+
+Publicada em 06/10 15:10 UTC: stack em `sha-bbfa96b` sem rollback, Supabase 200. O backup
+passou a incluir o Chatwoot (banco e anexos), na VPS e no R2.
 
 Branch `otimizacao/lotes-reembolso` (= `otimizacao/lotes` + `otimizacao/reembolso-assiny`).
 Decisões do Igor em 06/10. SQL do Supabase já aplicado em 06/10 (função devolve `liberado`;
