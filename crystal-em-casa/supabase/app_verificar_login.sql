@@ -17,12 +17,27 @@
 --   - entra quem tem CPF + e-mail iguais na base E um acesso active ou pending
 --     na visão de acessos (o mesmo critério do atendimento no WhatsApp hoje);
 --   - o WhatsApp devolvido é o do acesso (o mesmo que a Crystal já conhece);
---   - aluna SEM CPF na base não entra pelo app (ver nota no fim);
---   - para abrir só para a primeira leva, descomentar a linha do is_in_rollout.
+--   - aluna SEM CPF na base não entra pelo app (ver nota no fim).
+--
+-- Liberação em lotes (decisão do time em 06/10/2026): a divulgação do app sai em
+-- lotes decrescentes, cerca de 500 alunas por dia, começando pelas top users. Quem
+-- já foi liberada tem is_in_rollout = true em leticia_crystal_customers (1.458 em
+-- 05/10); o time vira a flag por SQL, lote a lote. A função NÃO filtra por ela:
+-- devolve a coluna `liberado` (= coalesce(is_in_rollout, false)) e o app decide.
+-- Aluna encontrada e com acesso, mas liberado = false, recebe 403 LOGIN_NOT_RELEASED
+-- ("seu acesso está sendo liberado em lotes"), sem criar conta nem mandar código.
+-- A variável ROLLOUT_GATE da API (on, padrão | off) ignora liberado = false e abre
+-- para todas sem mexer aqui. Função antiga, sem a coluna: o app trata como liberada.
 -- =============================================================================
 
+-- A coluna `liberado` muda o tipo de retorno, e o Postgres não aceita isso num
+-- "create or replace": derruba a função antiga antes (os grants são refeitos abaixo).
+-- Entre o drop e o grant o app responde 503 por um instante; rodar o arquivo inteiro
+-- de uma vez, numa transação só (o SQL Editor faz isso).
+drop function if exists public.app_verificar_login(text, text);
+
 create or replace function public.app_verificar_login(p_cpf text, p_email text)
-returns table (name text, phone text, contact_id text)
+returns table (name text, phone text, contact_id text, liberado boolean)
 language sql
 stable
 security definer
@@ -34,7 +49,8 @@ as $$
       when length(regexp_replace(coalesce(a.phone_number, ''), '\D', '', 'g')) >= 10
         then '+' || regexp_replace(a.phone_number, '\D', '', 'g')
     end as phone,
-    c.id::text as contact_id
+    c.id::text as contact_id,
+    coalesce(c.is_in_rollout, false) as liberado   -- lote já liberado? o app decide
   from public.leticia_crystal_customers c
   join lateral (
     select x.phone_number
@@ -48,7 +64,6 @@ as $$
     and regexp_replace(coalesce(c.cpf::text, ''), '\D', '', 'g')
           = regexp_replace(coalesce(p_cpf, ''), '\D', '', 'g')
     and lower(trim(c.email)) = lower(trim(coalesce(p_email, '')))
-    -- and c.is_in_rollout          -- primeira leva só
   order by c.created_at asc, c.id asc   -- se houver cadastro repetido, sempre o mesmo
   limit 1;
 $$;
@@ -79,7 +94,10 @@ grant execute on function public.app_verificar_login(text, text) to service_role
 --      where coalesce(c.cpf,'') = ''
 --        and exists (select 1 from public.leticia_crystal_active_accesses a
 --                     where a.customer_id = c.id and a.subscription_status in ('active','pending'));
---   teste com a sua própria conta (resultado: uma linha com nome, +55... e id):
+--   quantas alunas já estão liberadas (lote) e quantas ainda esperam
+--     select coalesce(is_in_rollout, false) as liberado, count(*)
+--       from public.leticia_crystal_customers group by 1;
+--   teste com a sua própria conta (resultado: uma linha com nome, +55..., id e liberado):
 --     select * from public.app_verificar_login('SEU CPF', 'seu@email');
 --
 -- Nota sobre quem não tem CPF: aceitar só o e-mail NÃO é seguro com o app atual.
