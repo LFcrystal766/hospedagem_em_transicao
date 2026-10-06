@@ -210,7 +210,12 @@ bash bootstrap-vps.sh app-custo 24             # depois de um dia de uso: custo 
 # opcional: bash bootstrap-vps.sh app-definir CRYSTAL_MODEL_RESUMO   (modelo mais barato só para o resumo)
 ```
 
-## Alma da Crystal (branch `otimizacao/alma`, 06/10, HEAD `a754648`)
+## Alma da Crystal (publicada em 06/10 como `sha-6cd7626`, junto com o Chatwoot)
+
+Publicada em 06/10 pelo `atendimento-configurar sha-6cd7626`: stack em `sha-6cd7626` sem
+rollback, Supabase 200, Crystal respondeu como robô na inbox do Chatwoot. Chatwoot
+v4.18.0-ce no ar em `atendimento.` (DNS cinza, certificado válido). `app-canal chatwoot`
+ainda NÃO foi ligado: o app segue falando direto com a Crystal.
 
 Prompt v2.2 da agência (repositório `crystal-ia`) adaptado em `apps/crystal/prompt/crystal.md`
 e busca na base de conhecimento da Letícia (Edge Function `crystal_hybrid_search` do

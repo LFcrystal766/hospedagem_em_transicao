@@ -15,9 +15,10 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
 - **Chamado #RAI-374885** aberto na AZAN em 28/09 para liberar os IPs do
   Cloudflare e ler `CF-Connecting-IP`. O laranja só entra depois da resposta.
 - **Fatura AZAN**: mensal, R$ 99,90, próxima prevista para 14/10/2026. Não cancelar.
-- **Frente paralela, o app da Crystal**: VPS Hostinger KVM 4 no ar desde 28/09
-  (`177.7.61.136`, Boston). Faltam os três registros DNS cinza e toda a stack.
-  É outra migração, com a agência (Academia Lendária): ver `crystal-em-casa/`.
+- **Frente paralela, o app da Crystal**: VPS Hostinger KVM 4 (`177.7.61.136`). Em 06/10:
+  app em `sha-6cd7626` com a alma da agência (prompt v2.2 + busca na base do Supabase),
+  Chatwoot v4.18.0-ce em `atendimento.` com a Crystal como robô (canal do app ainda
+  direto), base de alunos no Supabase. Situação e roteiros em `crystal-em-casa/`.
 
 ## Primeira coisa a fazer numa sessão nova
 
