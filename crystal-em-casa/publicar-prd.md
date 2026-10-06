@@ -304,6 +304,22 @@ Depois: criar a conta da Bia na área de equipe com o papel de suporte; ela entr
 app.crystalnowpp.com.br/equipe > Alunos. Testar: buscar o Igor por e-mail, criar uma conta
 local de teste e revogá-la.
 
+## Legenda na foto (imagem `sha-88c681f`, integrada em 06/10)
+
+Feedback do time no iPhone: a foto ia na hora, sem lugar para a legenda. Agora, ao escolher
+a imagem, abre uma pré-visualização com a foto, o campo de legenda (já com o texto digitado)
+e o botão de enviar; X cancela e devolve o texto ao campo. A imagem inclui o painel de
+alunos, o travessão e os avisos de segurança.
+
+```bash
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-88c681f
+# Volta: bash bootstrap-vps.sh app-subir sha-bbfa96b
+```
+
+Conferir no aparelho: escolher uma foto, escrever a legenda com o teclado aberto, enviar;
+cancelar uma segunda foto e ver o texto voltar ao campo.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
