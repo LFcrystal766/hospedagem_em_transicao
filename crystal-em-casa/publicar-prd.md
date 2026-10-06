@@ -271,6 +271,22 @@ com `Authorization: Bearer <REFUND_WEBHOOK_SECRET>`, eventos de reembolso, charg
 cancelamento, todos os produtos. Um reembolso de teste deve responder 200 `matched: true|false`.
 Depois de um dia: `app-custo 24`.
 
+## Sem travessão (imagem `sha-6a4b16a`, integrada em 06/10)
+
+Achado do dono no iPhone: respostas com "cara de IA", cheias de travessão. Bloco de formato
+do prompt proíbe travessão e hífen no meio da frase; a API, antes das bolhas, troca travessão,
+meia-risca e hífen entre espaços por quebra de linha (frase seguinte em maiúscula) e reduz
+grupos de emoji a um. Inclui também os overrides de segurança `source-map-js` 1.2.2 e
+`sharp` 0.35.5 (avisos publicados em 06/10).
+
+```bash
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-6a4b16a
+# Volta: bash bootstrap-vps.sh app-subir sha-bbfa96b
+```
+
+Conferir no aparelho: uma resposta de conselho sem travessão e com no máximo um emoji por bolha.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
