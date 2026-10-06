@@ -287,6 +287,23 @@ bash bootstrap-vps.sh app-subir sha-6a4b16a
 
 Conferir no aparelho: uma resposta de conselho sem travessão e com no máximo um emoji por bolha.
 
+## Painel de alunos para o suporte (imagem `sha-55ad193`, integrada em 06/10)
+
+Branch `otimizacao/painel-alunos` em cima do travessão (`6a4b16a`). "Alunos" no `/equipe`,
+papéis admin e suporte: busca por e-mail ou CPF (só os 2 últimos dígitos aparecem), conta
+local para quem não tem CPF na base, corrigir e-mail e WhatsApp, revogar e reativar. Rotas
+`/staff/alunos*` com limite por pessoa e auditoria sem dados pessoais. Sem migração.
+
+```bash
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-55ad193
+# Volta: bash bootstrap-vps.sh app-subir sha-bbfa96b
+```
+
+Depois: criar a conta da Bia na área de equipe com o papel de suporte; ela entra em
+app.crystalnowpp.com.br/equipe > Alunos. Testar: buscar o Igor por e-mail, criar uma conta
+local de teste e revogá-la.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
