@@ -11,6 +11,10 @@ de você, na ordem, com o tempo estimado.
   `leticia_crystal_vector_store` + Edge Function `crystal_hybrid_search`). Rodar a
   consulta e o teste que a sessão passou.
 - Avisar o Tuan: links da Assiny e hosts da agência ficaram no código (não é segredo).
+- Pronto para publicar na branch `otimizacao/alma` do app (prompt adaptado + busca na
+  base, 115 testes). Falta: integrar em `otimizacao/etapa-3`, decisão da Letícia sobre
+  "3 balões" vs "3 opções" no print, e perguntar ao Tuan qual provedor de embedding a
+  Edge Function usa (o texto da mensagem do aluno passa por ele).
 
 ## OpenRouter (06/10, uns 5 minutos)
 

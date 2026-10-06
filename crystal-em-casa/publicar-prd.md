@@ -210,6 +210,29 @@ bash bootstrap-vps.sh app-custo 24             # depois de um dia de uso: custo 
 # opcional: bash bootstrap-vps.sh app-definir CRYSTAL_MODEL_RESUMO   (modelo mais barato só para o resumo)
 ```
 
+## Alma da Crystal (branch `otimizacao/alma`, 06/10, HEAD `a754648`)
+
+Prompt v2.2 da agência (repositório `crystal-ia`) adaptado em `apps/crystal/prompt/crystal.md`
+e busca na base de conhecimento da Letícia (Edge Function `crystal_hybrid_search` do
+Supabase, 168 trechos) a cada turno. A branch inclui `otimizacao/custo-modelo`.
+Leitura: `auditorias/2026-10-06/alma-crystal-ia.md`. Antes de publicar, decisão da
+Letícia: o prompt pede no máximo 3 balões e proíbe listas; o fluxo de print entrega
+leitura + 3 opções.
+
+```bash
+# 1. integrar otimizacao/alma em otimizacao/etapa-3 (dispara a imagem) — decisão do dono
+# 2. na VPS, com o script 805dab3 ou mais novo (a URL e a chave do Supabase passam ao crystal.env):
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-XXXXXXX
+bash bootstrap-vps.sh crystal-nossa-teste         # /healthz deve mostrar conhecimento_busca: true
+bash bootstrap-vps.sh app-custo 24                 # no dia seguinte: trechos por turno, cache e custo
+# Volta: bash bootstrap-vps.sh app-subir sha-f866bc0
+```
+
+Conferir no aparelho: uma pergunta de conselho (deve vir com o tom da Crystal e tática
+da base), um "oi" (sem busca, resposta curta), um print.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
