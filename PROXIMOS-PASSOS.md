@@ -116,7 +116,7 @@ Pendências do Luiz para o squad (lista completa em `andamento.md`):
   de risco avisa a equipe por e-mail** (`EQUIPE_EMAIL`, padrão contato@leticiafelisberto.com,
   em implementação); **quem atende o Chatwoot é a equipe de suporte**; gravação de áudio
   também **sem segurar**, com a trava de deslizar para cima como no WhatsApp (em
-  implementação). Ainda sem resposta: reembolso quando só o e-mail bate.
+  implementação). Alunas **sem CPF na base** (1.708 em 05/10): decisão de 06/10, o app orienta a falar com o suporte (WhatsApp da Bia e e-mail aparecem na tela de login quando o cadastro não é encontrado); o suporte completa o CPF no Supabase. Ainda sem resposta: reembolso quando só o e-mail bate; abrir para todas ou só `is_in_rollout` (hoje está aberto para todas com CPF e acesso ativo/pendente).
 
 ## Revisão geral do código (02/10)
 
