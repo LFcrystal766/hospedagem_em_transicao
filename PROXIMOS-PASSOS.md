@@ -91,7 +91,7 @@ Situação em 03/10, fim do dia (branches do `crystal-web-chat`):
 | 2 (11 itens) | `otimizacao/etapa-2` | `3b06150` | 1113 + e2e 27/27 | Integrada; migrações `e2_14…e2_18`, fontes locais. Imagem `sha-69ef26c`. Publica depois do portão 1 |
 | 3 (7 itens) | `otimizacao/etapa-3` | `ede085b` | 1224 + e2e 33/33 | Integrada; contém a 2. Zero conflitos. Fase 3 do P12 ligada, com chave de desligar |
 
-Custo das 10 sessões de código: cerca de US$ 200. **As três etapas publicadas em 05/10**: etapa 1 (`sha-79ba6b7`), etapas 2+3 num release só (`sha-da617ac`) e os ajustes pós-QA (`sha-8ed9ce8`, `sha-99d80cf`, `sha-398e46e`; versão atual `sha-398e46e`). QA no iPhone aprovado nas três etapas, segurar para gravar incluído. Faltam o QA em Android e o teste do reembolso com o JSON da Assiny.
+Custo das 10 sessões de código: cerca de US$ 200. **As três etapas publicadas em 05/10**: etapa 1 (`sha-79ba6b7`), etapas 2+3 num release só (`sha-da617ac`) e os ajustes pós-QA (`sha-8ed9ce8`, `sha-99d80cf`, `sha-398e46e`; versão atual `sha-9a554f6`, com as correções da revisão completa e contas locais, 06/10). QA no iPhone aprovado nas três etapas, segurar para gravar incluído. Faltam o QA em Android e o teste do reembolso com o JSON da Assiny.
 
 Ordem de publicação combinada (roteiro completo, com as listas de conferência em
 aparelho, em `crystal-em-casa/publicar-prd.md`), cada passo com `backup` antes:

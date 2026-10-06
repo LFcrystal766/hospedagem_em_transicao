@@ -76,3 +76,15 @@ depois do "Pronto!", com botão Fechar. Imagem com CI e e2e verdes (484 web, 32/
 
 Cada uma com `backup` antes e `ok os três serviços estão em <tag>`. Versão em
 produção ao fim do dia: **`sha-398e46e`**. Volta: `app-subir sha-8ed9ce8` ou anterior.
+
+## 06/10 · correções da revisão e contas locais no ar
+
+- 23:29 UTC (05/10): `app-subir sha-8eefecd` (76 achados corrigidos, menos reembolso). Script `d540c07`.
+- 00:05 UTC (06/10): `app-subir sha-9a554f6` (+ contas locais de aluno). Script `1387f41`.
+- Nas duas: api.env validado pela própria imagem antes do deploy; "nenhum voltou (UpdateStatus
+  sem rollback)"; backup com `crystal_agente` e uploads incremental; `app-supabase-teste` HTTP 200.
+- Supabase: base de alunas ligada em 05/10 (URL corrigida depois de colarem `/rest/v1/`; função
+  `app_verificar_login` criada; login de aluna real testado pelo Luiz). Igor (testador) cadastrado
+  na base aproveitando o registro manual de 27/08 que já tinha o WhatsApp dele; cadastro de teste
+  duplicado apagado.
+- Login de fora com CPF inexistente: 404 LOGIN_NOT_FOUND (base consultada, resposta sem oráculo).
