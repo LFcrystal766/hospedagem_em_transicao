@@ -242,6 +242,8 @@ da base), um "oi" (sem busca, resposta curta), um print.
 
 Publicada em 06/10 15:10 UTC: stack em `sha-bbfa96b` sem rollback, Supabase 200. O backup
 passou a incluir o Chatwoot (banco e anexos), na VPS e no R2.
+Aprovada no iPhone em 06/10 (dono): alma com tom bom, busca com 6 trechos por conselho,
+cache em 93%, custo US$ 0,003 por turno com a base.
 
 Branch `otimizacao/lotes-reembolso` (= `otimizacao/lotes` + `otimizacao/reembolso-assiny`).
 Decisões do Igor em 06/10. SQL do Supabase já aplicado em 06/10 (função devolve `liberado`;
