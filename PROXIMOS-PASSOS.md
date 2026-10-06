@@ -3,6 +3,17 @@
 Tudo que dá pra fazer por API é da sessão do Claude. Abaixo, só o que depende
 de você, na ordem, com o tempo estimado.
 
+## OpenRouter (06/10, uns 5 minutos)
+
+- **Saldo da conta: cerca de US$ 44** de US$ 6.220 comprados. A chave da Crystal gastou
+  US$ 0,07; o resto foi outra chave da mesma conta (Crystal antiga da agência?). Pôr
+  crédito ou recarga automática, senão a Crystal para com 402.
+- Em openrouter.ai/activity, filtrar por chave e mandar para a sessão a tabela de
+  modelo, pedidos, tokens e custo (sem texto de conversa).
+- Em openrouter.ai/settings/keys, limite mensal na chave da Crystal (hoje sem limite).
+- Decidir se integra `otimizacao/custo-modelo` em `otimizacao/etapa-3` (medição de
+  custo por turno e cache do prompt). Detalhes: `auditorias/2026-10-06/openrouter-uso.md`.
+
 ## Agora (uns 15 minutos)
 
 1. **Cloudflare, 5 min.**

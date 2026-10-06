@@ -196,6 +196,20 @@ Conferir depois: login com a conta de aluna; áudio do iPhone e do Android (o up
 agora recusa bytes que não batem com o tipo, 415); `/equipe` mostra "Supabase (base
 de alunas)" nas integrações.
 
+## Medição de custo e cache do prompt (branch `otimizacao/custo-modelo`, 06/10)
+
+A Crystal passa a registrar tokens e custo de cada turno e de cada resumo (só
+números) e marca o prompt fixo para cache. Leitura em `auditorias/2026-10-06/openrouter-uso.md`.
+A imagem só sai quando a branch for integrada em `otimizacao/etapa-3` (decisão do dono).
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-XXXXXXX
+bash bootstrap-vps.sh app-custo 24             # depois de um dia de uso: custo por turno e projeção
+# opcional: bash bootstrap-vps.sh app-definir CRYSTAL_MODEL_RESUMO   (modelo mais barato só para o resumo)
+```
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".

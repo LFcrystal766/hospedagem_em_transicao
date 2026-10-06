@@ -64,6 +64,9 @@
 #   bash bootstrap-vps.sh app-supabase-teste   chama a função de login do Supabase com CPF fictício:
 #                                              200 ok, 404 função não existe, 401 chave errada
 #   bash bootstrap-vps.sh app-status           serviços do app + HTTPS de app. e api.
+#   bash bootstrap-vps.sh app-custo [HORAS]    custo da Crystal no OpenRouter: soma o log de uso
+#                                              (tokens e US$ por turno e por resumo, só números),
+#                                              projeção mensal e saldo da conta. Padrão: 24 h
 #   bash bootstrap-vps.sh app-admin            cria o primeiro admin (CPF digitado sem aparecer,
 #                                              não fica em spec, log nem histórico)
 #   bash bootstrap-vps.sh app-aluno            cria uma conta LOCAL de aluno, que não passa pela base de
@@ -1221,7 +1224,7 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   CHAT_TRANSPORT CHATWOOT_BASE_URL CHATWOOT_INBOX_IDENTIFIER CHATWOOT_INBOX_HMAC_TOKEN*
   CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS CHATWOOT_ACCOUNT_ID CHATWOOT_BOT_TOKEN* CHATWOOT_BOT_SECRET*
   SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY* SUPABASE_LOGIN_RPC
-  REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL CRYSTAL_MODEL_RESERVA
+  REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL CRYSTAL_MODEL_RESERVA CRYSTAL_MODEL_RESUMO
   ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*
   REFUND_WEBHOOK_SECRET* TRANSCRIPTION_API_URL TRANSCRIPTION_API_KEY* TRANSCRIPTION_MODEL
   TRANSCRIPTION_TIMEOUT_MS CHATWOOT_API_TOKEN* EQUIPE_EMAIL
@@ -1510,14 +1513,14 @@ app_gerar_env() {
     grep -E '^(ENCRYPTION_KEY|JWT_SECRET|WEBHOOK_SECRET|CPF_SALT|OTP_PEPPER|VAPID_PUBLIC_KEY|VAPID_PRIVATE_KEY)=' "$APP_SEG"
     # Menor privilégio: a chave do OpenRouter e o modelo são só da Crystal;
     # o vínculo com as lojas é só do web.
-    grep -vE '^(OPENROUTER_API_KEY|CRYSTAL_MODEL|CRYSTAL_MODEL_RESERVA|ANDROID_CERT_SHA256|APPLE_TEAM_ID)=' "$APP_EXT" || true
+    grep -vE '^(OPENROUTER_API_KEY|CRYSTAL_MODEL|CRYSTAL_MODEL_RESERVA|CRYSTAL_MODEL_RESUMO|ANDROID_CERT_SHA256|APPLE_TEAM_ID)=' "$APP_EXT" || true
   } > "$APP_DIR/api.env"
   {
     echo "# Gerado por bootstrap-vps.sh em $(date -u +%FT%TZ). Não editar: é regravado a cada app-subir."
     echo "NODE_ENV=production"
     echo "DATABASE_URL=postgresql://crystal_agente:$(app_valor "$APP_SEG" CRYSTAL_DB_SENHA)@app_postgres:5432/crystal_agente"
     grep -E '^(CRYSTAL_AGENTE_KEY|CRYSTAL_CHAVE_CIFRA)=' "$APP_SEG"
-    grep -E '^(OPENROUTER_API_KEY|CRYSTAL_MODEL|CRYSTAL_MODEL_RESERVA)=' "$APP_EXT" || true
+    grep -E '^(OPENROUTER_API_KEY|CRYSTAL_MODEL|CRYSTAL_MODEL_RESERVA|CRYSTAL_MODEL_RESUMO)=' "$APP_EXT" || true
   } > "$APP_DIR/crystal.env"
   {
     echo "# Gerado por bootstrap-vps.sh em $(date -u +%FT%TZ). Não editar: é regravado a cada app-subir."
@@ -1672,6 +1675,76 @@ app_supabase_teste() {
     000) aviso "sem resposta: URL errada, DNS ou a VPS sem saída para o Supabase"; return 1 ;;
     *) aviso "HTTP $code: resposta inesperada do Supabase"; return 1 ;;
   esac
+}
+
+# Custo da Crystal no OpenRouter, a partir do log de uso que a nossa Crystal escreve
+# a cada turno e a cada resumo ("modelo: uso do turno" / "modelo: uso do resumo",
+# só números: nunca texto da conversa). Soma por tipo e modelo, média por pedido,
+# parte da entrada que veio do cache, projeção para 30 dias e, no fim, o saldo da
+# conta e o uso da chave (consultados de dentro do contêiner; a chave não sai).
+app_custo() {
+  local horas="${1:-24}" cid
+  printf '%s' "$horas" | grep -Eq '^[0-9]{1,4}$' || falha "uso: app-custo [HORAS] (padrão 24)"
+  [ "$horas" -ge 1 ] || falha "HORAS precisa ser 1 ou mais"
+  echo "== custo da Crystal nas últimas ${horas} h (log de uso)"
+  # O script vai por -c: um heredoc na entrada padrão engoliria as linhas do log.
+  local somador
+  somador=$(cat <<'PY'
+import json, sys
+horas = int(sys.argv[1])
+grupos = {}
+for linha in sys.stdin:
+    try:
+        d = json.loads(linha)
+    except ValueError:
+        continue
+    if not str(d.get("msg", "")).startswith("modelo: uso do"):
+        continue
+    tipo = "turno" if d["msg"].endswith("turno") else "resumo"
+    g = grupos.setdefault((tipo, str(d.get("modelo", "?"))), dict(n=0, ent=0, cache=0, sai=0, rac=0, usd=0.0, ms=0))
+    g["n"] += 1
+    g["ent"] += int(d.get("tokens_entrada") or 0)
+    g["cache"] += int(d.get("tokens_cache") or 0)
+    g["sai"] += int(d.get("tokens_saida") or 0)
+    g["rac"] += int(d.get("tokens_raciocinio") or 0)
+    g["usd"] += float(d.get("custo_usd") or 0)
+    g["ms"] += int(d.get("ms") or 0)
+if not grupos:
+    print("  nenhuma linha de uso no período (imagem antiga, sem conversa, ou a Crystal não respondeu)")
+    sys.exit(0)
+print(f"  {'tipo':7} {'modelo':34} {'pedidos':>7} {'entrada':>9} {'cache%':>6} {'saída':>7} {'racioc.':>7} {'US$':>9} {'US$/pedido':>10} {'ms méd':>6}")
+total = 0.0
+turnos = 0
+for (tipo, modelo), g in sorted(grupos.items()):
+    pc = 100 * g["cache"] / g["ent"] if g["ent"] else 0
+    print(f"  {tipo:7} {modelo[:34]:34} {g['n']:7d} {g['ent']:9d} {pc:5.0f}% {g['sai']:7d} {g['rac']:7d} {g['usd']:9.4f} {g['usd']/g['n']:10.5f} {g['ms']//g['n']:6d}")
+    total += g["usd"]
+    if tipo == "turno":
+        turnos += g["n"]
+print(f"  total: US$ {total:.4f} em {horas} h; {turnos} turno(s)")
+if turnos:
+    print(f"  custo por turno, resumo incluído: US$ {total/turnos:.5f}")
+print(f"  projeção para 30 dias neste ritmo: US$ {total/horas*24*30:.2f}")
+PY
+)
+  docker service logs --since "${horas}h" "${APP_STACK}_app_crystal" 2>/dev/null \
+    | grep -F '"msg":"modelo: uso do' | sed 's/^[^{]*//' \
+    | python3 -I -c "$somador" "$horas"
+  echo "== conta do OpenRouter (consultada de dentro do contêiner; a chave não aparece)"
+  cid=$(docker ps -q -f name=${APP_STACK}_app_crystal | head -1)
+  [ -n "$cid" ] || { aviso "serviço app_crystal não está rodando"; return 0; }
+  docker exec "$cid" node -e '
+    const h = { authorization: "Bearer " + (process.env.OPENROUTER_API_KEY || "") };
+    const g = async (p) => { const r = await fetch("https://openrouter.ai/api/v1" + p, { headers: h, signal: AbortSignal.timeout(15000) }); return [r.status, await r.json().catch(() => ({}))]; };
+    (async () => {
+      const [s1, k] = await g("/key"); const d = k.data || {};
+      console.log(`  chave da Crystal (${s1}): hoje US$ ${d.usage_daily ?? "?"}, semana US$ ${d.usage_weekly ?? "?"}, mês US$ ${d.usage_monthly ?? "?"}, limite ${d.limit == null ? "NENHUM (pôr um limite mensal em openrouter.ai/settings/keys)" : "US$ " + d.limit}`);
+      const [s2, c] = await g("/credits"); const cd = c.data || {};
+      if (typeof cd.total_credits === "number") {
+        const saldo = cd.total_credits - cd.total_usage;
+        console.log(`  conta (${s2}): comprados US$ ${cd.total_credits.toFixed(2)}, usados US$ ${cd.total_usage.toFixed(2)}, saldo US$ ${saldo.toFixed(2)}${saldo < 20 ? "  <- BAIXO: recarregar, senão a Crystal para com 402" : ""}`);
+      } else console.log(`  conta (${s2}): sem dados de crédito`);
+    })().catch((e) => console.log("  OpenRouter não respondeu:", e.name));' 2>/dev/null || aviso "não consultou o OpenRouter"
 }
 
 app_status() {
@@ -2716,6 +2789,7 @@ case "$CMD" in
   app-subir) app_subir "$@"; [ "${SUPABASE_FALHOU:-0}" = 0 ] || exit 1 ;;
   app-supabase-teste) app_supabase_teste ;;
   app-status) app_status ;;
+  app-custo) shift; app_custo "$@" ;;
   app-admin) app_admin ;;
   vigia-config) vigia_config ;;
   atendimento-subir) atendimento_subir ;;
