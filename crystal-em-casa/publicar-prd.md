@@ -348,7 +348,9 @@ bash bootstrap-vps.sh app-subir sha-94a2648
 Conferir: sair da conta no iPhone e entrar de novo com CPF e e-mail: cai direto no chat, e o
 e-mail "Alguém entrou na sua conta" chega. Equipe no /equipe continua pedindo código.
 
-## Canal: aluno sem WhatsApp (imagem `sha-e84fa62`, integrada em 07/10)
+## Canal: aluno sem WhatsApp (publicado em 07/10 como `sha-e84fa62`)
+
+Publicado em 07/10 de madrugada: stack em `sha-e84fa62` sem rollback, Supabase 200.
 
 Primeiro dia com o canal do Chatwoot ligado: conta sem WhatsApp no cadastro recebia "Não
 achei o seu WhatsApp" e não falava com a Crystal. Agora o contato na inbox nasce com
