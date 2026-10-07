@@ -404,7 +404,9 @@ bash bootstrap-vps.sh app-subir sha-eb1b460
 Conferir: /equipe > Painel abre com números (bloco da Crystal vazio até o primeiro turno
 depois da subida); /equipe > Alunos > Base de alunos acha o Igor por e-mail.
 
-## Login só com o e-mail da compra (imagem `sha-e62f697`, integrada em 07/10)
+## Login só com o e-mail da compra (publicado em 07/10 como `sha-e62f697`)
+
+Publicado e aprovado no iPhone em 07/10 (dono): entrou só com o e-mail e o código.
 
 Decisão do dono em 07/10: aluno digita só o e-mail da compra e recebe o código de seis
 dígitos; CPF deixa de ser obrigatório (resolve os 1.673 sem CPF). `LOGIN_MODO` (`email`

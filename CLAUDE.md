@@ -16,9 +16,9 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
   Cloudflare e ler `CF-Connecting-IP`. O laranja só entra depois da resposta.
 - **Fatura AZAN**: mensal, R$ 99,90, próxima prevista para 14/10/2026. Não cancelar.
 - **Frente paralela, o app da Crystal**: VPS Hostinger KVM 4 (`177.7.61.136`). Em 06/10:
-  app em `sha-e84fa62` (07/10): alma da agência (prompt v2.2 + busca na base do Supabase), login em
-  lotes (`ROLLOUT_GATE`), login sem código (`LOGIN_CODIGO=nenhum`, modo de lançamento),
-  webhook de reembolso da Assiny, painel de alunos no /equipe, legenda na foto;
+  app em `sha-e62f697` (07/10): alma da agência (prompt v2.2 + busca na base do Supabase), login
+  só com o e-mail da compra + código (`LOGIN_MODO=email`; CPF opcional), lotes (`ROLLOUT_GATE`),
+  webhook de reembolso da Assiny, painel de alunos e da base, painel gerencial, legenda na foto;
   Chatwoot v4.18.0-ce em `atendimento.` com a Crystal como robô e o canal do app ligado
   (`CHAT_TRANSPORT=chatwoot`, 06/10 à noite), base de alunos no Supabase. Situação e roteiros em `crystal-em-casa/`.
 
