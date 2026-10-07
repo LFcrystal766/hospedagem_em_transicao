@@ -78,6 +78,11 @@ workflow com a tag anterior. Decidir antes de abrir qualquer frente de código p
 
 ## OpenRouter (06/10, uns 5 minutos)
 
+- **07/10: crédito carregado pelo dono** (com recarga automática e limite mensal na chave da
+  Crystal). Conferir o saldo pelo painel gerencial (`/equipe/painel`, bloco de custos) ou por
+  `bootstrap-vps.sh app-custo 24` depois do primeiro dia de uso cheio. Os itens abaixo ficam
+  como histórico.
+
 - **Saldo da conta: cerca de US$ 44** de US$ 6.220 comprados. A chave da Crystal gastou
   US$ 0,07; o resto foi outra chave da mesma conta (Crystal antiga da agência?). Pôr
   crédito ou recarga automática, senão a Crystal para com 402.
