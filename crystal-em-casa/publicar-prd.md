@@ -404,6 +404,28 @@ bash bootstrap-vps.sh app-subir sha-eb1b460
 Conferir: /equipe > Painel abre com números (bloco da Crystal vazio até o primeiro turno
 depois da subida); /equipe > Alunos > Base de alunos acha o Igor por e-mail.
 
+## Login só com o e-mail da compra (imagem `sha-e62f697`, integrada em 07/10)
+
+Decisão do dono em 07/10: aluno digita só o e-mail da compra e recebe o código de seis
+dígitos; CPF deixa de ser obrigatório (resolve os 1.673 sem CPF). `LOGIN_MODO` (`email`
+padrão | `cpf_email` para voltar); no modo `email` o código é sempre exigido. Migração
+`e3_22_login_email` no boot: CPF opcional, vínculo com o cadastro da base único. Função
+`app_verificar_login_email` no Supabase (`crystal-em-casa/supabase/`, commit 1ba7b2f),
+OBRIGATÓRIA antes do deploy. Inclui os três painéis e o uso da Crystal (`sha-eb1b460`).
+
+```bash
+# 1. Supabase, SQL Editor: app_verificar_login_email.sql e app_equipe_alunos.sql (arquivo inteiro cada)
+# 2. VPS:
+bash bootstrap-vps.sh app-definir RATE_AUTH_IP_MAX     # digitar: 200 (se ainda não fez)
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-e62f697            # testa a função do modo no fim
+# Volta sem trocar imagem: app-definir LOGIN_MODO (cpf_email) + app-subir sha-e62f697
+# Volta total: app-subir sha-e84fa62
+```
+
+Conferir: sair da conta no iPhone e entrar só com o e-mail: código chega, entra. Conta
+local sem WhatsApp: texto e foto. /equipe > Painel e /equipe > Alunos > Base de alunos.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
