@@ -19,8 +19,8 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
   app em `sha-94a2648`: alma da agência (prompt v2.2 + busca na base do Supabase), login em
   lotes (`ROLLOUT_GATE`), login sem código (`LOGIN_CODIGO=nenhum`, modo de lançamento),
   webhook de reembolso da Assiny, painel de alunos no /equipe, legenda na foto;
-  Chatwoot v4.18.0-ce em `atendimento.` com a Crystal como robô (canal do app ainda
-  direto), base de alunos no Supabase. Situação e roteiros em `crystal-em-casa/`.
+  Chatwoot v4.18.0-ce em `atendimento.` com a Crystal como robô e o canal do app ligado
+  (`CHAT_TRANSPORT=chatwoot`, 06/10 à noite), base de alunos no Supabase. Situação e roteiros em `crystal-em-casa/`.
 
 ## Primeira coisa a fazer numa sessão nova
 

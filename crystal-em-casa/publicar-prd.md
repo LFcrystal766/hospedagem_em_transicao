@@ -322,6 +322,9 @@ cancelar uma segunda foto e ver o texto voltar ao campo.
 
 ## Login sem código, modo de lançamento (publicado em 06/10 como `sha-94a2648`)
 
+Canal do Chatwoot ligado no app em 06/10 à noite (`app-canal chatwoot`, mesma tag): toda
+conversa passa pela inbox em atendimento.; a equipe assume quando quiser. Volta: `app-canal crystal`.
+
 Publicado em 06/10 22:05 UTC com `LOGIN_CODIGO=nenhum`: stack em `sha-94a2648` sem rollback,
 Supabase 200. Conta local criada para o e-mail de contato da equipe (`app-aluno`).
 Aprovado no iPhone em 06/10 (dono): entrou direto sem código; tudo passou.
