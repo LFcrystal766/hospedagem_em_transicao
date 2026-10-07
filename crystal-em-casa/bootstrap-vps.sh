@@ -53,7 +53,7 @@
 #                                              remetente. Nada vai na linha de comando
 #   bash bootstrap-vps.sh app-definir NOME     grava um valor externo (RESEND_API_KEY, EMAIL_FROM,
 #                                              CRYSTAL_API_URL, REFUND_WEBHOOK_SECRET, TRANSCRIPTION_*,
-#                                              SUPABASE_*, ROLLOUT_GATE, LOGIN_CODIGO, EQUIPE_EMAIL, RATE_AUTH_*, ...). Confere o
+#                                              SUPABASE_*, ROLLOUT_GATE, LOGIN_MODO, LOGIN_CODIGO, EQUIPE_EMAIL, RATE_AUTH_*, ...). Confere o
 #                                              formato antes de gravar. Sem NOME, lista os aceitos
 #   bash bootstrap-vps.sh app-remover NOME     apaga um valor externo que o app não usa mais
 #                                              (ex.: CRYSTAL_ONBOARDING_URL depois da etapa 2)
@@ -61,8 +61,9 @@
 #                                              api.env no boot da imagem, sobe a stack crystal_app com
 #                                              a tag (ex.: sha-398e46e) e falha se o Swarm desfizer a
 #                                              troca (rollback), mesmo com a tag igual
-#   bash bootstrap-vps.sh app-supabase-teste   chama a função de login do Supabase com CPF fictício:
-#                                              200 ok, 404 função não existe, 401 chave errada
+#   bash bootstrap-vps.sh app-supabase-teste   chama a função de login do Supabase com dados fictícios
+#                                              (só e-mail com LOGIN_MODO=email, o padrão; CPF + e-mail com
+#                                              cpf_email): 200 ok, 404 função não existe, 401 chave errada
 #   bash bootstrap-vps.sh app-status           serviços do app + HTTPS de app. e api.
 #   bash bootstrap-vps.sh app-custo [HORAS]    custo da Crystal no OpenRouter: soma o log de uso
 #                                              (tokens e US$ por turno e por resumo, só números),
@@ -70,8 +71,8 @@
 #   bash bootstrap-vps.sh app-admin            cria o primeiro admin (CPF digitado sem aparecer,
 #                                              não fica em spec, log nem histórico)
 #   bash bootstrap-vps.sh app-aluno            cria uma conta LOCAL de aluno, que não passa pela base de
-#                                              alunas do Supabase (testadores, equipe; CPF sem aparecer;
-#                                              pergunta e-mail, nome e WhatsApp)
+#                                              alunas do Supabase (testadores, equipe; CPF opcional, sem
+#                                              aparecer, Enter pula; pergunta e-mail, nome e WhatsApp)
 #   bash bootstrap-vps.sh vigia-config         liga a vigia do app (a cada 5 min, avisa no Telegram;
 #                                              pede o token do bot sem aparecer)
 #   bash bootstrap-vps.sh app-segredos         mostra os segredos do app pra copiar pro cofre
@@ -1225,7 +1226,7 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   META_PHONE_NUMBER_ID ALERT_WEBHOOK_URL* SENTRY_DSN VAPID_SUBJECT
   CHAT_TRANSPORT CHATWOOT_BASE_URL CHATWOOT_INBOX_IDENTIFIER CHATWOOT_INBOX_HMAC_TOKEN*
   CHATWOOT_WEBHOOK_SECRET* CHANNEL_REPLY_TIMEOUT_MS CHATWOOT_ACCOUNT_ID CHATWOOT_BOT_TOKEN* CHATWOOT_BOT_SECRET*
-  SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY* SUPABASE_LOGIN_RPC ROLLOUT_GATE LOGIN_CODIGO
+  SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY* SUPABASE_LOGIN_RPC SUPABASE_LOGIN_EMAIL_RPC ROLLOUT_GATE LOGIN_MODO LOGIN_CODIGO
   REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL CRYSTAL_MODEL_RESERVA CRYSTAL_MODEL_RESUMO
   CONHECIMENTO_MATCH_COUNT CONHECIMENTO_TIMEOUT_MS
   ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*
@@ -1327,6 +1328,9 @@ except Exception:
       esac ;;
     SUPABASE_LOGIN_RPC)
       printf '%s' "$v" | grep -Eq '^[a-z_][a-z0-9_]{0,62}$' || falha "nome da função em minúsculas, números e _ (padrão: app_verificar_login). Nada gravado" ;;
+    SUPABASE_LOGIN_EMAIL_RPC)
+      # Login só com e-mail (07/10): a função de crystal-em-casa/supabase/app_verificar_login_email.sql.
+      printf '%s' "$v" | grep -Eq '^[a-z_][a-z0-9_]{0,62}$' || falha "nome da função em minúsculas, números e _ (padrão: app_verificar_login_email). Nada gravado" ;;
     VAPID_SUBJECT)
       printf '%s' "$v" | grep -Eq '^(mailto:[^@ ]+@[^@ ]+\.[^@ ]+|https://[^ ]+)$' || falha "formato: mailto:alguem@dominio.com ou https://... Nada gravado" ;;
     SENTRY_DSN)
@@ -1351,11 +1355,19 @@ except Exception:
       # com 403 LOGIN_NOT_RELEASED; off abre para todas. Vai para o api.env.
       v=$(printf '%s' "$v" | tr 'A-Z' 'a-z' | tr -d ' ')
       case "$v" in on|off) ;; *) falha "digite só on (login em lotes: só aluna com is_in_rollout entra; é o padrão do app) ou off (abre para todas). Nada gravado" ;; esac ;;
+    LOGIN_MODO)
+      # Login só com o e-mail da compra (decisão do dono em 07/10): email = a aluna digita só o
+      # e-mail, a base é consultada por app_verificar_login_email e o CÓDIGO POR E-MAIL É SEMPRE
+      # EXIGIDO (LOGIN_CODIGO não vale neste modo); é o padrão do app. cpf_email = o fluxo
+      # anterior, CPF + e-mail (aí LOGIN_CODIGO volta a valer). Vai para o api.env.
+      v=$(printf '%s' "$v" | tr 'A-Z' 'a-z' | tr -d ' ')
+      case "$v" in email|cpf_email) ;; *) falha "digite só email (só o e-mail da compra, sempre com código; é o padrão do app) ou cpf_email (CPF + e-mail, o fluxo anterior). Nada gravado" ;; esac ;;
     LOGIN_CODIGO)
       # Login sem código (decisão do dono em 06/10, modo de lançamento): nenhum = a aluna que
       # passa pela base entra SEM o código do e-mail (com limite por CPF e e-mail, aviso
       # "Alguém entrou na sua conta" e auditoria); email = código de uso único (padrão do app).
       # Vai para o api.env. Quem souber CPF e e-mail entra como a aluna: voltar a email depois.
+      # Só vale com LOGIN_MODO=cpf_email: no modo email (padrão) o código é sempre exigido.
       v=$(printf '%s' "$v" | tr 'A-Z' 'a-z' | tr -d ' ')
       case "$v" in email|nenhum) ;; *) falha "digite só email (código de uso único por e-mail; é o padrão do app) ou nenhum (entra sem o código, modo de lançamento). Nada gravado" ;; esac ;;
     CONHECIMENTO_MATCH_COUNT)
@@ -1681,18 +1693,27 @@ app_env_preflight() { # app_env_preflight TAG
 # válidos, de ninguém) e e-mail .invalid. Mostra só o código HTTP e o que ele quer
 # dizer: nunca a chave nem a resposta. A chave vai ao curl pela entrada padrão.
 app_supabase_teste() {
-  local url chave rpc code
+  local url chave rpc code modo corpo sql
   url=$(app_valor "$APP_EXT" SUPABASE_URL); chave=$(app_valor "$APP_EXT" SUPABASE_SERVICE_ROLE_KEY)
-  rpc=$(app_valor "$APP_EXT" SUPABASE_LOGIN_RPC); rpc=${rpc:-app_verificar_login}
+  # Testa a função que o modo de login usa (07/10): só e-mail (padrão) ou CPF + e-mail.
+  modo=$(app_valor "$APP_EXT" LOGIN_MODO); modo=${modo:-email}
+  if [ "$modo" = "cpf_email" ]; then
+    rpc=$(app_valor "$APP_EXT" SUPABASE_LOGIN_RPC); rpc=${rpc:-app_verificar_login}
+    corpo='{"p_cpf":"52998224725","p_email":"teste@exemplo.invalid"}'; sql=app_verificar_login.sql
+    echo "== base de alunos: POST $url/rest/v1/rpc/$rpc com CPF fictício (LOGIN_MODO=cpf_email)"
+  else
+    rpc=$(app_valor "$APP_EXT" SUPABASE_LOGIN_EMAIL_RPC); rpc=${rpc:-app_verificar_login_email}
+    corpo='{"p_email":"teste@exemplo.invalid"}'; sql=app_verificar_login_email.sql
+    echo "== base de alunos: POST $url/rest/v1/rpc/$rpc com e-mail fictício (LOGIN_MODO=email)"
+  fi
   [ -n "$url" ] && [ -n "$chave" ] || falha "SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY não estão definidos: bash $0 app-definir SUPABASE_URL"
-  echo "== base de alunos: POST $url/rest/v1/rpc/$rpc com CPF fictício"
   code=$(printf 'header = "apikey: %s"\nheader = "Authorization: Bearer %s"\n' "$chave" "$chave" \
     | curl -s -o /dev/null -m 20 -w '%{http_code}' -K - -X POST "$url/rest/v1/rpc/$rpc" \
-        -H 'content-type: application/json' -d '{"p_cpf":"52998224725","p_email":"teste@exemplo.invalid"}') || code=000
+        -H 'content-type: application/json' -d "$corpo") || code=000
   chave=""
   case "$code" in
     200) ok "HTTP 200: a função $rpc existe e a chave vale (base de alunos no ar)" ;;
-    404) aviso "HTTP 404: a função $rpc não existe no Supabase. Rodar crystal-em-casa/supabase/app_verificar_login.sql no SQL Editor; se acabou de criar: notify pgrst, 'reload schema'"; return 1 ;;
+    404) aviso "HTTP 404: a função $rpc não existe no Supabase. Rodar crystal-em-casa/supabase/$sql no SQL Editor; se acabou de criar: notify pgrst, 'reload schema'"; return 1 ;;
     401) aviso "HTTP 401: chave recusada. É a service_role (sb_secret_ ou JWT service_role), inteira e do mesmo projeto da URL?"; return 1 ;;
     403) aviso "HTTP 403: a chave entrou mas não pode executar $rpc (grant execute para service_role)"; return 1 ;;
     000) aviso "sem resposta: URL errada, DNS ou a VPS sem saída para o Supabase"; return 1 ;;
@@ -1850,10 +1871,11 @@ app_aluno() {
   local cid cpf email nome tel
   cid=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
   [ -n "$cid" ] || falha "a API do app não está rodando: bash $0 app-subir TAG"
-  read -rsp "CPF, só números (não aparece): " cpf; echo
+  # CPF opcional desde 07/10 (login só com e-mail): Enter pula e a identidade da conta é o e-mail.
+  read -rsp "CPF, só números (opcional, Enter pula; não aparece): " cpf; echo
   cpf=$(printf '%s' "$cpf" | tr -cd '0-9')
-  [ "${#cpf}" -eq 11 ] || falha "CPF precisa de 11 dígitos"
-  read -rp "E-mail (recebe o código de login): " email
+  [ -z "$cpf" ] || [ "${#cpf}" -eq 11 ] || falha "CPF precisa de 11 dígitos (ou Enter para pular)"
+  read -rp "E-mail (é como a aluna entra; recebe o código de login): " email
   echo "$email" | grep -Eq '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$' || falha "e-mail inválido"
   read -rp "Nome: " nome
   [ -n "$nome" ] || falha "nome vazio"
@@ -1872,25 +1894,31 @@ import { loadEnv } from "./src/env";
 import { hashCpf } from "./src/lib/crypto";
 
 const env = loadEnv();
-const cpf = cpfSchema.safeParse(process.env.ALUNO_CPF ?? "");
-if (!cpf.success) {
-  console.log("CPF inválido (dígitos verificadores não batem)");
-  process.exit(2);
+// CPF opcional (07/10, login só com e-mail): vazio = conta sem CPF, identificada pelo e-mail.
+const cpfBruto = (process.env.ALUNO_CPF ?? "").trim();
+let cpf: string | null = null;
+if (cpfBruto) {
+  const parsed = cpfSchema.safeParse(cpfBruto);
+  if (!parsed.success) {
+    console.log("CPF inválido (dígitos verificadores não batem)");
+    process.exit(2);
+  }
+  cpf = parsed.data;
 }
 const email = emailSchema.parse((process.env.ALUNO_EMAIL ?? "").trim().toLowerCase());
 const prisma = new PrismaClient();
 try {
   const repos = createPrismaRepos(prisma);
-  const cpfHash = hashCpf(cpf.data, env.CPF_SALT);
-  const existente = await repos.users.findByCpfHash(cpfHash);
+  const cpfHash = cpf ? hashCpf(cpf, env.CPF_SALT) : null;
+  const existente = cpfHash ? await repos.users.findByCpfHash(cpfHash) : null;
   if (existente) {
-    console.log(`já existe conta com esse CPF (final ${existente.cpfLast4}, papel ${existente.role}); nada feito`);
+    console.log(`já existe conta com esse CPF (final ${existente.cpfLast4 ?? "?"}, papel ${existente.role}); nada feito`);
   } else if (await repos.users.findByEmail(email)) {
     console.log("já existe conta com esse e-mail; nada feito");
   } else {
     await repos.users.create({
       cpfHash,
-      cpfLast4: cpfLast4(cpf.data),
+      cpfLast4: cpf ? cpfLast4(cpf) : null,
       name: (process.env.ALUNO_NOME ?? "").trim(),
       role: "user",
       crystalContactId: null,
@@ -1900,7 +1928,7 @@ try {
       // e equipe usando como aluna. Precisa da API com o campo (imagens a partir de 05/10).
       localAccount: true,
     });
-    console.log(`conta local de aluno criada (CPF final ${cpfLast4(cpf.data)}): entra sem passar pela base de alunas`);
+    console.log(`conta local de aluno criada (${cpf ? `CPF final ${cpfLast4(cpf)}` : "sem CPF"}): entra sem passar pela base de alunas`);
   }
 } finally {
   await prisma.$disconnect();
@@ -1913,7 +1941,7 @@ TS
   fi
   app_api_ts_apagar "$cid" .aluno.ts
   unset cpf
-  echo "  Entrar em https://app.$DOMINIO com esse CPF e e-mail (o código chega por e-mail)."
+  echo "  Entrar em https://app.$DOMINIO com esse e-mail (o código chega por e-mail; com LOGIN_MODO=cpf_email, também o CPF)."
   echo "  É uma conta LOCAL: não passa pela base de alunas. Quem está na base com acesso ativo não precisa disto."
 }
 
