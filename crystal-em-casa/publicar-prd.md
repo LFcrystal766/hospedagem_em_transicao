@@ -384,6 +384,26 @@ bash bootstrap-vps.sh app-subir sha-7039a99
 Conferir: na aba Base de alunos, buscar o Igor por e-mail; num aluno de teste, corrigir o
 e-mail e entrar com o novo. Sem o SQL aplicado, a aba responde "base indisponível".
 
+## Painel gerencial + uso da Crystal (imagem `sha-eb1b460`, integrada em 07/10)
+
+Inclui o painel da base (`sha-7039a99`). Painel gerencial em /equipe/painel, só admin:
+acessos (1, 3, 7, 14, 21, 30 dias), ao vivo, mensagens por tipo e por hora, nuvem de
+palavras agregada, top 20, custos da Crystal por modelo, áudio (`TRANSCRIPTION_PRICE_PER_HOUR_USD`,
+padrão 0,04) e imagem, saldo do OpenRouter (alerta abaixo de US$ 20), funil de login,
+retenção, projeção de 30 dias. A Crystal grava `uso_turnos` (sem texto) e expõe
+`GET /v1/uso` e `/v1/uso/conta`; a tabela nasce sozinha na subida.
+
+```bash
+# Supabase: app_equipe_alunos.sql aplicado (commit 6f0ea10)
+bash bootstrap-vps.sh app-definir RATE_AUTH_IP_MAX     # digitar: 200
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-eb1b460
+# Volta: bash bootstrap-vps.sh app-subir sha-e84fa62
+```
+
+Conferir: /equipe > Painel abre com números (bloco da Crystal vazio até o primeiro turno
+depois da subida); /equipe > Alunos > Base de alunos acha o Igor por e-mail.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
