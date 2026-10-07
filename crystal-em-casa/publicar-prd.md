@@ -348,6 +348,20 @@ bash bootstrap-vps.sh app-subir sha-94a2648
 Conferir: sair da conta no iPhone e entrar de novo com CPF e e-mail: cai direto no chat, e o
 e-mail "Alguém entrou na sua conta" chega. Equipe no /equipe continua pedindo código.
 
+## Canal: aluno sem WhatsApp (imagem `sha-e84fa62`, integrada em 07/10)
+
+Primeiro dia com o canal do Chatwoot ligado: conta sem WhatsApp no cadastro recebia "Não
+achei o seu WhatsApp" e não falava com a Crystal. Agora o contato na inbox nasce com
+`app:<id do aluno>` quando não há número; com número, segue sendo o WhatsApp.
+
+```bash
+bash bootstrap-vps.sh app-subir sha-e84fa62
+# Volta: bash bootstrap-vps.sh app-subir sha-94a2648
+```
+
+Conferir: com a conta sem WhatsApp, mandar texto e foto; a resposta vem e a conversa aparece
+no Chatwoot.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
