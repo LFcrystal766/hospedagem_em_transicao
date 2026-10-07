@@ -364,6 +364,26 @@ bash bootstrap-vps.sh app-subir sha-e84fa62
 Conferir: com a conta sem WhatsApp, mandar texto e foto; a resposta vem e a conversa aparece
 no Chatwoot.
 
+## Painel corrige a base de alunos (imagem `sha-7039a99`, integrada em 07/10)
+
+Decisão do dono em 07/10: a Bia corrige a base da compra pelo painel, sem SQL. Aba "Base de
+alunos" em /equipe > Alunos: busca por CPF ou e-mail na base do Supabase; corrigir e-mail,
+informar CPF (só quando vazio), liberar ou tirar do lote. Quatro funções no Supabase, só
+para a chave do servidor (`crystal-em-casa/supabase/app_equipe_alunos.sql`). Corrigir e-mail
+de quem já entrou no app ajusta a conta e derruba as sessões. Auditoria sem dados pessoais.
+
+```bash
+# 1. Supabase, SQL Editor: aplicar o arquivo inteiro app_equipe_alunos.sql (commit 6f0ea10)
+# 2. VPS:
+bash bootstrap-vps.sh app-definir RATE_AUTH_IP_MAX     # digitar: 200 (operadoras com IP compartilhado)
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-7039a99
+# Volta: bash bootstrap-vps.sh app-subir sha-e84fa62
+```
+
+Conferir: na aba Base de alunos, buscar o Igor por e-mail; num aluno de teste, corrigir o
+e-mail e entrar com o novo. Sem o SQL aplicado, a aba responde "base indisponível".
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
