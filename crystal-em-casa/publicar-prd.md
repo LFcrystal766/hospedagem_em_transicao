@@ -428,6 +428,53 @@ bash bootstrap-vps.sh app-subir sha-e62f697            # testa a função do mod
 Conferir: sair da conta no iPhone e entrar só com o e-mail: código chega, entra. Conta
 local sem WhatsApp: texto e foto. /equipe > Painel e /equipe > Alunos > Base de alunos.
 
+## Operação pelo painel (07/10)
+
+Decisão do dono em 07/10: operar a Crystal pelo `/equipe/operacao` (só papel `admin`),
+sem VPS e sem SQL. Spec: `spec-operacao.md` da sessão. O que muda de verdade:
+
+- **As variáveis do `app-definir` passam a ser só o PADRÃO.** O painel grava chaves `op_*`
+  em `system_settings` (lidas a cada requisição) e elas valem na frente do `api.env`, sem
+  `app-subir`: `ROLLOUT_GATE`, `LOGIN_CODIGO`, `REFUND_EVENTS`, `REFUND_PRODUCT_IDS`,
+  `RATE_AUTH_IP_MAX` e `TRANSCRIPTION_PRICE_PER_HOUR_USD`. Cada campo mostra "origem:
+  painel/padrão" e tem "Voltar ao padrão" (apaga a chave; volta a valer o `api.env`).
+  Também pelo painel, sem padrão em env: modelo da Crystal e reserva, trechos da base,
+  aviso no chat, modo manutenção e dias de retenção.
+- **Continuam só na VPS**: `LOGIN_MODO`, `CHAT_TRANSPORT`, todas as chaves (Resend, Supabase,
+  OpenRouter, Groq, webhook da Assiny, Chatwoot) e URLs. E o deploy (`app-subir`).
+- **Lotes de acesso** saem do SQL Editor: resumo, "Liberar próximos N mais ativos dos últimos
+  D dias" (padrões 500 e 30), liberar por lista de e-mails e CSV (sem CPF, liberados, não
+  liberados, ativos 30d). Quatro funções novas em `crystal-em-casa/supabase/app_equipe_lotes.sql`,
+  mais a coluna `app_liberado_em` em `leticia_crystal_customers` (carimbo para "liberados hoje";
+  única mudança de esquema, nula, avisar o Tuan) e `app_equipe_liberar` redefinida com o carimbo.
+  O arquivo roda DEPOIS de `app_equipe_alunos.sql` (já aplicado em 07/10).
+- Variáveis novas, **todas opcionais** (padrão = o nome da função; só definir se renomear
+  a função no Supabase): `SUPABASE_EQUIPE_LOTE_RESUMO_RPC` (`app_equipe_lote_resumo`),
+  `SUPABASE_EQUIPE_LIBERAR_LOTE_RPC` (`app_equipe_liberar_lote`),
+  `SUPABASE_EQUIPE_LIBERAR_LISTA_RPC` (`app_equipe_liberar_lista`),
+  `SUPABASE_EQUIPE_EXPORTAR_RPC` (`app_equipe_exportar`). Ainda não estão na lista do
+  `app-definir`; entram quando alguém precisar.
+
+```bash
+# 1. Supabase, SQL Editor: crystal-em-casa/supabase/app_equipe_lotes.sql (arquivo inteiro, uma vez).
+#    Conferir: select public.app_equipe_lote_resumo();  (só números)
+# 2. VPS, quando a tag sair:
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-<tag>
+# Volta (passo 4): bash bootstrap-vps.sh app-subir sha-e62f697
+```
+
+3. Conferir no iPhone, em `/equipe/operacao`: o resumo dos lotes carrega (total, liberados,
+ativos sem liberar, liberados hoje); salvar uma chave (ex.: texto do aviso + aviso ligado) e ver
+"salvo" com origem "painel"; abrir o chat como aluno e ver a faixa com o aviso; "Voltar ao
+padrão" apaga. Só depois disso liberar um lote pela tela.
+
+4. Volta: `app-subir` com a tag anterior (`sha-e62f697`). As chaves gravadas em
+`system_settings` continuam no banco e não atrapalham a imagem antiga (ela não as lê). Para
+voltar ao padrão antes de voltar a imagem: "Voltar ao padrão" na tela, campo a campo, ou, no
+Postgres do app, `delete from system_settings where key like 'op_%'`. A coluna
+`app_liberado_em` e as funções do Supabase podem ficar: a imagem antiga não as usa.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".

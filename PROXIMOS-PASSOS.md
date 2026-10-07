@@ -18,6 +18,30 @@ Pendências para subir: imagem `ghcr.io/lfcrystal766/crystal-ia:0.16.2` (workflo
 repositório `crystal-ia`), DNS `ia` cinza, `LENDCHAT_WEBHOOK_SECRET` preenchido (na stack veio
 vazio, o que desliga a validação do webhook), decisão de onde fica o número do WhatsApp.
 
+## Operação pelo painel (07/10)
+
+O `/equipe/operacao` (só admin) passa a mandar no dia a dia: lotes de acesso (resumo,
+liberar os N mais ativos, liberar por lista, CSV), portão de lotes, limite por IP, modelo da
+Crystal, aviso e manutenção, reembolso, preço da transcrição e retenção. Roteiro em
+`crystal-em-casa/publicar-prd.md`, seção "Operação pelo painel"; SQL em
+`crystal-em-casa/supabase/app_equipe_lotes.sql` (rodar antes do deploy).
+
+**O que ainda fica na VPS** (console da Hostinger + `bootstrap-vps.sh`): o deploy
+(`app-subir <tag>`), `LOGIN_MODO` e `CHAT_TRANSPORT` (mudam o fluxo inteiro, não são ajuste
+ao vivo), todos os segredos e URLs (`app-definir`), backup e vigia. As variáveis que o painel
+sobrepõe (`ROLLOUT_GATE`, `LOGIN_CODIGO`, `REFUND_*`, `RATE_AUTH_IP_MAX`,
+`TRANSCRIPTION_PRICE_PER_HOUR_USD`) viram só o valor padrão.
+
+**Decisão pendente: deploy pelo painel?** Hoje trocar a tag exige o console da VPS. Duas
+opções, se quiser tirar isso de lá:
+1. Serviço vigia dentro da VPS que lê da API a tag desejada e roda `docker service update`.
+   Exige montar o socket do Docker no contêiner: quem toma esse contêiner toma a VPS inteira.
+2. GitHub Actions por SSH, com chave só-deploy (usuário sem sudo, `command=` no
+   `authorized_keys` restrito a `bootstrap-vps.sh app-subir`), disparado por tag ou à mão
+   no GitHub (que já tem 2FA). O painel, no máximo, mostra a tag no ar e o link do workflow.
+Recomendação da sessão: a 2ª. Não expõe o socket, fica auditado no GitHub e a volta é o mesmo
+workflow com a tag anterior. Decidir antes de abrir qualquer frente de código para isso.
+
 ## Decisões do Igor (06/10) e o que a sessão está fazendo com cada uma
 
 - **Divulgação em lotes**: cerca de 500 alunos por dia, decrescente, começando pelos top

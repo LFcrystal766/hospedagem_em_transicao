@@ -55,6 +55,9 @@
 #                                              CRYSTAL_API_URL, REFUND_WEBHOOK_SECRET, TRANSCRIPTION_*,
 #                                              SUPABASE_*, ROLLOUT_GATE, LOGIN_MODO, LOGIN_CODIGO, EQUIPE_EMAIL, RATE_AUTH_*, ...). Confere o
 #                                              formato antes de gravar. Sem NOME, lista os aceitos
+#                                              ROLLOUT_GATE, LOGIN_CODIGO, REFUND_EVENTS, REFUND_PRODUCT_IDS,
+#                                              RATE_AUTH_IP_MAX e TRANSCRIPTION_PRICE_PER_HOUR_USD são só o
+#                                              valor padrão; o painel /equipe/operacao sobrepõe ao vivo
 #   bash bootstrap-vps.sh app-remover NOME     apaga um valor externo que o app não usa mais
 #                                              (ex.: CRYSTAL_ONBOARDING_URL depois da etapa 2)
 #   bash bootstrap-vps.sh app-subir TAG        gera segredos (uma vez só), monta api.env, confere o
@@ -1417,6 +1420,12 @@ assert d.get("type")=="service_account" and d.get("client_email") and "PRIVATE K
   mv "$APP_EXT.tmp" "$APP_EXT"; chmod 600 "$APP_EXT"
   unset v
   ok "$nome gravado em $APP_EXT. Vale na próxima 'app-subir'"
+  case "$nome" in
+    ROLLOUT_GATE|LOGIN_CODIGO|REFUND_EVENTS|REFUND_PRODUCT_IDS|RATE_AUTH_IP_MAX|TRANSCRIPTION_PRICE_PER_HOUR_USD)
+      # Operação pelo painel (07/10): este valor é só o PADRÃO; a chave op_* gravada em
+      # system_settings pelo /equipe/operacao vale na frente dele, sem app-subir.
+      aviso "valor padrão; o painel /equipe/operacao sobrepõe ao vivo" ;;
+  esac
 }
 
 # Apaga um valor do .externos (ex.: CRYSTAL_ONBOARDING_URL, que a etapa 2 do PRD
