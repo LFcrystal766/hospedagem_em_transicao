@@ -578,6 +578,69 @@ no WhatsApp: silenciada desde <data>". A consulta do passo 1 sobe na mesma conta
      desde" e, com a chave ligada, o app silencia de novo na próxima mensagem do aluno no app
      (até 24 h depois). Desligar a chave ANTES do SQL em massa.
 
+## Memória única (08/10)
+
+Pedido do dono: a Crystal do app e a do WhatsApp com uma memória só por pessoa, "sem alterar
+absolutamente nada do que temos". Com a chave "Memória única" ligada, a nossa Crystal lê, no
+começo de cada turno, o que a Crystal do WhatsApp anotou sobre o aluno (fatos e preferências de
+`leticia_crystal_lead_memories`, só leitura, cache de 10 min por pessoa) e, quando regrava o
+resumo do contato, guarda uma cópia numa tabela NOVA do Supabase. Spec: `spec-memoria-unica.md`
+da sessão. SQL: `crystal-em-casa/supabase/app_memoria_unica.sql`.
+
+- **Só acréscimo**: o SQL cria a tabela `crystal_memoria_unica` e as funções `app_memoria_ler` e
+  `app_memoria_gravar`, e nada mais. Nenhuma tabela, coluna, função ou permissão que já existe
+  muda; as tabelas da agência só aparecem em SELECT. Se já houver tabela ou função com esses
+  nomes que não veio do arquivo, ele para em `JA_EXISTE` sem criar nada; se faltar coluna da
+  agência, para em `ESQUEMA_DIFERENTE`. Testado em Postgres 16 com esquema fictício: contagem e
+  hash das tabelas da agência iguais antes e depois, e o `pg_dump -s` só ganhou os três objetos.
+- A chave "Memória única" (Operação, seção Crystal, `op_memoria_unica`) nasce desligada.
+  Desligada, o pedido do app à Crystal é idêntico ao de hoje.
+- Por enquanto o caminho é só para o app: a Crystal do WhatsApp não lê a tabela nova enquanto o
+  Tuan não quiser (trecho pronto, comentado, no cabeçalho do SQL; nada é aplicado do lado dele).
+- Variáveis novas, **opcionais**, no `crystal.env`: `SUPABASE_MEMORIA_LER_RPC` (padrão
+  `app_memoria_ler`) e `SUPABASE_MEMORIA_GRAVAR_RPC` (padrão `app_memoria_gravar`); só definir
+  se renomear as funções. Usa o `SUPABASE_URL` e a `SUPABASE_SERVICE_ROLE_KEY` que a Crystal já
+  tem para a busca na base. Atenção: o `bootstrap-vps.sh` monta o `crystal.env` com uma lista
+  fixa e hoje não passa essas duas (com `app-definir` elas iriam para o `api.env`). Com os
+  padrões não faz falta; renomear exige acrescentá-las à lista antes.
+
+```bash
+# 1. Supabase, SQL Editor: crystal-em-casa/supabase/app_memoria_unica.sql (arquivo inteiro, uma vez).
+#    Se parar em JA_EXISTE ou ESQUEMA_DIFERENTE, nada foi criado: ler o hint antes de seguir.
+#    Conferir (só nomes; espera-se só postgres e service_role):
+#      select routine_name, grantee from information_schema.routine_privileges
+#       where routine_schema = 'public' and routine_name like 'app_memoria_%' order by 1, 2;
+# 2. VPS, quando a tag sair:
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-<tag>
+# Volta da imagem: bash bootstrap-vps.sh app-subir sha-<tag anterior>
+```
+
+3. **ANTES de ligar**: trocar a chave service_role que vazou na stack do Tuan (passos em
+`PROXIMOS-PASSOS.md`, seção "Supabase: 'Crystal AI' já está na nossa organização"): chave nova
+para o app (`app-definir SUPABASE_SERVICE_ROLE_KEY` + `app-subir`, que leva a chave ao `api.env`
+e ao `crystal.env`), chave nova para a agência, e só então revogar a antiga. Com a chave antiga
+na rua, quem a tem lê por esta função o que o WhatsApp e o app sabem de cada aluno.
+
+4. Ligar a chave "Memória única" em Operação, seção Crystal (pede confirmação).
+
+5. Conferir com uma conta de aluno que tenha memória no WhatsApp (o mesmo número do cadastro):
+perguntar no app algo que só a Crystal do WhatsApp saberia; a resposta usa o que ela anotou, sem
+despejar tudo de uma vez. No SQL Editor, só números:
+   ```sql
+   select char_length(r->>'whatsapp_fatos') as fatos,
+          json_array_length(r->'whatsapp_preferencias') as prefs,
+          r->>'app_atualizado_em' as app_em
+     from (select public.app_memoria_ler('<uuid do aluno>') as r) s;
+   ```
+   `app_em` aparece depois que o app regravar o resumo do contato (não é a cada mensagem). Conta
+   sem memória no WhatsApp segue normal (fatos nulo, prefs 0).
+
+6. Desfazer: desligar a chave "Memória única". Volta tudo ao que era: o pedido à Crystal fica
+idêntico ao de antes e nada mais é lido nem gravado no Supabase. A tabela nova e as duas funções
+podem ficar (ninguém as chama). Apagar de vez só se o dono pedir (os três `drop` estão no
+cabeçalho do SQL). Na agência não há nada a desfazer.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".

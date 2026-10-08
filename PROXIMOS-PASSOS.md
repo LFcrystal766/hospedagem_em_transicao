@@ -107,6 +107,26 @@ sobre o que fica fora desse código (painel, n8n, LendChat, edição à mão):
 2. Vocês concordam com a nossa escrita nessa coluna (e em `updated_at`)?
 3. Existe algum processo que religa `is_ai_enabled` sozinho?
 
+## Memória única (08/10)
+
+Decisão do dono: uma memória só por pessoa entre a Crystal do WhatsApp e a do app, "sem alterar
+absolutamente nada do que temos". Por isso é **só acréscimo**: `crystal-em-casa/supabase/app_memoria_unica.sql`
+cria uma tabela nova (`crystal_memoria_unica`) e duas funções (`app_memoria_ler`,
+`app_memoria_gravar`); as tabelas da agência só são lidas. Com a chave "Memória única"
+(Operação, começa desligada) a Crystal do app lê o que a do WhatsApp anotou e guarda o resumo do
+app na tabela nova. SQL ainda não aplicado. Roteiro em `crystal-em-casa/publicar-prd.md`, seção
+"Memória única".
+
+- **Pré-requisito**: trocar a chave service_role que vazou (seção "Supabase: 'Crystal AI' já está
+  na nossa organização") ANTES de ligar a chave.
+- **Volta do app para o WhatsApp** depende do Tuan: a Crystal do WhatsApp só passa a saber o que
+  veio do app se ela ler a tabela nova. O trecho pronto (um SELECT pelo telefone do lead) está
+  comentado no cabeçalho do SQL; nada é aplicado no lado dele. Se a conexão dele não for com o
+  usuário `postgres`, combinar um `grant select` só nessa tabela.
+- Avisar o Tuan: `app_memoria_ler` lê `leticia_crystal_lead_memories` (`content` e
+  `profile_data`), `leticia_crystal_lead_management` e `leticia_crystal_active_accesses`, só
+  leitura, via service_role.
+
 ## Decisões do Igor (06/10) e o que a sessão está fazendo com cada uma
 
 - **Divulgação em lotes**: cerca de 500 alunos por dia, decrescente, começando pelos top
