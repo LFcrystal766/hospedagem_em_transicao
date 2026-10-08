@@ -475,6 +475,43 @@ voltar ao padrão antes de voltar a imagem: "Voltar ao padrão" na tela, campo a
 Postgres do app, `delete from system_settings where key like 'op_%'`. A coluna
 `app_liberado_em` e as funções do Supabase podem ficar: a imagem antiga não as usa.
 
+## Memória de chegada (08/10)
+
+A Crystal do app passa a lembrar do que o aluno já conversou com a Crystal do WhatsApp: no
+primeiro login (ou na primeira mensagem) o app importa UMA vez, por aluno e em silêncio, as
+últimas 200 mensagens do histórico da agência (Supabase) para a memória da nossa Crystal e gera
+o resumo; depois disso o app é a fonte, nada volta para o WhatsApp. Spec: `spec-memoria-chegada.md`
+da sessão. SQL: `crystal-em-casa/supabase/app_historico_whatsapp.sql` (só leitura, só
+service_role, nenhuma mudança de esquema no Supabase).
+
+- Variável nova, **opcional**: `SUPABASE_HISTORICO_WHATSAPP_RPC` (padrão `app_historico_whatsapp`;
+  só definir se renomear a função no Supabase). Nada mais em env: liga e desliga pelo painel.
+- Custo: um resumo por aluno, uma vez, no modelo barato de resumo (`CRYSTAL_MODEL_RESUMO`),
+  uns US$ 0,002 cada. Mil alunos com histórico dão uns US$ 2.
+- Migração do Postgres do app: `e3_23_memoria_chegada`, duas colunas nulas em `users`
+  (`whatsapp_importado_em`, `whatsapp_importado_mensagens`). Roda sozinha no `app-subir`.
+
+```bash
+# 1. Supabase, SQL Editor: crystal-em-casa/supabase/app_historico_whatsapp.sql (arquivo inteiro, uma vez).
+#    Conferir (só números): select count(*) from public.app_historico_whatsapp('<uuid de um aluno>', 200);
+# 2. VPS, quando a tag sair:
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-<tag>
+# Volta (passo 4): bash bootstrap-vps.sh app-subir sha-<tag anterior>
+```
+
+3. Conferir no iPhone com uma conta de aluno que tenha histórico no WhatsApp: entrar e mandar a
+primeira mensagem; a resposta já vem com contexto (ela sabe do que falaram). Na equipe, em
+Alunos, aba "Contas no app", a conta mostra "Memória do WhatsApp: importada em <data>
+(<n> mensagens)". Conta sem histórico mostra "(0 mensagens)" e segue normal. "Importar agora"
+força de novo; a Crystal recusa (`ja_tinha`) se o aluno já conversou no app.
+
+4. Desligar sem deploy: chave "Memória de chegada" na área Operação, seção Crystal
+(`op_memoria_chegada` off). Quem já importou fica como está; ninguém novo importa. Volta
+completa: `app-subir` com a tag anterior (hoje `sha-e62f697`; se a de Operação já estiver no ar,
+a dela). A migração `e3_23_memoria_chegada` só acrescenta duas colunas nulas e pode ficar: a
+imagem antiga não as lê. A função do Supabase também pode ficar.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".

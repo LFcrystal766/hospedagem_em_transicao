@@ -42,6 +42,27 @@ opções, se quiser tirar isso de lá:
 Recomendação da sessão: a 2ª. Não expõe o socket, fica auditado no GitHub e a volta é o mesmo
 workflow com a tag anterior. Decidir antes de abrir qualquer frente de código para isso.
 
+## Memória de chegada (08/10)
+
+Decisão registrada: a Crystal do app importa o histórico do WhatsApp do aluno UMA vez, no
+primeiro login (ou na primeira mensagem), para a memória dela, com resumo; depois o app é a
+fonte e nada é sincronizado de volta para o WhatsApp. Liga e desliga pelo painel (Operação,
+seção Crystal, chave "Memória de chegada"). Roteiro em `crystal-em-casa/publicar-prd.md`,
+seção "Memória de chegada"; SQL em `crystal-em-casa/supabase/app_historico_whatsapp.sql`
+(rodar antes do deploy).
+
+**Avisar o Tuan**: a função `app_historico_whatsapp` lê `leticia_crystal_chat_histories` (e
+`leticia_crystal_active_accesses`, `leticia_crystal_lead_management`) só leitura, via
+service_role, uma vez por aluno. Nenhuma coluna nova, nada gravado no Supabase.
+
+**Pendência com o Tuan** (antes de confiar no resultado):
+1. Formato exato do `message` em `leticia_crystal_chat_histories`: `content` direto
+   (`{"type":"human","content":"..."}`) ou dentro de `data`
+   (`{"type":"human","data":{"content":"..."}}`)? A função aceita os dois; confirmar se há um
+   terceiro (conteúdo em lista, por exemplo), que hoje cairia fora.
+2. A Crystal do WhatsApp continua respondendo o aluno depois que ele migra para o app? Se sim,
+   as duas memórias divergem a partir da importação (decisão acima: não sincronizamos).
+
 ## Decisões do Igor (06/10) e o que a sessão está fazendo com cada uma
 
 - **Divulgação em lotes**: cerca de 500 alunos por dia, decrescente, começando pelos top
