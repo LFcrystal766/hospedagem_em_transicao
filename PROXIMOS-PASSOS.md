@@ -3,6 +3,15 @@
 Tudo que dá pra fazer por API é da sessão do Claude. Abaixo, só o que depende
 de você, na ordem, com o tempo estimado.
 
+## Supabase: a transferência foi de outro projeto (08/10)
+
+O dono confirmou que houve transferência para a nossa organização, mas de OUTRO projeto. O app
+(login, base de alunos, memória de chegada, lotes) usa o projeto `hwbllqepvhddakszqdbk`
+("Crystal AI"), que segue na organização da agência, com a chave service_role da agência
+vazada na stack do Tuan. Falta: (1) anotar qual projeto foi transferido (o ref na URL do
+dashboard) e o que tem nele; (2) pedir ao Tuan a transferência do `hwbllqepvhddakszqdbk`;
+(3) depois dela, trocar a service_role e atualizar `app-definir SUPABASE_SERVICE_ROLE_KEY`.
+
 ## Crystal do WhatsApp na VPS (stack do Tuan, 06/10): segredos vazados, trocar antes
 
 A stack `docker-stack-production` veio com quatro segredos de produção em texto puro e foi
