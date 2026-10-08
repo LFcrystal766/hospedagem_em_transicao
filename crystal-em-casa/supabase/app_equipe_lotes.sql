@@ -78,38 +78,67 @@ comment on column public.leticia_crystal_customers.app_liberado_em is
 -- leads com a mesma thread, não contam a mensagem duas vezes. Sem grant para ninguém
 -- (as funções abaixo são security definer e rodam como o dono, que já pode).
 -- -----------------------------------------------------------------------------
+-- 08/10 (noite): reescrita por desempenho. Em produção a versão anterior levava 39 s no
+-- "Crystal AI" (1 milhão de mensagens) e o PostgREST cortava por tempo (HTTP 500 no painel).
+-- Agora: (1) `set enable_nestloop = off` força o cruzamento dos telefones por hash (sem isso,
+-- com estatística ruim, o banco comparava 11 mil x 11 mil telefones um a um); (2) a contagem
+-- por conversa sai só do índice (session_id, created_at), sem ler o texto das mensagens.
+-- Por isso `mensagens` passa a contar as mensagens da conversa (aluno e Crystal), não só as do
+-- aluno: serve para ordenar o lote e dizer quem esteve ativo. O tipo de session_id (texto ou
+-- uuid) é lido na hora, para a comparação usar o índice nos dois casos.
 drop function if exists public.app_equipe_atividade(int);
 create or replace function public.app_equipe_atividade(p_dias int)
 returns table (customer_id uuid, mensagens int, ultima timestamptz)
-language sql
+language plpgsql
 stable
 security definer
 set search_path = public, pg_temp
+set enable_nestloop = off
 as $$
-  with tel as (
-    select distinct
-      a.customer_id,
-      regexp_replace(coalesce(a.phone_number, ''), '\D', '', 'g') as digitos
-    from public.leticia_crystal_active_accesses a
-    where a.subscription_status in ('active', 'pending')
-      and length(regexp_replace(coalesce(a.phone_number, ''), '\D', '', 'g')) >= 10
-  ),
-  fio as (
-    select distinct t.customer_id, l.thread_id::text as session_id
-    from tel t
-    join public.leticia_crystal_lead_management l
-      on regexp_replace(coalesce(l.phone_number, ''), '\D', '', 'g') = t.digitos
-  )
-  select
-    f.customer_id,
-    count(*)::int as mensagens,
-    max(h.created_at) as ultima
-  from fio f
-  join public.leticia_crystal_chat_histories h
-    on h.session_id::text = f.session_id
-  where h.message->>'type' = 'human'
-    and h.created_at >= now() - make_interval(days => greatest(coalesce(p_dias, 30), 1))
-  group by f.customer_id;
+declare
+  v_tipo  text;
+  v_cmp   text;
+  v_desde timestamptz := now() - make_interval(days => greatest(coalesce(p_dias, 30), 1));
+begin
+  select c.data_type into v_tipo
+    from information_schema.columns c
+   where c.table_schema = 'public'
+     and c.table_name = 'leticia_crystal_chat_histories'
+     and c.column_name = 'session_id';
+  v_cmp := case when v_tipo = 'uuid' then 'h.session_id = f.thread_id'
+                else 'h.session_id = f.thread_id::text' end;
+
+  return query execute format($q$
+    with tel as (
+      select distinct a.customer_id,
+             regexp_replace(coalesce(a.phone_number, ''), '\D', '', 'g') as digitos
+        from public.leticia_crystal_active_accesses a
+       where a.subscription_status in ('active', 'pending')
+         and length(regexp_replace(coalesce(a.phone_number, ''), '\D', '', 'g')) >= 10
+    ),
+    fio as (
+      select distinct t.customer_id, l.thread_id
+        from tel t
+        join public.leticia_crystal_lead_management l
+          on regexp_replace(coalesce(l.phone_number, ''), '\D', '', 'g') = t.digitos
+       where l.thread_id is not null
+    ),
+    por_fio as (
+      select f.customer_id, x.n, x.ultima
+        from fio f
+        cross join lateral (
+          select count(*)::int as n, max(h.created_at) as ultima
+            from public.leticia_crystal_chat_histories h
+           where %s
+             and h.created_at >= $1
+        ) x
+       where x.n > 0
+    )
+    select p.customer_id, sum(p.n)::int, max(p.ultima)
+      from por_fio p
+     group by p.customer_id
+  $q$, v_cmp) using v_desde;
+end;
 $$;
 
 revoke all on function public.app_equipe_atividade(int) from public;
