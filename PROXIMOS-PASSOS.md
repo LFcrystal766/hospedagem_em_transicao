@@ -63,6 +63,29 @@ service_role, uma vez por aluno. Nenhuma coluna nova, nada gravado no Supabase.
 2. A Crystal do WhatsApp continua respondendo o aluno depois que ele migra para o app? Se sim,
    as duas memórias divergem a partir da importação (decisão acima: não sincronizamos).
 
+## Silêncio no WhatsApp (08/10)
+
+Decisão do dono: quem passa a usar o app deixa de receber resposta da Crystal do WhatsApp. Só
+silêncio, sem mensagem de redirecionamento. A chave "Silêncio no WhatsApp" (Operação) começa
+desligada. O app grava `is_ai_enabled = false` nos leads do número do aluno em
+`leticia_crystal_lead_management` (a Crystal da agência já respeita essa coluna). Roteiro em
+`crystal-em-casa/publicar-prd.md`, seção "Silêncio no WhatsApp"; SQL em
+`crystal-em-casa/supabase/app_whatsapp_silencio.sql` (rodar antes do deploy).
+
+**Riscos**:
+- O aluno pode achar que a Crystal do WhatsApp quebrou: avisar ANTES de ligar (disparo, Bia).
+- Aluno com telefone diferente no cadastro (outro chip, sem o 9, sem o 55) não é silenciado.
+- Quem nunca escreveu no WhatsApp ainda não tem lead: a primeira resposta lá pode escapar até
+  a próxima reaplicação (até 24 h).
+
+**Perguntas ao Tuan** (antes de ligar). No código `crystal-ia` que lemos, nada grava
+`is_ai_enabled` e a intervenção humana usa uma chave no Redis, não essa coluna; as perguntas são
+sobre o que fica fora desse código (painel, n8n, LendChat, edição à mão):
+1. O atendimento humano de vocês usa `is_ai_enabled`? Se usar, religar em massa pode desfazer
+   um atendimento em andamento.
+2. Vocês concordam com a nossa escrita nessa coluna (e em `updated_at`)?
+3. Existe algum processo que religa `is_ai_enabled` sozinho?
+
 ## Decisões do Igor (06/10) e o que a sessão está fazendo com cada uma
 
 - **Divulgação em lotes**: cerca de 500 alunos por dia, decrescente, começando pelos top

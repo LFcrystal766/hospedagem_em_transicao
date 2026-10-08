@@ -512,6 +512,72 @@ completa: `app-subir` com a tag anterior (hoje `sha-e62f697`; se a de Operação
 a dela). A migração `e3_23_memoria_chegada` só acrescenta duas colunas nulas e pode ficar: a
 imagem antiga não as lê. A função do Supabase também pode ficar.
 
+## Silêncio no WhatsApp (08/10)
+
+Decisão do dono em 08/10: quem passa a usar o app deixa de receber resposta da Crystal do
+WhatsApp (a da agência). Só silêncio, sem mensagem de redirecionamento. Spec:
+`spec-whatsapp-silencio.md` da sessão. SQL: `crystal-em-casa/supabase/app_whatsapp_silencio.sql`.
+
+- Como funciona: a Crystal do WhatsApp não responde lead com `is_ai_enabled = false` em
+  `leticia_crystal_lead_management` (nulo = ligado). Com a chave "Silêncio no WhatsApp" ligada
+  (Operação, seção WhatsApp, `op_whatsapp_silencio`; começa desligada), cada mensagem do aluno
+  no app grava false nos leads do número dele, no máximo 1 vez a cada 24 h por aluno. Efeito
+  imediato. É a única escrita nossa numa tabela da agência além de `leticia_crystal_customers`,
+  e só em `is_ai_enabled` e `updated_at`.
+- Limites: aluno que nunca escreveu no WhatsApp não tem lead; a linha nasce ligada na primeira
+  mensagem dele lá e só cala na próxima reaplicação (até 24 h, se ele seguir usando o app).
+  Telefone do cadastro diferente do WhatsApp (outro chip, sem o 9, sem o 55): não cala.
+- Variáveis novas, **opcionais**: `SUPABASE_WHATSAPP_SILENCIAR_RPC` (padrão
+  `app_whatsapp_silenciar`) e `SUPABASE_WHATSAPP_ESTADO_RPC` (padrão `app_whatsapp_estado`); só
+  definir se renomear as funções no Supabase.
+- Migração do Postgres do app: `e3_24_whatsapp_silencio`, duas colunas nulas em `users`
+  (`whatsapp_silenciado_em`, `whatsapp_religado_em`). Roda sozinha no `app-subir`.
+
+```bash
+# 1. Supabase, SQL Editor: crystal-em-casa/supabase/app_whatsapp_silencio.sql (arquivo inteiro, uma vez).
+#    Se parar em ESQUEMA_DIFERENTE, nada foi criado: ler o hint antes de seguir.
+#    Anotar quantos já estão silenciados ANTES de ligar (são os da agência; só números):
+#      select count(*) filter (where is_ai_enabled is false) as silenciados, count(*) as leads
+#        from public.leticia_crystal_lead_management;
+# 2. VPS, quando a tag sair:
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-<tag>
+# Volta da imagem: bash bootstrap-vps.sh app-subir sha-<tag anterior>
+```
+
+3. **ANTES de ligar**: avisar os alunos (disparo, Bia) que quem usa o app passa a ser atendido
+só lá, e avisar o Tuan (escrita em `is_ai_enabled`; perguntas em `PROXIMOS-PASSOS.md`, seção
+"Silêncio no WhatsApp").
+
+4. Ligar a chave "Silêncio no WhatsApp" em Operação (pede confirmação). Daí em diante, cada aluno
+que mandar mensagem no app é silenciado. Para pegar de uma vez quem já usa o app: "Aplicar agora
+a quem já usa o app" (pede confirmação; mostra quantos alunos e conversas).
+
+5. Conferir com um número de teste (conta com o mesmo WhatsApp do cadastro): mandar mensagem no
+app, depois mandar no WhatsApp: não vem resposta. Na equipe, em Alunos, a conta mostra "Crystal
+no WhatsApp: silenciada desde <data>". A consulta do passo 1 sobe na mesma conta.
+
+6. Desfazer:
+   - Desligar a chave: para de silenciar novos. Quem já foi silenciado continua.
+   - Religar um aluno: botão "Religar WhatsApp" na conta, em Alunos. Ele fica "religado pela
+     equipe" e o app não o silencia de novo.
+   - Em massa, no SQL Editor (até 1000 por chamada; e-mails só de exemplo):
+     ```sql
+     select public.app_whatsapp_silenciar(array(
+       select c.id from public.leticia_crystal_customers c
+        where lower(trim(c.email)) = any(array['aluno1@exemplo.com', 'aluno2@exemplo.com'])
+     ), false);
+     ```
+     Ou religar TODOS os leads silenciados:
+     ```sql
+     update public.leticia_crystal_lead_management set is_ai_enabled = true
+      where is_ai_enabled is false;
+     ```
+     Atenção: esse `update` também religa quem a agência silenciou à mão (o número anotado no
+     passo 1). E pelo SQL o app não fica sabendo: a tela de Alunos segue mostrando "silenciada
+     desde" e, com a chave ligada, o app silencia de novo na próxima mensagem do aluno no app
+     (até 24 h depois). Desligar a chave ANTES do SQL em massa.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
