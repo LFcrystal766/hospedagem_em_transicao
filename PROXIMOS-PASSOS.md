@@ -111,8 +111,9 @@ sobre o que fica fora desse código (painel, n8n, LendChat, edição à mão):
 
 Decisão do dono: uma memória só por pessoa entre a Crystal do WhatsApp e a do app, "sem alterar
 absolutamente nada do que temos". Por isso é **só acréscimo**: `crystal-em-casa/supabase/app_memoria_unica.sql`
-cria uma tabela nova (`crystal_memoria_unica`) e duas funções (`app_memoria_ler`,
-`app_memoria_gravar`); as tabelas da agência só são lidas. Com a chave "Memória única"
+cria uma tabela nova (`crystal_memoria_unica`) e três funções (`app_memoria_ler`,
+`app_memoria_gravar`, `app_memoria_apagar`); as tabelas da agência só são lidas. A API apaga a
+linha do aluno quando ele exclui a conta ou apaga as conversas (LGPD), com a chave ligada ou não. Com a chave "Memória única"
 (Operação, começa desligada) a Crystal do app lê o que a do WhatsApp anotou e guarda o resumo do
 app na tabela nova. SQL ainda não aplicado. Roteiro em `crystal-em-casa/publicar-prd.md`, seção
 "Memória única".

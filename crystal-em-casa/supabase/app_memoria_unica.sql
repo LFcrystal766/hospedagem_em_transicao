@@ -7,28 +7,33 @@
 -- conferência logo abaixo falhar, nada é criado.
 --
 -- REGRA DO DONO (08/10): "não alterar absolutamente nada do que temos". Por isso este
--- arquivo SÓ CRIA três objetos novos e não toca em mais nada:
+-- arquivo SÓ CRIA quatro objetos novos e não toca em mais nada:
 --   - tabela  public.crystal_memoria_unica          (create table if not exists);
 --   - função  public.app_memoria_ler(uuid)          (só leitura);
---   - função  public.app_memoria_gravar(uuid, text) (escreve SÓ na tabela nova).
+--   - função  public.app_memoria_gravar(uuid, text) (escreve SÓ na tabela nova);
+--   - função  public.app_memoria_apagar(uuid)       (apaga SÓ na tabela nova; LGPD).
 -- Nenhum alter, drop, grant ou revoke em objeto que já existia; nenhuma linha das
 -- tabelas da agência (leticia_crystal_*) é criada, mudada ou apagada: elas só aparecem
--- em SELECT. Todo alter/comment/revoke/grant abaixo é sobre os três objetos novos. Sem
+-- em SELECT. Todo alter/comment/revoke/grant abaixo é sobre os quatro objetos novos. Sem
 -- chave estrangeira para a tabela de clientes de propósito: uma FK cria gatilhos na
 -- tabela referenciada, e essa é da agência. Rodar de novo é seguro: a tabela não é
 -- recriada (os dados ficam) e as funções são reescritas iguais. Se já existir uma
 -- tabela ou função com esses nomes que NÃO veio deste arquivo, ele para (JA_EXISTE)
 -- antes de mexer em qualquer coisa.
 --
--- Quem chama: SÓ a nossa Crystal (apps/crystal, na VPS), pela API REST do Supabase
--- (POST /rest/v1/rpc/<função>) com a chave service_role, que fica só na VPS (a mesma
--- SUPABASE_URL e a mesma chave da busca na base). As duas funções são `security
--- definer`, com execute revogado de public/anon/authenticated e concedido só a
--- service_role. A tabela não tem grant para ninguém além do dono: só se chega a ela
--- pelas funções. Nomes em env, opcionais, no crystal.env: SUPABASE_MEMORIA_LER_RPC
--- (padrão app_memoria_ler) e SUPABASE_MEMORIA_GRAVAR_RPC (padrão app_memoria_gravar).
--- Tudo atrás da chave op_memoria_unica (Operação, seção Crystal), que nasce desligada;
--- desligada, o app não chama nenhuma das duas e o pedido à Crystal fica igual ao de hoje.
+-- Quem chama: ler e gravar, SÓ a nossa Crystal (apps/crystal, na VPS), pela API REST do
+-- Supabase (POST /rest/v1/rpc/<função>) com a chave service_role, que fica só na VPS (a
+-- mesma SUPABASE_URL e a mesma chave da busca na base). Apagar, SÓ a API do app (apps/api,
+-- na mesma VPS), do mesmo jeito, com a SUPABASE_URL e a service_role do api.env. As três
+-- funções são `security definer`, com execute revogado de public/anon/authenticated e
+-- concedido só a service_role. A tabela não tem grant para ninguém além do dono: só se
+-- chega a ela pelas funções. Nomes em env, opcionais: no crystal.env,
+-- SUPABASE_MEMORIA_LER_RPC (padrão app_memoria_ler) e SUPABASE_MEMORIA_GRAVAR_RPC (padrão
+-- app_memoria_gravar); no api.env, SUPABASE_MEMORIA_APAGAR_RPC (padrão app_memoria_apagar).
+-- Ler e gravar ficam atrás da chave op_memoria_unica (Operação, seção Crystal), que nasce
+-- desligada; desligada, o app não chama nenhuma das duas e o pedido à Crystal fica igual ao
+-- de hoje. Apagar NÃO depende da chave: a exclusão da conta pelo aluno sempre chama (a
+-- linha pode ser de quando a chave esteve ligada).
 --
 -- Para quê: uma memória só por pessoa entre as duas Crystals, sem mexer na da agência.
 --   - Ler (início do turno no app, com cache de 10 min por pessoa): o que a Crystal do
@@ -36,6 +41,8 @@
 --     profile_data->'known_preferences') e o último resumo do app.
 --   - Gravar (quando o app regrava o resumo do contato): o resumo vai para a tabela
 --     NOVA, nunca para a da agência.
+--   - Apagar (LGPD, quando o aluno exclui a conta no app): some a linha dele da tabela
+--     NOVA. O que a Crystal do WhatsApp anotou é da agência e não é tocado aqui.
 --
 -- Caminho (o mesmo de app_historico_whatsapp): cliente (customer_id =
 -- crystalContactId do usuário do app) → leticia_crystal_active_accesses em QUALQUER
@@ -60,6 +67,9 @@
 --
 -- O que sai de app_memoria_gravar: { versao } (1 na primeira gravação, +1 a cada outra).
 --
+-- O que sai de app_memoria_apagar: { apagadas } (1 se havia linha da pessoa, 0 se não
+-- havia). Pessoa nula ou desconhecida NÃO é erro: 0. Rodar de novo dá 0.
+--
 -- TEXTO DE ALUNO: as duas funções carregam texto pessoal (fatos, preferências, resumo).
 -- Por isso só a service_role executa, e o app nunca grava esse texto em log.
 --
@@ -70,7 +80,9 @@
 --                    (contados depois de tirar espaços e quebras das pontas).
 --
 -- Volta: desligar a chave op_memoria_unica. A tabela e as funções podem ficar (ninguém
--- mais as chama). Apagar de vez só se o dono pedir, e só estes três:
+-- mais lê nem grava; apagar continua servindo à exclusão de conta). Apagar de vez só se o
+-- dono pedir, e só estes quatro:
+--   drop function if exists public.app_memoria_apagar(uuid);
 --   drop function if exists public.app_memoria_gravar(uuid, text);
 --   drop function if exists public.app_memoria_ler(uuid);
 --   drop table if exists public.crystal_memoria_unica;
@@ -152,11 +164,11 @@ begin
       from pg_proc p
       join pg_namespace n on n.oid = p.pronamespace
      where n.nspname = 'public'
-       and p.proname in ('app_memoria_ler', 'app_memoria_gravar')
+       and p.proname in ('app_memoria_ler', 'app_memoria_gravar', 'app_memoria_apagar')
        and coalesce(obj_description(p.oid, 'pg_proc'), '') not like 'memoria-unica %'
   ) then
     raise exception 'JA_EXISTE'
-      using hint = 'app_memoria_ler ou app_memoria_gravar já existe e não veio deste arquivo; não mexer';
+      using hint = 'app_memoria_ler, app_memoria_gravar ou app_memoria_apagar já existe e não veio deste arquivo; não mexer';
   end if;
 end;
 $$;
@@ -177,7 +189,7 @@ alter table public.crystal_memoria_unica enable row level security;
 revoke all on table public.crystal_memoria_unica from public, anon, authenticated, service_role;
 
 comment on table public.crystal_memoria_unica is
-  'memoria-unica 08/10/2026: resumo da Crystal do app por cliente. Só via app_memoria_ler/app_memoria_gravar (crystal-em-casa/supabase/app_memoria_unica.sql).';
+  'memoria-unica 08/10/2026: resumo da Crystal do app por cliente. Só via app_memoria_ler/app_memoria_gravar/app_memoria_apagar (crystal-em-casa/supabase/app_memoria_unica.sql).';
 
 -- -----------------------------------------------------------------------------
 -- 2. Ler a memória de uma pessoa. Só leitura (stable). Ver o formato no cabeçalho.
@@ -315,6 +327,38 @@ revoke all on function public.app_memoria_gravar(uuid, text) from public;
 revoke all on function public.app_memoria_gravar(uuid, text) from anon, authenticated;
 grant execute on function public.app_memoria_gravar(uuid, text) to service_role;
 
+-- -----------------------------------------------------------------------------
+-- 4. Apagar o resumo do app de uma pessoa (LGPD: o aluno exclui a conta no app). Delete
+--    SÓ na tabela nova, só a linha dessa pessoa; nada nas tabelas da agência. Pessoa
+--    nula ou sem linha não é erro: { apagadas: 0 }. Só service_role executa.
+-- -----------------------------------------------------------------------------
+create or replace function public.app_memoria_apagar(p_customer_id uuid)
+returns json
+language plpgsql
+volatile
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_apagadas int := 0;
+begin
+  if p_customer_id is not null then
+    delete from public.crystal_memoria_unica u
+     where u.customer_id = p_customer_id;
+    get diagnostics v_apagadas = row_count;
+  end if;
+
+  return json_build_object('apagadas', v_apagadas);
+end;
+$$;
+
+comment on function public.app_memoria_apagar(uuid) is
+  'memoria-unica 08/10/2026: apaga o resumo do app de um cliente em crystal_memoria_unica (exclusão da conta, LGPD). Só service_role.';
+
+revoke all on function public.app_memoria_apagar(uuid) from public;
+revoke all on function public.app_memoria_apagar(uuid) from anon, authenticated;
+grant execute on function public.app_memoria_apagar(uuid) to service_role;
+
 -- Se o app der 404 na função logo depois de criar, o cache do PostgREST não viu ainda:
 --   notify pgrst, 'reload schema';
 
@@ -336,6 +380,8 @@ grant execute on function public.app_memoria_gravar(uuid, text) to service_role;
 --       from (select public.app_memoria_ler(gen_random_uuid()) as r) s;
 --   validação recusa (espera-se RESUMO_INVALIDO; nada é gravado)
 --     select public.app_memoria_gravar(gen_random_uuid(), '');
+--   apagar cliente desconhecido ou nulo não é erro (espera-se {"apagadas" : 0} nas duas)
+--     select public.app_memoria_apagar(gen_random_uuid()), public.app_memoria_apagar(null);
 --   a anon NÃO pode executar (tem que dar "permission denied")
 --     set role anon; select public.app_memoria_ler(gen_random_uuid()); reset role;
 --   quantos resumos do app já foram guardados

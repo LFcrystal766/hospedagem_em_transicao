@@ -587,12 +587,12 @@ começo de cada turno, o que a Crystal do WhatsApp anotou sobre o aluno (fatos e
 resumo do contato, guarda uma cópia numa tabela NOVA do Supabase. Spec: `spec-memoria-unica.md`
 da sessão. SQL: `crystal-em-casa/supabase/app_memoria_unica.sql`.
 
-- **Só acréscimo**: o SQL cria a tabela `crystal_memoria_unica` e as funções `app_memoria_ler` e
-  `app_memoria_gravar`, e nada mais. Nenhuma tabela, coluna, função ou permissão que já existe
+- **Só acréscimo**: o SQL cria a tabela `crystal_memoria_unica` e as funções `app_memoria_ler`,
+  `app_memoria_gravar` e `app_memoria_apagar`, e nada mais. Nenhuma tabela, coluna, função ou permissão que já existe
   muda; as tabelas da agência só aparecem em SELECT. Se já houver tabela ou função com esses
   nomes que não veio do arquivo, ele para em `JA_EXISTE` sem criar nada; se faltar coluna da
   agência, para em `ESQUEMA_DIFERENTE`. Testado em Postgres 16 com esquema fictício: contagem e
-  hash das tabelas da agência iguais antes e depois, e o `pg_dump -s` só ganhou os três objetos.
+  hash das tabelas da agência iguais antes e depois, e o `pg_dump -s` só ganhou os quatro objetos novos.
 - A chave "Memória única" (Operação, seção Crystal, `op_memoria_unica`) nasce desligada.
   Desligada, o pedido do app à Crystal é idêntico ao de hoje.
 - Por enquanto o caminho é só para o app: a Crystal do WhatsApp não lê a tabela nova enquanto o
@@ -637,9 +637,10 @@ despejar tudo de uma vez. No SQL Editor, só números:
    sem memória no WhatsApp segue normal (fatos nulo, prefs 0).
 
 6. Desfazer: desligar a chave "Memória única". Volta tudo ao que era: o pedido à Crystal fica
-idêntico ao de antes e nada mais é lido nem gravado no Supabase. A tabela nova e as duas funções
-podem ficar (ninguém as chama). Apagar de vez só se o dono pedir (os três `drop` estão no
-cabeçalho do SQL). Na agência não há nada a desfazer.
+idêntico ao de antes e nada mais é lido nem gravado no Supabase. A tabela nova e as três funções
+podem ficar (ninguém as chama, a não ser `app_memoria_apagar`, que a API chama sempre que um
+aluno exclui a conta ou apaga as conversas, para a LGPD). Apagar de vez só se o dono pedir (os
+`drop` estão no cabeçalho do SQL). Na agência não há nada a desfazer.
 
 ## Depois dos três (sem pressa, qualquer ordem)
 
