@@ -3,6 +3,16 @@
 Tudo que dá pra fazer por API é da sessão do Claude. Abaixo, só o que depende
 de você, na ordem, com o tempo estimado.
 
+## Funções SQL aplicadas no Supabase "Crystal AI" (08/10)
+
+- `app_historico_whatsapp.sql`: aplicada; grants conferidos (só postgres e service_role).
+- `app_equipe_lotes.sql`: aplicada à noite (a primeira tentativa falhou por colar só um pedaço;
+  a versão sem comentários, testada em Postgres, passou). Liga a seção Lotes da Operação.
+- `app_whatsapp_silencio.sql`: ainda não aplicada (só quando for ligar o silêncio).
+- Memória do WhatsApp em lote rodada em 08/10: 27 alunos do app, 10 importados, 1 sem
+  histórico, 16 pulados (sem conversa ainda; recebem na primeira mensagem), 0 falhas.
+  Custo por importação entre US$ 0,02 e 0,05.
+
 ## Supabase: "Crystal AI" já está na nossa organização (08/10)
 
 Print do dashboard do dono: a organização tem dois projetos, "Crystal AI" (sa-east-1, Micro) e
