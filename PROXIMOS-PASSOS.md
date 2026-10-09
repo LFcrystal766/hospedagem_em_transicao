@@ -23,7 +23,7 @@ não depende deles.
 
 Ordem:
 1. Já, sem quebrar nada: tirar a agência da organização do Supabase (Team), criar a secret key
-   `app-vps` e trocar na VPS (`app-definir SUPABASE_SERVICE_ROLE_KEY` + `app-subir sha-74092e0`),
+   `app-vps` e trocar na VPS (FEITO em 09/10: `app-definir` + `app-subir sha-74092e0`, HTTP 200) (`app-definir SUPABASE_SERVICE_ROLE_KEY` + `app-subir sha-74092e0`),
    revisar os acessos dele nas outras contas (Assiny, Hostinger, Cloudflare, GitHub, OpenRouter,
    n8n, Chatwoot, Portainer, Resend, Bitwarden).
 2. Nosso fluxo de compra e reembolso no nosso n8n (pendente: estrutura das tabelas, print do
@@ -139,7 +139,8 @@ cria uma tabela nova (`crystal_memoria_unica`) e três funções (`app_memoria_l
 `app_memoria_gravar`, `app_memoria_apagar`); as tabelas da agência só são lidas. A API apaga a
 linha do aluno quando ele exclui a conta ou apaga as conversas (LGPD), com a chave ligada ou não. Com a chave "Memória única"
 (Operação, começa desligada) a Crystal do app lê o que a do WhatsApp anotou e guarda o resumo do
-app na tabela nova. App publicado em 09/10 como `sha-74092e0` (chave desligada); SQL ainda não aplicado. Roteiro em `crystal-em-casa/publicar-prd.md`, seção
+app na tabela nova. App publicado em 09/10 como `sha-74092e0`. Chave LIGADA em 09/10 antes do SQL: a Crystal recebeu 404
+(4 leituras, 1 gravação) e respondeu sem a memória. Falta aplicar o SQL (versão sem comentários, testada). Roteiro em `crystal-em-casa/publicar-prd.md`, seção
 "Memória única".
 
 - **Pré-requisito**: trocar a chave service_role que vazou (seção "Supabase: 'Crystal AI' já está
