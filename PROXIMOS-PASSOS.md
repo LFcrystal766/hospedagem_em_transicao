@@ -14,6 +14,9 @@ de você, na ordem, com o tempo estimado.
   telefone pela chave país + DDD + 8 últimos (o WhatsApp guarda muitos números sem o nono dígito). Antes: 9.268
   dos 9.641 alunos com acesso achavam a conversa; agora 9.635 (+367). Caso que revelou: aluno com 746 mensagens
   no WhatsApp aparecia sem histórico. Para quem já tinha conta e foi marcado "sem histórico": Alunos > Importar agora.
+  Conferência dos 35 alunos do app em 09/10: 22 já importados com mensagens; 3 marcados "sem histórico" que agora
+  têm histórico foram reimportados (marca apagada, entra na próxima mensagem); 1 continua sem histórico; 9 ainda não
+  importados com histórico esperando; 0 erros.
 - `app_compras.sql` (09/10): APLICADA em 09/10. Login por e-mail conferido na VPS (`app_verificar_login_email`
   HTTP 200). Compra direta pela Assiny via nosso n8n: falta ligar (chaves, n8n, Assiny).
   ACHADO 09/10: `app_verificar_login_email` NÃO existia no Supabase (só a `app_verificar_login` antiga, de CPF,
