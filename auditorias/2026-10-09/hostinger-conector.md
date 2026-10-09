@@ -14,6 +14,10 @@ Só leitura pela API da Hostinger (conector ligado pelo dono em 09/10). Nada foi
 
 O conector não roda comando dentro da VPS: o que é de terminal continua por SSH.
 
+Conferido no mesmo dia, de fora: NS `aldo`/`jule` (Cloudflare), apex e `www` resolvem `45.224.128.177`
+(AZAN), resposta com `server: jupiter`, `x-powered-by: PHP/7.4.33`, `x-litespeed-cache: hit` e sem `cf-ray`.
+Ou seja: o DNS está no Cloudflare, cinza; o site em si continua servido pela AZAN.
+
 Proposta, esperando OK do dono:
 
 1. Firewall da Hostinger na frente da VPS, liberando só 22, 80 e 443 TCP (o mesmo do UFW). É a segunda camada:
