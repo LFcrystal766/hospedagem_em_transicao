@@ -17,6 +17,14 @@ de você, na ordem, com o tempo estimado.
   Conferência dos 35 alunos do app em 09/10: 22 já importados com mensagens; 3 marcados "sem histórico" que agora
   têm histórico foram reimportados (marca apagada, entra na próxima mensagem); 1 continua sem histórico; 9 ainda não
   importados com histórico esperando; 0 erros.
+- `app_historico_arquivo.sql` (09/10): APLICADA pelo conector (migração `app_historico_arquivo_20261009`). A agência
+  move mensagens antigas para `leticia_crystal_chat_histories_archive` (~4,7 milhões de linhas); o histórico só lia a
+  tabela atual e, para 1.415 alunos, parte das 3 semanas importadas estava no arquivo. Agora lê as duas, sem repetir.
+  Conferido: aluno com arquivo passou a devolver 220 mensagens (antes só as da tabela atual).
+  Prontidão da base em 09/10: 9.643 alunos com acesso, todos com e-mail válido e telefone; 9.637 com conversa achada
+  no WhatsApp; 8.542 com mensagens; 6.747 com anotações da Crystal; 4 e-mails repetidos. Nada a pré-importar: cada
+  um recebe memória e histórico na primeira mensagem no app. Os 22 já importados antes da correção podem ser
+  reimportados (Alunos > Importar agora, ou o reset em lote na VPS) para pegar a parte que estava no arquivo.
 - `app_compras.sql` (09/10): APLICADA em 09/10. Login por e-mail conferido na VPS (`app_verificar_login_email`
   HTTP 200). Compra direta pela Assiny via nosso n8n: falta ligar (chaves, n8n, Assiny).
   ACHADO 09/10: `app_verificar_login_email` NÃO existia no Supabase (só a `app_verificar_login` antiga, de CPF,
