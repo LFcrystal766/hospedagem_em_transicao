@@ -8,7 +8,7 @@ de você, na ordem, com o tempo estimado.
 - `app_historico_whatsapp.sql`: aplicada; grants conferidos (só postgres e service_role).
 - `app_equipe_lotes.sql`: aplicada à noite (a primeira tentativa falhou por colar só um pedaço;
   a versão sem comentários, testada em Postgres, passou). Liga a seção Lotes da Operação.
-- `app_whatsapp_silencio.sql`: ainda não aplicada (só quando for ligar o silêncio).
+- `app_whatsapp_silencio.sql`: entregue para aplicar em 09/10 (versão sem comentários, testada), para ligar o silêncio.
 - `app_memoria_unica.sql`: aplicada em 09/10 (chave "Memória única" ligada).
 - Memória do WhatsApp em lote rodada em 08/10: 27 alunos do app, 10 importados, 1 sem
   histórico, 16 pulados (sem conversa ainda; recebem na primeira mensagem), 0 falhas.
@@ -34,7 +34,8 @@ Ordem:
    "Liberação em lotes"), tirar o webhook da Crystal no LendChat (conta `crystal`) e deixar uma
    resposta automática apontando para o app, avisar a base por e-mail. O histórico e a memória
    do WhatsApp já chegam ao app (memória de chegada e memória única) e ficam congelados no corte.
-   O silêncio no WhatsApp (`app_whatsapp_silencio.sql`) deixa de ser necessário: não aplicar.
+   Na transição em levas, o silêncio no WhatsApp (`app_whatsapp_silencio.sql`) desliga a Crystal do
+   WhatsApp para quem já usa o app (decisão de 09/10: aplicar e ligar; versão sem comentários testada).
 4. Corte: desligar as chaves legadas (Settings > API Keys > Legacy > Disable JWT-based API keys),
    trocar a senha do banco, tirar o webhook dele da Assiny.
 
