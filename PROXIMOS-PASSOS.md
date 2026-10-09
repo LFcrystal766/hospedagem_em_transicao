@@ -13,6 +13,26 @@ de você, na ordem, com o tempo estimado.
   histórico, 16 pulados (sem conversa ainda; recebem na primeira mensagem), 0 falhas.
   Custo por importação entre US$ 0,02 e 0,05.
 
+## Sem agência a partir de 09/10
+
+Decisão do dono: "não tem mais nada com o Tuan, tudo é pra ser nosso agora". Nada mais é
+combinado com ele. O que ainda roda do lado dele usa a chave service_role vazada e a senha do
+banco do Crystal AI: a Crystal do WhatsApp (no LendChat, da agência) e o n8n dele (cadastro de
+comprador novo e reembolso). Desligar a chave legada e trocar a senha PARA os dois na hora. O app
+não depende deles.
+
+Ordem:
+1. Já, sem quebrar nada: tirar a agência da organização do Supabase (Team), criar a secret key
+   `app-vps` e trocar na VPS (`app-definir SUPABASE_SERVICE_ROLE_KEY` + `app-subir sha-74092e0`),
+   revisar os acessos dele nas outras contas (Assiny, Hostinger, Cloudflare, GitHub, OpenRouter,
+   n8n, Chatwoot, Portainer, Resend, Bitwarden).
+2. Nosso fluxo de compra e reembolso no nosso n8n (pendente: estrutura das tabelas, print do
+   webhook da Assiny, o que o comprador recebe depois de pagar).
+3. Decisão do WhatsApp: subir a Crystal do WhatsApp na nossa VPS (com outro canal no lugar do
+   LendChat) ou encerrar o WhatsApp e levar todo mundo para o app.
+4. Corte: desligar as chaves legadas (Settings > API Keys > Legacy > Disable JWT-based API keys),
+   trocar a senha do banco, tirar o webhook dele da Assiny.
+
 ## Supabase: "Crystal AI" já está na nossa organização (08/10)
 
 Print do dashboard do dono: a organização tem dois projetos, "Crystal AI" (sa-east-1, Micro) e
