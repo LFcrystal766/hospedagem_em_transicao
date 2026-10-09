@@ -10,10 +10,12 @@ de você, na ordem, com o tempo estimado.
   a versão sem comentários, testada em Postgres, passou). Liga a seção Lotes da Operação.
 - `app_whatsapp_silencio.sql`: entregue para aplicar em 09/10 (versão sem comentários, testada), para ligar o silêncio.
 - `app_memoria_unica.sql`: aplicada em 09/10 (chave "Memória única" ligada).
-- `app_compras.sql` (09/10): compra direta pela Assiny via nosso n8n, sem a agência. Ainda não aplicada.
+- `app_compras.sql` (09/10): APLICADA em 09/10. Login por e-mail conferido na VPS (`app_verificar_login_email`
+  HTTP 200). Compra direta pela Assiny via nosso n8n: falta ligar (chaves, n8n, Assiny).
   ACHADO 09/10: `app_verificar_login_email` NÃO existia no Supabase (só a `app_verificar_login` antiga, de CPF,
   sem a coluna liberado) e o `bootstrap-vps.sh` da VPS é anterior a 07/10 (não grava LOGIN_MODO). Com o padrão
   do app (LOGIN_MODO=email), login de quem não tinha sessão dava 404 na base. O `app_compras.sql` cria a função.
+  Nas 48 h antes da correção, nenhum login foi barrado por isso (0 DIRECTORY_UNAVAILABLE no log).
   Roteiro em `crystal-em-casa/publicar-prd.md`, seção "Compra direta pela Assiny".
 - Memória do WhatsApp em lote rodada em 08/10: 27 alunos do app, 10 importados, 1 sem
   histórico, 16 pulados (sem conversa ainda; recebem na primeira mensagem), 0 falhas.
