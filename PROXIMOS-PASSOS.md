@@ -115,7 +115,7 @@ cria uma tabela nova (`crystal_memoria_unica`) e três funções (`app_memoria_l
 `app_memoria_gravar`, `app_memoria_apagar`); as tabelas da agência só são lidas. A API apaga a
 linha do aluno quando ele exclui a conta ou apaga as conversas (LGPD), com a chave ligada ou não. Com a chave "Memória única"
 (Operação, começa desligada) a Crystal do app lê o que a do WhatsApp anotou e guarda o resumo do
-app na tabela nova. SQL ainda não aplicado. Roteiro em `crystal-em-casa/publicar-prd.md`, seção
+app na tabela nova. App publicado em 09/10 como `sha-74092e0` (chave desligada); SQL ainda não aplicado. Roteiro em `crystal-em-casa/publicar-prd.md`, seção
 "Memória única".
 
 - **Pré-requisito**: trocar a chave service_role que vazou (seção "Supabase: 'Crystal AI' já está

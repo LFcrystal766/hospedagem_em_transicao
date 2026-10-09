@@ -539,10 +539,10 @@ WhatsApp (a da agência). Só silêncio, sem mensagem de redirecionamento. Spec:
 #    Anotar quantos já estão silenciados ANTES de ligar (são os da agência; só números):
 #      select count(*) filter (where is_ai_enabled is false) as silenciados, count(*) as leads
 #        from public.leticia_crystal_lead_management;
-# 2. VPS, quando a tag sair:
+# 2. VPS (feito em 09/10: os três serviços em sha-74092e0, sem rollback, HTTPS e base ok):
 bash bootstrap-vps.sh backup
-bash bootstrap-vps.sh app-subir sha-<tag>
-# Volta da imagem: bash bootstrap-vps.sh app-subir sha-<tag anterior>
+bash bootstrap-vps.sh app-subir sha-74092e0
+# Volta da imagem: bash bootstrap-vps.sh app-subir sha-c320aa0
 ```
 
 3. **ANTES de ligar**: avisar os alunos (disparo, Bia) que quem usa o app passa a ser atendido
