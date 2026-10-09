@@ -54,6 +54,10 @@ mas falhando com HTTP 404 (8 vezes em 2 h: SQL do silêncio ainda não estava no
 Depois do SQL e do botão "aplicar a quem já usa" (09/10): 25 alunos, 23 conversas silenciadas. Dos 34
 alunos do app ligados à base, 32 têm conversa no WhatsApp: 23 silenciados, 9 ainda respondendo (os 9
 que entraram no app mas ainda não mandaram mensagem; silenciam sozinhos na primeira mensagem).
+Por etiqueta do LendChat (09/10): `crystal-em-casa/supabase/app_whatsapp_silenciar_telefones.sql` (função por
+telefone) + `crystal-em-casa/silenciar-por-etiqueta.py` (na VPS: token do LendChat digitado sem eco, escolhe a
+etiqueta, junta contatos e conversas, mostra só contagens, pede SIM; `religar` desfaz). Testado com LendChat e
+Supabase falsos e Postgres 16.
 
 ## Supabase: "Crystal AI" já está na nossa organização (08/10)
 
