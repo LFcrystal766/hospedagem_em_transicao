@@ -36,6 +36,23 @@ de você, na ordem, com o tempo estimado.
   histórico, 16 pulados (sem conversa ainda; recebem na primeira mensagem), 0 falhas.
   Custo por importação entre US$ 0,02 e 0,05.
 
+## Migração final do site (proposta de 09/10, esperando decisão)
+
+Conferido em 09/10: o DNS está no Cloudflare (cinza), mas o site, o e-mail `mail.` e o `leticiafelisberto.com`
+(NS na AZAN, e-mail no Google) continuam no servidor da AZAN. O contato do Registro.br ainda é
+`admin@leticiafelisberto.com`. A conta Hostinger só tem a VPS: nenhum plano de hospedagem de site.
+
+Proposta:
+1. Site num plano de hospedagem Hostinger Premium (catálogo em 09/10: R$ 45,99/mês, ou R$ 179,88 no 1º ano e
+   R$ 467,88 na renovação), em São Paulo. Não na VPS: o WordPress é a peça mais atacada e ficaria ao lado dos
+   segredos do app, e o cache LiteSpeed de que o site depende vem pronto na hospedagem.
+2. Pular o "Cloudflare na frente da AZAN" (depende do chamado #RAI-374885): ir direto de AZAN cinza para
+   Hostinger laranja. O certificado de borda já está ativo; na origem, Origin CA importado no hPanel.
+   `cloudflare-degrau2.sh preparar --aplicar` antes (só age com laranja). Volta: A de novo na AZAN, cinza.
+3. Antes de cancelar: e-mail `@crystalnowpp` migrado, zona do `leticiafelisberto.com` no Cloudflare (mantendo o
+   MX do Google), contato do Registro.br numa caixa fora da AZAN, backup final, 15 dias estáveis.
+   Pagar a fatura de 14/10; cancelar antes da de 14/11.
+
 ## Sem agência a partir de 09/10
 
 Decisão do dono: "não tem mais nada com o Tuan, tudo é pra ser nosso agora". Nada mais é
