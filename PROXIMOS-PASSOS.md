@@ -48,6 +48,9 @@ OpenRouter: comprados US$ 6.320, usados US$ 6.294,59, **saldo US$ 25,41**, e a c
 gasta quase tudo. Antes de desligar a fila de lotes: crédito + recarga automática, limite mensal na
 chave da Crystal, plano pago do Resend (o gratuito manda 100 e-mails por dia) e a contagem de
 alunos com acesso ativo. A chave do WhatsApp sai junto com o corte (também vazou na stack do Tuan).
+Contagem em 09/10: 8.350 active + 1.306 pending = 9.656 podem entrar. Conferência na VPS em 09/10:
+**`op_rollout_gate = off` (fila já desligada)** com o saldo ainda em US$ 25 e sem limite; silêncio ligado
+mas falhando com HTTP 404 (8 vezes em 2 h: SQL do silêncio ainda não estava no Supabase).
 
 ## Supabase: "Crystal AI" já está na nossa organização (08/10)
 
