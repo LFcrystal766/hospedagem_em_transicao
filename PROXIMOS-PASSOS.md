@@ -142,7 +142,9 @@ linha do aluno quando ele exclui a conta ou apaga as conversas (LGPD), com a cha
 (Operação, começa desligada) a Crystal do app lê o que a do WhatsApp anotou e guarda o resumo do
 app na tabela nova. App publicado em 09/10 como `sha-74092e0`. Chave LIGADA em 09/10 antes do SQL: a Crystal recebeu 404
 (4 leituras, 1 gravação) e respondeu sem a memória. SQL aplicado em 09/10 (versão sem comentários,
-testada em Postgres; "Success. No rows returned"). Falta conferir num aluno com memória no WhatsApp. Roteiro em `crystal-em-casa/publicar-prd.md`, seção
+testada em Postgres; "Success. No rows returned"). Conferido na VPS em 09/10: dos 34 alunos do app ligados
+à base, 31 têm anotações e preferências da Crystal do WhatsApp chegando pela `app_memoria_ler`, 0 erros.
+O teste na conversa precisa ser com conta de ALUNO: conta da equipe (admin) não recebe memória, por regra. Roteiro em `crystal-em-casa/publicar-prd.md`, seção
 "Memória única".
 
 - **Pré-requisito**: trocar a chave service_role que vazou (seção "Supabase: 'Crystal AI' já está
