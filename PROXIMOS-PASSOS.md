@@ -10,6 +10,10 @@ de você, na ordem, com o tempo estimado.
   a versão sem comentários, testada em Postgres, passou). Liga a seção Lotes da Operação.
 - `app_whatsapp_silencio.sql`: entregue para aplicar em 09/10 (versão sem comentários, testada), para ligar o silêncio.
 - `app_memoria_unica.sql`: aplicada em 09/10 (chave "Memória única" ligada).
+- `app_telefone_chave.sql` (09/10): APLICADA pelo conector do Supabase. Histórico, memória e silêncio comparam o
+  telefone pela chave país + DDD + 8 últimos (o WhatsApp guarda muitos números sem o nono dígito). Antes: 9.268
+  dos 9.641 alunos com acesso achavam a conversa; agora 9.635 (+367). Caso que revelou: aluno com 746 mensagens
+  no WhatsApp aparecia sem histórico. Para quem já tinha conta e foi marcado "sem histórico": Alunos > Importar agora.
 - `app_compras.sql` (09/10): APLICADA em 09/10. Login por e-mail conferido na VPS (`app_verificar_login_email`
   HTTP 200). Compra direta pela Assiny via nosso n8n: falta ligar (chaves, n8n, Assiny).
   ACHADO 09/10: `app_verificar_login_email` NÃO existia no Supabase (só a `app_verificar_login` antiga, de CPF,
