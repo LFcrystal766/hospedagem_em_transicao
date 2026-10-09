@@ -38,6 +38,16 @@ Ordem:
 4. Corte: desligar as chaves legadas (Settings > API Keys > Legacy > Disable JWT-based API keys),
    trocar a senha do banco, tirar o webhook dele da Assiny.
 
+## Abrir o app para a base inteira (09/10): o que segura
+
+`app-custo 24` em 09/10: US$ 0,90 em 24 h, 106 turnos, US$ 0,0085 por turno (resumo incluído),
+projeção de US$ 27 em 30 dias com 38 alunos (cerca de US$ 0,71 por aluno por mês). Conta do
+OpenRouter: comprados US$ 6.320, usados US$ 6.294,59, **saldo US$ 25,41**, e a chave da Crystal
+**sem limite mensal**. A conta é dividida com a chave antiga da Crystal do WhatsApp (agência), que
+gasta quase tudo. Antes de desligar a fila de lotes: crédito + recarga automática, limite mensal na
+chave da Crystal, plano pago do Resend (o gratuito manda 100 e-mails por dia) e a contagem de
+alunos com acesso ativo. A chave do WhatsApp sai junto com o corte (também vazou na stack do Tuan).
+
 ## Supabase: "Crystal AI" já está na nossa organização (08/10)
 
 Print do dashboard do dono: a organização tem dois projetos, "Crystal AI" (sa-east-1, Micro) e
