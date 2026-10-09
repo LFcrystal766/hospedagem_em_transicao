@@ -51,6 +51,9 @@ alunos com acesso ativo. A chave do WhatsApp sai junto com o corte (também vazo
 Contagem em 09/10: 8.350 active + 1.306 pending = 9.656 podem entrar. Conferência na VPS em 09/10:
 **`op_rollout_gate = off` (fila já desligada)** com o saldo ainda em US$ 25 e sem limite; silêncio ligado
 mas falhando com HTTP 404 (8 vezes em 2 h: SQL do silêncio ainda não estava no Supabase).
+Depois do SQL e do botão "aplicar a quem já usa" (09/10): 25 alunos, 23 conversas silenciadas. Dos 34
+alunos do app ligados à base, 32 têm conversa no WhatsApp: 23 silenciados, 9 ainda respondendo (os 9
+que entraram no app mas ainda não mandaram mensagem; silenciam sozinhos na primeira mensagem).
 
 ## Supabase: "Crystal AI" já está na nossa organização (08/10)
 
