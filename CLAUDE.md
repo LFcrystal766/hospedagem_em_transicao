@@ -19,7 +19,7 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
   combinado com o Tuan. A Crystal do WhatsApp será encerrada: todo mundo vai para o app.
   Ordem do corte em `PROXIMOS-PASSOS.md`.
 - **Frente paralela, o app da Crystal**: VPS Hostinger KVM 4 (`177.7.61.136`). Em 06/10:
-  app em `sha-74092e0` (09/10, no ar: memória única com a chave desligada, SQL ainda não aplicado; volta: `sha-c320aa0`): alma da agência (prompt v2.2 + busca na base do Supabase), login
+  app em `sha-74092e0` (09/10, no ar: memória única ligada, SQL aplicado; volta: `sha-c320aa0`): alma da agência (prompt v2.2 + busca na base do Supabase), login
   só com o e-mail da compra + código (`LOGIN_MODO=email`; CPF opcional), lotes (`ROLLOUT_GATE`),
   webhook de reembolso da Assiny, painel de alunos e da base, painel gerencial, legenda na foto,
   memória de chegada do WhatsApp com modo complementar, área Operação no /equipe e silêncio no

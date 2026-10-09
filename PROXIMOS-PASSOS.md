@@ -9,6 +9,7 @@ de você, na ordem, com o tempo estimado.
 - `app_equipe_lotes.sql`: aplicada à noite (a primeira tentativa falhou por colar só um pedaço;
   a versão sem comentários, testada em Postgres, passou). Liga a seção Lotes da Operação.
 - `app_whatsapp_silencio.sql`: ainda não aplicada (só quando for ligar o silêncio).
+- `app_memoria_unica.sql`: aplicada em 09/10 (chave "Memória única" ligada).
 - Memória do WhatsApp em lote rodada em 08/10: 27 alunos do app, 10 importados, 1 sem
   histórico, 16 pulados (sem conversa ainda; recebem na primeira mensagem), 0 falhas.
   Custo por importação entre US$ 0,02 e 0,05.
@@ -140,7 +141,8 @@ cria uma tabela nova (`crystal_memoria_unica`) e três funções (`app_memoria_l
 linha do aluno quando ele exclui a conta ou apaga as conversas (LGPD), com a chave ligada ou não. Com a chave "Memória única"
 (Operação, começa desligada) a Crystal do app lê o que a do WhatsApp anotou e guarda o resumo do
 app na tabela nova. App publicado em 09/10 como `sha-74092e0`. Chave LIGADA em 09/10 antes do SQL: a Crystal recebeu 404
-(4 leituras, 1 gravação) e respondeu sem a memória. Falta aplicar o SQL (versão sem comentários, testada). Roteiro em `crystal-em-casa/publicar-prd.md`, seção
+(4 leituras, 1 gravação) e respondeu sem a memória. SQL aplicado em 09/10 (versão sem comentários,
+testada em Postgres; "Success. No rows returned"). Falta conferir num aluno com memória no WhatsApp. Roteiro em `crystal-em-casa/publicar-prd.md`, seção
 "Memória única".
 
 - **Pré-requisito**: trocar a chave service_role que vazou (seção "Supabase: 'Crystal AI' já está
