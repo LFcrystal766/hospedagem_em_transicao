@@ -22,9 +22,10 @@
 --   app_compra_evento(jsonb)  recebe o evento e devolve { acao, novo, motivo, evento }:
 --                             liberado | bloqueado | ignorado | repetido. "novo" = acabou de
 --                             ganhar acesso (o n8n manda o e-mail de boas-vindas só então).
--- O que MUDA: app_verificar_login_email (mesma assinatura e retorno). Antes de tudo procura
--- na base antiga, igual a hoje (quem já usa o app mantém a mesma conta); sem acesso lá,
--- procura em crystal_compras com status active, liberado = true.
+-- O que MUDA: cria (ou substitui, com o mesmo retorno) app_verificar_login_email, que o app
+-- usa no login só com e-mail. Antes de tudo procura na base antiga (quem já usa o app mantém a
+-- mesma conta); sem acesso lá, procura em crystal_compras com status active, liberado = true.
+-- Em 09/10 a função não existia no Supabase: o login por e-mail (padrão do app) dava 404.
 --
 -- Eventos (minúsculas; confira os nomes na tela de webhooks da Assiny e acrescente aqui se
 -- vier outro): liberam approved_purchase, purchase_approved, subscription_renewed,
@@ -46,10 +47,32 @@
 -- =============================================================================
 
 do $$
+declare
+  v_falta text;
 begin
-  if to_regprocedure('public.app_verificar_login_email(text)') is null then
+  -- Colunas da base antiga que o login por e-mail lê (as mesmas de app_verificar_login_email.sql).
+  select string_agg(format('%s.%s', x.tabela, x.coluna), ', ')
+    into v_falta
+    from (values
+      ('leticia_crystal_customers', 'id'), ('leticia_crystal_customers', 'email'),
+      ('leticia_crystal_customers', 'full_name'), ('leticia_crystal_customers', 'is_in_rollout'),
+      ('leticia_crystal_customers', 'created_at'),
+      ('leticia_crystal_active_accesses', 'customer_id'), ('leticia_crystal_active_accesses', 'phone_number'),
+      ('leticia_crystal_active_accesses', 'subscription_status'),
+      ('leticia_crystal_active_accesses', 'access_updated_at')
+    ) as x(tabela, coluna)
+   where not exists (
+     select 1 from information_schema.columns c
+      where c.table_schema = 'public' and c.table_name = x.tabela and c.column_name = x.coluna
+   );
+  if v_falta is not null then
+    raise exception 'ESQUEMA_DIFERENTE' using hint = 'não encontrei: ' || v_falta;
+  end if;
+  if to_regprocedure('public.app_verificar_login_email(text)') is not null
+     and pg_get_function_result(to_regprocedure('public.app_verificar_login_email(text)'))
+         <> 'TABLE(name text, phone text, contact_id text, liberado boolean)' then
     raise exception 'ESQUEMA_DIFERENTE'
-      using hint = 'app_verificar_login_email(text) não existe: aplicar app_verificar_login_email.sql antes';
+      using hint = 'app_verificar_login_email(text) já existe com outro retorno; não mexer';
   end if;
   if to_regclass('public.crystal_compras') is not null
      and coalesce(obj_description(to_regclass('public.crystal_compras'), 'pg_class'), '') not like 'crystal-compras %' then
@@ -231,7 +254,13 @@ revoke all on function public.app_compra_evento(jsonb) from public;
 revoke all on function public.app_compra_evento(jsonb) from anon, authenticated;
 grant execute on function public.app_compra_evento(jsonb) to service_role;
 
--- Login por e-mail: base antiga primeiro (igual a hoje), depois crystal_compras.
+-- Índice na mesma expressão da busca (o mesmo de app_verificar_login_email.sql): o login não
+-- varre a tabela inteira.
+create index if not exists leticia_crystal_customers_email_lower
+  on public.leticia_crystal_customers ((lower(trim(email))));
+
+-- Login por e-mail (LOGIN_MODO=email, o padrão do app): base antiga primeiro, depois
+-- crystal_compras. Cria a função se ainda não existir (em 09/10 ela não existia no Supabase).
 create or replace function public.app_verificar_login_email(p_email text)
 returns table (name text, phone text, contact_id text, liberado boolean)
 language sql
