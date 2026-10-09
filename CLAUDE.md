@@ -89,6 +89,7 @@ Toda mudança leva em conta ataque e malware, sem precisar pedir:
 | `crystal-em-casa/stacks-app/` | Stack do app web (`LFcrystal766/crystal-web-chat`) na VPS, subida pelo `bootstrap-vps.sh app-subir`, e o Portainer restrito (`painel-restringir`) |
 | `crystal-em-casa/publicar-prd.md` | Roteiro de publicação das 3 etapas do PRD na VPS: comandos, tags, conferência em aparelho, volta |
 | `crystal-em-casa/stacks-app/20-atendimento.yaml` | O nosso Chatwoot (no lugar do LendChat) em `atendimento.`, com a Crystal como robô: `atendimento-subir`, `atendimento-configurar`, `app-canal` |
+| `crystal-em-casa/n8n/compra-assiny.json` | Fluxo do nosso n8n: compra da Assiny → `app_compras.sql` no Supabase → app liberado, boas-vindas e reembolso |
 | `auditorias/<data>/` | Evidências de cada rodada |
 | `pedidos/` | Chamado da AZAN e prompt do Cowork |
 | `artefato/` | Cópia do plano e o overview |

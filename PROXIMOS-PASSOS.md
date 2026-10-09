@@ -10,6 +10,8 @@ de você, na ordem, com o tempo estimado.
   a versão sem comentários, testada em Postgres, passou). Liga a seção Lotes da Operação.
 - `app_whatsapp_silencio.sql`: entregue para aplicar em 09/10 (versão sem comentários, testada), para ligar o silêncio.
 - `app_memoria_unica.sql`: aplicada em 09/10 (chave "Memória única" ligada).
+- `app_compras.sql` (09/10): compra direta pela Assiny via nosso n8n, sem a agência. Ainda não aplicada.
+  Roteiro em `crystal-em-casa/publicar-prd.md`, seção "Compra direta pela Assiny".
 - Memória do WhatsApp em lote rodada em 08/10: 27 alunos do app, 10 importados, 1 sem
   histórico, 16 pulados (sem conversa ainda; recebem na primeira mensagem), 0 falhas.
   Custo por importação entre US$ 0,02 e 0,05.

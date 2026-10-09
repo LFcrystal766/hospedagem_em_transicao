@@ -642,6 +642,42 @@ podem ficar (ninguém as chama, a não ser `app_memoria_apagar`, que a API chama
 aluno exclui a conta ou apaga as conversas, para a LGPD). Apagar de vez só se o dono pedir (os
 `drop` estão no cabeçalho do SQL). Na agência não há nada a desfazer.
 
+## Compra direta pela Assiny, sem a agência (09/10)
+
+Decisão do dono: "ele compra na Assiny e já tem que liberar o app", tudo nosso, via n8n. Caminho:
+Assiny (webhook) → nosso n8n (`webhook.crystalnowpp.com.br/webhook/assiny-compras`) →
+`app_compra_evento` no Supabase (tabela NOSSA `crystal_compras`) → o login do app aceita quem está
+lá, já liberado. Compra nova manda e-mail de boas-vindas pelo Resend; reembolso, chargeback e
+cancelamento bloqueiam a linha e são repassados à API (`/webhooks/reembolso`), que desliga a conta.
+
+- SQL: `crystal-em-casa/supabase/app_compras.sql` (tabelas `crystal_compras`, `crystal_compras_eventos`,
+  `crystal_compras_produtos`; `app_compra_evento`; `app_verificar_login_email` passa a olhar a base
+  antiga primeiro e depois `crystal_compras`). Testado em Postgres 16 (17 casos, incluindo reenvio,
+  renovação, reembolso de outra compra, aprovação atrasada, recompra e login de quem já é da base).
+- Fluxo: `crystal-em-casa/n8n/compra-assiny.json` (n8n 1.123.10). Testado num n8n 1.123.10 local com
+  serviços falsos: cabeçalho errado 403; compra 200 + um e-mail; reenvio 200 sem e-mail; reembolso
+  200 + repasse à API; inválido 500; Supabase fora do ar 500 (a Assiny reenvia) e depois 200.
+- Desfazer: desativar o fluxo no n8n e rodar `app_verificar_login_email.sql` de novo.
+
+Ligar, nesta ordem:
+1. Supabase, SQL Editor: `app_compras.sql` inteiro. Depois, API Keys > New secret key `n8n-compras`.
+2. Resend: API Keys > Create, nome `n8n-boas-vindas`, permissão Sending access, domínio
+   crystalnowpp.com.br.
+3. Segredo do reembolso: gerar novo (`openssl rand -hex 32`, guardar no Bitwarden),
+   `bash bootstrap-vps.sh app-definir REFUND_WEBHOOK_SECRET` e `app-subir sha-74092e0` (troca o que
+   a agência pudesse ter). Segredo do cabeçalho da Assiny: outro `openssl rand -hex 32`.
+4. n8n (editor.crystalnowpp.com.br): importar o JSON; criar 4 credenciais Header Auth
+   (`Assiny webhook`: x-crystal-token; `Supabase n8n-compras`: apikey; `Resend boas-vindas`:
+   Authorization = Bearer re_...; `API reembolso`: Authorization = Bearer <segredo do reembolso>);
+   escolher cada uma no seu nó; salvar e ativar.
+5. Teste com um e-mail seu de teste (curl no roteiro do chat de 09/10); conferir e-mail e login.
+6. Assiny: webhook para a URL acima, com o cabeçalho, eventos de compra aprovada, renovação,
+   reembolso, chargeback e cancelamento. Tirar o webhook antigo da agência.
+7. Depois das primeiras compras: preencher `crystal_compras_produtos` só com os produtos da Crystal.
+
+Limites: o painel (Alunos > base) ainda não lista quem está só em `crystal_compras` (aparece em
+Alunos depois do primeiro login). Recompra depois de reembolso: o suporte reativa a conta no painel.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".

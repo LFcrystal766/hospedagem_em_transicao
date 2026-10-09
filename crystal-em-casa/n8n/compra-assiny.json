@@ -1,0 +1,289 @@
+{
+  "name": "Crystal · compra e reembolso da Assiny",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "assiny-compras",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "c1d4c8da-5857-4859-92d7-3d5fab77abc1",
+      "name": "Assiny",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "af9bff8d-2cfa-4fb1-b9c0-d3fffd715114"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hwbllqepvhddakszqdbk.supabase.co/rest/v1/rpc/app_compra_evento",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ p_evento: $json.body }) }}",
+        "options": {}
+      },
+      "id": "d367530d-1d5c-4cd4-a783-0407adeddcf2",
+      "name": "Registrar no Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "da2f4221-26e2-4736-821a-1e7c3d0ce208",
+      "name": "Responder à Assiny",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false }) }}",
+        "options": {
+          "responseCode": 500
+        }
+      },
+      "id": "20e838ac-ec46-4270-8cc0-4f163ee16088",
+      "name": "Responder erro à Assiny",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "408672b1-41bb-4fd8-a6e7-45a838aa5be8",
+              "leftValue": "={{ $json.acao }}",
+              "rightValue": "liberado",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "fd9bf443-914c-485f-b9e3-8a63ee3f9ed1",
+              "leftValue": "={{ $json.novo }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "80ce14b4-5351-441e-825a-6a6de8d813ad",
+      "name": "Liberou agora?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "56483476-7a46-4a97-ab9c-613d797c178b",
+              "leftValue": "={{ $json.acao }}",
+              "rightValue": "bloqueado",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "33f7b7b8-c841-4822-ade6-2cfd87220ae6",
+      "name": "Bloqueou?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ 'boas-vindas-' + ($('Assiny').item.json.body.data.transaction.id || $('Assiny').item.json.body.data.client.email) }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ from: 'Crystal <acesso@crystalnowpp.com.br>', to: [$('Assiny').item.json.body.data.client.email], subject: 'Seu acesso à Crystal está liberado', text: 'Olá' + ($('Assiny').item.json.body.data.client.first_name ? ', ' + $('Assiny').item.json.body.data.client.first_name : '') + '!\\n\\n' + 'Sua compra foi confirmada e o seu acesso à Crystal já está liberado.\\n\\n' + 'Entre em: https://app.crystalnowpp.com.br\\n' + 'Use este e-mail: ' + $('Assiny').item.json.body.data.client.email + '\\n' + 'Na entrada, você recebe um código neste mesmo e-mail para confirmar.\\n\\n' + 'Dúvidas: fale com a nossa equipe pelo próprio app.\\n\\nCrystal' }) }}",
+        "options": {}
+      },
+      "id": "553e3942-9325-43e6-9a5e-d1ba886f4fda",
+      "name": "E-mail de boas-vindas (Resend)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        180
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.crystalnowpp.com.br/webhooks/reembolso",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Assiny').item.json.body) }}",
+        "options": {}
+      },
+      "id": "98385a41-9416-40b1-90a2-2137fd97b6d8",
+      "name": "Desligar no app (reembolso)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        400
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    }
+  ],
+  "connections": {
+    "Assiny": {
+      "main": [
+        [
+          {
+            "node": "Registrar no Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar no Supabase": {
+      "main": [
+        [
+          {
+            "node": "Responder à Assiny",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder erro à Assiny",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responder à Assiny": {
+      "main": [
+        [
+          {
+            "node": "Liberou agora?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Bloqueou?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Liberou agora?": {
+      "main": [
+        [
+          {
+            "node": "E-mail de boas-vindas (Resend)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Bloqueou?": {
+      "main": [
+        [
+          {
+            "node": "Desligar no app (reembolso)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "pinData": {},
+  "versionId": "c677df25-51d2-482d-93cd-bf8d3d761a1f"
+}
