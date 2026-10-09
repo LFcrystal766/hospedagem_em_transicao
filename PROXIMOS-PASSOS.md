@@ -28,8 +28,12 @@ Ordem:
    n8n, Chatwoot, Portainer, Resend, Bitwarden).
 2. Nosso fluxo de compra e reembolso no nosso n8n (pendente: estrutura das tabelas, print do
    webhook da Assiny, o que o comprador recebe depois de pagar).
-3. Decisão do WhatsApp: subir a Crystal do WhatsApp na nossa VPS (com outro canal no lugar do
-   LendChat) ou encerrar o WhatsApp e levar todo mundo para o app.
+3. WhatsApp ENCERRADO (decisão do dono em 09/10: "tirar o webhook do whatsapp e mandar direto pro
+   app sempre a partir de agora"). Todo mundo no app: desligar o portão de lotes (Operação,
+   "Liberação em lotes"), tirar o webhook da Crystal no LendChat (conta `crystal`) e deixar uma
+   resposta automática apontando para o app, avisar a base por e-mail. O histórico e a memória
+   do WhatsApp já chegam ao app (memória de chegada e memória única) e ficam congelados no corte.
+   O silêncio no WhatsApp (`app_whatsapp_silencio.sql`) deixa de ser necessário: não aplicar.
 4. Corte: desligar as chaves legadas (Settings > API Keys > Legacy > Disable JWT-based API keys),
    trocar a senha do banco, tirar o webhook dele da Assiny.
 

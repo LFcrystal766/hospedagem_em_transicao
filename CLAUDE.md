@@ -15,8 +15,9 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
 - **Chamado #RAI-374885** aberto na AZAN em 28/09 para liberar os IPs do
   Cloudflare e ler `CF-Connecting-IP`. O laranja só entra depois da resposta.
 - **Fatura AZAN**: mensal, R$ 99,90, próxima prevista para 14/10/2026. Não cancelar.
-- **Sem agência desde 09/10**: tudo passa a ser nosso (Crystal do WhatsApp, compra e reembolso no
-  nosso n8n). Nada é combinado com o Tuan. Ordem do corte em `PROXIMOS-PASSOS.md`.
+- **Sem agência desde 09/10**: tudo passa a ser nosso (compra e reembolso no nosso n8n). Nada é
+  combinado com o Tuan. A Crystal do WhatsApp será encerrada: todo mundo vai para o app.
+  Ordem do corte em `PROXIMOS-PASSOS.md`.
 - **Frente paralela, o app da Crystal**: VPS Hostinger KVM 4 (`177.7.61.136`). Em 06/10:
   app em `sha-74092e0` (09/10, no ar: memória única com a chave desligada, SQL ainda não aplicado; volta: `sha-c320aa0`): alma da agência (prompt v2.2 + busca na base do Supabase), login
   só com o e-mail da compra + código (`LOGIN_MODO=email`; CPF opcional), lotes (`ROLLOUT_GATE`),
