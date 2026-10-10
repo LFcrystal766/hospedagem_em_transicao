@@ -46,6 +46,32 @@ de você, na ordem, com o tempo estimado.
   histórico, 16 pulados (sem conversa ainda; recebem na primeira mensagem), 0 falhas.
   Custo por importação entre US$ 0,02 e 0,05.
 
+## Memória completa ANTES do primeiro acesso (proposta de 10/10, esperando decisão do dono)
+
+Pedido do dono: a memória completa de cada aluno pronta no app antes de ele chegar.
+
+Como está hoje (lido no código do app, `sha-74092e0`):
+- Na 1ª mensagem no app, o robô importa só os últimos 7 dias do WhatsApp (até 500 mensagens) para a
+  memória da nossa Crystal (Postgres da VPS, por telefone) e gera um resumo de no máximo 1.000 caracteres.
+  O aluno espera até 8 s; passou disso, a 1ª resposta sai sem memória.
+- Em todo turno, com `op_memoria_unica`, a Crystal lê no Supabase, por customer_id, as anotações da Crystal
+  do WhatsApp (`lead_memories`, 6.747 alunos). Isso já está pronto antes do acesso, mas é curto e não cobre
+  quem não tem anotação.
+
+Volume medido em 10/10 (amostra de 5%, só leitura): 9.709 conversas de alunos, ~5,5 milhões de mensagens,
+~3,1 bilhões de caracteres (~800 milhões de tokens). Cortando cada mensagem longa (aluno 800, Crystal 300
+caracteres) cai para ~400 milhões de tokens.
+
+Desenho proposto: tabela nova `crystal_memoria_whatsapp` (por customer_id: memória de até 4.000 caracteres,
+até que mensagem já entrou, custo). Gerada pela nossa Crystal (a chave do OpenRouter fica só lá), em lotes
+disparados pela Operação, com teto de gasto, retomável e andamento no painel. `app_memoria_ler` passa a
+devolver essa memória e a Crystal a usa já na 1ª mensagem, sem espera. Manutenção: rodada diária só com
+as mensagens novas de cada aluno (barato) e quem entra pela Assiny (`crystal_compras`) entra na fila.
+Piloto de 20 alunos (com e sem memória) antes do lote inteiro.
+
+Decisões do dono: modelo (custo), alcance (histórico inteiro ou últimos 12 meses), teto de gasto e
+recarga do OpenRouter (saldo de US$ 25,41 em 09/10 não cobre).
+
 ## Migração final do site (proposta de 09/10, esperando decisão)
 
 Conferido em 09/10: o DNS está no Cloudflare (cinza), mas o site, o e-mail `mail.` e o `leticiafelisberto.com`
