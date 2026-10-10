@@ -29,8 +29,9 @@ de você, na ordem, com o tempo estimado.
   HTTP 200). Compra direta pela Assiny via nosso n8n: falta ligar (chaves, n8n, Assiny).
   10/10: credenciais do n8n por `crystal-em-casa/n8n/compra-assiny-credenciais.py` na VPS: FEITO e
   testado de ponta a ponta no n8n de produção (sem token 403; com token 200; compra de teste liberou e
-  mandou boas-vindas; reembolso de teste bloqueou e repassou à API). O token da Assiny apareceu no chat:
-  trocar com `--novo-token --mostrar-token --sem-teste-completo` ANTES de colar na Assiny. Falta: o
+  mandou boas-vindas; reembolso de teste bloqueou e repassou à API). O token da Assiny apareceu no chat;
+  o dono decidiu NÃO trocar (10/10, risco aceito: com o token, dá para forjar compra ou reembolso).
+  Trocar quando quiser: `--novo-token --mostrar-token --sem-teste-completo` e o valor novo na Assiny. Falta: o
   webhook na Assiny e tirar o da agência. Linhas de teste (2 em crystal_compras, 4 em eventos, e-mails
   `delivered+teste-n8n-*@resend.dev`, reembolsadas) ficam até o DELETE no SQL Editor (o conector pede
   confirmação para apagar e não chega a tempo). Sobrou no Supabase a função de teste
