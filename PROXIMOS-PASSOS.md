@@ -72,6 +72,15 @@ Piloto de 20 alunos (com e sem memória) antes do lote inteiro.
 Decisões do dono: modelo (custo), alcance (histórico inteiro ou últimos 12 meses), teto de gasto e
 recarga do OpenRouter (saldo de US$ 25,41 em 09/10 não cobre).
 
+## Painel da equipe: bateria de testes de 10/10 (esperando OK para publicar)
+
+Testado todo o `/equipe` contra o PRD: 5 papéis × 12 áreas, cada botão, Operação, silêncio e memória do WhatsApp,
+celular e acessibilidade. Detalhes em `auditorias/2026-10-10/painel-equipe-testes.md`. Correções na branch
+`otimizacao/painel-qa` do app (4 commits sobre `74092e0`, sem banco nem variável nova). As três graves:
+salvar senha derrubava Usuários; "Corrigir contato" nunca gravava (CORS sem PATCH); no Canal, a seta do teclado
+ligava o backup de produção sem confirmar. Para publicar: juntar em `otimizacao/etapa-3` (gera `sha-c3dd3e0`) e
+`app-subir`; volta `sha-74092e0`. A branch `qa/painel-2026-10-10` no GitHub é cópia igual; pode apagar.
+
 ## Migração final do site (proposta de 09/10, esperando decisão)
 
 Conferido em 09/10: o DNS está no Cloudflare (cinza), mas o site, o e-mail `mail.` e o `leticiafelisberto.com`
