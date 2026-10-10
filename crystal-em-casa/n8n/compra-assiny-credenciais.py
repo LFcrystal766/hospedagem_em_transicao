@@ -286,8 +286,11 @@ def teste_completo(pg, token):
     dados = {"client": {"email": email, "full_name": "Teste do n8n", "first_name": "Teste"},
              "transaction": {"id": tx}, "offer": {"name": "Teste do n8n",
                                                  "product": {"id": "teste-n8n", "name": "Teste do n8n"}}}
-    for evento, espera_acao, o_que in (("approved_purchase", "liberado", "e-mail de boas-vindas"),
-                                        ("refunded_purchase", "bloqueado", "repasse do reembolso à API")):
+    # transaction.status é obrigatório na API do app (assinyTransactionSchema), como no envio real da Assiny.
+    for evento, status_tx, espera_acao, o_que in (
+            ("approved_purchase", "approved", "liberado", "e-mail de boas-vindas"),
+            ("refunded_purchase", "refunded", "bloqueado", "repasse do reembolso à API")):
+        dados["transaction"]["status"] = status_tx
         desde = agora_no_banco(pg)
         st, r = chamar("POST", WEBHOOK, {"x-crystal-token": token}, {"event": evento, "data": dados})
         acao = r.get("acao") if isinstance(r, dict) else None
