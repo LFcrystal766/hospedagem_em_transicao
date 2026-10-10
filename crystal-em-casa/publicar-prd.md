@@ -686,6 +686,32 @@ Fraquezas aceitas pelo dono: o n8n usa a mesma service_role e a mesma chave do R
 Limites: o painel (Alunos > base) ainda não lista quem está só em `crystal_compras` (aparece em
 Alunos depois do primeiro login). Recompra depois de reembolso: o suporte reativa a conta no painel.
 
+## Publicação de 10/10: painel, modelo da Crystal, ligações e avisos programados
+
+Imagem `sha-5a5b198` (branch `otimizacao/publicar-10-10` do app). Junta as correções da bateria de testes do
+painel, a escolha do modelo por fornecedor com a tabela de gasto, "Ligações da Crystal" e os avisos programados.
+Nenhuma variável nova. Uma migração nova, só aditiva (`e3_26_avisos_programados`: cria `scheduled_notices`), que o
+serviço `migrate` aplica na subida. As três imagens (api, web, crystal) têm a mesma etiqueta: um `app-subir` troca
+tudo.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/434288a/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+echo "fdd35d4a255ca98204522a1fca7eb79743a1b5b5f6c6a0084f0c7e2cd3d00df2  bootstrap-vps.sh" | sha256sum -c
+bash bootstrap-vps.sh crystal-conferir        # antes: a versão de hoje, de ponta a ponta (deve dar TUDO LIGADO)
+bash bootstrap-vps.sh app-status              # anotar a tag atual (sha-74092e0)
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-5a5b198
+bash bootstrap-vps.sh crystal-conferir        # depois: de novo, agora com a versão nova
+# Voltar: bash bootstrap-vps.sh app-subir sha-74092e0
+```
+
+Conferir no painel (admin), em Operação › Crystal:
+1. "Conferir tudo agora" em **Ligações da Crystal**: os 11 elos com ✓ (o saldo abaixo de US$ 5 aparece como atenção).
+2. **Modelo**: escolher o fornecedor e o modelo; a tabela mostra o gasto real dos 7 dias e o "se fosse". Salvar só
+   troca se o modelo responder; um gratuito deve ser recusado com o motivo.
+3. Integrações: o cartão "Crystal" agora olha a nossa Crystal (antes, no modo chatwoot, olhava só o Chatwoot).
+4. Avisos › Programados: programar um aviso para daqui a 5 minutos para a própria equipe e ver sair.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".

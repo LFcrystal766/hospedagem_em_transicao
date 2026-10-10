@@ -72,14 +72,26 @@ Piloto de 20 alunos (com e sem memória) antes do lote inteiro.
 Decisões do dono: modelo (custo), alcance (histórico inteiro ou últimos 12 meses), teto de gasto e
 recarga do OpenRouter (saldo de US$ 25,41 em 09/10 não cobre).
 
-## Painel da equipe: bateria de testes de 10/10 (esperando OK para publicar)
+## Publicação de 10/10: painel, modelo da Crystal, ligações e avisos programados (esperando OK)
 
-Testado todo o `/equipe` contra o PRD: 5 papéis × 12 áreas, cada botão, Operação, silêncio e memória do WhatsApp,
-celular e acessibilidade. Detalhes em `auditorias/2026-10-10/painel-equipe-testes.md`. Correções na branch
-`otimizacao/painel-qa` do app (4 commits sobre `74092e0`, sem banco nem variável nova). As três graves:
-salvar senha derrubava Usuários; "Corrigir contato" nunca gravava (CORS sem PATCH); no Canal, a seta do teclado
-ligava o backup de produção sem confirmar. Para publicar: juntar em `otimizacao/etapa-3` (gera `sha-c3dd3e0`) e
-`app-subir`; volta `sha-74092e0`. A branch `qa/painel-2026-10-10` no GitHub é cópia igual; pode apagar.
+Tudo numa branch só do app, `otimizacao/publicar-10-10` (sobre `74092e0`), imagem `sha-5a5b198`. Testes: web 664,
+API 910, Crystal 191, shared 216, e2e 35/35. Roteiro em `crystal-em-casa/publicar-prd.md`, seção "Publicação de 10/10".
+- **Correções da bateria de testes do painel** (`otimizacao/painel-qa`): as três graves eram salvar senha derrubando
+  Usuários, "Corrigir contato" nunca gravando (CORS sem PATCH) e, no Canal, a seta do teclado ligando o backup de
+  produção sem confirmar. Detalhes em `auditorias/2026-10-10/painel-equipe-testes.md`. O e2e do CI estava vermelho
+  nessa branch (dois roteiros com o comportamento antigo); corrigido em `73bb815`.
+- **Modelo da Crystal por caixa** (Operação › Crystal): fornecedor → modelo, lista real do OpenRouter, ficha com
+  preço e imagem, e a tabela de gasto dos últimos 7 dias contra o modelo escolhido. Só grava depois de o modelo
+  responder de verdade, sem reserva.
+- **Ligações da Crystal**: botão que confere painel → API → nossa Crystal → OpenRouter (chave, saldo, modelo e
+  reserva) → base de conhecimento, memória única e base de alunos (Supabase) → Chatwoot → pergunta igual à de um
+  aluno. Na VPS, o mesmo: `bash bootstrap-vps.sh crystal-conferir` (funciona já, com a versão atual).
+- **Avisos programados** (sessão paralela): aba "Programados" com dia e hora de Brasília, editar, cancelar, e a
+  prévia da notificação. Migração nova `e3_26` (só cria a tabela `scheduled_notices`). O aviso continua só como
+  push; não aparece dentro da conversa (pergunta da sessão para o dono).
+- Volta: `app-subir sha-74092e0` (a tabela nova fica parada, sem efeito).
+- A "inteligência" do app é a nossa Crystal (`app_crystal`, Node). O código Python da agência (`crystal-ia`) não
+  roda no app nem na nossa VPS: dele vieram a alma (prompt v2.2) e a busca na base, já dentro da nossa Crystal.
 
 ## Migração final do site (proposta de 09/10, esperando decisão)
 
