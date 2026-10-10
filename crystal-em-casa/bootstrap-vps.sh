@@ -2260,7 +2260,15 @@ crystal_conferir() {
         ok(nome + " " + id + " existe no OpenRouter" + (img ? " e lê imagens" : "") );
         if (!img) ruim(nome + " " + id + " não lê imagens: o print que o aluno manda falharia");
       }
-      const mesmo = (pedido, veio) => !!veio && (veio === pedido || veio.startsWith(pedido.replace(/^~/, "")) || (doCatalogo(pedido) || {}).canonical_slug === veio);
+      // Igual, o nome canônico do catálogo, ou o mesmo com sufixo de DATA (gpt-4.1 não é gpt-4.1-mini);
+      // apelido ~fornecedor/...-latest vale para o mais novo do fornecedor.
+      const mesmo = (pedido, veio) => {
+        if (!veio) return false;
+        if (veio === pedido || (doCatalogo(pedido) || {}).canonical_slug === veio) return true;
+        if (pedido.startsWith("~")) return veio.split("/")[0] === pedido.slice(1).split("/")[0];
+        const base = pedido.replace(/:[a-z0-9-]+$/, "");
+        return veio.startsWith(base + "-") && /^-(\d{8}|\d{4}-\d{2}-\d{2})$/.test(veio.slice(base.length));
+      };
       const turno = async (rotulo, texto, extra) => {
         const t0 = Date.now();
         try {
