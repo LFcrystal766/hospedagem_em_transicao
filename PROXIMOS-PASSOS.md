@@ -27,8 +27,13 @@ de você, na ordem, com o tempo estimado.
   reimportados (Alunos > Importar agora, ou o reset em lote na VPS) para pegar a parte que estava no arquivo.
 - `app_compras.sql` (09/10): APLICADA em 09/10. Login por e-mail conferido na VPS (`app_verificar_login_email`
   HTTP 200). Compra direta pela Assiny via nosso n8n: falta ligar (chaves, n8n, Assiny).
-  10/10: credenciais do n8n por `crystal-em-casa/n8n/compra-assiny-credenciais.py` na VPS (um comando,
-  nenhum segredo no chat); depois, só o webhook na Assiny. Sobrou no Supabase a função de teste
+  10/10: credenciais do n8n por `crystal-em-casa/n8n/compra-assiny-credenciais.py` na VPS: FEITO e
+  testado de ponta a ponta no n8n de produção (sem token 403; com token 200; compra de teste liberou e
+  mandou boas-vindas; reembolso de teste bloqueou e repassou à API). O token da Assiny apareceu no chat:
+  trocar com `--novo-token --mostrar-token --sem-teste-completo` ANTES de colar na Assiny. Falta: o
+  webhook na Assiny e tirar o da agência. Linhas de teste (2 em crystal_compras, 4 em eventos, e-mails
+  `delivered+teste-n8n-*@resend.dev`, reembolsadas) ficam até o DELETE no SQL Editor (o conector pede
+  confirmação para apagar e não chega a tempo). Sobrou no Supabase a função de teste
   `zz_teste_cabecalho_20261009` (sem permissão para ninguém; o DROP pelo conector pede confirmação):
   apagar no SQL Editor com `drop function public.zz_teste_cabecalho_20261009();`.
   ACHADO 09/10: `app_verificar_login_email` NÃO existia no Supabase (só a `app_verificar_login` antiga, de CPF,
