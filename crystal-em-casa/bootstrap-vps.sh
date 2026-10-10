@@ -86,6 +86,12 @@
 #                                              público): pede a chave do OpenRouter sem aparecer,
 #                                              aponta o app para ela e testa. Volta: crystal-provisoria
 #   bash bootstrap-vps.sh crystal-nossa-teste  uma pergunta de teste à nossa Crystal
+#   bash bootstrap-vps.sh crystal-conferir     confere a corrente inteira, sem mudar nada: serviços, o que o
+#                                              painel (Operação) mandou, API -> nossa Crystal -> OpenRouter
+#                                              (chave, saldo, modelo e reserva existem e respondem de verdade),
+#                                              base de conhecimento, base de alunos e memória única no Supabase
+#                                              e o caminho do aluno pelo Chatwoot. Duas perguntas de teste ao
+#                                              modelo e uma pela inbox (uns centavos de dólar). --sem-chatwoot pula a inbox
 #   bash bootstrap-vps.sh crystal-provisoria   Crystal provisória no n8n com o OpenRouter (pede a
 #                                              chave sem aparecer) e o app apontando pra ela
 #   bash bootstrap-vps.sh crystal-provisoria-teste      uma pergunta de teste, pela API do app
@@ -2174,6 +2180,156 @@ crystal_nossa_teste() {
     || aviso "não respondeu. Ver: docker service logs --tail 60 ${APP_STACK}_app_crystal"
 }
 
+# Confere de ponta a ponta (10/10), sem gravar nada: o que o painel mandou (system_settings)
+# chega à API, a API alcança a nossa Crystal, a Crystal alcança o OpenRouter com o modelo e a
+# reserva do painel, a base de conhecimento entra no turno, o Supabase responde e, com o canal
+# chatwoot, a pergunta que entra pela inbox volta respondida. Nenhum segredo na tela; nenhum
+# dado de aluno (conversa de teste "teste-conferencia", sem memória).
+crystal_conferir() {
+  local opcao="${2:-}" erros=0 svc r pg api linha modelo reserva match memu canal re chave url code
+  echo "== 1. serviços na VPS"
+  for svc in ${APP_STACK}_app_api ${APP_STACK}_app_crystal ${APP_STACK}_app_web ${APP_STACK}_app_postgres ${APP_STACK}_app_redis \
+           ${CW_STACK}_cw_rails ${CW_STACK}_cw_sidekiq; do
+    r=$(docker service ls --filter "name=$svc" --format '{{.Name}} {{.Replicas}}' 2>/dev/null | awk -v n="$svc" '$1==n {print $2}' | head -1)
+    if [ -n "$r" ] && [ "${r%%/*}" = "${r##*/}" ] && [ "${r%%/*}" != "0" ]; then ok "$svc $r"
+    else aviso "$svc ${r:-não existe}"; erros=$((erros+1)); fi
+  done
+
+  echo "== 2. o que o painel mandou (Operação, valendo agora)"
+  pg=$(docker ps -q -f name=${APP_STACK}_app_postgres | head -1)
+  [ -n "$pg" ] || falha "Postgres do app não está rodando"
+  while IFS='|' read -r chave linha; do
+    [ -n "$chave" ] || continue
+    case "$chave" in
+      op_crystal_modelo) modelo=$linha ;;
+      op_crystal_modelo_reserva) reserva=$linha ;;
+      op_crystal_match_count) match=$linha ;;
+      op_memoria_unica) memu=$linha ;;
+    esac
+    echo "  $chave = $linha"
+  done < <(docker exec "$pg" psql -U crystal -d crystal_web_chat -tA -c \
+    "select key, value from system_settings where key in ('op_crystal_modelo','op_crystal_modelo_reserva','op_crystal_match_count','op_memoria_unica','op_memoria_chegada','op_whatsapp_silencio','op_manutencao','crystal_history_messages') order by key" 2>/dev/null)
+  [ -n "$modelo" ] || echo "  (sem modelo no painel: vale o padrão da imagem da Crystal)"
+  # O valor sai do banco e vai para o teste: só no formato de modelo do OpenRouter.
+  re='^~?[a-z0-9-]+/[a-z0-9.:-]+$'
+  if [ -n "$modelo" ] && ! printf '%s' "$modelo" | grep -Eq "$re"; then aviso "modelo do painel fora do formato: $modelo"; modelo=""; erros=$((erros+1)); fi
+  if [ -n "$reserva" ] && ! printf '%s' "$reserva" | grep -Eq "$re"; then aviso "reserva do painel fora do formato: $reserva"; reserva=""; erros=$((erros+1)); fi
+  printf '%s' "$match" | grep -Eq '^[0-9]{1,2}$' || match=""
+  canal=$(app_valor "$APP_EXT" CHAT_TRANSPORT); canal=${canal:-crystal}
+  echo "  canal do app (CHAT_TRANSPORT) = $canal"
+
+  echo "== 3. API -> nossa Crystal -> OpenRouter (de dentro da API, como o app faz)"
+  api=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
+  [ -n "$api" ] || falha "API do app não está rodando"
+  docker exec -e CONF_MODELO="$modelo" -e CONF_RESERVA="$reserva" -e CONF_MATCH="$match" "$api" node -e '
+    const base = String(process.env.CRYSTAL_API_URL || "").replace(/\/$/, "");
+    const rota = process.env.CRYSTAL_API_PATH || "/v1/messages";
+    const auth = { authorization: "Bearer " + process.env.CRYSTAL_API_KEY };
+    let falhas = 0;
+    const ok = (m) => console.log("  ok " + m);
+    const ruim = (m) => { console.log("  ! " + m); falhas++; };
+    const pegar = async (u, o = {}) => {
+      const r = await fetch(u, { ...o, signal: AbortSignal.timeout(o.prazo || 20000) });
+      let j = null; try { j = await r.json(); } catch {}
+      return { s: r.status, j };
+    };
+    (async () => {
+      if (!base) { ruim("a API não tem CRYSTAL_API_URL: o app não fala com a nossa Crystal"); process.exit(1); }
+      let hz;
+      try { hz = await pegar(base + "/healthz"); } catch (e) { ruim("a API não alcança a Crystal (" + e.name + ")"); process.exit(1); }
+      const h = hz.j || {};
+      h.ok ? ok("API -> Crystal: no ar") : ruim("a Crystal respondeu HTTP " + hz.s);
+      h.modelo_configurado ? ok("a Crystal tem a chave do OpenRouter") : ruim("a Crystal está SEM a chave do OpenRouter");
+      h.prompt_rascunho ? ruim("prompt: é o RASCUNHO, não a alma da Crystal") : ok("prompt: a alma da Crystal (v2.2 da agência, adaptada)");
+      h.conhecimento_busca ? ok("busca na base de conhecimento (Supabase) ligada") : ruim("busca na base de conhecimento DESLIGADA (faltam SUPABASE_URL/chave na Crystal)");
+      h.memoria ? ok("memória das conversas (banco da Crystal) pronta") : ruim("memória das conversas sem banco");
+      console.log("  padrão da imagem: modelo " + h.modelo + ", reserva " + h.modelo_reserva);
+      const conta = await pegar(base + "/v1/uso/conta", { headers: auth }).catch((e) => ({ s: 0, j: null }));
+      if (conta.s === 200 && conta.j && conta.j.conta) ok("Crystal -> OpenRouter: chave aceita; saldo US$ " + Number(conta.j.conta.saldo).toFixed(2) + (conta.j.chave && conta.j.chave.limite != null ? ", limite da chave US$ " + conta.j.chave.limite : ""));
+      else ruim("o OpenRouter não confirmou a chave (HTTP " + conta.s + ")");
+      const modelo = process.env.CONF_MODELO || h.modelo;
+      const reserva = process.env.CONF_RESERVA || h.modelo_reserva;
+      const lista = await pegar("https://openrouter.ai/api/v1/models").then((r) => (r.j && r.j.data) || []).catch(() => []);
+      lista.length ? ok("lista do OpenRouter lida: " + lista.length + " modelos") : ruim("não deu para ler a lista de modelos do OpenRouter");
+      const doCatalogo = (id) => lista.find((x) => x.id === id);
+      for (const [nome, id] of [["modelo", modelo], ["reserva", reserva]]) {
+        if (!id) continue;
+        const x = doCatalogo(id);
+        if (!x) { if (lista.length) ruim(nome + " " + id + " NÃO existe no OpenRouter"); continue; }
+        const img = (x.architecture && x.architecture.input_modalities || []).includes("image");
+        ok(nome + " " + id + " existe no OpenRouter" + (img ? " e lê imagens" : "") );
+        if (!img) ruim(nome + " " + id + " não lê imagens: o print que o aluno manda falharia");
+      }
+      const mesmo = (pedido, veio) => !!veio && (veio === pedido || veio.startsWith(pedido.replace(/^~/, "")) || (doCatalogo(pedido) || {}).canonical_slug === veio);
+      const turno = async (rotulo, texto, extra) => {
+        const t0 = Date.now();
+        try {
+          const r = await pegar(base + rota, { method: "POST", prazo: 75000,
+            headers: { ...auth, "content-type": "application/json", accept: "application/json" },
+            body: JSON.stringify({ contact_id: null, conversation_id: "teste-conferencia", history_messages: 0, message: { type: "text", text: texto }, ...extra }) });
+          if (r.s !== 200) { ruim(rotulo + ": a Crystal respondeu HTTP " + r.s + " (" + ((r.j && r.j.error && r.j.error.code) || "?") + ")"); return null; }
+          const u = r.j.uso || {};
+          console.log("  " + rotulo + ": respondeu " + (u.modelo || "?") + " em " + (Date.now() - t0) + " ms, " + (u.tokens_entrada ?? "?") + "+" + (u.tokens_saida ?? "?") + " tokens, US$ " + (u.custo_usd ?? "?"));
+          console.log("    \"" + String(r.j.text || "").replace(/\s+/g, " ").slice(0, 150) + "\"");
+          return u.modelo || null;
+        } catch (e) { ruim(rotulo + ": sem resposta (" + e.name + ")"); return null; }
+      };
+      // Turno 1: exatamente como o aluno, com o modelo, a reserva e os trechos do painel.
+      const extra1 = { modelo };
+      if (reserva) extra1.modelo_reserva = reserva;
+      if (process.env.CONF_MATCH) extra1.match_count = Number(process.env.CONF_MATCH);
+      const veio = await turno("pergunta como aluno", "Oi, Crystal! Como eu faço para acessar as aulas gravadas?", extra1);
+      if (veio) {
+        if (mesmo(modelo, veio)) ok("quem respondeu foi o modelo do painel (" + modelo + ")");
+        else if (reserva && mesmo(reserva, veio)) ruim("quem respondeu foi a RESERVA: o modelo do painel (" + modelo + ") falhou");
+        else ruim("respondeu " + veio + ", que não é o modelo do painel (" + modelo + ")");
+      }
+      // Turno 2: a reserva sozinha (reserva = ela mesma: sem segunda opção), para saber que ela salva o dia.
+      if (reserva && reserva !== modelo) {
+        const r2 = await turno("reserva sozinha", "Responda só: teste ok.", { modelo: reserva, modelo_reserva: reserva });
+        if (r2) mesmo(reserva, r2) ? ok("a reserva responde sozinha") : ruim("a reserva respondeu como " + r2);
+      }
+      process.exit(falhas ? 1 : 0);
+    })();' || erros=$((erros+1))
+
+  # Quantos trechos da base de conhecimento entraram no turno de teste (log da Crystal: só números).
+  sleep 2
+  linha=$(docker service logs --since 3m --raw ${APP_STACK}_app_crystal 2>/dev/null | grep '"modelo: uso do turno"' | grep -o '"trechos":[0-9]*' | tail -2 | head -1 | cut -d: -f2)
+  if [ -n "$linha" ] && [ "$linha" -gt 0 ] 2>/dev/null; then ok "base de conhecimento entrou no turno: $linha trecho(s)"
+  elif [ -n "$linha" ]; then aviso "o turno saiu SEM trechos da base de conhecimento (0)"; erros=$((erros+1))
+  else aviso "não achei no log da Crystal a linha de uso do turno (log em outro formato?)"; fi
+
+  echo "== 4. Supabase"
+  app_supabase_teste || erros=$((erros+1))
+  url=$(app_valor "$APP_EXT" SUPABASE_URL); chave=$(app_valor "$APP_EXT" SUPABASE_SERVICE_ROLE_KEY)
+  if [ -n "$url" ] && [ -n "$chave" ]; then
+    code=$(printf 'header = "apikey: %s"\nheader = "Authorization: Bearer %s"\n' "$chave" "$chave" \
+      | curl -s -o /dev/null -m 20 -w '%{http_code}' -K - -X POST "$url/rest/v1/rpc/app_memoria_ler" \
+          -H 'content-type: application/json' -d '{"p_customer_id":"00000000-0000-0000-0000-000000000000"}') || code=000
+    chave=""
+    if [ "$code" = "200" ]; then ok "memória única: a função app_memoria_ler responde (chave op_memoria_unica = ${memu:-off})"
+    else aviso "memória única: app_memoria_ler respondeu HTTP $code"; [ "$memu" = "on" ] && erros=$((erros+1)); fi
+  fi
+
+  echo "== 5. caminho do aluno pelo app"
+  if [ "$canal" = "chatwoot" ] && [ "$opcao" != "--sem-chatwoot" ]; then
+    echo "  (pergunta pela inbox do Chatwoot: app -> Chatwoot -> API -> Crystal -> OpenRouter -> Chatwoot)"
+    atendimento_teste || erros=$((erros+1))
+  elif [ "$canal" = "chatwoot" ]; then
+    echo "  pulado (--sem-chatwoot)"
+  else
+    ok "canal direto: a pergunta do item 3 é o caminho do aluno"
+  fi
+
+  echo
+  if [ "$erros" -eq 0 ]; then
+    ok "TUDO LIGADO: painel -> API -> Crystal -> OpenRouter, base de conhecimento, Supabase e o caminho do aluno responderam"
+  else
+    aviso "$erros ponto(s) com problema, marcados com ! acima"
+    return 1
+  fi
+}
+
 # ------------------------------------------------------------------ vigia do app
 # A cada 5 minutos (cron), confere o app e avisa no Telegram (grupo Crystal ·
 # Alertas). Só manda de novo o mesmo problema depois de 1 hora e avisa quando
@@ -2866,6 +3022,7 @@ case "$CMD" in
   app-revisao) app_revisao "$@" ;;
   app-telefone) app_telefone "$@" ;;
   crystal-nossa-teste) crystal_nossa_teste ;;
+  crystal-conferir) crystal_conferir "$@" ;;
   crystal-provisoria) crystal_provisoria ;;
   crystal-provisoria-teste) crystal_provisoria_teste ;;
   crystal-provisoria-desligar) crystal_provisoria_desligar ;;
