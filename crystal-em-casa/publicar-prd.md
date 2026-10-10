@@ -675,6 +675,14 @@ Ligar, nesta ordem:
    reembolso, chargeback e cancelamento. Tirar o webhook antigo da agência.
 7. Depois das primeiras compras: preencher `crystal_compras_produtos` só com os produtos da Crystal.
 
+Atalho de 10/10 para os passos 2 a 5: `crystal-em-casa/n8n/compra-assiny-credenciais.py`, na VPS. Lê
+as chaves que o app já usa (`.externos`: service_role, Resend, segredo do reembolso), gera o token da
+Assiny em `/root/crystal/n8n-compras.segredos`, testa cada chave direto no serviço, grava os valores
+nas 4 credenciais que o fluxo já usa (`n8n import:credentials`, nada sai da VPS) e testa de ponta a
+ponta com a caixa de teste do Resend. Testado num n8n 1.123.10 com Postgres e serviços falsos.
+Fraquezas aceitas pelo dono: o n8n usa a mesma service_role e a mesma chave do Resend que o app
+(`--supabase-proprio` e `--resend-proprio` trocam por chaves só do n8n).
+
 Limites: o painel (Alunos > base) ainda não lista quem está só em `crystal_compras` (aparece em
 Alunos depois do primeiro login). Recompra depois de reembolso: o suporte reativa a conta no painel.
 
