@@ -74,8 +74,10 @@ def ok(msg):
 def chamar(metodo, url, cab=None, corpo=None, tempo=40):
     """Devolve (status, corpo). Status 0 quando nem chegou resposta. Nunca levanta HTTPError."""
     dados = json.dumps(corpo).encode() if corpo is not None else None
+    # User-Agent próprio: o Cloudflare na frente do Resend barra o "Python-urllib" padrão (erro 1010).
     req = urllib.request.Request(url, data=dados, method=metodo, headers={
-        "accept": "application/json", "content-type": "application/json", **(cab or {})})
+        "accept": "application/json", "content-type": "application/json",
+        "user-agent": "crystal-n8n-credenciais/1.0", **(cab or {})})
     try:
         with urllib.request.urlopen(req, timeout=tempo) as r:
             status, bruto = r.status, r.read()
@@ -168,8 +170,8 @@ def testar_resend(chave):
                     "text": "Teste automático da credencial do n8n. Pode ignorar."})
     if st == 200 and isinstance(r, dict) and r.get("id"):
         return ok(f"Resend aceitou a chave e o remetente {REMETENTE} (e-mail para a caixa de teste)")
-    msg = r.get("message", "") if isinstance(r, dict) else ""
-    raise Falha(f"o Resend recusou (HTTP {st}): {str(msg)[:160]}")
+    msg = r.get("message", "") if isinstance(r, dict) else (r or "")
+    raise Falha(f"o Resend recusou (HTTP {st}): {str(msg).strip()[:160]}")
 
 
 def testar_reembolso(segredo):
