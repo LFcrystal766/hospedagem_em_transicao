@@ -80,7 +80,7 @@ Volume medido em 10/10 (amostra de 5%, só leitura): 9.709 conversas, ~5,5 milh�
   `ecb620a` Crystal (gerador `ficha.ts`, rotas `/v1/fichas`, 33 testes novos), `86b03c9` API (`/staff/operacao/fichas`,
   só admin, auditoria `operacao.fichas_lote`), `2893171` painel (um componente só, `FichasAlunos`, em Operação ›
   Crystal; fácil de mover para o `painel/base`), `0e2f79d` docs. Testes: Crystal 229, API 919, web 669, shared 219;
-  lint, typecheck e build do web verdes. CI: ver o run no GitHub (conferir antes de publicar).
+  lint, typecheck e build do web verdes. **CI verde** (run 174: gate, audit e e2e 35/35, commit `0e2f79d`).
 - Tudo parametrizável no painel a cada lote: modelo (lista real do OpenRouter, sem gratuitos), alcance (inteiro,
   6, 12 ou 24 meses), teto de gasto em US$ (o lote para nele), tamanho (piloto: 20; vazio = todos). Botão
   "Prever custo" só lê: conta a fila, mede 20 alunos de verdade e multiplica pelo preço do catálogo. "Começar"
