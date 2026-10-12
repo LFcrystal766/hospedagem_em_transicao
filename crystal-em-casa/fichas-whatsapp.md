@@ -1,5 +1,11 @@
 # Fichas do WhatsApp: a memória completa antes do primeiro acesso (10/10/2026)
 
+> **ATENÇÃO (12/10):** a imagem `sha-3e28974` (branch `otimizacao/etapa-fichas`) foi feita sobre
+> `sha-74092e0`, antes da publicação de 10/10 (`sha-5a5b198`). **Não subir essa imagem:** desfaria o
+> que entrou em produção depois. A implementação a publicar é a da branch `otimizacao/memoria-ficha`
+> (ver PROXIMOS-PASSOS.md e publicar-prd.md). Este arquivo fica como registro do desenho e das partes
+> que podem ser portadas (dois modelos, ensaio do piloto, rodada diária). O SQL vale para as duas.
+
 Pedido do dono (10/10): "antes mesmo dos alunos chegarem ao app, você já consiga ter a
 memória completa deles no app".
 
@@ -62,7 +68,7 @@ cd /root/crystal
 curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
 echo "<sha256>  bootstrap-vps.sh" | sha256sum -c -
 bash bootstrap-vps.sh backup
-bash bootstrap-vps.sh app-subir sha-3e28974
+# NÃO: bash bootstrap-vps.sh app-subir sha-3e28974 (ver o aviso no topo)
 ```
 
 (`<commit>` e `<sha256>` estão no PROXIMOS-PASSOS.md. Conferir antes, na aba Actions do
