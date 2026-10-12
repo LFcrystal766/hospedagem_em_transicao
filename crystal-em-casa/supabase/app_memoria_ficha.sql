@@ -21,10 +21,12 @@
 --   - função  public.app_ficha_fila(uuid, int)              (só leitura: quem falta);
 --   - função  public.app_ficha_historico(uuid, timestamptz, int) (só leitura: uma página);
 --   - função  public.app_ficha_gravar(...)                 (escreve SÓ na tabela nova);
---   - função  public.app_ficha_andamento()                 (só leitura: números do painel).
+--   - função  public.app_ficha_andamento()                 (só leitura: números do painel);
+--   - função  public.app_ficha_amostra(int)                (só leitura: ids para o ensaio do piloto).
 -- E reescreve duas funções NOSSAS (de app_memoria_unica.sql), sem mudar o que já faziam:
 --   - app_memoria_ler: a mesma resposta + a chave nova `whatsapp_ficha`;
---   - app_memoria_apagar: apaga também a ficha (exclusão da conta, LGPD).
+--   - app_memoria_apagar: apaga também a ficha e marca o aluno como "apagado", para a
+--     ficha nunca ser refeita (exclusão da conta, LGPD).
 -- Rodar de novo é seguro: a tabela não é recriada (as fichas ficam) e as funções são
 -- reescritas iguais. Tabela com o mesmo nome que não veio deste arquivo: para (JA_EXISTE).
 --
@@ -36,11 +38,13 @@
 -- ORDEM: app_telefone_chave.sql e app_memoria_unica.sql também escrevem app_memoria_ler.
 -- Se algum deles for rodado de novo, rodar ESTE logo depois (senão a ficha some do turno).
 --
--- Volta: `drop function public.app_ficha_fila(uuid, int), public.app_ficha_historico(uuid,
+-- Volta: primeiro rodar de novo app_memoria_unica.sql e, logo depois, app_telefone_chave.sql
+-- (voltam o app_memoria_ler e o app_memoria_apagar de antes, nesta ordem); depois
+-- `drop function public.app_ficha_fila(uuid, int), public.app_ficha_historico(uuid,
 -- timestamptz, int), public.app_ficha_gravar(uuid, text, timestamptz, int, numeric, text,
--- text, text), public.app_ficha_andamento(), public.app_ficha_alvos();
--- drop table public.crystal_memoria_ficha;` e rodar de novo app_memoria_unica.sql (volta o
--- app_memoria_ler e o app_memoria_apagar de antes). A Crystal sem ficha responde como hoje.
+-- text, text), public.app_ficha_andamento(), public.app_ficha_amostra(int),
+-- public.app_ficha_alvos(); drop table public.crystal_memoria_ficha;`. A Crystal sem ficha
+-- responde como hoje.
 -- =============================================================================
 
 do $$
@@ -100,7 +104,8 @@ $$;
 --   ficha       o texto que a Crystal lê no turno (null enquanto só houve erro);
 --   ate         a data da última mensagem do WhatsApp que entrou na ficha (o cursor da
 --               manutenção: na próxima rodada só entra o que veio depois);
---   estado      ok (ficha pronta), vazio (sem conversa no WhatsApp), erro (tentar de novo);
+--   estado      ok (ficha pronta), vazio (sem conversa no WhatsApp), erro (tentar de novo),
+--               apagado (o aluno excluiu a conta: a ficha saiu e NUNCA é refeita; LGPD);
 --   tentativas  erros seguidos; com 3, a fila deixa o aluno de lado até alguém zerar.
 -- -----------------------------------------------------------------------------
 create table if not exists public.crystal_memoria_ficha (
@@ -110,7 +115,7 @@ create table if not exists public.crystal_memoria_ficha (
   mensagens    int         not null default 0,
   custo_usd    numeric(12, 6) not null default 0,
   modelo       text,
-  estado       text        not null check (estado in ('ok', 'vazio', 'erro')),
+  estado       text        not null check (estado in ('ok', 'vazio', 'erro', 'apagado')),
   erro         text,
   tentativas   int         not null default 0,
   gerado_em    timestamptz not null default now(),
@@ -226,7 +231,7 @@ begin
            f.ate,
            (   f.customer_id is null
             or (f.estado = 'erro' and f.tentativas < 3)
-            or (f.estado <> 'erro' and u.m_ultima is not null and (f.ate is null or u.m_ultima > f.ate))
+            or (f.estado in ('ok', 'vazio') and u.m_ultima is not null and (f.ate is null or u.m_ultima > f.ate))
            ) as precisa
       from ult u
       left join public.crystal_memoria_ficha f on f.customer_id = u.customer_id
@@ -363,6 +368,7 @@ begin
            tentativas = f.tentativas + 1,
            custo_usd  = f.custo_usd + v_custo,
            gerado_em  = now()
+     where f.estado <> 'apagado'
     returning f.versao into v_versao;
     -- Com ficha anterior boa, o estado fica "ok": a fila só a pega de novo quando houver
     -- mensagem nova. Sem ficha, "erro" volta à fila até 3 tentativas.
@@ -384,8 +390,11 @@ begin
          tentativas = 0,
          gerado_em  = now(),
          versao     = f.versao + 1
+   where f.estado <> 'apagado'
   returning f.versao into v_versao;
 
+  -- Aluno que excluiu a conta (estado apagado): nada é gravado, nem por uma rodada que
+  -- já estava em curso quando ele excluiu. versao volta null.
   return json_build_object('versao', v_versao);
 end;
 $$;
@@ -419,6 +428,33 @@ $$;
 
 comment on function public.app_ficha_andamento() is
   'memoria-ficha 10/10/2026: contagens e custo das fichas para o painel. Só leitura; só service_role.';
+
+-- -----------------------------------------------------------------------------
+-- Amostra para o piloto (bootstrap-vps.sh fichas-ensaio): os customer_id das últimas
+-- fichas prontas, só os ids. Quem chama pede à Crystal o ensaio de cada um.
+-- -----------------------------------------------------------------------------
+create or replace function public.app_ficha_amostra(p_qtd int default 20)
+returns table (customer_id uuid)
+language plpgsql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if p_qtd is null or p_qtd < 1 or p_qtd > 100 then
+    raise exception 'QTD_INVALIDA' using hint = 'p_qtd entre 1 e 100';
+  end if;
+  return query
+    select f.customer_id
+      from public.crystal_memoria_ficha f
+     where f.estado = 'ok' and f.ficha is not null
+     order by f.gerado_em desc
+     limit p_qtd;
+end;
+$$;
+
+comment on function public.app_ficha_amostra(int) is
+  'memoria-ficha 10/10/2026: ids das últimas fichas prontas, para o ensaio do piloto. Só leitura; só service_role.';
 
 -- -----------------------------------------------------------------------------
 -- app_memoria_ler: igual à de app_memoria_unica.sql + `whatsapp_ficha`.
@@ -536,9 +572,18 @@ begin
     delete from public.crystal_memoria_unica u
      where u.customer_id = p_customer_id;
     get diagnostics v_apagadas = row_count;
-    delete from public.crystal_memoria_ficha f
-     where f.customer_id = p_customer_id;
+    -- A ficha sai, mas a linha fica como "apagado": sem ela, a fila (e a rodada diária)
+    -- refaria a ficha de quem pediu para apagar, porque a pessoa continua na base.
+    update public.crystal_memoria_ficha f
+       set ficha = null, ate = null, mensagens = 0, erro = null, tentativas = 0
+     where f.customer_id = p_customer_id
+       and f.ficha is not null;
     get diagnostics v_fichas = row_count;
+    insert into public.crystal_memoria_ficha as f (customer_id, estado, gerado_em)
+    values (p_customer_id, 'apagado', now())
+    on conflict (customer_id) do update
+       set ficha = null, ate = null, mensagens = 0, erro = null, tentativas = 0,
+           estado = 'apagado', gerado_em = now();
   end if;
 
   return json_build_object('apagadas', v_apagadas + v_fichas);
@@ -563,6 +608,10 @@ grant execute on function public.app_ficha_gravar(uuid, text, timestamptz, int, 
 revoke all on function public.app_ficha_andamento() from public;
 revoke all on function public.app_ficha_andamento() from anon, authenticated;
 grant execute on function public.app_ficha_andamento() to service_role;
+
+revoke all on function public.app_ficha_amostra(int) from public;
+revoke all on function public.app_ficha_amostra(int) from anon, authenticated;
+grant execute on function public.app_ficha_amostra(int) to service_role;
 
 revoke all on function public.app_memoria_ler(uuid) from public;
 revoke all on function public.app_memoria_ler(uuid) from anon, authenticated;

@@ -92,6 +92,16 @@ do $$ begin
   begin perform app_memoria_ler('aaaaaaaa-0000-0000-0000-000000000001'); raise notice 'FALHOU anon ler'; exception when insufficient_privilege then raise notice 'ok: anon barrado ler'; end;
 end $$;
 reset role;
-\echo '--- 18 apagar (LGPD)'
+\echo '--- 18 apagar (LGPD): esperado apagadas 1'
 select app_memoria_apagar('aaaaaaaa-0000-0000-0000-000000000001');
-select count(*) from crystal_memoria_ficha where customer_id='aaaaaaaa-0000-0000-0000-000000000001';
+
+\echo '--- 19 depois de apagar: fica marcado, a fila não pega de novo e gravar não recria (esperado: apagado|t, fila sem a, versao null)'
+select estado, ficha is null from crystal_memoria_ficha where customer_id='aaaaaaaa-0000-0000-0000-000000000001';
+select coalesce(string_agg(left(customer_id::text,1), ','), '(vazia)') from app_ficha_fila(null, 1000) where precisa and customer_id='aaaaaaaa-0000-0000-0000-000000000001';
+select app_ficha_gravar('aaaaaaaa-0000-0000-0000-000000000001','VOLTOU', now(), 1, 0.01, 'm', 'ok');
+select app_ficha_gravar('aaaaaaaa-0000-0000-0000-000000000001',null,null,0,0,null,'erro','x');
+select estado, ficha is null from crystal_memoria_ficha where customer_id='aaaaaaaa-0000-0000-0000-000000000001';
+select app_memoria_ler('aaaaaaaa-0000-0000-0000-000000000001')::jsonb->>'whatsapp_ficha' is null;
+\echo '--- 20 apagar quem nunca teve ficha também marca (esperado: apagadas 0, apagado)'
+select app_memoria_apagar('bbbbbbbb-0000-0000-0000-000000000002');
+select estado from crystal_memoria_ficha where customer_id='bbbbbbbb-0000-0000-0000-000000000002';

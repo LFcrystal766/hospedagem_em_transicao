@@ -71,6 +71,10 @@
 #   bash bootstrap-vps.sh app-custo [HORAS]    custo da Crystal no OpenRouter: soma o log de uso
 #                                              (tokens e US$ por turno e por resumo, só números),
 #                                              projeção mensal e saldo da conta. Padrão: 24 h
+#   bash bootstrap-vps.sh fichas-ensaio [N]    piloto das fichas do WhatsApp (10/10): para as N últimas
+#                                              fichas prontas (padrão 20), a mesma mensagem respondida
+#                                              sem memória, só com as anotações e com a ficha. O texto
+#                                              vai SÓ para um arquivo 600 em $BASE (ler com less e apagar)
 #   bash bootstrap-vps.sh app-admin            cria o primeiro admin (CPF digitado sem aparecer,
 #                                              não fica em spec, log nem histórico)
 #   bash bootstrap-vps.sh app-aluno            cria uma conta LOCAL de aluno, que não passa pela base de
@@ -1757,9 +1761,10 @@ for linha in sys.stdin:
         d = json.loads(linha)
     except ValueError:
         continue
-    if not str(d.get("msg", "")).startswith("modelo: uso do"):
+    msg = str(d.get("msg", ""))
+    if not (msg.startswith("modelo: uso do") or msg == "modelo: uso da ficha"):
         continue
-    tipo = "turno" if d["msg"].endswith("turno") else "resumo"
+    tipo = "turno" if msg.endswith("turno") else "ficha" if msg.endswith("ficha") else "resumo"
     g = grupos.setdefault((tipo, str(d.get("modelo", "?"))), dict(n=0, ent=0, cache=0, sai=0, rac=0, usd=0.0, ms=0))
     g["n"] += 1
     g["ent"] += int(d.get("tokens_entrada") or 0)
@@ -1787,7 +1792,7 @@ print(f"  projeção para 30 dias neste ritmo: US$ {total/horas*24*30:.2f}")
 PY
 )
   docker service logs --since "${horas}h" "${APP_STACK}_app_crystal" 2>/dev/null \
-    | grep -F '"msg":"modelo: uso do' | sed 's/^[^{]*//' \
+    | grep -E '"msg":"modelo: uso d(o|a ficha)' | sed 's/^[^{]*//' \
     | python3 -I -c "$somador" "$horas"
   echo "== conta do OpenRouter (consultada de dentro do contêiner; a chave não aparece)"
   cid=$(docker ps -q -f name=${APP_STACK}_app_crystal | head -1)
@@ -2336,6 +2341,49 @@ crystal_conferir() {
     aviso "$erros ponto(s) com problema, marcados com ! acima"
     return 1
   fi
+}
+
+# Piloto das fichas do WhatsApp (10/10): compara a resposta da Crystal sem memória, só com
+# as anotações da Crystal do WhatsApp e com a ficha, para as últimas N fichas prontas. Roda
+# de dentro do contêiner da API (as chaves não saem dele). O texto das conversas vai SÓ para
+# um arquivo 600 em $BASE; na tela, só contagens. Ler com less e apagar depois.
+fichas_ensaio() {
+  local n="${1:-20}" api arq
+  printf '%s' "$n" | grep -Eq '^[0-9]{1,3}$' && [ "$n" -ge 1 ] && [ "$n" -le 100 ] || falha "uso: fichas-ensaio [N] (1 a 100, padrão 20)"
+  api=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
+  [ -n "$api" ] || falha "API do app não está rodando"
+  arq="$BASE/fichas-ensaio-$(date +%Y%m%d-%H%M).md"
+  ( umask 077; : > "$arq" )
+  echo "== ensaio de $n fichas (cada uma: 3 respostas da Crystal, uns US\$ 0,003)"
+  docker exec -e N="$n" "$api" node -e '
+    const sb = process.env.SUPABASE_URL.replace(/\/+$/, "");
+    const k = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const cr = process.env.CRYSTAL_API_URL.replace(/\/+$/, "");
+    const ck = process.env.CRYSTAL_API_KEY;
+    const MSG = "Oi Crystal! Lembra de mim? Tô precisando de ajuda de novo.";
+    const rpc = async (nome, corpo) => {
+      const r = await fetch(sb + "/rest/v1/rpc/" + nome, { method: "POST", headers: { apikey: k, authorization: "Bearer " + k, "content-type": "application/json" }, body: JSON.stringify(corpo), signal: AbortSignal.timeout(20000) });
+      if (!r.ok) throw new Error("Supabase " + nome + " HTTP " + r.status);
+      return r.json();
+    };
+    (async () => {
+      const ids = (await rpc("app_ficha_amostra", { p_qtd: Number(process.env.N) })).map((x) => x.customer_id);
+      const linhas = ["# Ensaio das fichas do WhatsApp", "", "Mensagem do aluno em todos: \"" + MSG + "\"", ""];
+      let ok = 0, falhas = 0;
+      for (const [i, id] of ids.entries()) {
+        const r = await fetch(cr + "/v1/fichas/ensaio", { method: "POST", headers: { authorization: "Bearer " + ck, "content-type": "application/json" }, body: JSON.stringify({ pessoa_id: id, mensagem: MSG }), signal: AbortSignal.timeout(120000) }).catch(() => null);
+        if (!r || !r.ok) { falhas++; linhas.push("## Aluno " + (i + 1), "", "(o ensaio falhou: " + (r ? "HTTP " + r.status : "rede") + ")", ""); continue; }
+        const d = await r.json(); ok++;
+        linhas.push("## Aluno " + (i + 1), "", "### Ficha", "", d.ficha || "(sem ficha)", "",
+          "### Resposta SEM memória do WhatsApp", "", d.sem?.texto || "", "",
+          "### Resposta só com as ANOTAÇÕES (como era até 10/10)", "", d.anotacoes?.texto || "(o aluno não tinha anotações)", "",
+          "### Resposta COM a ficha", "", d.com_ficha?.texto || "", "", "---", "");
+      }
+      process.stdout.write(linhas.join("\n"));
+      process.stderr.write("  " + ids.length + " fichas na amostra; " + ok + " ensaios ok; " + falhas + " falhas\n");
+    })().catch((e) => { process.stderr.write("  falhou: " + e.message + "\n"); process.exit(1); });' >> "$arq" \
+    || { rm -f "$arq"; falha "o ensaio não rodou (imagem antiga, sem ficha ainda ou Supabase sem app_ficha_amostra)"; }
+  ok "comparativo em $arq (só root lê). Ler: less $arq  ·  depois: rm $arq"
 }
 
 # ------------------------------------------------------------------ vigia do app
@@ -3031,6 +3079,7 @@ case "$CMD" in
   app-telefone) app_telefone "$@" ;;
   crystal-nossa-teste) crystal_nossa_teste ;;
   crystal-conferir) crystal_conferir "$@" ;;
+  fichas-ensaio) shift; fichas_ensaio "$@" ;;
   crystal-provisoria) crystal_provisoria ;;
   crystal-provisoria-teste) crystal_provisoria_teste ;;
   crystal-provisoria-desligar) crystal_provisoria_desligar ;;
