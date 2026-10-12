@@ -48,6 +48,19 @@ de você, na ordem, com o tempo estimado.
 
 ## Memória completa ANTES do primeiro acesso (código pronto em 12/10, esperando decisão do dono)
 
+**Duas implementações em paralelo (12/10, sessão `session_01LjvvjacM3tnYL7q4cBDGQa`):** além da branch
+`otimizacao/memoria-ficha` (sobre a produção `sha-5a5b198`), existe a `otimizacao/etapa-fichas` (`3e28974`), feita
+sobre `sha-74092e0`. **Não publicar a `etapa-fichas`**: ela é anterior à publicação de 10/10 e desfaria o que entrou
+depois. Recomendação: seguir com a `memoria-ficha`. O que a `etapa-fichas` traz de diferente, para portar se o dono
+quiser: (1) leitura em dois modelos (Gemini 2.5 Flash-Lite lê os blocos, Gemini 2.5 Flash escreve a ficha; ~US$ 60–80 a
+base inteira, preços conferidos em 10/10); (2) a rota de ensaio e o comando `bootstrap-vps.sh fichas-ensaio N`
+(a mesma mensagem sem memória x só anotações x com ficha, texto só num arquivo 600 na VPS); (3) a chave
+`op_ficha_diaria` (atualização às 03:30, teto de US$ 5). Roteiro em `crystal-em-casa/fichas-whatsapp.md`.
+**SQL atualizado em 12/10 (vale para as duas):** `app_memoria_ficha.sql` agora marca "apagado" quem exclui a conta
+(antes a ficha era apagada e a fila a recriaria, porque a pessoa continua na base; LGPD) e tem `app_ficha_amostra`.
+Testado em Postgres local (`supabase/testes/`), ainda **não aplicado**. Medido em 12/10 (só leitura): a página de
+1.500 mensagens do aluno com mais histórico (~42 mil mensagens) leva 2,2 s, abaixo dos 8 s da API do Supabase.
+
 Pedido do dono: a memória completa de cada aluno pronta no app antes de ele chegar.
 
 Como está hoje (produção `sha-74092e0`):
