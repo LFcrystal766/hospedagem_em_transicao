@@ -46,31 +46,55 @@ de você, na ordem, com o tempo estimado.
   histórico, 16 pulados (sem conversa ainda; recebem na primeira mensagem), 0 falhas.
   Custo por importação entre US$ 0,02 e 0,05.
 
-## Memória completa ANTES do primeiro acesso (proposta de 10/10, esperando decisão do dono)
+## Memória completa ANTES do primeiro acesso (código pronto em 12/10, esperando decisão do dono)
 
 Pedido do dono: a memória completa de cada aluno pronta no app antes de ele chegar.
 
-Como está hoje (lido no código do app, `sha-74092e0`):
+Como está hoje (produção `sha-74092e0`):
 - Na 1ª mensagem no app, o robô importa só os últimos 7 dias do WhatsApp (até 500 mensagens) para a
-  memória da nossa Crystal (Postgres da VPS, por telefone) e gera um resumo de no máximo 1.000 caracteres.
-  O aluno espera até 8 s; passou disso, a 1ª resposta sai sem memória.
-- Em todo turno, com `op_memoria_unica`, a Crystal lê no Supabase, por customer_id, as anotações da Crystal
-  do WhatsApp (`lead_memories`, 6.747 alunos). Isso já está pronto antes do acesso, mas é curto e não cobre
-  quem não tem anotação.
+  memória da nossa Crystal e gera um resumo de no máximo 1.000 caracteres. O aluno espera até 8 s.
+- Em todo turno, com `op_memoria_unica`, a Crystal lê as anotações curtas da Crystal do WhatsApp
+  (`lead_memories`, 6.747 alunos). Pronto antes do acesso, mas curto e não cobre quem não tem anotação.
 
-Volume medido em 10/10 (amostra de 5%, só leitura): 9.709 conversas de alunos, ~5,5 milhões de mensagens,
-~3,1 bilhões de caracteres (~800 milhões de tokens). Cortando cada mensagem longa (aluno 800, Crystal 300
-caracteres) cai para ~400 milhões de tokens.
+Volume medido em 10/10 (amostra de 5%, só leitura): 9.709 conversas, ~5,5 milhões de mensagens,
+~400 milhões de tokens depois do corte das mensagens longas (aluno 800, Crystal 300 caracteres).
 
-Desenho proposto: tabela nova `crystal_memoria_whatsapp` (por customer_id: memória de até 4.000 caracteres,
-até que mensagem já entrou, custo). Gerada pela nossa Crystal (a chave do OpenRouter fica só lá), em lotes
-disparados pela Operação, com teto de gasto, retomável e andamento no painel. `app_memoria_ler` passa a
-devolver essa memória e a Crystal a usa já na 1ª mensagem, sem espera. Manutenção: rodada diária só com
-as mensagens novas de cada aluno (barato) e quem entra pela Assiny (`crystal_compras`) entra na fila.
-Piloto de 20 alunos (com e sem memória) antes do lote inteiro.
+**Feito em 12/10 (sessão `session_01EAUG7y3ujVLUv21rTdovhb`), nada aplicado, nada gasto, nada publicado:**
+- SQL `crystal-em-casa/supabase/app_memoria_ficha.sql` (commit `e447c0f`, 10/10): tabela `crystal_memoria_ficha`,
+  fila em fatias, histórico por página (atual + arquivo), gravar, andamento; `app_memoria_ler` passa a devolver
+  `whatsapp_ficha`. Conferido em 12/10: **não está no Supabase**.
+- App, branch `otimizacao/memoria-ficha` (sobre `otimizacao/publicar-10-10`, `sha-5a5b198`), 4 commits:
+  `ecb620a` Crystal (gerador `ficha.ts`, rotas `/v1/fichas`, 33 testes novos), `86b03c9` API (`/staff/operacao/fichas`,
+  só admin, auditoria `operacao.fichas_lote`), `2893171` painel (um componente só, `FichasAlunos`, em Operação ›
+  Crystal; fácil de mover para o `painel/base`), `0e2f79d` docs. Testes: Crystal 229, API 919, web 669, shared 219;
+  lint, typecheck e build do web verdes. CI: ver o run no GitHub (conferir antes de publicar).
+- Tudo parametrizável no painel a cada lote: modelo (lista real do OpenRouter, sem gratuitos), alcance (inteiro,
+  6, 12 ou 24 meses), teto de gasto em US$ (o lote para nele), tamanho (piloto: 20; vazio = todos). Botão
+  "Prever custo" só lê: conta a fila, mede 20 alunos de verdade e multiplica pelo preço do catálogo. "Começar"
+  pede confirmação com o resumo. "Parar" a qualquer hora; começar de novo continua do cursor de cada aluno.
+- Os dois casos tratados: aluno da base com conversa (ficha do histórico) e comprador novo da Assiny sem
+  conversa (grava "sem conversa" sem custo; entra na fila quando conversar). Em 12/10 havia 22 compras reais.
+- Roteiro de publicação em `crystal-em-casa/publicar-prd.md`, seção "Ficha completa de cada aluno".
 
-Decisões do dono: modelo (custo), alcance (histórico inteiro ou últimos 12 meses), teto de gasto e
-recarga do OpenRouter (saldo de US$ 25,41 em 09/10 não cobre).
+**Custo estimado** (preços do OpenRouter de 06/10, `auditorias/2026-10-06/openrouter-uso.md`; histórico inteiro,
+~42 mil tokens de entrada e ~1,1 mil de saída por aluno, ~9,6 mil alunos com conversa). É estimativa: o número
+real vem do botão "Prever custo" depois do SQL aplicado, e os últimos 12 meses custam a fração do histórico
+que cai neles (se for metade, metade do valor):
+
+| Modelo | Por aluno | Piloto (20) | Base inteira |
+|---|---|---|---|
+| openai/gpt-5.4-nano | US$ 0,010 | US$ 0,20 | ~US$ 95 |
+| openai/gpt-4.1-mini (reserva de hoje) | US$ 0,019 | US$ 0,40 | ~US$ 185 |
+| google/gemini-3.8-flash | US$ 0,036 | US$ 0,75 | ~US$ 350 |
+| anthropic/claude-haiku-4.5 (modelo de hoje) | US$ 0,048 | US$ 1,00 | ~US$ 470 |
+| anthropic/claude-sonnet-5.5 | US$ 0,096 | US$ 2,00 | ~US$ 930 |
+
+Manutenção depois do lote: só as mensagens novas de cada aluno, centavos por dia. Saldo do OpenRouter em
+09/10: US$ 25,41 (cobre o piloto em qualquer modelo; a base inteira exige recarga).
+
+**Decisões do dono (nenhuma presumida):** modelo; alcance (inteiro ou últimos 12 meses); teto do piloto e do
+lote inteiro; recarga do OpenRouter. Depois: aplicar o SQL, publicar a imagem da branch (junto ou depois da
+publicação de 10/10) e rodar o piloto de 20 pelo painel.
 
 ## Varredura de 12/10, volta do limite semanal (decisão do dono: qual painel publicar)
 

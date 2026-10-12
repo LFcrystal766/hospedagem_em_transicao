@@ -712,6 +712,39 @@ Conferir no painel (admin), em Operação › Crystal:
 3. Integrações: o cartão "Crystal" agora olha a nossa Crystal (antes, no modo chatwoot, olhava só o Chatwoot).
 4. Avisos › Programados: programar um aviso para daqui a 5 minutos para a própria equipe e ver sair.
 
+## Ficha completa de cada aluno antes do primeiro acesso (código pronto em 12/10, esperando decisão)
+
+Memória completa de cada aluno gerada do histórico inteiro do WhatsApp, pronta antes de ele chegar ao app.
+Código na branch `otimizacao/memoria-ficha` do app (sobre `otimizacao/publicar-10-10`, `sha-5a5b198`),
+4 commits: Crystal (`apps/crystal/src/ficha.ts` + rotas `/v1/fichas`), API (`/staff/operacao/fichas`,
+só admin, com auditoria), painel (um componente só, `FichasAlunos`, em Operação › Crystal, logo abaixo de
+"Memória do WhatsApp para todos") e docs. SQL: `crystal-em-casa/supabase/app_memoria_ficha.sql` (commit
+`e447c0f`, testes em `crystal-em-casa/supabase/testes/`), **não aplicado**.
+
+Nada acontece sozinho: sem o SQL as rotas respondem 503 e o bloco do painel mostra "as funções
+app_ficha_* já estão no Supabase?"; nenhum lote começa sem alguém clicar, escolher modelo, alcance e teto.
+
+```bash
+# 1. Decisões do dono (ver PROXIMOS-PASSOS.md): modelo, alcance, teto do piloto, recarga do OpenRouter.
+# 2. Supabase, SQL Editor: crystal-em-casa/supabase/app_memoria_ficha.sql (arquivo inteiro, uma vez).
+#    Depende de app_telefone_chave.sql e app_memoria_unica.sql (já aplicados). Conferir:
+#    select public.app_ficha_andamento();        -- {"alunos": ~9.6 mil, "com_ficha": 0, ...}
+# 3. VPS, quando a imagem da branch sair (CI verde): backup + app-subir sha-<tag>. Nenhuma variável nova
+#    é obrigatória (SUPABASE_FICHA_*_RPC só se renomear as funções).
+# 4. Painel, Operação › Crystal › "Ficha completa de cada aluno": "Prever custo" (só leitura, mede 20 alunos
+#    de verdade e usa o preço do catálogo); depois "Começar lote" com limite 20 (piloto) e teto pequeno.
+# 5. Piloto conferido (ficha boa, custo dentro do previsto): lote inteiro com limite vazio e teto decidido.
+#    Parar a qualquer hora; "Começar" de novo continua de onde parou (cursor por aluno na tabela).
+# Volta: app-subir sha-5a5b198 (ou 74092e0). A tabela e as funções podem ficar: sem a imagem nova ninguém as chama;
+# para tirar a ficha do turno, rodar app_memoria_unica.sql de novo (volta o app_memoria_ler sem a ficha).
+```
+
+O que o lote faz: quem conversou nos últimos 30 dias primeiro; aluno sem conversa no WhatsApp (comprador novo
+da Assiny) grava "sem conversa" sem custo e entra de novo quando conversar; histórico grande vai em blocos;
+para no teto, em erro fatal (sem crédito, chave recusada, modelo inválido) ou em 5 erros seguidos; manutenção
+depois disso só lê as mensagens novas de cada aluno (barato). Na conversa, a ficha entra primeiro no bloco
+"O que você já sabe desta pessoa" (memória única, chave já ligada), antes das anotações da Crystal do WhatsApp.
+
 ## Depois dos três (sem pressa, qualquer ordem)
 
 - **Nosso Chatwoot**: `crystal-em-casa/README.md`, seção "Ligar o nosso Chatwoot".
