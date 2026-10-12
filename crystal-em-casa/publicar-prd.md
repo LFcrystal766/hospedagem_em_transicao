@@ -735,10 +735,10 @@ comandos novos do `bootstrap-vps.sh` não rodaram na VPS ainda. **Nenhuma variá
 **Pré-checagens (na VPS, um comando por vez, esperar o `ok`)**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
-echo "<sha256>  bootstrap-vps.sh" | sha256sum -c      # tem que dizer: bootstrap-vps.sh: OK
-curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/painel-novo/volta-migracoes.sql -o volta-migracoes.sql
-curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/painel-novo/volta-scheduled-notices.sql -o volta-scheduled-notices.sql
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/06c1077b110228c3df4e86467c09320aa7a07a93/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+echo "2462ad21b61064d1a310c8e09541be0d0b8e131b2c452145fbc274ccf0e27201  bootstrap-vps.sh" | sha256sum -c      # tem que dizer: bootstrap-vps.sh: OK
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/06c1077b110228c3df4e86467c09320aa7a07a93/crystal-em-casa/painel-novo/volta-migracoes.sql -o volta-migracoes.sql
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/06c1077b110228c3df4e86467c09320aa7a07a93/crystal-em-casa/painel-novo/volta-scheduled-notices.sql -o volta-scheduled-notices.sql
 bash bootstrap-vps.sh app-status              # espera: as três imagens em sha-5a5b198, app. e api. -> 200
 bash bootstrap-vps.sh crystal-conferir        # espera: "ok TUDO LIGADO" (uns centavos de dólar)
 df -h / | tail -1                             # espera: pelo menos 5G em Avail (as imagens novas pesam ~1G)

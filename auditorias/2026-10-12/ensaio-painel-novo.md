@@ -82,4 +82,4 @@ imagem antiga migrate status: up to date · migrate diff contra o estado de ante
 ## bootstrap-vps.sh
 
 `bash -n` e `shellcheck -S warning` (0.11.0) limpos com os três comandos novos. Não rodados na VPS.
-sha256 do arquivo neste commit: ver `publicar-prd.md`, seção da onda 4.
+Commit `06c1077`, sha256 do bootstrap-vps.sh: `2462ad21b61064d1a310c8e09541be0d0b8e131b2c452145fbc274ccf0e27201`.
