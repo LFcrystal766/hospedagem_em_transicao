@@ -72,6 +72,16 @@ Piloto de 20 alunos (com e sem memória) antes do lote inteiro.
 Decisões do dono: modelo (custo), alcance (histórico inteiro ou últimos 12 meses), teto de gasto e
 recarga do OpenRouter (saldo de US$ 25,41 em 09/10 não cobre).
 
+## Varredura de 12/10, volta do limite semanal (decisão do dono: qual painel publicar)
+
+Tudo no ar; a publicação de 10/10 (`sha-5a5b198`) **não foi feita** (produção segue `74092e0`). **22 compras reais** entraram
+pela Assiny desde 10/10 (20 só em 12/10), 21 liberadas e 1 reembolsada: o fluxo do n8n funciona sem a agência. Sessão da
+memória religada (`session_01EAUG7y3ujVLUv21rTdovhb`); a das dúvidas dos avisos escreve um arquivo na branch. Achado da
+varredura: o painel novo das ondas 1 a 3 (`painel/base`, 81 commits, não publicado) já tinha caixa de modelo, agendamento de
+avisos e prévia; o pedido de 10/10 foi refeito no painel antigo. Leitura completa, com as três saídas (A recomendada: publicar
+`sha-5a5b198` agora e abrir a onda 4 para trazer `painel/base` por cima), em
+`auditorias/2026-10-12/varredura-volta-do-limite.md`. Para o SQL Editor: `drop function public.zz_teste_cabecalho_20261009();`.
+
 ## Publicação de 10/10: painel, modelo da Crystal, ligações e avisos programados (esperando OK)
 
 Tudo numa branch só do app, `otimizacao/publicar-10-10` (sobre `74092e0`), imagem `sha-5a5b198`. Testes: web 664,
