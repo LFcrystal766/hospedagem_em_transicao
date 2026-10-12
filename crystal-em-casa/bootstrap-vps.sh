@@ -96,6 +96,15 @@
 #                                              base de conhecimento, base de alunos e memória única no Supabase
 #                                              e o caminho do aluno pelo Chatwoot. Duas perguntas de teste ao
 #                                              modelo e uma pela inbox (uns centavos de dólar). --sem-chatwoot pula a inbox
+#   bash bootstrap-vps.sh app-api-parar --confirmo
+#                                              tira a API do ar (0 réplicas) para a publicação do painel
+#                                              novo (onda 4); app-subir TAG volta a 1 réplica
+#   bash bootstrap-vps.sh app-auditoria-backfill TAG
+#                                              com a API PARADA: aplica as migrações e calcula a cadeia de
+#                                              hash da auditoria com a imagem TAG, num serviço temporário.
+#                                              Trava contra rodar duas vezes; só contagens na tela
+#   bash bootstrap-vps.sh app-painel-conferir  depois de publicar o painel novo: migrate status limpo,
+#                                              cadeia da auditoria conferida pelo app, telas e rotas novas
 #   bash bootstrap-vps.sh crystal-provisoria   Crystal provisória no n8n com o OpenRouter (pede a
 #                                              chave sem aparecer) e o app apontando pra ela
 #   bash bootstrap-vps.sh crystal-provisoria-teste      uma pergunta de teste, pela API do app
@@ -2394,6 +2403,145 @@ VIGIA_CONF="$BASE/.vigia"
 VIGIA_ESTADO="$BASE/.vigia-estado"
 VIGIA_LOG="$BASE/vigia.log"
 
+# ---------------------------------------------------------------------------
+# Painel novo da equipe (onda 4, 12/10): a migração pa13_01 numera a auditoria e o
+# audit:backfill calcula a cadeia de hash das linhas antigas. A ORDEM é obrigatória:
+# API parada -> migração + backfill (imagem nova, serviço temporário) -> app-subir.
+# Se a API nova gravar uma linha antes do backfill, a cadeia nasce quebrada e o
+# backfill não conserta (ensaiado em 12/10: crystal-em-casa/painel-novo/README.md).
+app_api_parar() { # app_api_parar --confirmo
+  [ "${2:-}" = "--confirmo" ] || falha "isto tira a API do ar: o app para de responder aos alunos até o próximo app-subir. Se é isso mesmo (janela 02:00-05:00): bash $0 app-api-parar --confirmo"
+  docker service inspect "${APP_STACK}_app_api" >/dev/null 2>&1 || falha "o serviço ${APP_STACK}_app_api não existe"
+  echo "== parando a API (0 réplicas). web e Chatwoot continuam; só o app fica sem resposta"
+  docker service scale "${APP_STACK}_app_api=0" --detach=false >/dev/null || falha "não parou a API"
+  local t=0 n
+  while :; do
+    n=$(docker ps -q --filter "label=com.docker.swarm.service.name=${APP_STACK}_app_api" | wc -l)
+    [ "$n" -eq 0 ] && break
+    [ "$t" -lt 120 ] || falha "a API ainda tem contêiner rodando depois de 2 min: docker service ps ${APP_STACK}_app_api"
+    sleep 3; t=$((t+3))
+  done
+  ok "API parada (nenhuma tarefa rodando)"
+  echo "  Próximo: bash $0 app-auditoria-backfill TAG   e depois   bash $0 app-subir TAG (volta a 1 réplica)"
+  echo "  Desistiu? bash $0 app-subir $(app_tag_atual) sobe a versão de hoje de novo"
+}
+
+# Migração + backfill da auditoria com a IMAGEM NOVA, num serviço temporário do Swarm na
+# rede interna do app (a rede não é "attachable": docker run não entra nela). Trava em
+# arquivo (flock) para não rodar duas vezes ao mesmo tempo; o próprio backfill ainda usa um
+# pg_advisory_xact_lock. Só contagens na tela: nenhum conteúdo da trilha.
+app_auditoria_backfill() { # app_auditoria_backfill TAG
+  local tag="${2:-}" svc="${APP_STACK}_backfill" estado="" t=0 saida rodando
+  echo "$tag" | grep -Eq '^(sha-[0-9a-f]{7}|v[0-9][0-9A-Za-z.-]*)$' \
+    || falha "informe a tag da imagem NOVA: bash $0 app-auditoria-backfill sha-XXXXXXX"
+  [ -f "$APP_DIR/api.env" ] || falha "não existe $APP_DIR/api.env (o app nunca subiu aqui?)"
+  command -v flock >/dev/null || falha "flock não está instalado (apt-get install util-linux)"
+  mkdir -p "$APP_DIR"; chmod 700 "$APP_DIR"
+  exec 9>"$APP_DIR/.auditoria-backfill.lock"
+  flock -n 9 || falha "já tem um app-auditoria-backfill rodando (trava $APP_DIR/.auditoria-backfill.lock). Espere ele acabar"
+  rodando=$(docker service ps "${APP_STACK}_app_api" --filter desired-state=running -q 2>/dev/null | wc -l)
+  [ "$rodando" -eq 0 ] || falha "a API ainda está no ar ($rodando tarefa). O backfill só vale com a API parada: bash $0 app-api-parar --confirmo"
+  docker network inspect "${APP_STACK}_app_interno" >/dev/null 2>&1 || falha "rede ${APP_STACK}_app_interno não existe (a stack do app nunca subiu?)"
+  docker pull -q "$APP_IMG-api:$tag" >/dev/null || falha "não baixou $APP_IMG-api:$tag. Rodou 'bash $0 app-ghcr'? A imagem saiu no GitHub (imagens-vps)?"
+  docker service rm "$svc" >/dev/null 2>&1 || true
+  echo "== migração + backfill da auditoria com $tag (serviço temporário $svc, some no fim)"
+  # shellcheck disable=SC2016
+  docker service create --quiet --detach --name "$svc" --with-registry-auth --restart-condition none \
+    --network "${APP_STACK}_app_interno" --env-file "$APP_DIR/api.env" \
+    --constraint node.role==manager --limit-memory 1024M --limit-cpu 1 -w /app \
+    "$APP_IMG-api:$tag" sh -c 'pnpm --filter @crystal/api db:migrate:deploy && pnpm --filter @crystal/api audit:backfill' >/dev/null \
+    || falha "não criou o serviço temporário $svc"
+  while :; do
+    estado=$(docker service ps "$svc" --format '{{.CurrentState}}' 2>/dev/null | head -1)
+    case "$estado" in Complete*|Failed*|Rejected*|Shutdown*) break ;; esac
+    if [ "$t" -ge 900 ]; then aviso "15 min e o backfill não terminou (trilha enorme?). Log parcial abaixo; o serviço continua"; break; fi
+    sleep 5; t=$((t+5))
+  done
+  saida=$(docker service logs --raw "$svc" 2>&1 | grep -vE 'Lifecycle|postinstall|prisma generate|^\s*$' || true)
+  printf '%s\n' "$saida" | tail -25 | sed 's/^/     /'
+  case "$estado" in
+    Complete*) docker service rm "$svc" >/dev/null 2>&1 || true ;;
+    *) falha "a migração ou o backfill NÃO terminou bem ($estado). A API continua parada e o banco como estava antes do passo que falhou. Mande o log acima para a sessão; para voltar ao ar: bash $0 app-subir $(app_tag_atual)" ;;
+  esac
+  printf '%s' "$saida" | grep -q '"ok":true' || falha "o backfill terminou sem confirmar a cadeia ('ok':true não apareceu). Não subir a API nova: mande o log acima para a sessão"
+  ok "migrações aplicadas e cadeia da auditoria fechada ($(printf '%s' "$saida" | grep -o '"conferidas":[0-9]*' | tail -1 | cut -d: -f2) linhas conferidas), em ${t}s"
+  echo "  Próximo: bash $0 app-subir $tag"
+}
+
+# Conferência depois de publicar o painel novo, sem mudar nada: migrações limpas de dentro
+# da API, cadeia de hash conferida pelo código do próprio app, rotas e telas novas no ar.
+app_painel_conferir() {
+  local erros=0 api pg saida n sem code u esperado metodo
+  echo "== 1. serviços e tag"
+  echo "  API em $(app_tag_atual)"
+  app_status
+  api=$(docker ps -q -f name="${APP_STACK}_app_api" | head -1)
+  [ -n "$api" ] || falha "a API do app não está rodando: bash $0 app-subir TAG"
+  pg=$(docker ps -q -f name="${APP_STACK}_app_postgres" | head -1)
+  [ -n "$pg" ] || falha "Postgres do app não está rodando"
+
+  echo "== 2. migrações do Prisma (vistas de dentro da API que está no ar)"
+  saida=$(docker exec -w /app/apps/api "$api" ./node_modules/.bin/prisma migrate status 2>&1 || true)
+  if printf '%s' "$saida" | grep -q 'Database schema is up to date'; then ok "migrate status: tudo aplicado, nada pendente"
+  else aviso "migrate status não está limpo:"; printf '%s\n' "$saida" | tail -8 | sed 's/^/     /'; erros=$((erros+1)); fi
+  if printf '%s' "$saida" | grep -q 'not found locally'; then
+    aviso "há migração no banco que esta imagem não conhece (imagem antiga com banco novo?): $(printf '%s' "$saida" | sed -n '/not found locally/,$p' | tail -n +2 | tr '\n' ' ')"; erros=$((erros+1)); fi
+  n=$(docker exec "$pg" psql -U crystal -d crystal_web_chat -tAc "select count(*) from _prisma_migrations where migration_name like 'pa%' and finished_at is not null" 2>/dev/null | tr -d '[:space:]')
+  if [ "${n:-0}" -ge 9 ] 2>/dev/null; then ok "$n migrações pa* do painel novo aplicadas"
+  else aviso "só ${n:-0} migrações pa* aplicadas (o painel novo tem 9)"; erros=$((erros+1)); fi
+  n=$(docker exec "$pg" psql -U crystal -d crystal_web_chat -tAc "select to_regclass('public.scheduled_notices') is null" 2>/dev/null | tr -d '[:space:]')
+  case "$n" in
+    t) echo "  scheduled_notices (avisos programados de 10/10): apagada pela migração da onda 4" ;;
+    f) echo "  scheduled_notices (avisos programados de 10/10): ainda existe nesta imagem" ;;
+  esac
+
+  echo "== 3. cadeia de hash da auditoria"
+  read -r n sem <<<"$(docker exec "$pg" psql -U crystal -d crystal_web_chat -tAc "select count(*) || ' ' || count(*) filter (where hash is null) from audit_log" 2>/dev/null | tr -d '\r')"
+  if [ -z "${n:-}" ]; then aviso "não li a tabela audit_log (coluna hash não existe? a migração pa13_01 não entrou)"; erros=$((erros+1))
+  elif [ "${sem:-1}" -eq 0 ]; then ok "$n linhas na auditoria, todas com hash"
+  else aviso "$sem de $n linhas SEM hash: o backfill não rodou ou a API nova gravou antes dele"; erros=$((erros+1)); fi
+  app_api_ts_gravar "$api" .painel-conferir.ts <<'TS' || aviso "não gravou o script de conferência na API"
+import { PrismaClient } from "@prisma/client";
+import { createPrismaRepos } from "./src/db/prisma";
+import { verificarCadeia } from "./src/services/audit-chain";
+const prisma = new PrismaClient();
+const repos = createPrismaRepos(prisma);
+const v = await verificarCadeia(repos.audit, repos.settings);
+console.log(JSON.stringify({ cadeia_ok: v.ok, conferidas: v.checked, quebra: v.broken ? { seq: v.broken.seq, motivo: v.broken.reason } : null }));
+await prisma.$disconnect();
+if (!v.ok) process.exit(1);
+TS
+  if saida=$(docker exec -w /app/apps/api "$api" ./node_modules/.bin/tsx .painel-conferir.ts 2>&1); then
+    ok "conferência do app: $saida"
+  else aviso "a conferência do app apontou problema: $(printf '%s' "$saida" | tail -3 | tr '\n' ' ')"; erros=$((erros+1)); fi
+  app_api_ts_apagar "$api" .painel-conferir.ts
+
+  echo "== 4. rotas e telas novas (sem sessão: só confere que existem; o conteúdo é no navegador)"
+  # URL, método, código esperado. /me/notices sem sessão responde 401 (na imagem antiga, 404).
+  # As telas da equipe respondem 200 e as antigas redirecionam (307) para o lugar novo.
+  for u in \
+    "https://api.$DOMINIO/healthz GET 200" \
+    "https://api.$DOMINIO/me/notices/conferencia/opened POST 401" \
+    "https://app.$DOMINIO/equipe/alunos GET 200" \
+    "https://app.$DOMINIO/equipe/mensagens GET 200" \
+    "https://app.$DOMINIO/equipe/metricas GET 200" \
+    "https://app.$DOMINIO/equipe/auditoria GET 200" \
+    "https://app.$DOMINIO/equipe/configuracoes GET 200" \
+    "https://app.$DOMINIO/equipe/crystal GET 200" \
+    "https://app.$DOMINIO/equipe/operacao GET 307" \
+    "https://app.$DOMINIO/equipe/avisos GET 307" \
+    "https://app.$DOMINIO/equipe/painel GET 307"; do
+    read -r u metodo esperado <<<"$u"
+    code=$(curl -s -o /dev/null -m 20 -X "$metodo" -w '%{http_code}' "$u" 2>/dev/null) || true
+    if [ "${code:-000}" = "$esperado" ]; then ok "$metodo $u -> $code"
+    else aviso "$metodo $u -> ${code:-000} (esperava $esperado)"; erros=$((erros+1)); fi
+  done
+
+  echo
+  if [ "$erros" -eq 0 ]; then ok "PAINEL NOVO NO AR: migrações limpas, cadeia da auditoria íntegra, telas e rotas novas respondendo"
+  else aviso "$erros ponto(s) com problema, marcados com ! acima. Volta: bash $0 app-subir sha-5a5b198 (ver crystal-em-casa/publicar-prd.md, onda 4)"; return 1; fi
+}
+
 vigia_telegram() { # vigia_telegram TEXTO -> 0 se o Telegram aceitou
   local token chat
   token=$(app_valor "$VIGIA_CONF" TOKEN); chat=$(app_valor "$VIGIA_CONF" CHAT)
@@ -3079,6 +3227,9 @@ case "$CMD" in
   app-telefone) app_telefone "$@" ;;
   crystal-nossa-teste) crystal_nossa_teste ;;
   crystal-conferir) crystal_conferir "$@" ;;
+  app-api-parar) app_api_parar "$@" ;;
+  app-auditoria-backfill) app_auditoria_backfill "$@" ;;
+  app-painel-conferir) app_painel_conferir ;;
   fichas-ensaio) shift; fichas_ensaio "$@" ;;
   crystal-provisoria) crystal_provisoria ;;
   crystal-provisoria-teste) crystal_provisoria_teste ;;

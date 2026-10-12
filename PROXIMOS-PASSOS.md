@@ -126,6 +126,16 @@ avisos e prévia; o pedido de 10/10 foi refeito no painel antigo. Leitura comple
 `sha-5a5b198` agora e abrir a onda 4 para trazer `painel/base` por cima), em
 `auditorias/2026-10-12/varredura-volta-do-limite.md`. Para o SQL Editor: `drop function public.zz_teste_cabecalho_20261009();`.
 
+## Onda 4, publicação do painel novo: ensaio pronto (12/10, sessão T3)
+
+Migrações do painel novo ensaiadas num Postgres local com dados fictícios (5 mil alunos, 20 mil linhas de auditoria):
+9 migrações em 2,8 s, `audit:backfill` 30 s (idempotente), volta por SQL testada (esquema volta igual). **Achado que manda
+no roteiro**: o backfill da auditoria tem de rodar com a API PARADA, antes da imagem nova subir; se a API nova gravar antes,
+a cadeia de hash nasce quebrada sem conserto. Comandos novos no `bootstrap-vps.sh` (`app-api-parar`, `app-auditoria-backfill`,
+`app-painel-conferir`, não rodados na VPS ainda), SQL de volta em `crystal-em-casa/painel-novo/`, roteiro em
+`crystal-em-casa/publicar-prd.md` ("Publicação do painel novo (onda 4)"). Nenhuma variável nova. Pré-requisito da T1: o CI do
+app não roda em `painel/**`; a imagem só sai incluindo `painel/**` nos workflows ou por disparo manual, como em 10/10.
+
 ## Publicação de 10/10: painel, modelo da Crystal, ligações e avisos programados (esperando OK)
 
 Tudo numa branch só do app, `otimizacao/publicar-10-10` (sobre `74092e0`), imagem `sha-5a5b198`. Testes: web 664,

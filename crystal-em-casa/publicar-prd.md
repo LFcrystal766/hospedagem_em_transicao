@@ -712,6 +712,95 @@ Conferir no painel (admin), em Operação › Crystal:
 3. Integrações: o cartão "Crystal" agora olha a nossa Crystal (antes, no modo chatwoot, olhava só o Chatwoot).
 4. Avisos › Programados: programar um aviso para daqui a 5 minutos para a própria equipe e ver sair.
 
+## Publicação do painel novo (onda 4): preparado em 12/10, esperando a imagem da T1
+
+O painel novo (`painel/base` + `otimizacao/publicar-10-10`, juntados pela T1 em `painel/onda4`) traz 9 migrações do
+Prisma (todas aditivas), uma migração da T1 que apaga `scheduled_notices` (os avisos programados de 10/10) e um passo
+novo, o `audit:backfill`, que calcula a cadeia de hash da auditoria. **A ordem é obrigatória: API parada → migração +
+backfill → API nova.** Se a API nova gravar antes do backfill, a trilha nasce quebrada e não há conserto (ensaiado).
+Tudo abaixo foi ensaiado num Postgres local com dados fictícios (`crystal-em-casa/painel-novo/README.md`); os três
+comandos novos do `bootstrap-vps.sh` não rodaram na VPS ainda. **Nenhuma variável nova**: `app-definir` não muda.
+
+**Pré-requisitos (fora da VPS)**
+1. Passo 1 do caminho A feito: produção em `sha-5a5b198` (`app-status` mostra a tag).
+2. A T1 terminou `painel/onda4`: CI verde, bateria de QA do painel repetida, pasta `e3_26_avisos_programados` mantida
+   nas migrações, e a imagem `sha-<tag>` publicada. **Hoje o CI não roda em `painel/**`** (`ci.yml` só `otimizacao/**` e
+   PR; `imagens-vps.yml` só `otimizacao/etapa-*`, tag `v*` e disparo manual). Ou a T1 inclui `painel/**` nos dois
+   workflows, ou abre um PR (roda o CI) e dispara o `imagens-vps` à mão na branch, como em 10/10. Sem imagem, não há
+   `app-subir`.
+3. Janela 02:00–05:00 BRT, vigia ligada, equipe avisada: **a API fica fora do ar uns 3 a 5 minutos** (o app não
+   responde aos alunos; web e Chatwoot continuam). Cancelar no painel qualquer aviso programado pendente (a tabela some).
+4. Conta de admin, suporte e técnico à mão para conferir as telas depois.
+
+**Pré-checagens (na VPS, um comando por vez, esperar o `ok`)**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+echo "<sha256>  bootstrap-vps.sh" | sha256sum -c      # tem que dizer: bootstrap-vps.sh: OK
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/painel-novo/volta-migracoes.sql -o volta-migracoes.sql
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/painel-novo/volta-scheduled-notices.sql -o volta-scheduled-notices.sql
+bash bootstrap-vps.sh app-status              # espera: as três imagens em sha-5a5b198, app. e api. -> 200
+bash bootstrap-vps.sh crystal-conferir        # espera: "ok TUDO LIGADO" (uns centavos de dólar)
+df -h / | tail -1                             # espera: pelo menos 5G em Avail (as imagens novas pesam ~1G)
+bash bootstrap-vps.sh backup                  # espera: "ok" em cada banco e nos uploads, e a cópia no R2
+bash bootstrap-vps.sh backup-conferir         # espera: o backup de agora listado no R2
+```
+
+**Publicar (a API para no passo 1 e volta no passo 3)**
+
+```bash
+# 1. parar a API (a palavra --confirmo é de propósito)
+bash bootstrap-vps.sh app-api-parar --confirmo
+#    espera: "ok API parada (nenhuma tarefa rodando)"
+# 2. migração + backfill com a imagem NOVA (serviço temporário; ~3 s de migração + 1,5 s por mil linhas de auditoria)
+bash bootstrap-vps.sh app-auditoria-backfill sha-XXXXXXX
+#    espera, no fim: uma linha {"msg":"auditoria: backfill da cadeia","total":N,"preenchidas":N,"ok":true,...}
+#    e "ok migrações aplicadas e cadeia da auditoria fechada (N linhas conferidas)". Se der ERRO: NÃO seguir,
+#    a API continua parada e o banco inteiro; voltar ao ar com: bash bootstrap-vps.sh app-subir sha-5a5b198
+# 3. subir a API nova (as migrações já estão; o migrate deploy da subida só diz "No pending migrations")
+bash bootstrap-vps.sh app-subir sha-XXXXXXX
+#    espera: "ok api.env aceito pelo boot da API", "ok os três serviços estão em sha-XXXXXXX e nenhum voltou",
+#    app-status com as três imagens novas e o teste do Supabase "ok"
+# 4. conferir
+bash bootstrap-vps.sh app-painel-conferir
+#    espera: migrate status limpo, "9 migrações pa*" (ou 10), "N linhas na auditoria, todas com hash",
+#    conferência do app {"cadeia_ok":true,...}, telas novas -> 200, telas antigas -> 307, e no fim "ok PAINEL NOVO NO AR"
+bash bootstrap-vps.sh crystal-conferir        # espera: "ok TUDO LIGADO" de novo, agora pela versão nova
+```
+
+**Conferir no navegador (https://app.crystalnowpp.com.br/equipe)**
+- **Admin**: Início (cartões e "agendadas para hoje"); Alunos (lista com totais e filtros, uma ficha, aba Lotes com a
+  palavra LIBERAR e senha); Mensagens (Nova mensagem, "Teste para mim", aba Agendadas); Crystal (modelo, teste,
+  pausa); Configurações (as chaves da antiga Operação, com quem/quando); Métricas; Auditoria → "Verificar
+  integridade" tem que dizer "Trilha íntegra: N registros conferidos."; Equipe. Os links antigos `/equipe/operacao`,
+  `/equipe/avisos` e `/equipe/painel` levam para Alunos › Lotes, Mensagens e Métricas.
+- **Suporte**: Alunos (ficha com "Tentativas de entrada" e aba Dados do titular), Mensagens para um aluno só;
+  **não vê** Auditoria nem Configurações. Lotes e agendamento não aparecem.
+- **Técnico**: Mensagens, Métricas, Configurações e Auditoria (lê, sem "Exportar"); não vê e-mail nem telefone de aluno.
+- Com um aluno (conta de teste): entrar, conversar, receber uma mensagem da equipe com botão.
+
+**Volta**
+- Só a imagem (primeira opção, ensaiada: a antiga convive com as tabelas novas):
+  `bash bootstrap-vps.sh app-subir sha-5a5b198`. Antes, cancelar no painel os envios agendados (a antiga não os
+  entrega). Se a migração da T1 já apagou `scheduled_notices`, a aba "Programados" da antiga quebra: rodar o SQL
+  abaixo (`volta-scheduled-notices.sql`) antes do `app-subir`.
+- Imagem + banco (só se a antiga reclamar do banco; apaga o que o painel novo gravou, lista no topo do arquivo):
+
+```bash
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-api-parar --confirmo
+pg=$(docker ps -q -f name=crystal_app_app_postgres | head -1)
+docker exec -i "$pg" psql -U crystal -d crystal_web_chat -v ON_ERROR_STOP=1 < volta-scheduled-notices.sql
+#    espera: CREATE TABLE, CREATE INDEX e "migracoes_da_t1_tiradas | 1"
+docker exec -i "$pg" psql -U crystal -d crystal_web_chat -v ON_ERROR_STOP=1 < volta-migracoes.sql
+#    espera: nenhuma linha de ERROR (sai calado); ~0,1 s
+bash bootstrap-vps.sh app-subir sha-5a5b198
+#    espera: "No pending migrations" no boot, três serviços em sha-5a5b198
+bash bootstrap-vps.sh crystal-conferir
+```
+
+Ida de novo depois de uma volta: repetir "Publicar" do passo 1 (o backfill refaz a cadeia inteira).
+
 ## Ficha completa de cada aluno antes do primeiro acesso (código pronto em 12/10, esperando decisão)
 
 Memória completa de cada aluno gerada do histórico inteiro do WhatsApp, pronta antes de ele chegar ao app.
