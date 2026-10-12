@@ -109,6 +109,13 @@ Manutenção depois do lote: só as mensagens novas de cada aluno, centavos por 
 lote inteiro; recarga do OpenRouter. Depois: aplicar o SQL, publicar a imagem da branch (junto ou depois da
 publicação de 10/10) e rodar o piloto de 20 pelo painel.
 
+## Onda 4 do painel (12/10): caminho A em andamento
+
+Dono escolheu A. Passo 1, na VPS (dono): `backup`, `app-subir sha-5a5b198`, `crystal-conferir` (roteiro em
+`crystal-em-casa/publicar-prd.md`, "Publicação de 10/10"). Passo 2 em preparação por três sessões (T1 integração em
+`painel/onda4`, T2 mensagens na conversa + prévia dupla, T3 roteiro e ensaio das migrações), plano em
+`auditorias/2026-10-12/onda4-plano.md`. Depois: QA exaustiva do painel novo (fase 2) e só então publicar.
+
 ## Varredura de 12/10, volta do limite semanal (decisão do dono: qual painel publicar)
 
 Tudo no ar; a publicação de 10/10 (`sha-5a5b198`) **não foi feita** (produção segue `74092e0`). **22 compras reais** entraram
