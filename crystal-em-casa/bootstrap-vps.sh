@@ -1255,7 +1255,7 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   CONHECIMENTO_MATCH_COUNT CONHECIMENTO_TIMEOUT_MS
   ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*
   REFUND_WEBHOOK_SECRET* REFUND_EVENTS REFUND_PRODUCT_IDS TRANSCRIPTION_API_URL TRANSCRIPTION_API_KEY* TRANSCRIPTION_MODEL
-  TRANSCRIPTION_TIMEOUT_MS TRANSCRIPTION_PRICE_PER_HOUR_USD CHATWOOT_API_TOKEN* EQUIPE_EMAIL
+  TRANSCRIPTION_TIMEOUT_MS TRANSCRIPTION_PRICE_PER_HOUR_USD CHATWOOT_API_TOKEN* EQUIPE_EMAIL SUPERADMIN_EMAILS
   RATE_AUTH_MAX RATE_AUTH_WINDOW_S OTP_MAX_ATTEMPTS OTP_RESEND_COOLDOWN_S OTP_RESEND_MAX
   RATE_AUTH_IP_MAX UPLOAD_DAILY_MAX CRYSTAL_PRAZO_TOTAL_MS CRYSTAL_TIMEOUT_MS)
 
@@ -1423,6 +1423,12 @@ except Exception:
 d=json.loads(base64.b64decode(sys.stdin.read().strip(), validate=True))
 assert d.get("type")=="service_account" and d.get("client_email") and "PRIVATE KEY" in d.get("private_key","")' 2>/dev/null \
         || falha "esperado o JSON da conta de serviço em base64, numa linha só (no Mac: base64 -i chave.json | tr -d '\\n' | pbcopy). Nada gravado" ;;
+    SUPERADMIN_EMAILS)
+      # Onda 5 (13/10): quem edita a alma da Crystal. Só e-mails, separados por vírgula; o papel admin continua
+      # exigido pela API. Vazio = ninguém edita (o painel só mostra).
+      v=$(printf '%s' "$v" | tr 'A-Z' 'a-z' | tr -d ' ')
+      printf '%s' "$v" | grep -Eq '^([a-z0-9._%+-]+@[a-z0-9-]+(\.[a-z0-9-]+)+)(,[a-z0-9._%+-]+@[a-z0-9-]+(\.[a-z0-9-]+)+){0,9}$' \
+        || falha "lista de e-mails separados por vírgula (até 10), ex.: dono@empresa.com.br. Nada gravado" ;;
     REFUND_WEBHOOK_SECRET)
       # Assina o webhook de reembolso: tem que ser longo e variado, nunca uma palavra.
       [ "$(printf '%s' "$v" | wc -c)" -ge 32 ] && [ "$(printf '%s' "$v" | fold -w1 | sort -u | wc -l)" -ge 10 ] \
