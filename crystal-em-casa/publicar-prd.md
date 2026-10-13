@@ -695,8 +695,8 @@ serviço `migrate` aplica na subida. As três imagens (api, web, crystal) têm a
 tudo.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/434288a/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
-echo "fdd35d4a255ca98204522a1fca7eb79743a1b5b5f6c6a0084f0c7e2cd3d00df2  bootstrap-vps.sh" | sha256sum -c
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/182a12e/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+echo "6eb9d955c70cb4181d209ec8d572d37ecb017a628a98e7e290ac35411a81d428  bootstrap-vps.sh" | sha256sum -c
 bash bootstrap-vps.sh crystal-conferir        # antes: a versão de hoje, de ponta a ponta (deve dar TUDO LIGADO)
 bash bootstrap-vps.sh app-status              # anotar a tag atual (sha-74092e0)
 bash bootstrap-vps.sh backup
@@ -722,7 +722,7 @@ Tudo abaixo foi ensaiado num Postgres local com dados fictícios (`crystal-em-ca
 comandos novos do `bootstrap-vps.sh` não rodaram na VPS ainda. **Nenhuma variável nova**: `app-definir` não muda.
 
 **Pré-requisitos (fora da VPS)**
-1. Passo 1 do caminho A feito: produção em `sha-5a5b198` (`app-status` mostra a tag).
+1. Passo 1 do caminho A feito: produção em `sha-0e2f79d` desde 13/10 (= `sha-5a5b198` + fichas; `app-status` mostra a tag).
 2. A T1 terminou `painel/onda4`: CI verde, bateria de QA do painel repetida, pasta `e3_26_avisos_programados` mantida
    nas migrações, e a imagem `sha-<tag>` publicada. **Hoje o CI não roda em `painel/**`** (`ci.yml` só `otimizacao/**` e
    PR; `imagens-vps.yml` só `otimizacao/etapa-*`, tag `v*` e disparo manual). Ou a T1 inclui `painel/**` nos dois
@@ -735,11 +735,11 @@ comandos novos do `bootstrap-vps.sh` não rodaram na VPS ainda. **Nenhuma variá
 **Pré-checagens (na VPS, um comando por vez, esperar o `ok`)**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/06c1077b110228c3df4e86467c09320aa7a07a93/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
-echo "2462ad21b61064d1a310c8e09541be0d0b8e131b2c452145fbc274ccf0e27201  bootstrap-vps.sh" | sha256sum -c      # tem que dizer: bootstrap-vps.sh: OK
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/182a12ec919a7833b270efe53aa7d8470eab5b52/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+echo "6eb9d955c70cb4181d209ec8d572d37ecb017a628a98e7e290ac35411a81d428  bootstrap-vps.sh" | sha256sum -c      # tem que dizer: bootstrap-vps.sh: OK
 curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/06c1077b110228c3df4e86467c09320aa7a07a93/crystal-em-casa/painel-novo/volta-migracoes.sql -o volta-migracoes.sql
 curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/06c1077b110228c3df4e86467c09320aa7a07a93/crystal-em-casa/painel-novo/volta-scheduled-notices.sql -o volta-scheduled-notices.sql
-bash bootstrap-vps.sh app-status              # espera: as três imagens em sha-5a5b198, app. e api. -> 200
+bash bootstrap-vps.sh app-status              # espera: as três imagens em sha-0e2f79d (publicada em 13/10), app. e api. -> 200
 bash bootstrap-vps.sh crystal-conferir        # espera: "ok TUDO LIGADO" (uns centavos de dólar)
 df -h / | tail -1                             # espera: pelo menos 5G em Avail (as imagens novas pesam ~1G)
 bash bootstrap-vps.sh backup                  # espera: "ok" em cada banco e nos uploads, e a cópia no R2
