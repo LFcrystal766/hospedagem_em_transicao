@@ -113,12 +113,15 @@ de US$ 2). Comparar as fichas e o custo real. Se ficar o gpt-4.1-mini: teto do l
 no OpenRouter antes. Falta: publicar `sha-0e2f79d` na VPS (= `sha-5a5b198` + fichas; volta `sha-74092e0`) e rodar os
 pilotos pelo painel.
 
-## Onda 4 do painel (12/10): caminho A em andamento
+## Onda 4 do painel: pronta para publicar (13/10), imagem `sha-22a65c1`
 
-Dono escolheu A. Passo 1, na VPS (dono): `backup`, `app-subir sha-5a5b198`, `crystal-conferir` (roteiro em
-`crystal-em-casa/publicar-prd.md`, "Publicação de 10/10"). Passo 2 em preparação por três sessões (T1 integração em
-`painel/onda4`, T2 mensagens na conversa + prévia dupla, T3 roteiro e ensaio das migrações), plano em
-`auditorias/2026-10-12/onda4-plano.md`. Depois: QA exaustiva do painel novo (fase 2) e só então publicar.
+`painel/onda4` em `22a65c1`: painel novo + T2 (mensagem na conversa da Crystal com prévia dupla) + fichas na página
+da Crystal + 16 correções da QA de 13/10 (`auditorias/2026-10-13/onda4-qa.md`, 39 achados) + correção do painel
+intermitente. CI verde (run 38425864762, e2e 64/64) e imagens publicadas. Publicação: `crystal-em-casa/publicar-prd.md`,
+"Publicação do painel novo (onda 4)", **na janela 02:00–05:00**, com a API parada uns 3 a 5 minutos (ordem
+obrigatória: API parada → migração + backfill da auditoria → API nova). Antes, de preferência: `sha-3773e2e` no ar.
+Espera o dono: pendência 20 do PRD (o suporte pode desligar e religar aluno? hoje pode). Para uma entrega própria:
+números de Mensagens e "Sem usar o app" em Métricas, cinco chaves de Configurações e o cartão "Coerência legal".
 
 ## Varredura de 12/10, volta do limite semanal (decisão do dono: qual painel publicar)
 

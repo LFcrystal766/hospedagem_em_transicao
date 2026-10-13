@@ -60,17 +60,14 @@ ter nome de aluno colado de alguma saída.
 2. **Conferência de ponta a ponta.** O `crystal-conferir` de 10/10 quebrava sem modelo no painel ("modelo: unbound
    variable"); corrigido em `182a12e`. Esperando o dono rodar de novo e colar a saída (deve terminar em
    "TUDO LIGADO").
-3. **Painel novo (onda 4, caminho A).** A orquestração terminou em 13/10: junção da T2 e das fichas, app local,
-   QA em 4 áreas (39 achados), 16 corrigidos. `painel/onda4` no GitHub em `06aaa0a`; **CI vermelho** em 2 testes
-   e2e de Mensagens (um botão "Continuar" duplicado no assistente de envio); a imagem `sha-06aaa0a` existe mas
-   **não deve ser publicada**. Relatório completo: `auditorias/2026-10-13/onda4-qa.md`. Em andamento: um agente
-   consertando esses 2 testes e trazendo a correção do painel intermitente (item 1) para `painel/onda4`; ao
-   terminar, CI verde e imagem nova `sha-<7>`. Se não terminar, refazer por esta descrição a partir do
-   `painel/onda4` do GitHub. Esperando decisão do dono: a pendência 20 do PRD (o suporte pode desligar e religar
-   aluno? hoje pode). Ficaram para entrega própria: os números de Mensagens e "Sem usar o app" em Métricas, cinco
-   chaves de Configurações e o cartão "Coerência legal". Publicação: `crystal-em-casa/publicar-prd.md`, seção
-   "Publicação do painel novo (onda 4)", **na janela 02:00–05:00**, ordem obrigatória: API parada → migração +
-   backfill da auditoria → API nova.
+3. **Painel novo (onda 4, caminho A): pronto para publicar.** `painel/onda4` em `22a65c1`, CI verde (run
+   38425864762), imagem **`sha-22a65c1`** (a `sha-06aaa0a` teve CI vermelho: não usar). Tem a T2, as fichas, 16
+   correções da QA (`auditorias/2026-10-13/onda4-qa.md`) e a correção do painel intermitente (com o índice em
+   `IF NOT EXISTS`, ensaiado). Esperando o dono: escolher a madrugada (02:00–05:00) e responder a pendência 20 do
+   PRD (o suporte pode desligar e religar aluno? hoje pode). Para entrega própria: números de Mensagens e "Sem usar
+   o app" em Métricas, cinco chaves de Configurações e o cartão "Coerência legal". Roteiro:
+   `crystal-em-casa/publicar-prd.md`, "Publicação do painel novo (onda 4)"; ordem obrigatória: API parada →
+   migração + backfill da auditoria → API nova.
 4. **Fichas dos alunos.** SQL e imagem no ar. Falta o dono rodar, em Operação › Crystal › "Ficha completa de cada
    aluno": "Prever custo"; piloto de 20 com `openai/gpt-4.1-mini` (12 meses, teto US$ 5); outro de 20 com
    `anthropic/claude-haiku-4.5` (mesmo alcance e teto). Comparar fichas e custo.
@@ -107,7 +104,7 @@ ter nome de aluno colado de alguma saída.
 | `otimizacao/etapa-fichas` (`3e28974`) | Outra versão das fichas, anterior a 10/10. **Não publicar** |
 | `otimizacao/painel-rapido` (`3773e2e`) | Correção do painel intermitente, imagem `sha-3773e2e` (13/10) |
 | `painel/base` (`03cff13`) | Painel novo, base |
-| `painel/onda4` (`06aaa0a`, CI vermelho em 13/10) | Painel novo integrado (onda 4). `backup/onda4-2026-10-13` é uma cópia anterior |
+| `painel/onda4` (`22a65c1`, CI verde) | Painel novo integrado (onda 4), imagem `sha-22a65c1`. `backup/onda4-2026-10-13` é uma cópia anterior |
 
 Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, geradas pelo `imagens-vps.yml`
 (dispara sozinho em `otimizacao/etapa-*` e `painel/onda4*`; nas outras, por disparo manual na branch).
