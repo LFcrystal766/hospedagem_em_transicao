@@ -75,6 +75,28 @@ ter nome de aluno colado de alguma saída.
    aluno": "Prever custo"; piloto de 20 com `openai/gpt-4.1-mini` (12 meses, teto US$ 5); outro de 20 com
    `anthropic/claude-haiku-4.5` (mesmo alcance e teto). Comparar fichas e custo.
 
+5. **Mensagens: números do "não" (pedido do dono 13/10).** Em cada envio: entregues e não entregues (com o motivo),
+   abertas e não abertas, cliques e não clicaram (sem botão, o painel diz isso), na lista Enviadas e no detalhe, e
+   filtros "Não abriu"/"Não clicou" na tabela por aluno. Agente trabalhando em `painel/onda4` (sobre `22a65c1`);
+   ao terminar, CI e imagem nova: **a etiqueta da onda 4 muda** e é ela que vai para a madrugada. Só vale para
+   mensagens enviadas pelo painel novo (os avisos antigos não registraram entrega nem clique).
+6. **Alma da Crystal no painel (onda 5, pedido do dono 13/10).** Decisões: **superadmin** edita, testa e publica;
+   acompanhar com bateria de perguntas-padrão, amostra de conversas reais (👍/👎 e nota) e números do dia a dia;
+   editáveis: a alma, as regras de formato e a base de conhecimento. Fatos levantados: a alma é
+   `apps/crystal/prompt/crystal.md` (~17 mil caracteres, dentro da imagem: hoje mudar = publicar imagem nova); as
+   regras de formato são o `BLOCO_FORMATO` em `apps/crystal/src/prompt.ts`; a base é a tabela
+   `leticia_crystal_hybrid_search` do Supabase (27 trechos: 9 regras de ouro, exemplos, diretrizes e estágios), buscada
+   pela Edge Function `crystal_hybrid_search` (embedding `openai/text-embedding-3-small`, 1536, pelo OpenRouter com o
+   segredo `OPENROUTER_API_KEY_CRYSTAL` da função: **conferir de quem é essa conta**; se for da agência, a busca depende
+   dela). Não existe papel superadmin (papéis: aluno, suporte, técnico, admin): proposta é uma lista de e-mails numa
+   variável da API (`SUPERADMIN_EMAILS`), que só se muda na VPS. Construção em orquestração, sobre `painel/onda4`,
+   numa branch `painel/onda5-alma`; nada publicado.
+7. **Aluno liberado à mão (pedido da Letícia, 13/10, 1 ano).** Conferido no Supabase: não está em nenhuma base (nem
+   compras, nem base da agência; por e-mail e por telefone). Caminho: no painel atual, Equipe › Alunos › "Nova conta
+   local" (e-mail, nome; WhatsApp opcional) dá acesso na hora, sem prazo; depois da onda 4, na ficha dele, Ações ›
+   Acesso (só admin, pede a senha de novo) com "Acesso até" 13/10/2027. O painel novo já tem conta local com "Acesso
+   até" (o login é recusado depois da data). E-mail e telefone do aluno ficam fora do repositório.
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
@@ -88,6 +110,7 @@ ter nome de aluno colado de alguma saída.
 - Token da Assiny: mantido (risco aceito em 10/10). Nunca repetir o valor em lugar nenhum.
 - Só o app é liberado na compra, nunca o WhatsApp. A Crystal do WhatsApp será encerrada; todos vão para o app.
 - Sem agência desde 09/10; nada combinado com o Tuan. Fatura da AZAN: não cancelar.
+- Alma da Crystal: edição só pelo superadmin; tudo com teste antes, histórico e volta em 1 clique.
 
 ## 5. Pendências antigas
 
