@@ -207,6 +207,72 @@
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5b0f3c1e-8d2a-4e6b-9f47-2c1a7d3e9b10",
+              "leftValue": "={{ $json.acao }}",
+              "rightValue": "ignorado",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "a7c94e02-3f5d-4b8e-8e21-6d0b4f9c2a37",
+              "leftValue": "={{ $json.motivo }}",
+              "rightValue": "produto",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "e4b2a9d1-6c3f-4f0a-b8d5-1e7c2a9f4b63",
+      "name": "Produto fora da lista?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.crystalnowpp.com.br/webhooks/imagens",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Assiny').item.json.body) }}",
+        "options": {}
+      },
+      "id": "f1d8c3b7-2a6e-4d9c-a4f0-8b3e5c7d1a92",
+      "name": "Repassar ao app (pacote de imagens)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        620
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     }
   ],
   "connections": {
@@ -251,6 +317,11 @@
             "node": "Bloqueou?",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Produto fora da lista?",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -272,6 +343,18 @@
         [
           {
             "node": "Desligar no app (reembolso)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Produto fora da lista?": {
+      "main": [
+        [
+          {
+            "node": "Repassar ao app (pacote de imagens)",
             "type": "main",
             "index": 0
           }
