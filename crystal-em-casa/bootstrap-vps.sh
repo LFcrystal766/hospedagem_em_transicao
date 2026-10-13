@@ -90,6 +90,8 @@
 #                                              público): pede a chave do OpenRouter sem aparecer,
 #                                              aponta o app para ela e testa. Volta: crystal-provisoria
 #   bash bootstrap-vps.sh crystal-nossa-teste  uma pergunta de teste à nossa Crystal
+#   bash bootstrap-vps.sh painel-diagnostico [HORAS]  só leitura: reinícios, memória, rotas lentas ou com erro na
+#                                              API (sem dado de aluno), volume e índice das mensagens (13/10)
 #   bash bootstrap-vps.sh crystal-conferir     confere a corrente inteira, sem mudar nada: serviços, o que o
 #                                              painel (Operação) mandou, API -> nossa Crystal -> OpenRouter
 #                                              (chave, saldo, modelo e reserva existem e respondem de verdade),
@@ -2469,6 +2471,78 @@ app_auditoria_backfill() { # app_auditoria_backfill TAG
   echo "  Próximo: bash $0 app-subir $tag"
 }
 
+# Painel intermitente (13/10), só leitura: reinícios (Exit 137 = memória estourou), memória agora,
+# chamadas da API lentas (> 5 s) ou com erro nas últimas HORAS (só método, caminho sem query, status
+# e tempo: nada de corpo, cookie, IP ou e-mail), erros do log por tipo e o volume que o painel lê.
+painel_diagnostico() {
+  local horas="${2:-6}" svc="" api="" pg=""
+  printf '%s' "$horas" | grep -Eq '^[0-9]{1,3}$' || falha "uso: bash $0 painel-diagnostico [HORAS]  (padrão 6)"
+  echo "== 1. reinícios (Exit 137 ou OOM = memória estourou; 'Shutdown' de uma publicação é normal)"
+  for svc in ${APP_STACK}_app_api ${APP_STACK}_app_web ${APP_STACK}_app_crystal ${APP_STACK}_app_postgres; do
+    docker service ps "$svc" --no-trunc --format '{{.Name}}|{{.Image}}|{{.CurrentState}}|{{.Error}}' 2>/dev/null \
+      | head -5 | awk -F'|' '{ sub(/.*:/, "", $2); printf "  %s %s %s %s\n", $1, $2, $3, $4 }' || true
+  done
+  echo "== 2. memória e CPU agora"
+  docker stats --no-stream --format '{{.Name}}|{{.MemUsage}}|{{.CPUPerc}}' 2>/dev/null | grep -E "^(${APP_STACK}|${CW_STACK})_" \
+    | awk -F'|' '{ sub(/\.[0-9]+\.[a-z0-9]+$/, "", $1); printf "  %-34s %s  CPU %s\n", $1, $2, $3 }' || true
+  free -h | sed 's/^/  /'
+  dmesg 2>/dev/null | grep -iE 'out of memory|oom-kill' | tail -5 | sed 's/^/  /' || true
+  api=$(docker ps -q -f name=${APP_STACK}_app_api | head -1)
+  [ -n "$api" ] || falha "API do app não está rodando"
+  echo "== 3. API nas últimas ${horas}h: chamadas lentas ou com erro, por rota"
+  docker service logs --since "${horas}h" --raw ${APP_STACK}_app_api 2>/dev/null | docker exec -i "$api" node -e '
+    const rl = require("readline").createInterface({ input: process.stdin });
+    const urls = new Map(), grupos = new Map(), erros = new Map(); let total = 0;
+    const caminho = (u) => String(u || "?").split("?")[0].replace(/\/[0-9a-f-]{16,}|\/c[a-z0-9]{20,}/gi, "/:id").replace(/\/\d+(?=\/|$)/g, "/:n").slice(0, 70);
+    rl.on("line", (l) => {
+      let j; try { j = JSON.parse(l); } catch { return; }
+      if (j.req && j.reqId !== undefined) { urls.set(j.reqId, (j.req.method || "?") + " " + caminho(j.req.url)); return; }
+      if (j.res && j.reqId !== undefined && typeof j.responseTime === "number") {
+        total++;
+        const k = urls.get(j.reqId) || "? (início fora da janela)"; urls.delete(j.reqId);
+        const g = grupos.get(k) || { n: 0, lentas: 0, s: {}, max: 0 };
+        g.n++; g.max = Math.max(g.max, j.responseTime); if (j.responseTime > 5000) g.lentas++;
+        const st = j.res.statusCode; if (st >= 500 || st === 429 || st === 408 || st === 503) g.s[st] = (g.s[st] || 0) + 1;
+        grupos.set(k, g); return;
+      }
+      if (j.level >= 50) {
+        const e = j.err || {};
+        const k = String(e.code || e.type || "erro") + ": " + String(e.message || j.msg || "").replace(/\s+/g, " ").replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, "<email>").slice(0, 90);
+        erros.set(k, (erros.get(k) || 0) + 1);
+      }
+    });
+    rl.on("close", () => {
+      console.log("  " + total + " chamadas terminadas no período");
+      const ruins = [...grupos].filter(([, g]) => g.lentas || Object.keys(g.s).length)
+        .sort((a, b) => (b[1].lentas + Object.values(b[1].s).reduce((x, y) => x + y, 0)) - (a[1].lentas + Object.values(a[1].s).reduce((x, y) => x + y, 0)));
+      if (!ruins.length) console.log("  nenhuma chamada lenta ou com erro");
+      for (const [k, g] of ruins.slice(0, 20)) console.log("  ! " + k + ": " + g.n + " chamadas, " + g.lentas + " lentas, erros " + JSON.stringify(g.s) + ", pior " + Math.round(g.max) + " ms");
+      console.log("  -- área da equipe (/staff), pior tempo:");
+      for (const [k, g] of [...grupos].filter(([k]) => k.includes("/staff/")).sort((a, b) => b[1].max - a[1].max).slice(0, 15))
+        console.log("  " + k + ": " + g.n + " chamadas, pior " + Math.round(g.max) + " ms");
+      console.log("  -- erros no log, por tipo:");
+      if (!erros.size) console.log("  nenhum");
+      for (const [k, n] of [...erros].sort((a, b) => b[1] - a[1]).slice(0, 12)) console.log("  " + n + "x " + k);
+    });' || aviso "não consegui ler o log da API"
+  echo "== 4. o que o painel lê do banco do app (mensagens por período e tempo da leitura)"
+  pg=$(docker ps -q -f name=${APP_STACK}_app_postgres | head -1)
+  [ -n "$pg" ] || falha "Postgres do app não está rodando"
+  docker exec "$pg" psql -U crystal -d crystal_web_chat -tA -F ' | ' -c "
+    select 'mensagens 1 dia', count(*), coalesce(pg_size_pretty(sum(length(content))::bigint), '0') from messages where created_at >= now() - interval '1 day'
+    union all select 'mensagens 7 dias', count(*), coalesce(pg_size_pretty(sum(length(content))::bigint), '0') from messages where created_at >= now() - interval '7 days'
+    union all select 'mensagens 60 dias', count(*), coalesce(pg_size_pretty(sum(length(content))::bigint), '0') from messages where created_at >= now() - interval '60 days'
+    union all select 'mensagens total', count(*), pg_size_pretty(pg_total_relation_size('messages')) from messages
+    union all select 'conexões abertas no Postgres', count(*), '' from pg_stat_activity where datname = 'crystal_web_chat'" 2>&1 | sed 's/^/  /' || aviso "não li o volume de mensagens"
+  docker exec "$pg" psql -U crystal -d crystal_web_chat -tA -c "select indexdef from pg_indexes where tablename = 'messages'" 2>&1 | sed 's/^/  índice: /' || true
+  docker exec "$pg" psql -U crystal -d crystal_web_chat -tA -c "explain (analyze, format text) select m.direction, m.content_type, m.created_at, m.content, c.user_id from messages m join conversations c on c.id = m.conversation_id where m.created_at >= now() - interval '14 days'" 2>&1 \
+    | grep -E 'Seq Scan|Index|Execution Time|Planning Time' | head -6 | sed 's/^/  /' || true
+  echo "== 5. web (Next.js) nas últimas ${horas}h"
+  docker service logs --since "${horas}h" --raw ${APP_STACK}_app_web 2>/dev/null | grep -ciE 'error|timeout|ECONNRESET|ECONNREFUSED' | sed 's/^/  linhas com erro: /' || true
+  docker service logs --since "${horas}h" --raw ${APP_STACK}_app_web 2>/dev/null | grep -iE 'error|timeout|ECONNRESET|ECONNREFUSED' \
+    | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z.]+/<email>/g' | cut -c1-110 | sort | uniq -c | sort -rn | head -6 | sed 's/^/  /' || true
+  echo "Cole tudo acima na sessão (não tem segredo nem dado de aluno)."
+}
+
 # Conferência depois de publicar o painel novo, sem mudar nada: migrações limpas de dentro
 # da API, cadeia de hash conferida pelo código do próprio app, rotas e telas novas no ar.
 app_painel_conferir() {
@@ -3231,6 +3305,7 @@ case "$CMD" in
   app-api-parar) app_api_parar "$@" ;;
   app-auditoria-backfill) app_auditoria_backfill "$@" ;;
   app-painel-conferir) app_painel_conferir ;;
+  painel-diagnostico) painel_diagnostico "$@" ;;
   fichas-ensaio) shift; fichas_ensaio "$@" ;;
   crystal-provisoria) crystal_provisoria ;;
   crystal-provisoria-teste) crystal_provisoria_teste ;;
