@@ -54,8 +54,9 @@ ter nome de aluno colado de alguma saída.
    **Correção pronta:** branch `otimizacao/painel-rapido` do app (`3773e2e`, 6 commits sobre a produção), CI
    verde, imagem **`sha-3773e2e`**. A causa principal era outra: um formatador de data criado por mensagem
    travava a API por 12–77 s. Depois: 0,6–1,9 s. Roteiro em `publicar-prd.md`, seção "Correção do painel
-   intermitente". Esperando o dono: `painel-diagnostico 24` (antes), `backup`, `app-subir sha-3773e2e`,
-   `crystal-conferir`. **Obrigatório antes da imagem da onda 4:** `pa12_26_metricas` com `CREATE INDEX IF NOT
+   intermitente". **Prova da VPS (13/10): a API morreu por falta de memória 3 vezes em 16 h** (exit 137,
+   ~976 MB de 1 GiB), `auditorias/2026-10-13/painel-diagnostico.md`. `crystal-conferir` deu TUDO LIGADO.
+   Esperando o dono: `backup`, `app-subir sha-3773e2e`, `crystal-conferir`. **Obrigatório antes da imagem da onda 4:** `pa12_26_metricas` com `CREATE INDEX IF NOT
    EXISTS`, a pasta `e3_27_painel_indice_mensagens` e cherry-pick de `e24509f`..`3773e2e` em `painel/onda4`.
 2. **Conferência de ponta a ponta.** O `crystal-conferir` de 10/10 quebrava sem modelo no painel ("modelo: unbound
    variable"); corrigido em `182a12e`. Esperando o dono rodar de novo e colar a saída (deve terminar em
