@@ -894,6 +894,47 @@ e `imagens_limite_texto`, e `op_imagens_pacotes` (uma linha por pacote: `id do p
 Só então rodar o script do n8n da seção "Pacote de imagens extras (13/10)" (`compra-assiny-imagens.py`, commit
 `b449e66`): antes disso a API ainda não tem `/webhooks/imagens`.
 
+
+## Alma da Crystal no painel (onda 5): imagem `sha-f3d6616` (13/10, CI verde)
+
+Branch `painel/onda5-alma` do app em `f3d6616` = onda 4 (`9ec8151`) + a alma. CI run 38469721794 (e2e 68 passaram) e
+imagens run 38470890991. Desenho: `docs/painel-admin/ONDA5-ALMA.md` no app; relatório: `auditorias/2026-10-13/onda5-alma.md`.
+O que traz (área Crystal do painel): alma e regras de formato com rascunho, teste lado a lado, publicar, histórico e
+voltar (só superadmin edita e testa; admin e técnico veem); base de conhecimento editável com histórico; bateria de
+perguntas-padrão (até 30 por rodada, teto US$ 5); amostra de conversas reais com 👍/👎 (só admin, só com a leitura de
+conversa liberada); números do dia; atalhos de prazo na conta local (30 dias, 3 e 6 meses, 1 ano, sem prazo).
+Migração nova só aditiva: `pa17_01_crystal_avaliacoes` (ensaiada sobre a `pa16_01_imagens_semana`). A Crystal
+troca, na subida, uma regra da tabela de uso (`uso_turnos`, ~75 mil linhas): trava a tabela uns segundos, uma vez.
+
+**Pré-requisitos**
+1. Onda 4 (`sha-9ec8151`) publicada e conferida. A onda 5 não sobe direto sobre a produção de hoje.
+2. Supabase › SQL Editor: `crystal-em-casa/supabase/app_conhecimento_editar.sql`, o arquivo inteiro de uma vez (cria o
+   histórico dos trechos e as funções de escrita, só para `service_role`; a RPC `crystal_hybrid_search` e a Edge Function
+   da agência não mudam). As conferências estão no fim do arquivo.
+3. Janela 02:00–05:00 (por causa da trava na `uso_turnos`).
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/36c0efd/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+echo "b92a691455ca47155d7a99e2dcc3745455c4af3701e6e07cbc5dd0d506284904  bootstrap-vps.sh" | sha256sum -c
+bash bootstrap-vps.sh app-definir SUPERADMIN_EMAILS   # o e-mail de admin de quem edita a alma (vários: separados por vírgula)
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-f3d6616
+bash bootstrap-vps.sh crystal-conferir
+bash bootstrap-vps.sh app-painel-conferir
+# Voltar: bash bootstrap-vps.sh app-subir sha-9ec8151 (a tabela de avaliações, a coluna alma_versao e as tabelas
+# da alma no banco da Crystal ficam; a versão anterior não as usa e volta a ler a alma do arquivo da imagem)
+```
+
+**Conferir no painel (como superadmin):** Crystal › Alma mostra a alma em uso (fonte "imagem" até a primeira
+publicação); salvar um rascunho, testar a mesma pergunta nos dois lados, publicar e ver o "Testar com uma mensagem"
+responder com a versão nova; voltar à anterior. Base: abrir um trecho e ver o histórico (editar só quando quiser
+mudar de verdade: vale na hora para os alunos). Bateria: cadastrar 3 perguntas e rodar (custa centavos). Números.
+Com outro admin que não está em `SUPERADMIN_EMAILS`: tudo só leitura.
+
+**A busca da base** continua pela Edge Function da agência (chave `crystal_busca` = `edge`). Trocar para `propria`
+(a Crystal gera o embedding com a chave dela) só depois de conferir de quem é a chave da Edge Function
+(`OPENROUTER_API_KEY_CRYSTAL` no Supabase); a troca pede a palavra TROCAR e a senha.
+
 ## Ficha completa de cada aluno antes do primeiro acesso (SQL aplicado em 13/10, imagem `sha-0e2f79d`)
 
 Memória completa de cada aluno gerada do histórico inteiro do WhatsApp, pronta antes de ele chegar ao app.

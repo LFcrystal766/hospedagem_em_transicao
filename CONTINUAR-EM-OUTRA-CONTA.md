@@ -91,17 +91,15 @@ ter nome de aluno colado de alguma saída.
    segredo `OPENROUTER_API_KEY_CRYSTAL` da função: **conferir de quem é essa conta**; se for da agência, a busca depende
    dela). Não existe papel superadmin (papéis: aluno, suporte, técnico, admin): proposta é uma lista de e-mails numa
    variável da API (`SUPERADMIN_EMAILS`), que só se muda na VPS.
-   **Estado (13/10, noite):** construída, juntada e testada em `painel/onda5-alma` (`fad92f5`, só local em
-   `/home/user/cw-onda5`, ainda sem push): contrato `packages/shared/src/alma.ts`, desenho em
-   `docs/painel-admin/ONDA5-ALMA.md`; QA achou 19 (7 médios), 7 corrigidos. Baterias verdes (shared 276, crystal 298,
-   web 852, api 1231). SQL da base editável: `crystal-em-casa/supabase/app_conhecimento_editar.sql` (não aplicado).
-   Falta: juntar com `painel/onda4` `9ec8151` (limite de imagens), renomear a migração `pa16_01_crystal_avaliacoes`
-   para `pa17_01_...` (a `pa16_01_imagens_semana` da onda 4 sobe antes), push, CI, imagem e roteiro. Decisões do
-   desenho para o dono rever: apagar trecho tira a linha da tabela viva e guarda inteira no histórico (restaurar volta
-   com o mesmo id), porque a RPC da agência não conhece marca de apagado; a amostra de conversas reais é só de admin;
-   só o superadmin testa (custa). A troca de tipo na `uso_turnos` da Crystal trava ~75 mil linhas uma vez na subida.
-   Se esta sessão acabar: a cópia local se perde; refazer a junção a partir de `backup/onda5-alma-2026-10-13` se
-   existir no GitHub.
+   **Estado (13/10, noite): PRONTA para publicar depois da onda 4.** `painel/onda5-alma` em `f3d6616` (= onda 4
+   `9ec8151` + alma; migração renomeada para `pa17_01_crystal_avaliacoes`, ensaiada sobre a `pa16_01_imagens_semana`),
+   CI verde (run 38469721794), imagem **`sha-f3d6616`**. QA: 19 achados, 7 médios corrigidos (relatório em
+   `auditorias/2026-10-13/onda5-alma.md`). Roteiro: `publicar-prd.md`, "Alma da Crystal no painel (onda 5)": SQL
+   `app_conhecimento_editar.sql` no Supabase, `app-definir SUPERADMIN_EMAILS` (aceito desde o bootstrap `36c0efd`),
+   `app-subir sha-f3d6616` na janela 02:00–05:00 (trava a `uso_turnos` uma vez). Decisões do desenho para o dono
+   rever: apagar trecho tira a linha da tabela viva e guarda inteira no histórico (restaurar volta com o mesmo id);
+   amostra de conversas só para admin; só o superadmin testa (custa). A busca segue pela Edge Function da agência
+   até alguém conferir de quem é a chave dela.
 7. **Aluno liberado à mão (pedido da Letícia, 13/10, 1 ano): FEITO em 13/10 à noite.** Não estava em nenhuma base.
    Liberado direto no nosso cadastro de compras do Supabase (`crystal_compras`, produto `manual` "Liberação manual",
    oferta "acesso até 13/10/2027"; evento `liberacao_manual` em `crystal_compras_eventos`), como a liberação manual de
