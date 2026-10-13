@@ -738,7 +738,7 @@ bash bootstrap-vps.sh crystal-conferir
 da onda 4: trocar essa linha por `CREATE INDEX IF NOT EXISTS`, levar a pasta `e3_27_painel_indice_mensagens` e
 fazer cherry-pick dos 6 commits (`e24509f` a `3773e2e`). Testado: os 4 casos de `migrate deploy` passam.
 
-## Publicação do painel novo (onda 4): preparado em 12/10, esperando a imagem da T1
+## Publicação do painel novo (onda 4): imagem `sha-22a65c1` (13/10, CI verde)
 
 O painel novo (`painel/base` + `otimizacao/publicar-10-10`, juntados pela T1 em `painel/onda4`) traz 9 migrações do
 Prisma (todas aditivas), uma migração da T1 que apaga `scheduled_notices` (os avisos programados de 10/10) e um passo
@@ -748,12 +748,12 @@ Tudo abaixo foi ensaiado num Postgres local com dados fictícios (`crystal-em-ca
 comandos novos do `bootstrap-vps.sh` não rodaram na VPS ainda. **Nenhuma variável nova**: `app-definir` não muda.
 
 **Pré-requisitos (fora da VPS)**
-1. Passo 1 do caminho A feito: produção em `sha-0e2f79d` desde 13/10 (= `sha-5a5b198` + fichas; `app-status` mostra a tag).
-2. A T1 terminou `painel/onda4`: CI verde, bateria de QA do painel repetida, pasta `e3_26_avisos_programados` mantida
-   nas migrações, e a imagem `sha-<tag>` publicada. **Hoje o CI não roda em `painel/**`** (`ci.yml` só `otimizacao/**` e
-   PR; `imagens-vps.yml` só `otimizacao/etapa-*`, tag `v*` e disparo manual). Ou a T1 inclui `painel/**` nos dois
-   workflows, ou abre um PR (roda o CI) e dispara o `imagens-vps` à mão na branch, como em 10/10. Sem imagem, não há
-   `app-subir`.
+1. Produção em `sha-3773e2e` (correção do painel intermitente) ou, se ela ainda não subiu, em `sha-0e2f79d`. As duas
+   servem: a onda 4 traz a `e3_27` (índice em `messages`) e a `pa12_26` agora usa `IF NOT EXISTS` (ensaiado nos dois casos).
+2. Feito em 13/10: `painel/onda4` em `22a65c1` com a T2 (Mensagens), as fichas, 16 correções da QA
+   (`auditorias/2026-10-13/onda4-qa.md`) e a correção do painel intermitente. CI verde (run 38425864762: gate, audit
+   e e2e 64/64) e imagens `sha-22a65c1` publicadas (run 38425864764). **Não usar `sha-06aaa0a`** (CI vermelho).
+   Pendência 20 do PRD (suporte desliga e religa aluno) espera o dono; hoje fica como está.
 3. Janela 02:00–05:00 BRT, vigia ligada, equipe avisada: **a API fica fora do ar uns 3 a 5 minutos** (o app não
    responde aos alunos; web e Chatwoot continuam). Cancelar no painel qualquer aviso programado pendente (a tabela some).
 4. Conta de admin, suporte e técnico à mão para conferir as telas depois.
@@ -761,11 +761,11 @@ comandos novos do `bootstrap-vps.sh` não rodaram na VPS ainda. **Nenhuma variá
 **Pré-checagens (na VPS, um comando por vez, esperar o `ok`)**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/182a12ec919a7833b270efe53aa7d8470eab5b52/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
-echo "6eb9d955c70cb4181d209ec8d572d37ecb017a628a98e7e290ac35411a81d428  bootstrap-vps.sh" | sha256sum -c      # tem que dizer: bootstrap-vps.sh: OK
-curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/06c1077b110228c3df4e86467c09320aa7a07a93/crystal-em-casa/painel-novo/volta-migracoes.sql -o volta-migracoes.sql
-curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/06c1077b110228c3df4e86467c09320aa7a07a93/crystal-em-casa/painel-novo/volta-scheduled-notices.sql -o volta-scheduled-notices.sql
-bash bootstrap-vps.sh app-status              # espera: as três imagens em sha-0e2f79d (publicada em 13/10), app. e api. -> 200
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/c0379c9/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+echo "770983400c98d05bd98065e7efc515dc48de5b9ccc4e91ae9a2c505c47ad7d6d  bootstrap-vps.sh" | sha256sum -c      # tem que dizer: bootstrap-vps.sh: OK
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/2c3f92108ff0aaf4891c6bc8bd1251e9d9793294/crystal-em-casa/painel-novo/volta-migracoes.sql -o volta-migracoes.sql
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/2c3f92108ff0aaf4891c6bc8bd1251e9d9793294/crystal-em-casa/painel-novo/volta-scheduled-notices.sql -o volta-scheduled-notices.sql
+bash bootstrap-vps.sh app-status              # espera: as três imagens em sha-3773e2e (ou sha-0e2f79d), app. e api. -> 200
 bash bootstrap-vps.sh crystal-conferir        # espera: "ok TUDO LIGADO" (uns centavos de dólar)
 df -h / | tail -1                             # espera: pelo menos 5G em Avail (as imagens novas pesam ~1G)
 bash bootstrap-vps.sh backup                  # espera: "ok" em cada banco e nos uploads, e a cópia no R2
@@ -779,13 +779,13 @@ bash bootstrap-vps.sh backup-conferir         # espera: o backup de agora listad
 bash bootstrap-vps.sh app-api-parar --confirmo
 #    espera: "ok API parada (nenhuma tarefa rodando)"
 # 2. migração + backfill com a imagem NOVA (serviço temporário; ~3 s de migração + 1,5 s por mil linhas de auditoria)
-bash bootstrap-vps.sh app-auditoria-backfill sha-XXXXXXX
+bash bootstrap-vps.sh app-auditoria-backfill sha-22a65c1
 #    espera, no fim: uma linha {"msg":"auditoria: backfill da cadeia","total":N,"preenchidas":N,"ok":true,...}
 #    e "ok migrações aplicadas e cadeia da auditoria fechada (N linhas conferidas)". Se der ERRO: NÃO seguir,
-#    a API continua parada e o banco inteiro; voltar ao ar com: bash bootstrap-vps.sh app-subir sha-5a5b198
+#    a API continua parada e o banco inteiro; voltar ao ar com: bash bootstrap-vps.sh app-subir sha-3773e2e
 # 3. subir a API nova (as migrações já estão; o migrate deploy da subida só diz "No pending migrations")
-bash bootstrap-vps.sh app-subir sha-XXXXXXX
-#    espera: "ok api.env aceito pelo boot da API", "ok os três serviços estão em sha-XXXXXXX e nenhum voltou",
+bash bootstrap-vps.sh app-subir sha-22a65c1
+#    espera: "ok api.env aceito pelo boot da API", "ok os três serviços estão em sha-22a65c1 e nenhum voltou",
 #    app-status com as três imagens novas e o teste do Supabase "ok"
 # 4. conferir
 bash bootstrap-vps.sh app-painel-conferir
@@ -805,9 +805,10 @@ bash bootstrap-vps.sh crystal-conferir        # espera: "ok TUDO LIGADO" de novo
 - **Técnico**: Mensagens, Métricas, Configurações e Auditoria (lê, sem "Exportar"); não vê e-mail nem telefone de aluno.
 - Com um aluno (conta de teste): entrar, conversar, receber uma mensagem da equipe com botão.
 
-**Volta**
+**Volta** (para a etiqueta que estava no ar antes, a do `app-status` da pré-checagem: `sha-3773e2e` abaixo; se a
+correção do painel não tinha subido, trocar por `sha-0e2f79d`)
 - Só a imagem (primeira opção, ensaiada: a antiga convive com as tabelas novas):
-  `bash bootstrap-vps.sh app-subir sha-5a5b198`. Antes, cancelar no painel os envios agendados (a antiga não os
+  `bash bootstrap-vps.sh app-subir sha-3773e2e`. Antes, cancelar no painel os envios agendados (a antiga não os
   entrega). Se a migração da T1 já apagou `scheduled_notices`, a aba "Programados" da antiga quebra: rodar o SQL
   abaixo (`volta-scheduled-notices.sql`) antes do `app-subir`.
 - Imagem + banco (só se a antiga reclamar do banco; apaga o que o painel novo gravou, lista no topo do arquivo):
@@ -820,8 +821,8 @@ docker exec -i "$pg" psql -U crystal -d crystal_web_chat -v ON_ERROR_STOP=1 < vo
 #    espera: CREATE TABLE, CREATE INDEX e "migracoes_da_t1_tiradas | 1"
 docker exec -i "$pg" psql -U crystal -d crystal_web_chat -v ON_ERROR_STOP=1 < volta-migracoes.sql
 #    espera: nenhuma linha de ERROR (sai calado); ~0,1 s
-bash bootstrap-vps.sh app-subir sha-5a5b198
-#    espera: "No pending migrations" no boot, três serviços em sha-5a5b198
+bash bootstrap-vps.sh app-subir sha-3773e2e
+#    espera: "No pending migrations" no boot, três serviços em sha-3773e2e
 bash bootstrap-vps.sh crystal-conferir
 ```
 
