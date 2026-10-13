@@ -712,6 +712,32 @@ Conferir no painel (admin), em Operação › Crystal:
 3. Integrações: o cartão "Crystal" agora olha a nossa Crystal (antes, no modo chatwoot, olhava só o Chatwoot).
 4. Avisos › Programados: programar um aviso para daqui a 5 minutos para a própria equipe e ver sair.
 
+## Correção do painel intermitente (13/10): `sha-3773e2e`
+
+Branch `otimizacao/painel-rapido` do app, 6 commits sobre `0e2f79d` (produção). CI verde e imagens publicadas
+(disparo manual do `imagens-vps`). O painel gerencial travava o processo da API: criava um formatador de data
+por mensagem (12–20 s de CPU no período de 7 dias e 45–77 s no de 30, com 300 mil mensagens), lia o texto de
+todas as mensagens de 2× o período, não tinha índice em `messages(created_at)` e guardava o resultado só 60 s.
+Medido em Postgres local (2 mil alunos, 300 mil mensagens): 7 dias de 12–20 s para 0,6 s; 30 dias de 45–77 s
+para 1,8 s; com resultado guardado, resposta na hora e um recálculo só por trás. O `/v1/uso` da Crystal tinha o
+mesmo problema (5,2 s para 0,29 s) e por isso o bloco da Crystal às vezes vinha vazio.
+
+Uma migração nova, só aditiva: `e3_27_painel_indice_mensagens` (`CREATE INDEX IF NOT EXISTS
+messages_created_at_idx`). Enquanto o índice é criado, gravar mensagem espera (segundos numa tabela pequena).
+
+```bash
+bash bootstrap-vps.sh painel-diagnostico 24   # antes: a fotografia do problema (só leitura)
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-3773e2e
+bash bootstrap-vps.sh crystal-conferir
+# Voltar: bash bootstrap-vps.sh app-subir sha-0e2f79d (o índice pode ficar; não atrapalha a versão anterior)
+```
+
+**Atenção para a onda 4:** a `pa12_26_metricas` do painel novo cria o mesmo índice, com o mesmo nome e sem
+`IF NOT EXISTS`. Com a produção já tendo a `e3_27`, o deploy da onda 4 falharia (P3009). Antes de gerar a imagem
+da onda 4: trocar essa linha por `CREATE INDEX IF NOT EXISTS`, levar a pasta `e3_27_painel_indice_mensagens` e
+fazer cherry-pick dos 6 commits (`e24509f` a `3773e2e`). Testado: os 4 casos de `migrate deploy` passam.
+
 ## Publicação do painel novo (onda 4): preparado em 12/10, esperando a imagem da T1
 
 O painel novo (`painel/base` + `otimizacao/publicar-10-10`, juntados pela T1 em `painel/onda4`) traz 9 migrações do

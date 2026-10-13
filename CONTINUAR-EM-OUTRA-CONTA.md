@@ -51,13 +51,12 @@ ter nome de aluno colado de alguma saída.
    - a tabela `messages` não tem índice em `created_at`: o filtro por data varre a tabela inteira;
    - a web desiste em 30 s.
 
-   Correção encomendada a um agente na branch **`otimizacao/painel-rapido`** do app (a partir de
-   `otimizacao/memoria-ficha`): servir o último resultado na hora e recalcular por trás com um cálculo só,
-   ler só o texto do aluno, índice novo em `messages(created_at)`, medir antes e depois, CI e imagem.
-   **Se a branch não existir no GitHub, o trabalho se perdeu: refazer por esta descrição.** Depois de publicada,
-   portar a mesma correção para `painel/onda4`.
-   Esperando do dono: saída de `bash bootstrap-vps.sh painel-diagnostico 24` (só leitura) e a confirmação de que
-   "a parte de dados" é a área Painel.
+   **Correção pronta:** branch `otimizacao/painel-rapido` do app (`3773e2e`, 6 commits sobre a produção), CI
+   verde, imagem **`sha-3773e2e`**. A causa principal era outra: um formatador de data criado por mensagem
+   travava a API por 12–77 s. Depois: 0,6–1,9 s. Roteiro em `publicar-prd.md`, seção "Correção do painel
+   intermitente". Esperando o dono: `painel-diagnostico 24` (antes), `backup`, `app-subir sha-3773e2e`,
+   `crystal-conferir`. **Obrigatório antes da imagem da onda 4:** `pa12_26_metricas` com `CREATE INDEX IF NOT
+   EXISTS`, a pasta `e3_27_painel_indice_mensagens` e cherry-pick de `e24509f`..`3773e2e` em `painel/onda4`.
 2. **Conferência de ponta a ponta.** O `crystal-conferir` de 10/10 quebrava sem modelo no painel ("modelo: unbound
    variable"); corrigido em `182a12e`. Esperando o dono rodar de novo e colar a saída (deve terminar em
    "TUDO LIGADO").
@@ -103,7 +102,7 @@ ter nome de aluno colado de alguma saída.
 | `otimizacao/publicar-10-10` (`5a5b198`) | Publicação de 10/10 |
 | `otimizacao/memoria-ficha` (`0e2f79d`) | **Produção**: 10/10 + fichas |
 | `otimizacao/etapa-fichas` (`3e28974`) | Outra versão das fichas, anterior a 10/10. **Não publicar** |
-| `otimizacao/painel-rapido` | Correção do painel intermitente (em andamento em 13/10) |
+| `otimizacao/painel-rapido` (`3773e2e`) | Correção do painel intermitente, imagem `sha-3773e2e` (13/10) |
 | `painel/base` (`03cff13`) | Painel novo, base |
 | `painel/onda4` / `backup/onda4-2026-10-13` | Painel novo integrado (onda 4) |
 
