@@ -110,8 +110,13 @@ ter nome de aluno colado de alguma saída.
    do `/webhooks/reembolso`) → a API credita +N (ou estorna o que resta no reembolso), idempotente pela transação,
    com crédito pendente por e-mail para quem ainda não entrou no app, e a Crystal avisa na conversa. Os pacotes
    (id do produto da Assiny → quantas imagens) são cadastrados no painel. Construção: API pelo agente do limite
-   (mesma branch); n8n por outro agente (JSON + script `crystal-em-casa/n8n/compra-assiny-imagens.py` que atualiza
-   o fluxo na VPS sem clicar, com volta). Conferido em 13/10: `crystal_compras_produtos` tem 7 produtos, então o
+   (mesma branch). **Lado do n8n pronto (13/10), ainda não aplicado na VPS:** `compra-assiny.json` com o IF "Produto
+   fora da lista?" e o HTTP "Repassar ao app (pacote de imagens)" (credencial do reembolso, corpo cru, 3 tentativas);
+   script `crystal-em-casa/n8n/compra-assiny-imagens.py` (commit `b449e66`, sha256 `84b5bba1…0e0db3`) que atualiza o
+   fluxo na VPS sem clicar: cópia antes, só acrescenta o que falta, mesmo id, reativa, confere 10 nós; `--testar` só
+   leitura; `--voltar`. Testado num n8n 1.123.10 local (Postgres e serviços falsos): repasse com o Bearer em compra e
+   reembolso do pacote, produto da Crystal sem repasse, segunda rodada sem duplicar, volta para 8 nós. Roteiro em
+   `publicar-prd.md` › "Pacote de imagens extras (13/10)". Aplicar só depois da API com `/webhooks/imagens` no ar. Conferido em 13/10: `crystal_compras_produtos` tem 7 produtos, então o
    pacote nunca libera nem bloqueia o app sozinho.
 
 ## 4. Decisões do dono (valem até ele mudar)

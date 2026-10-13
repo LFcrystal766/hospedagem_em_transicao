@@ -686,6 +686,61 @@ Fraquezas aceitas pelo dono: o n8n usa a mesma service_role e a mesma chave do R
 Limites: o painel (Alunos > base) ainda não lista quem está só em `crystal_compras` (aparece em
 Alunos depois do primeiro login). Recompra depois de reembolso: o suporte reativa a conta no painel.
 
+### Pacote de imagens extras (13/10)
+
+Caminho: Assiny (compra ou reembolso do pacote) → nosso n8n (`assiny-compras`, o mesmo webhook) →
+`app_compra_evento` responde `ignorado/produto` (o pacote não está em `crystal_compras_produtos`, que tem
+os 7 produtos que liberam o app) → IF **"Produto fora da lista?"** (`acao == 'ignorado'` e
+`motivo == 'produto'`) → HTTP **"Repassar ao app (pacote de imagens)"**: POST do corpo cru da Assiny em
+`https://api.crystalnowpp.com.br/webhooks/imagens`, com a mesma credencial do "Desligar no app (reembolso)"
+(Bearer do `REFUND_WEBHOOK_SECRET`), 3 tentativas. A API olha o produto em Configurações › pacotes de
+imagens: se é pacote, credita (compra) ou estorna (reembolso); se não é, responde 200 e ignora. A Assiny
+já recebeu a resposta antes do repasse, então falha da API não faz a Assiny reenviar: aparece como
+execução com erro no n8n (Executions) e o suporte lança à mão na ficha.
+
+Atenção: se `crystal_compras_produtos` ficar vazia, a função libera o app para qualquer produto e nada é
+repassado (reembolso do pacote bloquearia o aluno). Conferir antes, no SQL Editor:
+`select produto_id from crystal_compras_produtos;` (tem que listar só os produtos da Crystal, não o pacote).
+
+Pré-requisito: a API no ar com a rota `/webhooks/imagens` (imagem da onda 4 com o limite de imagens).
+Antes dela, o repasse dá 404 e a execução fica com erro no n8n, sem efeito no resto do fluxo.
+
+Na VPS, como root (fluxo `crystal-em-casa/n8n/compra-assiny.json`, script testado num n8n 1.123.10 local
+com Postgres e serviços falsos). Rodar em hora calma: o n8n reinicia (1 a 2 min) e, nesse intervalo, o
+webhook pode recusar; a Assiny reenvia.
+
+```bash
+cd /root/crystal
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/b449e66/crystal-em-casa/n8n/compra-assiny-imagens.py -o compra-assiny-imagens.py
+echo "84b5bba1343c27494b2435311a71137483216da85f6bac32caacfc330a0e0db3  compra-assiny-imagens.py" | sha256sum -c      # tem que dizer: OK
+python3 compra-assiny-imagens.py --testar     # antes: lista o que falta (8 nós), não muda nada
+python3 compra-assiny-imagens.py              # acrescenta os 2 nós, reimporta com o mesmo id, reativa, confere
+```
+
+O script acha o fluxo pelo webhook `assiny-compras`, para se o editor tiver rascunho não publicado,
+guarda a cópia de antes em `/root/crystal/n8n-copias/compra-assiny-<data-hora>.json` (0600; só ids e
+nomes das credenciais, nenhum segredo), acrescenta só o que falta (rodar de novo diz "nada a mudar"),
+reaproveita a credencial do nó do reembolso, importa com o id `qMRPSFT9OAScVUP4`, grava a versão no
+histórico do n8n (o truque do `crystal-provisoria`), ativa e reinicia editor, webhook e worker.
+
+Conferência: `python3 compra-assiny-imagens.py --testar` (só leitura, não dispara compra): ativo, versão
+publicada igual à salva, 10 nós, ligação e condições, URL, mesma credencial do reembolso, webhook
+registrado e 403 sem token pelo endereço público. Depois da primeira compra real do pacote: no editor,
+Executions, a execução tem que passar por "Repassar ao app (pacote de imagens)" com sucesso, e o saldo
+de imagens extras do aluno sobe na ficha.
+
+Volta: `python3 compra-assiny-imagens.py --voltar` (reimporta a cópia mais recente, reativa e reinicia;
+`--voltar /root/crystal/n8n-copias/<arquivo>.json` para uma cópia específica). Com a volta, compra do
+pacote não credita sozinha: o suporte lança à mão na ficha.
+
+O que o dono faz:
+1. No painel, Configurações › pacotes de imagens: cadastrar o id do produto do pacote na Assiny (o mesmo
+   que vem em `data.offer.product.id`) e quantas imagens ele dá. Produto não cadastrado é ignorado pela API.
+2. Na Assiny (Integrações › Webhooks): se o webhook é configurado por produto, incluir o produto do pacote
+   no webhook do nosso n8n, com os eventos de compra aprovada e reembolso (e chargeback). Se o webhook vale
+   para a conta toda, nada a fazer.
+3. Não pôr o pacote em `crystal_compras_produtos` (isso faria o pacote liberar o app).
+
 ## Publicação de 10/10: painel, modelo da Crystal, ligações e avisos programados
 
 Imagem `sha-5a5b198` (branch `otimizacao/publicar-10-10` do app). Junta as correções da bateria de testes do
