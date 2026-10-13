@@ -50,7 +50,8 @@ DELETE FROM "system_settings" WHERE "key" = 'audit_chain_anchor';
 DROP INDEX IF EXISTS "users_role_status_created_at_idx";
 DROP INDEX IF EXISTS "tickets_created_at_idx";
 DROP INDEX IF EXISTS "messages_direction_status_created_at_idx";
-DROP INDEX IF EXISTS "messages_created_at_idx";
+-- "messages_created_at_idx" fica (13/10): ele é da e3_27 (correção do painel, sha-3773e2e), que a versão de volta
+-- conhece; a pa12_26 só o cria se faltar. Tirar o índice deixaria o painel lento de novo.
 DROP INDEX IF EXISTS "finance_entries_access_until_idx";
 DROP TABLE IF EXISTS "metrics_daily";
 ALTER TABLE "tickets" DROP COLUMN IF EXISTS "first_staff_reply_at";
