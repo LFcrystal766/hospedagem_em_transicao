@@ -801,14 +801,16 @@ bash bootstrap-vps.sh crystal-conferir
 
 Ida de novo depois de uma volta: repetir "Publicar" do passo 1 (o backfill refaz a cadeia inteira).
 
-## Ficha completa de cada aluno antes do primeiro acesso (código pronto em 12/10, esperando decisão)
+## Ficha completa de cada aluno antes do primeiro acesso (SQL aplicado em 13/10, imagem `sha-0e2f79d`)
 
 Memória completa de cada aluno gerada do histórico inteiro do WhatsApp, pronta antes de ele chegar ao app.
 Código na branch `otimizacao/memoria-ficha` do app (sobre `otimizacao/publicar-10-10`, `sha-5a5b198`),
 4 commits: Crystal (`apps/crystal/src/ficha.ts` + rotas `/v1/fichas`), API (`/staff/operacao/fichas`,
 só admin, com auditoria), painel (um componente só, `FichasAlunos`, em Operação › Crystal, logo abaixo de
 "Memória do WhatsApp para todos") e docs. SQL: `crystal-em-casa/supabase/app_memoria_ficha.sql` (commit
-`e447c0f`, testes em `crystal-em-casa/supabase/testes/`), **não aplicado**.
+`e447c0f`, testes em `crystal-em-casa/supabase/testes/`), **aplicado em 13/10** (migração `app_memoria_ficha_20261012`).
+Imagem: `sha-0e2f79d` (tem tudo de `sha-5a5b198` e as fichas; CI verde, run 174). Decisão do dono: piloto de 20 com
+`openai/gpt-4.1-mini` e outro com `anthropic/claude-haiku-4.5`, 12 meses, teto US$ 5 cada.
 
 Nada acontece sozinho: sem o SQL as rotas respondem 503 e o bloco do painel mostra "as funções
 app_ficha_* já estão no Supabase?"; nenhum lote começa sem alguém clicar, escolher modelo, alcance e teto.
@@ -818,7 +820,7 @@ app_ficha_* já estão no Supabase?"; nenhum lote começa sem alguém clicar, es
 # 2. Supabase, SQL Editor: crystal-em-casa/supabase/app_memoria_ficha.sql (arquivo inteiro, uma vez).
 #    Depende de app_telefone_chave.sql e app_memoria_unica.sql (já aplicados). Conferir:
 #    select public.app_ficha_andamento();        -- {"alunos": ~9.6 mil, "com_ficha": 0, ...}
-# 3. VPS, quando a imagem da branch sair (CI verde): backup + app-subir sha-<tag>. Nenhuma variável nova
+# 3. VPS: backup + app-subir sha-0e2f79d (no lugar do sha-5a5b198 da seção de 10/10). Nenhuma variável nova
 #    é obrigatória (SUPABASE_FICHA_*_RPC só se renomear as funções).
 # 4. Painel, Operação › Crystal › "Ficha completa de cada aluno": "Prever custo" (só leitura, mede 20 alunos
 #    de verdade e usa o preço do catálogo); depois "Começar lote" com limite 20 (piloto) e teto pequeno.

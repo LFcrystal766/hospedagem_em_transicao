@@ -46,7 +46,7 @@ de você, na ordem, com o tempo estimado.
   histórico, 16 pulados (sem conversa ainda; recebem na primeira mensagem), 0 falhas.
   Custo por importação entre US$ 0,02 e 0,05.
 
-## Memória completa ANTES do primeiro acesso (código pronto em 12/10, esperando decisão do dono)
+## Memória completa ANTES do primeiro acesso (SQL aplicado em 13/10; imagem `sha-0e2f79d` esperando a VPS)
 
 **Duas implementações em paralelo (12/10, sessão `session_01LjvvjacM3tnYL7q4cBDGQa`):** além da branch
 `otimizacao/memoria-ficha` (sobre a produção `sha-5a5b198`), existe a `otimizacao/etapa-fichas` (`3e28974`), feita
@@ -58,7 +58,9 @@ base inteira, preços conferidos em 10/10); (2) a rota de ensaio e o comando `bo
 `op_ficha_diaria` (atualização às 03:30, teto de US$ 5). Roteiro em `crystal-em-casa/fichas-whatsapp.md`.
 **SQL atualizado em 12/10 (vale para as duas):** `app_memoria_ficha.sql` agora marca "apagado" quem exclui a conta
 (antes a ficha era apagada e a fila a recriaria, porque a pessoa continua na base; LGPD) e tem `app_ficha_amostra`.
-Testado em Postgres local (`supabase/testes/`), ainda **não aplicado**. Medido em 12/10 (só leitura): a página de
+Testado em Postgres local (`supabase/testes/`). **Aplicado em 13/10** pelo conector (migração
+`app_memoria_ficha_20261012`): tabela com RLS e sem grants, 6 funções `app_ficha_*` e o `app_memoria_ler` novo, execução
+só para `service_role`, 0 linhas. Medido em 12/10 (só leitura): a página de
 1.500 mensagens do aluno com mais histórico (~42 mil mensagens) leva 2,2 s, abaixo dos 8 s da API do Supabase.
 
 Pedido do dono: a memória completa de cada aluno pronta no app antes de ele chegar.
@@ -105,9 +107,11 @@ que cai neles (se for metade, metade do valor):
 Manutenção depois do lote: só as mensagens novas de cada aluno, centavos por dia. Saldo do OpenRouter em
 09/10: US$ 25,41 (cobre o piloto em qualquer modelo; a base inteira exige recarga).
 
-**Decisões do dono (nenhuma presumida):** modelo; alcance (inteiro ou últimos 12 meses); teto do piloto e do
-lote inteiro; recarga do OpenRouter. Depois: aplicar o SQL, publicar a imagem da branch (junto ou depois da
-publicação de 10/10) e rodar o piloto de 20 pelo painel.
+**Decisão do dono (13/10): piloto com os dois modelos.** Piloto de 20 com `openai/gpt-4.1-mini` e outro de 20 com
+`anthropic/claude-haiku-4.5`, alcance dos últimos 12 meses, teto de US$ 5 em cada (os dois juntos devem custar menos
+de US$ 2). Comparar as fichas e o custo real. Se ficar o gpt-4.1-mini: teto do lote inteiro US$ 250 e recarga de ~US$ 300
+no OpenRouter antes. Falta: publicar `sha-0e2f79d` na VPS (= `sha-5a5b198` + fichas; volta `sha-74092e0`) e rodar os
+pilotos pelo painel.
 
 ## Onda 4 do painel (12/10): caminho A em andamento
 
