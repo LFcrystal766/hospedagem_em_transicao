@@ -104,6 +104,15 @@ ter nome de aluno colado de alguma saída.
    Configurável no painel: limite (0 = sem limite), link do checkout, texto. Agente construindo na worktree
    `/home/user/cw-imagens` (branch `painel/onda4-imagens`), que no fim junta com `painel/onda4` e publica lá: **a
    etiqueta da onda 4 muda de novo**. Falta do dono: o link do checkout e quantas imagens cada compra dá.
+   **Pacote extra automático (pedido do dono, 13/10):** a compra do pacote na Assiny credita sozinha. Caminho: Assiny →
+   n8n (fluxo `qMRPSFT9OAScVUP4`, "Crystal · compra e reembolso da Assiny"; produto fora dos 7 que liberam o app volta
+   `ignorado/produto` do Supabase) → novo IF + repasse do corpo cru para a API `POST /webhooks/imagens` (mesmo segredo
+   do `/webhooks/reembolso`) → a API credita +N (ou estorna o que resta no reembolso), idempotente pela transação,
+   com crédito pendente por e-mail para quem ainda não entrou no app, e a Crystal avisa na conversa. Os pacotes
+   (id do produto da Assiny → quantas imagens) são cadastrados no painel. Construção: API pelo agente do limite
+   (mesma branch); n8n por outro agente (JSON + script `crystal-em-casa/n8n/compra-assiny-imagens.py` que atualiza
+   o fluxo na VPS sem clicar, com volta). Conferido em 13/10: `crystal_compras_produtos` tem 7 produtos, então o
+   pacote nunca libera nem bloqueia o app sozinho.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
