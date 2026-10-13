@@ -97,6 +97,14 @@ ter nome de aluno colado de alguma saída.
    Acesso (só admin, pede a senha de novo) com "Acesso até" 13/10/2027. O painel novo já tem conta local com "Acesso
    até" (o login é recusado depois da data). E-mail e telefone do aluno ficam fora do repositório.
 
+8. **Limite semanal de imagens (pedido da Giseli/Igor, 13/10, para a madrugada).** 25 imagens por aluno por semana,
+   zera todo domingo 00:00 de Brasília; passou do limite, a imagem não vai para o modelo e a Crystal manda mensagem com
+   botão para o checkout de mais imagens (com texto junto, responde ao texto sem a imagem). Saldo de imagens extras
+   que não zera, lançado à mão na ficha (admin e suporte, auditado); crédito automático pela Assiny fica para depois.
+   Configurável no painel: limite (0 = sem limite), link do checkout, texto. Agente construindo na worktree
+   `/home/user/cw-imagens` (branch `painel/onda4-imagens`), que no fim junta com `painel/onda4` e publica lá: **a
+   etiqueta da onda 4 muda de novo**. Falta do dono: o link do checkout e quantas imagens cada compra dá.
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
