@@ -58,8 +58,8 @@ ter nome de aluno colado de alguma saída.
    intermitente". **Prova da VPS (13/10): a API morreu por falta de memória 3 vezes em 16 h** (exit 137,
    ~976 MB de 1 GiB), `auditorias/2026-10-13/painel-diagnostico.md`. `crystal-conferir` deu TUDO LIGADO.
    **Publicado pelo dono em 13/10 18:44 UTC**, `crystal-conferir` TUDO LIGADO. Conferir em 14/10 com
-   `painel-diagnostico 6`: nenhum "exit (137)" novo na API. **Obrigatório antes da imagem da onda 4:** `pa12_26_metricas` com `CREATE INDEX IF NOT
-   EXISTS`, a pasta `e3_27_painel_indice_mensagens` e cherry-pick de `e24509f`..`3773e2e` em `painel/onda4`.
+   `painel-diagnostico 6`: nenhum "exit (137)" novo na API. Já portado para a onda 4 (`painel/onda4` `22a65c1`, com
+   a `pa12_26_metricas` em `CREATE INDEX IF NOT EXISTS`).
 2. **Conferência de ponta a ponta.** O `crystal-conferir` de 10/10 quebrava sem modelo no painel ("modelo: unbound
    variable"); corrigido em `182a12e`. Esperando o dono rodar de novo e colar a saída (deve terminar em
    "TUDO LIGADO").
