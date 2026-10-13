@@ -9,7 +9,9 @@
 -- partes é a base de conhecimento, a tabela da agência `leticia_crystal_hybrid_search` (27
 -- linhas em 13/10), que a Edge Function `crystal_hybrid_search` busca a cada turno pela RPC
 -- `public.crystal_hybrid_search(...)`. O painel passa a criar, editar, apagar e restaurar
--- trechos, sempre com histórico e sem apagar de verdade.
+-- trechos, sempre com histórico e sem apagar de verdade: o trecho apagado sai da tabela viva
+-- (é o único jeito de sair da busca sem mexer na RPC da agência) e fica inteiro, com texto e
+-- embedding, no histórico, que só aceita acréscimo (nem update, nem delete, nem truncate).
 --
 -- O que este arquivo cria (a RPC crystal_hybrid_search, a Edge Function e as outras funções
 -- da agência NÃO mudam):
@@ -21,7 +23,11 @@
 --   - função  public.app_conhecimento_gravar(...)        (cria ou edita um trecho, com versão);
 --   - função  public.app_conhecimento_apagar(...)        (guarda a versão `apagar` com texto e
 --     embedding e só então tira a linha da tabela viva: a busca deixa de achar);
---   - função  public.app_conhecimento_restaurar(...)     (devolve a linha com o MESMO id).
+--   - função  public.app_conhecimento_restaurar(...)     (devolve a linha com o MESMO id);
+--   - gatilho no histórico: update, delete e truncate param (HISTORICO_SO_ACRESCENTA);
+--   - fecha a escrita direta na tabela viva para anon e authenticated (revoke de insert, update,
+--     delete e truncate; a leitura fica) e confere no fim: sobrou escrita por outro caminho
+--     (papel herdado, grant em coluna), o arquivo para com PERMISSAO_ABERTA e nada fica.
 -- Escreve na tabela da agência só por essas funções: insert, update e delete de UMA linha por
 -- chamada, sempre com a versão no histórico antes.
 --
@@ -38,22 +44,26 @@
 --      agência usa mesmo a configuração 'portuguese' (ver a definição da crystal_hybrid_search
 --      ou de algum trigger); se for outra, trocar as duas ocorrências de 'portuguese' abaixo.
 --   2) Sem agência desde 09/10, mas ainda pode existir algum processo da agência que reescreve
---      a leticia_crystal_hybrid_search (n8n antigo). Conferir antes de ligar a edição.
+--      a leticia_crystal_hybrid_search (n8n antigo). Conferir antes de ligar a edição. Se ele
+--      escrevia com a chave anon ou com um usuário logado, para de funcionar (é a brecha que
+--      este arquivo fecha); com a service_role, segue como estava.
 --
 -- ORDEM: depois de app_memoria_ficha.sql (não depende dele; só para manter a ordem dos
 -- arquivos). Junto com a imagem nova da Crystal (as rotas /v1/conhecimento respondem 503 sem
 -- as funções). Rodar de novo é seguro: a tabela não é recriada e as funções são reescritas
 -- iguais. Tabela de histórico com o mesmo nome que não veio deste arquivo: para (JA_EXISTE).
 --
--- Volta: primeiro restaurar pelo painel o que tiver sido apagado e precisar voltar (a linha
--- apagada vive só no histórico); depois
+-- Volta: só as funções saem; a tabela de histórico FICA (é onde estão o texto e o embedding de
+-- todo trecho apagado; sem ela, eles se perdem para sempre). Nunca dar drop nela.
 --   drop function public.app_conhecimento_listar(), public.app_conhecimento_historico(bigint),
 --     public.app_conhecimento_gravar(bigint, text, text, text, jsonb, text, text, text, text, bigint),
 --     public.app_conhecimento_apagar(bigint, text, text, text, bigint),
 --     public.app_conhecimento_restaurar(bigint, text, text, text),
---     public.app_conhecimento_tipo_id(), public.app_conhecimento_fts_gerada();
---   drop table public.crystal_conhecimento_versoes;
--- As linhas vivas da leticia_crystal_hybrid_search ficam como estão (com as edições feitas).
+--     public.app_conhecimento_tipo_id(), public.app_conhecimento_fts_gerada(),
+--     public.app_conhecimento_conferir_tabela_viva();
+-- As linhas vivas da leticia_crystal_hybrid_search ficam como estão (com as edições feitas), e a
+-- escrita direta de anon e authenticated continua fechada (reabrir é decisão à parte, que pede
+-- RLS conferido antes).
 -- =============================================================================
 
 begin;
@@ -116,6 +126,12 @@ begin
     left join pg_attrdef d on d.adrelid = a.attrelid and d.adnum = a.attnum
    where a.attrelid = 'public.leticia_crystal_hybrid_search'::regclass and a.attname = 'id';
 
+  raise notice 'tabela viva: rls %, anon escreve direto: %, authenticated escreve direto: % (antes deste arquivo; ele fecha)',
+    (select case when c.relrowsecurity then 'ligado' else 'DESLIGADO' end from pg_class c where c.oid = 'public.leticia_crystal_hybrid_search'::regclass),
+    has_table_privilege('anon', 'public.leticia_crystal_hybrid_search', 'insert, update, delete, truncate')
+      or has_any_column_privilege('anon', 'public.leticia_crystal_hybrid_search', 'insert, update'),
+    has_table_privilege('authenticated', 'public.leticia_crystal_hybrid_search', 'insert, update, delete, truncate')
+      or has_any_column_privilege('authenticated', 'public.leticia_crystal_hybrid_search', 'insert, update');
   raise notice 'fts: %', case when v_fts_gerada then 'gerada pelo banco (nada a calcular)'
                               else 'NÃO é gerada: as funções calculam to_tsvector(''portuguese'', content); confirmar a configuração' end;
   raise notice 'id: %', case v_id_identidade when 'a' then 'identity always (restaurar usa overriding system value)'
@@ -159,6 +175,27 @@ revoke all on sequence public.crystal_conhecimento_versoes_versao_id_seq from pu
 
 comment on table public.crystal_conhecimento_versoes is
   'conhecimento-versoes 13/10/2026: histórico dos trechos da leticia_crystal_hybrid_search editados pelo painel. Só via app_conhecimento_* (crystal-em-casa/supabase/app_conhecimento_editar.sql).';
+
+-- Só acrescenta: update, delete e truncate param, de quem for (o histórico é de onde o trecho
+-- apagado volta; mudar ou apagar uma linha dele perde o trecho).
+create or replace function public.app_conhecimento_versoes_imutavel()
+returns trigger
+language plpgsql
+set search_path = public, extensions
+as $$
+begin
+  raise exception 'HISTORICO_SO_ACRESCENTA'
+    using hint = 'crystal_conhecimento_versoes só aceita insert (docs/supabase/app_conhecimento.sql)';
+end;
+$$;
+revoke all on function public.app_conhecimento_versoes_imutavel() from public, anon, authenticated, service_role;
+
+create or replace trigger crystal_conhecimento_versoes_so_acrescenta
+  before update or delete on public.crystal_conhecimento_versoes
+  for each row execute function public.app_conhecimento_versoes_imutavel();
+create or replace trigger crystal_conhecimento_versoes_sem_truncate
+  before truncate on public.crystal_conhecimento_versoes
+  for each statement execute function public.app_conhecimento_versoes_imutavel();
 
 -- Semente: uma versão por linha viva sem histórico (as 27 de 13/10). Rodar de novo não duplica.
 insert into public.crystal_conhecimento_versoes (trecho_id, acao, content, category, content_type, metadata, embedding)
@@ -493,11 +530,39 @@ grant execute on function public.app_conhecimento_apagar(bigint, text, text, tex
 revoke all on function public.app_conhecimento_restaurar(bigint, text, text, text) from public, anon, authenticated;
 grant execute on function public.app_conhecimento_restaurar(bigint, text, text, text) to service_role;
 
+-- A tabela viva da agência: com os grants padrão do Supabase, anon e authenticated escrevem
+-- direto pelo PostgREST se o RLS estiver desligado (sem histórico e sem auditoria). A escrita
+-- passa a ser só pelas funções acima; a leitura fica como está (a busca da agência pode usar).
+revoke insert, update, delete, truncate on table public.leticia_crystal_hybrid_search from public, anon, authenticated;
+
+-- Confere que anon e authenticated não escrevem na tabela viva por caminho nenhum (grant na
+-- tabela, em coluna, por PUBLIC ou por papel herdado). Sobrou: PERMISSAO_ABERTA.
+create or replace function public.app_conhecimento_conferir_tabela_viva()
+returns void
+language plpgsql
+stable
+set search_path = public, extensions
+as $$
+declare
+  v_papel text;
+begin
+  foreach v_papel in array array['anon', 'authenticated'] loop
+    if has_table_privilege(v_papel, 'public.leticia_crystal_hybrid_search', 'insert, update, delete, truncate')
+       or has_any_column_privilege(v_papel, 'public.leticia_crystal_hybrid_search', 'insert, update') then
+      raise exception 'PERMISSAO_ABERTA'
+        using hint = v_papel || ' ainda escreve direto na leticia_crystal_hybrid_search (papel herdado ou grant que o revoke não alcança)';
+    end if;
+  end loop;
+end;
+$$;
+revoke all on function public.app_conhecimento_conferir_tabela_viva() from public, anon, authenticated, service_role;
+
 -- -----------------------------------------------------------------------------
 -- Conferência no fim (uma linha): tudo precisa dar o esperado antes do commit.
 --   vivos = semente (na primeira execução, as 27 linhas);
 --   anon_executa e authenticated_executa = false; service_role_executa = true;
---   historico_aberto = false (ninguém além do dono lê a tabela de histórico).
+--   historico_aberto = false (ninguém além do dono lê a tabela de histórico);
+--   tabela_viva_fechada = true (anon e authenticated não escrevem direto na tabela da agência).
 -- -----------------------------------------------------------------------------
 do $$
 declare
@@ -515,6 +580,7 @@ begin
      or has_table_privilege('authenticated', 'public.crystal_conhecimento_versoes', 'select') then
     raise exception 'PERMISSAO_ABERTA';
   end if;
+  perform public.app_conhecimento_conferir_tabela_viva();
 end;
 $$;
 
@@ -526,7 +592,9 @@ select
   has_function_privilege('anon', 'public.app_conhecimento_listar()', 'execute')                  as anon_executa,
   has_function_privilege('authenticated', 'public.app_conhecimento_listar()', 'execute')         as authenticated_executa,
   has_function_privilege('service_role', 'public.app_conhecimento_listar()', 'execute')          as service_role_executa,
-  has_table_privilege('service_role', 'public.crystal_conhecimento_versoes', 'select')           as historico_aberto;
+  has_table_privilege('service_role', 'public.crystal_conhecimento_versoes', 'select')           as historico_aberto,
+  not (has_table_privilege('anon', 'public.leticia_crystal_hybrid_search', 'insert, update, delete, truncate')
+       or has_table_privilege('authenticated', 'public.leticia_crystal_hybrid_search', 'insert, update, delete, truncate')) as tabela_viva_fechada;
 
 notify pgrst, 'reload schema';
 
