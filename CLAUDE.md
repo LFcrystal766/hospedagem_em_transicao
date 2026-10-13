@@ -18,6 +18,8 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
 - **Sem agência desde 09/10**: tudo passa a ser nosso (compra e reembolso no nosso n8n). Nada é
   combinado com o Tuan. A Crystal do WhatsApp será encerrada: todo mundo vai para o app.
   Ordem do corte em `PROXIMOS-PASSOS.md`.
+- **Em 13/10**: app em `sha-0e2f79d` (10/10 + fichas; volta `sha-74092e0`), SQL das fichas aplicado, painel
+  novo (onda 4) e correção do painel intermitente em andamento. Detalhes em `CONTINUAR-EM-OUTRA-CONTA.md`.
 - **Frente paralela, o app da Crystal**: VPS Hostinger KVM 4 (`177.7.61.136`). Em 06/10:
   app em `sha-74092e0` (09/10, no ar: memória única ligada, SQL aplicado; volta: `sha-c320aa0`): alma da agência (prompt v2.2 + busca na base do Supabase), login
   só com o e-mail da compra + código (`LOGIN_MODO=email`; CPF opcional), lotes (`ROLLOUT_GATE`),
@@ -29,6 +31,8 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
 
 ## Primeira coisa a fazer numa sessão nova
 
+0. Se a sessão é continuação de outra conta, ler antes `CONTINUAR-EM-OUTRA-CONTA.md` (estado de 13/10,
+   o que estava em andamento e a primeira mensagem a usar).
 1. Conferir quais variáveis existem (sem imprimir valores):
    `env | grep -E 'CLOUDFLARE|CPANEL|STAPE|WP_APP|SUPABASE|HOSTINGER' | sed 's/=.*//'`
 2. Com `CLOUDFLARE_API_TOKEN`: `scripts/cloudflare-degrau2.sh foto` e depois
