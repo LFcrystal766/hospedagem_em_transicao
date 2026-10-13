@@ -113,6 +113,11 @@ de US$ 2). Comparar as fichas e o custo real. Se ficar o gpt-4.1-mini: teto do l
 no OpenRouter antes. Falta: publicar `sha-0e2f79d` na VPS (= `sha-5a5b198` + fichas; volta `sha-74092e0`) e rodar os
 pilotos pelo painel.
 
+## Datas marcadas
+
+- **13/10/2027:** fim da liberação manual de 1 ano pedida pela Letícia em 13/10/2026 (linha `manual` em
+  `crystal_compras`; ver `CONTINUAR-EM-OUTRA-CONTA.md`, item 7). Cortar com `status = 'canceled'` e desligar no painel.
+
 ## Onda 4 do painel: pronta para publicar (13/10), imagem `sha-22a65c1`
 
 `painel/onda4` em `22a65c1`: painel novo + T2 (mensagem na conversa da Crystal com prévia dupla) + fichas na página

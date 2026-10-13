@@ -102,12 +102,13 @@ ter nome de aluno colado de alguma saída.
    só o superadmin testa (custa). A troca de tipo na `uso_turnos` da Crystal trava ~75 mil linhas uma vez na subida.
    Se esta sessão acabar: a cópia local se perde; refazer a junção a partir de `backup/onda5-alma-2026-10-13` se
    existir no GitHub.
-7. **Aluno liberado à mão (pedido da Letícia, 13/10, 1 ano).** Conferido no Supabase: não está em nenhuma base (nem
-   compras, nem base da agência; por e-mail e por telefone). Caminho: no painel atual, Equipe › Alunos › "Nova conta
-   local" (e-mail, nome; WhatsApp opcional) dá acesso na hora, sem prazo; depois da onda 4, na ficha dele, Ações ›
-   Acesso (só admin, pede a senha de novo) com "Acesso até" 13/10/2027. O painel novo já tem conta local com "Acesso
-   até" (o login é recusado depois da data). E-mail e telefone do aluno ficam fora do repositório.
-
+7. **Aluno liberado à mão (pedido da Letícia, 13/10, 1 ano): FEITO em 13/10 à noite.** Não estava em nenhuma base.
+   Liberado direto no nosso cadastro de compras do Supabase (`crystal_compras`, produto `manual` "Liberação manual",
+   oferta "acesso até 13/10/2027"; evento `liberacao_manual` em `crystal_compras_eventos`), como a liberação manual de
+   10/10. `app_verificar_login_email` já o encontra como liberado: ele entra no app com o e-mail e o código.
+   **Prazo:** `crystal_compras` não tem data de fim. Em 13/10/2027 (ou antes, se pedirem), cortar: `status =
+   'canceled'` na linha dele e desligar a conta no painel. Depois da onda 4, dá para usar "Nova conta local" com
+   "Acesso até" para os próximos casos (o login é barrado sozinho na data). E-mail e telefone ficam fora do repositório.
 8. **Limite semanal de imagens + pacote extra automático: PRONTO em `painel/onda4` `9ec8151` (13/10).**
    - Aluno: 25 por semana (zera domingo 00:00 de Brasília; imagens já mandadas desde domingo contam); acima do
      limite a imagem não vai ao modelo e a Crystal manda a mensagem (com o botão "Comprar mais imagens" se houver
@@ -140,6 +141,7 @@ ter nome de aluno colado de alguma saída.
 - Só o app é liberado na compra, nunca o WhatsApp. A Crystal do WhatsApp será encerrada; todos vão para o app.
 - Sem agência desde 09/10; nada combinado com o Tuan. Fatura da AZAN: não cancelar.
 - Alma da Crystal: edição só pelo superadmin; tudo com teste antes, histórico e volta em 1 clique.
+- Agentes e orquestrações em **Sonnet** (`model: 'sonnet'`), para gastar menos tokens (pedido de 13/10 à noite).
 
 ## 5. Pendências antigas
 
