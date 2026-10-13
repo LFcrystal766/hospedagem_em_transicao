@@ -793,7 +793,7 @@ bash bootstrap-vps.sh crystal-conferir
 da onda 4: trocar essa linha por `CREATE INDEX IF NOT EXISTS`, levar a pasta `e3_27_painel_indice_mensagens` e
 fazer cherry-pick dos 6 commits (`e24509f` a `3773e2e`). Testado: os 4 casos de `migrate deploy` passam.
 
-## Publicação do painel novo (onda 4): imagem `sha-22a65c1` (13/10, CI verde)
+## Publicação do painel novo (onda 4): imagem `sha-9ec8151` (13/10, CI verde)
 
 O painel novo (`painel/base` + `otimizacao/publicar-10-10`, juntados pela T1 em `painel/onda4`) traz 9 migrações do
 Prisma (todas aditivas), uma migração da T1 que apaga `scheduled_notices` (os avisos programados de 10/10) e um passo
@@ -805,10 +805,15 @@ comandos novos do `bootstrap-vps.sh` não rodaram na VPS ainda. **Nenhuma variá
 **Pré-requisitos (fora da VPS)**
 1. Produção em `sha-3773e2e` (correção do painel intermitente) ou, se ela ainda não subiu, em `sha-0e2f79d`. As duas
    servem: a onda 4 traz a `e3_27` (índice em `messages`) e a `pa12_26` agora usa `IF NOT EXISTS` (ensaiado nos dois casos).
-2. Feito em 13/10: `painel/onda4` em `22a65c1` com a T2 (Mensagens), as fichas, 16 correções da QA
-   (`auditorias/2026-10-13/onda4-qa.md`) e a correção do painel intermitente. CI verde (run 38425864762: gate, audit
-   e e2e 64/64) e imagens `sha-22a65c1` publicadas (run 38425864764). **Não usar `sha-06aaa0a`** (CI vermelho).
+2. Feito em 13/10: `painel/onda4` em `9ec8151` com a T2 (Mensagens), as fichas, 16 correções da QA
+   (`auditorias/2026-10-13/onda4-qa.md`) e a correção do painel intermitente (até `22a65c1`, CI run 38425864762).
+   **Não usar `sha-06aaa0a`** (CI vermelho) nem `sha-22a65c1` (sem as imagens).
    Pendência 20 do PRD (suporte desliga e religa aluno) espera o dono; hoje fica como está.
+   Também em `9ec8151`: **limite semanal de imagens** (25 por semana, zera domingo 00:00 de Brasília; acima do limite
+   a imagem não vai ao modelo e a Crystal manda a mensagem com o botão do checkout; saldo de extras na ficha) e o
+   **crédito automático do pacote** (`POST /webhooks/imagens`, mesmo segredo do reembolso). Migração nova só aditiva
+   `pa16_01_imagens_semana`. CI run 38463529669 e imagens run 38463529667 verdes. **Atenção:** as imagens já
+   mandadas desde domingo contam na semana; quem já passou de 25 fica no limite assim que a versão subir.
 3. Janela 02:00–05:00 BRT, vigia ligada, equipe avisada: **a API fica fora do ar uns 3 a 5 minutos** (o app não
    responde aos alunos; web e Chatwoot continuam). Cancelar no painel qualquer aviso programado pendente (a tabela some).
 4. Conta de admin, suporte e técnico à mão para conferir as telas depois.
@@ -834,13 +839,13 @@ bash bootstrap-vps.sh backup-conferir         # espera: o backup de agora listad
 bash bootstrap-vps.sh app-api-parar --confirmo
 #    espera: "ok API parada (nenhuma tarefa rodando)"
 # 2. migração + backfill com a imagem NOVA (serviço temporário; ~3 s de migração + 1,5 s por mil linhas de auditoria)
-bash bootstrap-vps.sh app-auditoria-backfill sha-22a65c1
+bash bootstrap-vps.sh app-auditoria-backfill sha-9ec8151
 #    espera, no fim: uma linha {"msg":"auditoria: backfill da cadeia","total":N,"preenchidas":N,"ok":true,...}
 #    e "ok migrações aplicadas e cadeia da auditoria fechada (N linhas conferidas)". Se der ERRO: NÃO seguir,
 #    a API continua parada e o banco inteiro; voltar ao ar com: bash bootstrap-vps.sh app-subir sha-3773e2e
 # 3. subir a API nova (as migrações já estão; o migrate deploy da subida só diz "No pending migrations")
-bash bootstrap-vps.sh app-subir sha-22a65c1
-#    espera: "ok api.env aceito pelo boot da API", "ok os três serviços estão em sha-22a65c1 e nenhum voltou",
+bash bootstrap-vps.sh app-subir sha-9ec8151
+#    espera: "ok api.env aceito pelo boot da API", "ok os três serviços estão em sha-9ec8151 e nenhum voltou",
 #    app-status com as três imagens novas e o teste do Supabase "ok"
 # 4. conferir
 bash bootstrap-vps.sh app-painel-conferir
@@ -882,6 +887,12 @@ bash bootstrap-vps.sh crystal-conferir
 ```
 
 Ida de novo depois de uma volta: repetir "Publicar" do passo 1 (o backfill refaz a cadeia inteira).
+
+**Depois de publicar (13/10): imagens.** No painel novo, Configurações (grupo Produto): `imagens_checkout_link` (o
+link do checkout do pacote; vazio = a mensagem pede para falar com o suporte), conferir `imagens_limite_semana` (25)
+e `imagens_limite_texto`, e `op_imagens_pacotes` (uma linha por pacote: `id do produto da Assiny | imagens | nome`).
+Só então rodar o script do n8n da seção "Pacote de imagens extras (13/10)" (`compra-assiny-imagens.py`, commit
+`b449e66`): antes disso a API ainda não tem `/webhooks/imagens`.
 
 ## Ficha completa de cada aluno antes do primeiro acesso (SQL aplicado em 13/10, imagem `sha-0e2f79d`)
 

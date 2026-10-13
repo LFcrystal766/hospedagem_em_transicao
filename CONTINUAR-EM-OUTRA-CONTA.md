@@ -63,8 +63,9 @@ ter nome de aluno colado de alguma saída.
 2. **Conferência de ponta a ponta.** O `crystal-conferir` de 10/10 quebrava sem modelo no painel ("modelo: unbound
    variable"); corrigido em `182a12e`. Esperando o dono rodar de novo e colar a saída (deve terminar em
    "TUDO LIGADO").
-3. **Painel novo (onda 4, caminho A): pronto para publicar.** `painel/onda4` em `22a65c1`, CI verde (run
-   38425864762), imagem **`sha-22a65c1`** (a `sha-06aaa0a` teve CI vermelho: não usar). Tem a T2, as fichas, 16
+3. **Painel novo (onda 4, caminho A): pronto para publicar.** `painel/onda4` em `9ec8151`, CI verde (run
+   38463529669), imagem **`sha-9ec8151`** (com o limite de imagens e o crédito do pacote; não usar `sha-06aaa0a` nem
+   `sha-22a65c1`). Tem a T2, as fichas, 16
    correções da QA (`auditorias/2026-10-13/onda4-qa.md`) e a correção do painel intermitente (com o índice em
    `IF NOT EXISTS`, ensaiado). Esperando o dono: escolher a madrugada (02:00–05:00) e responder a pendência 20 do
    PRD (o suporte pode desligar e religar aluno? hoje pode). Para entrega própria: números de Mensagens e "Sem usar
@@ -75,11 +76,11 @@ ter nome de aluno colado de alguma saída.
    aluno": "Prever custo"; piloto de 20 com `openai/gpt-4.1-mini` (12 meses, teto US$ 5); outro de 20 com
    `anthropic/claude-haiku-4.5` (mesmo alcance e teto). Comparar fichas e custo.
 
-5. **Mensagens: números do "não" (pedido do dono 13/10).** Em cada envio: entregues e não entregues (com o motivo),
-   abertas e não abertas, cliques e não clicaram (sem botão, o painel diz isso), na lista Enviadas e no detalhe, e
-   filtros "Não abriu"/"Não clicou" na tabela por aluno. Agente trabalhando em `painel/onda4` (sobre `22a65c1`);
-   ao terminar, CI e imagem nova: **a etiqueta da onda 4 muda** e é ela que vai para a madrugada. Só vale para
-   mensagens enviadas pelo painel novo (os avisos antigos não registraram entrega nem clique).
+5. **Mensagens: números do "não" (pedido do dono 13/10): PARADO, não está na onda 4.** O agente foi interrompido
+   no meio (a interrupção do dono às ~17h parou os agentes em segundo plano). O trabalho incompleto, sem bateria,
+   ficou guardado em `backup/onda4-mensagens-nao-wip` (`2810461`, base `22a65c1`, 12 arquivos: notices repos/tipos,
+   DetalheEnvio, Enviadas, microcopy). Retomar só se o dono pedir: juntar com `painel/onda4` e terminar (não
+   entregues com motivo, não abriram, não clicaram/sem botão, resumo na lista, filtros "Não abriu"/"Não clicou").
 6. **Alma da Crystal no painel (onda 5, pedido do dono 13/10).** Decisões: **superadmin** edita, testa e publica;
    acompanhar com bateria de perguntas-padrão, amostra de conversas reais (👍/👎 e nota) e números do dia a dia;
    editáveis: a alma, as regras de formato e a base de conhecimento. Fatos levantados: a alma é
@@ -97,27 +98,23 @@ ter nome de aluno colado de alguma saída.
    Acesso (só admin, pede a senha de novo) com "Acesso até" 13/10/2027. O painel novo já tem conta local com "Acesso
    até" (o login é recusado depois da data). E-mail e telefone do aluno ficam fora do repositório.
 
-8. **Limite semanal de imagens (pedido da Giseli/Igor, 13/10, para a madrugada).** 25 imagens por aluno por semana,
-   zera todo domingo 00:00 de Brasília; passou do limite, a imagem não vai para o modelo e a Crystal manda mensagem com
-   botão para o checkout de mais imagens (com texto junto, responde ao texto sem a imagem). Saldo de imagens extras
-   que não zera, lançado à mão na ficha (admin e suporte, auditado); crédito automático pela Assiny fica para depois.
-   Configurável no painel: limite (0 = sem limite), link do checkout, texto. Agente construindo na worktree
-   `/home/user/cw-imagens` (branch `painel/onda4-imagens`), que no fim junta com `painel/onda4` e publica lá: **a
-   etiqueta da onda 4 muda de novo**. Falta do dono: o link do checkout e quantas imagens cada compra dá.
-   **Pacote extra automático (pedido do dono, 13/10):** a compra do pacote na Assiny credita sozinha. Caminho: Assiny →
-   n8n (fluxo `qMRPSFT9OAScVUP4`, "Crystal · compra e reembolso da Assiny"; produto fora dos 7 que liberam o app volta
-   `ignorado/produto` do Supabase) → novo IF + repasse do corpo cru para a API `POST /webhooks/imagens` (mesmo segredo
-   do `/webhooks/reembolso`) → a API credita +N (ou estorna o que resta no reembolso), idempotente pela transação,
-   com crédito pendente por e-mail para quem ainda não entrou no app, e a Crystal avisa na conversa. Os pacotes
-   (id do produto da Assiny → quantas imagens) são cadastrados no painel. Construção: API pelo agente do limite
-   (mesma branch). **Lado do n8n pronto (13/10), ainda não aplicado na VPS:** `compra-assiny.json` com o IF "Produto
-   fora da lista?" e o HTTP "Repassar ao app (pacote de imagens)" (credencial do reembolso, corpo cru, 3 tentativas);
-   script `crystal-em-casa/n8n/compra-assiny-imagens.py` (commit `b449e66`, sha256 `84b5bba1…0e0db3`) que atualiza o
-   fluxo na VPS sem clicar: cópia antes, só acrescenta o que falta, mesmo id, reativa, confere 10 nós; `--testar` só
-   leitura; `--voltar`. Testado num n8n 1.123.10 local (Postgres e serviços falsos): repasse com o Bearer em compra e
-   reembolso do pacote, produto da Crystal sem repasse, segunda rodada sem duplicar, volta para 8 nós. Roteiro em
-   `publicar-prd.md` › "Pacote de imagens extras (13/10)". Aplicar só depois da API com `/webhooks/imagens` no ar. Conferido em 13/10: `crystal_compras_produtos` tem 7 produtos, então o
-   pacote nunca libera nem bloqueia o app sozinho.
+8. **Limite semanal de imagens + pacote extra automático: PRONTO em `painel/onda4` `9ec8151` (13/10).**
+   - Aluno: 25 por semana (zera domingo 00:00 de Brasília; imagens já mandadas desde domingo contam); acima do
+     limite a imagem não vai ao modelo e a Crystal manda a mensagem (com o botão "Comprar mais imagens" se houver
+     link); com texto junto, responde ao texto e manda o aviso. Aviso discreto acima da caixa quando restam 5 ou menos.
+   - Ficha (aba Resumo, bloco "Imagens"): "Imagens esta semana: N de 25 · extras: M", histórico das extras e
+     "Adicionar imagens extras" (admin e suporte; auditoria `student.images_extra_add`).
+   - Configurações (grupo Produto): `imagens_limite_semana` (25; 0 = sem limite), `imagens_checkout_link` (vazio),
+     `imagens_limite_texto`, `op_imagens_pacotes` (uma linha por pacote: `id do produto | imagens | nome`).
+   - Compra: `POST /webhooks/imagens` (Bearer = `REFUND_WEBHOOK_SECRET`), créditos em `approved_purchase`,
+     `purchase_approved`, `subscription_renewed`, `renewed_subscription`; estorno em `refunded_purchase`, `chargeback`,
+     `chargedback_purchase`; sem duplicar por tipo+transação; e-mail sem conta = crédito pendente aplicado no 1º login
+     (some no purge LGPD e em 180 dias). Migração `pa16_01_imagens_semana`.
+   - n8n: `compra-assiny.json` com 10 nós e o script `crystal-em-casa/n8n/compra-assiny-imagens.py` (commit
+     `b449e66`, sha256 `84b5bba1343c27494b2435311a71137483216da85f6bac32caacfc330a0e0db3`), testado num n8n 1.123.10 local.
+     Rodar **só depois** da onda 4 no ar.
+   - Falta do dono: o link do checkout, o produto do pacote na Assiny e quantas imagens ele dá, e conferir se o webhook
+     da Assiny é por produto.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
