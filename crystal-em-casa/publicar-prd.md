@@ -712,7 +712,7 @@ Conferir no painel (admin), em Operação › Crystal:
 3. Integrações: o cartão "Crystal" agora olha a nossa Crystal (antes, no modo chatwoot, olhava só o Chatwoot).
 4. Avisos › Programados: programar um aviso para daqui a 5 minutos para a própria equipe e ver sair.
 
-## Correção do painel intermitente (13/10): `sha-3773e2e`
+## Correção do painel intermitente (13/10): `sha-3773e2e`, no ar desde 13/10 18:44 UTC (TUDO LIGADO)
 
 Branch `otimizacao/painel-rapido` do app, 6 commits sobre `0e2f79d` (produção). CI verde e imagens publicadas
 (disparo manual do `imagens-vps`). O painel gerencial travava o processo da API: criava um formatador de data
