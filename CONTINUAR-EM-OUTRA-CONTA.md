@@ -146,8 +146,10 @@ ter nome de aluno colado de alguma saída.
    (`staff-notices-agenda.test.ts`, "a régua do horário") falha localmente já antes da troca de e-mail: conferir se
    depende da hora do dia antes de culpar a mudança.
 11. **Reautenticação por código no e-mail (pedido do dono, 14/10):** toda confirmação forte do painel deixa de pedir
-   senha e manda código de 6 dígitos para o e-mail de quem está logado (10 min, uso único, limites). Agente Sonnet na
-   worktree `/home/user/cw-reauth` (branch `painel/onda5-reauth`), que no fim junta em `painel/onda5-alma`.
+   senha e manda código de 6 dígitos para o e-mail de quem está logado (10 min, uso único, limites). **Pronto em 14/10**
+   em `painel/onda5-alma` `640b9a0` (rotas `POST /auth/staff/reauth/codigo` e `POST /auth/staff/reauth { codigo }`;
+   caminho por senha removido; e2e com `dev_code`). Etiqueta esperada `sha-640b9a0`, que só sai depois da cobrança do
+   GitHub resolvida (item 10): re-rodar o CI da branch e disparar o `imagens-vps`.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
