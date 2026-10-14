@@ -47,7 +47,11 @@ import uuid
 WF_ID = "qMRPSFT9OAScVUP4"
 NOME_FLUXO = "Crystal · compra e reembolso da Assiny"
 CAMINHO = "assiny-compras"
-WEBHOOK = os.environ.get("N8N_COMPRAS_URL", "https://webhook.crystalnowpp.com.br/webhook/assiny-compras")
+# Em produção o caminho do webhook tem um sufixo secreto (assiny-compras-<aleatório>, 14/10): o script acha o
+# fluxo pelo começo do caminho, guarda o caminho real só em memória e nunca o imprime nem grava fora do n8n.
+CAMINHO_REAL = CAMINHO
+WEBHOOK_BASE = os.environ.get("N8N_COMPRAS_BASE", "https://webhook.crystalnowpp.com.br/webhook/")
+FILTRO_CAMINHO = f"(n#>>'{{parameters,path}}' = '{CAMINHO}' or n#>>'{{parameters,path}}' like '{CAMINHO}-%')"
 API_IMAGENS = os.environ.get("API_IMAGENS_URL", "https://api.crystalnowpp.com.br/webhooks/imagens")
 COPIAS = os.environ.get("CRYSTAL_N8N_COPIAS", "/root/crystal/n8n-copias")
 BANCO = os.environ.get("N8N_BANCO", "n8n_queue")
@@ -136,10 +140,13 @@ def sql(pg, consulta):
 
 def achar_fluxo(pg):
     """Id do fluxo que tem o webhook POST assiny-compras. Precisa ser exatamente um."""
-    bruto = sql(pg, f"""select coalesce(json_agg(json_build_object('id', w.id, 'nome', w.name, 'ativo', w.active)), '[]')
+    global CAMINHO_REAL
+    bruto = sql(pg, f"""select coalesce(json_agg(json_build_object('id', w.id, 'nome', w.name, 'ativo', w.active,
+        'caminho', (select n#>>'{{parameters,path}}' from jsonb_array_elements(w.nodes::jsonb) n
+                     where n->>'type' = 'n8n-nodes-base.webhook' and {FILTRO_CAMINHO} limit 1))), '[]')
       from workflow_entity w
      where exists (select 1 from jsonb_array_elements(w.nodes::jsonb) n
-                    where n->>'type' = 'n8n-nodes-base.webhook' and n#>>'{{parameters,path}}' = '{CAMINHO}')
+                    where n->>'type' = 'n8n-nodes-base.webhook' and {FILTRO_CAMINHO})
        and coalesce((to_jsonb(w)->>'isArchived')::boolean, false) = false;""")
     achados = json.loads(bruto or "[]")
     if not achados:
@@ -148,6 +155,7 @@ def achar_fluxo(pg):
         nomes = ", ".join(f"{a['id']} ({a['nome']})" for a in achados)
         raise Falha(f"mais de um fluxo usa o webhook '{CAMINHO}': {nomes}. Arquivar os que sobram no editor")
     f = achados[0]
+    CAMINHO_REAL = f["caminho"]
     if f["id"] != WF_ID:
         print(f"  aviso: o fluxo do webhook tem id {f['id']} (o esperado era {WF_ID}); sigo com {f['id']}")
     if f["nome"] != NOME_FLUXO:
@@ -163,7 +171,7 @@ select json_build_object(
   'nos', w.nodes::jsonb, 'ligacoes', w.connections::jsonb,
   'pub_nos', (select h.nodes::jsonb from workflow_history h where h."versionId" = to_jsonb(w)->>'activeVersionId'),
   'pub_ligacoes', (select h.connections::jsonb from workflow_history h where h."versionId" = to_jsonb(w)->>'activeVersionId'),
-  'webhook', exists (select 1 from webhook_entity e where e."workflowId" = w.id and e."webhookPath" = '{CAMINHO}'))
+  'webhook', exists (select 1 from webhook_entity e where e."workflowId" = w.id and e."webhookPath" = '{CAMINHO_REAL}'))
 from w;""")
     if not bruto:
         raise Falha(f"o fluxo {wid} sumiu do banco do n8n")
@@ -245,7 +253,7 @@ def conferir(pg, wid, publico=True):
 
 def status_publico():
     """POST sem token: o n8n recusa (403) antes de executar; não dispara compra."""
-    req = urllib.request.Request(WEBHOOK, data=b"{}", method="POST", headers={
+    req = urllib.request.Request(WEBHOOK_BASE + CAMINHO_REAL, data=b"{}", method="POST", headers={
         "content-type": "application/json", "user-agent": "crystal-n8n-imagens/1.0"})
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
@@ -312,7 +320,7 @@ def reiniciar_n8n(pg, wid):
     for _ in range(60):
         try:
             if sql(pg, f"""select count(*) from webhook_entity where "workflowId" = '{wid}'
-                           and "webhookPath" = '{CAMINHO}';""") == "1":
+                           and "webhookPath" = '{CAMINHO_REAL}';""") == "1":
                 ok(f"n8n de volta, webhook '{CAMINHO}' registrado")
                 return
         except Falha:
