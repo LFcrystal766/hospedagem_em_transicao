@@ -912,6 +912,8 @@ troca, na subida, uma regra da tabela de uso (`uso_turnos`, ~75 mil linhas): tra
    histórico dos trechos e as funções de escrita, só para `service_role`; a RPC `crystal_hybrid_search` e a Edge Function
    da agência não mudam). As conferências estão no fim do arquivo.
 3. Janela 02:00–05:00 (por causa da trava na `uso_turnos`).
+4. A função `app_aluno_trocar_email` (troca de e-mail de aluno da base pelo suporte) já foi aplicada em 14/10. A etiqueta
+   vai mudar (troca de e-mail e reautenticação por código entram na mesma branch): usar a que estiver na passagem.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/36c0efd/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh

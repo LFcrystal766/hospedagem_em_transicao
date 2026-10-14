@@ -135,6 +135,18 @@ ter nome de aluno colado de alguma saída.
    troca e-mail de conta local (aluno da base: recusa, "corrige-se na base"). Em construção (agente Sonnet): troca
    de e-mail de aluno da base pela ficha, para admin e suporte, gravando no Supabase por função SQL só para
    `service_role`, derrubando as sessões e auditando sem os e-mails; entra na onda 5. E-mails e CPF fora do repositório.
+   **Pronto em 14/10:** `painel/onda5-alma` em `dd49156` (ficha › "Corrigir e-mail" para admin e suporte, com motivo
+   obrigatório; `PATCH /staff/alunos/:id` chama `app_aluno_trocar_email`; 409 se o e-mail já existe; sessões derrubadas;
+   auditoria `aluno.email_base_trocado` sem e-mail). SQL `crystal-em-casa/supabase/app_aluno_trocar_email.sql`
+   **APLICADO em 14/10** (migração `app_aluno_trocar_email_20261014`, só `service_role`). Falta CI e imagem: ver item 10.
+10. **GitHub Actions BLOQUEADO por cobrança (14/10):** o CI de `dd49156` não começou ("recent account payments have
+   failed or your spending limit needs to be increased"). Sem CI não sai imagem nova. O dono resolve em GitHub ›
+   Settings › Billing; depois re-rodar o CI da branch `painel/onda5-alma` e disparar o `imagens-vps`. Um teste da API
+   (`staff-notices-agenda.test.ts`, "a régua do horário") falha localmente já antes da troca de e-mail: conferir se
+   depende da hora do dia antes de culpar a mudança.
+11. **Reautenticação por código no e-mail (pedido do dono, 14/10):** toda confirmação forte do painel deixa de pedir
+   senha e manda código de 6 dígitos para o e-mail de quem está logado (10 min, uso único, limites). Agente Sonnet na
+   worktree `/home/user/cw-reauth` (branch `painel/onda5-reauth`), que no fim junta em `painel/onda5-alma`.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
