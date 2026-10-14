@@ -142,14 +142,14 @@ ter nome de aluno colado de alguma saída.
    **APLICADO em 14/10** (migração `app_aluno_trocar_email_20261014`, só `service_role`). Falta CI e imagem: ver item 10.
 10. **GitHub Actions BLOQUEADO por cobrança (14/10):** o CI de `dd49156` não começou ("recent account payments have
    failed or your spending limit needs to be increased"). Sem CI não sai imagem nova. O dono resolve em GitHub ›
-   Settings › Billing; depois re-rodar o CI da branch `painel/onda5-alma` e disparar o `imagens-vps`. Um teste da API
-   (`staff-notices-agenda.test.ts`, "a régua do horário") falha localmente já antes da troca de e-mail: conferir se
-   depende da hora do dia antes de culpar a mudança.
+   Settings › Billing; depois re-rodar o CI da branch `painel/onda5-alma` e disparar o `imagens-vps`. O teste da API que
+   dependia da hora do dia (`staff-notices-agenda.test.ts`) foi consertado em `989df6c`.
 11. **Reautenticação por código no e-mail (pedido do dono, 14/10):** toda confirmação forte do painel deixa de pedir
    senha e manda código de 6 dígitos para o e-mail de quem está logado (10 min, uso único, limites). **Pronto em 14/10**
    em `painel/onda5-alma` `640b9a0` (rotas `POST /auth/staff/reauth/codigo` e `POST /auth/staff/reauth { codigo }`;
-   caminho por senha removido; e2e com `dev_code`). Etiqueta esperada `sha-640b9a0`, que só sai depois da cobrança do
-   GitHub resolvida (item 10): re-rodar o CI da branch e disparar o `imagens-vps`.
+   caminho por senha removido; e2e com `dev_code`). Depois, `989df6c` consertou o teste `staff-notices-agenda` (logava
+   antes de fixar o relógio; falhava de manhã em Brasília). **Etiqueta esperada da onda 5: `sha-989df6c`**, que só sai
+   depois da cobrança do GitHub resolvida (item 10): re-rodar o CI da branch e disparar o `imagens-vps`.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
