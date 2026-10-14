@@ -125,6 +125,16 @@ ter nome de aluno colado de alguma saída.
    - Falta do dono: o link do checkout, o produto do pacote na Assiny e quantas imagens ele dá, e conferir se o webhook
      da Assiny é por produto.
 
+9. **Troca de e-mail de aluno da base (pedido da Letícia, 13/10 22h): FEITA à mão.** Identidade conferida pelo CPF
+   no cadastro; e-mail trocado em `leticia_crystal_customers` (mesmo `id`, que é o `contact_id` do login): ele entra com
+   o e-mail novo e a API acha a mesma conta pelo contato e atualiza o e-mail dela (histórico mantido); o antigo não
+   entra mais. Riscos: se o webhook antigo da agência ainda escrever nessa tabela, pode voltar o e-mail antigo; se uma
+   renovação chegar pelo nosso n8n com o e-mail antigo, ela cria linha em `crystal_compras` e esse e-mail antigo
+   viraria outra conta. **Pedido do dono: o suporte tem de conseguir fazer isso no painel.** Hoje o painel novo só
+   troca e-mail de conta local (aluno da base: recusa, "corrige-se na base"). Em construção (agente Sonnet): troca
+   de e-mail de aluno da base pela ficha, para admin e suporte, gravando no Supabase por função SQL só para
+   `service_role`, derrubando as sessões e auditando sem os e-mails; entra na onda 5. E-mails e CPF fora do repositório.
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
