@@ -16,4 +16,4 @@ Feita pelo dono na VPS, fora da janela (de manhã cedo, movimento baixo), com o 
 - `crystal-conferir` depois: TUDO LIGADO (haiku-4.5 em 2,9 s; reserva gpt-4.1-mini; 6 trechos da base; saldo US$ 41,20).
 
 Falta: configurar as imagens no painel (link do checkout e pacotes), rodar o script do n8n
-(`compra-assiny-imagens.py`, commit `b449e66`), reiniciar a VPS e, em 14/10, `painel-diagnostico 6`.
+(`compra-assiny-imagens.py`, commit `cbffaa4`; o `b449e66` não achava o fluxo por causa do sufixo secreto do webhook), reiniciar a VPS e, em 14/10, `painel-diagnostico 6`.

@@ -711,8 +711,8 @@ webhook pode recusar; a Assiny reenvia.
 
 ```bash
 cd /root/crystal
-curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/b449e66/crystal-em-casa/n8n/compra-assiny-imagens.py -o compra-assiny-imagens.py
-echo "84b5bba1343c27494b2435311a71137483216da85f6bac32caacfc330a0e0db3  compra-assiny-imagens.py" | sha256sum -c      # tem que dizer: OK
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/cbffaa4/crystal-em-casa/n8n/compra-assiny-imagens.py -o compra-assiny-imagens.py
+echo "9678ed91ca50e24b6660dccab18539c8215d9faa042bb0b7655947f94429a179  compra-assiny-imagens.py" | sha256sum -c      # tem que dizer: OK
 python3 compra-assiny-imagens.py --testar     # antes: lista o que falta (8 nós), não muda nada
 python3 compra-assiny-imagens.py              # acrescenta os 2 nós, reimporta com o mesmo id, reativa, confere
 ```
@@ -892,7 +892,7 @@ Ida de novo depois de uma volta: repetir "Publicar" do passo 1 (o backfill refaz
 link do checkout do pacote; vazio = a mensagem pede para falar com o suporte), conferir `imagens_limite_semana` (25)
 e `imagens_limite_texto`, e `op_imagens_pacotes` (uma linha por pacote: `id do produto da Assiny | imagens | nome`).
 Só então rodar o script do n8n da seção "Pacote de imagens extras (13/10)" (`compra-assiny-imagens.py`, commit
-`b449e66`): antes disso a API ainda não tem `/webhooks/imagens`.
+`cbffaa4`): antes disso a API ainda não tem `/webhooks/imagens`.
 
 
 ## Alma da Crystal no painel (onda 5): imagem `sha-f3d6616` (13/10, CI verde)
