@@ -711,8 +711,8 @@ webhook pode recusar; a Assiny reenvia.
 
 ```bash
 cd /root/crystal
-curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/cbffaa4/crystal-em-casa/n8n/compra-assiny-imagens.py -o compra-assiny-imagens.py
-echo "9678ed91ca50e24b6660dccab18539c8215d9faa042bb0b7655947f94429a179  compra-assiny-imagens.py" | sha256sum -c      # tem que dizer: OK
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/8cb2ea9/crystal-em-casa/n8n/compra-assiny-imagens.py -o compra-assiny-imagens.py
+echo "f8ea4111a1c7fd24828dbf31295a901b38f143c8b7f0f5210dc6b82ec68a42ae  compra-assiny-imagens.py" | sha256sum -c      # tem que dizer: OK
 python3 compra-assiny-imagens.py --testar     # antes: lista o que falta (8 nós), não muda nada
 python3 compra-assiny-imagens.py              # acrescenta os 2 nós, reimporta com o mesmo id, reativa, confere
 ```

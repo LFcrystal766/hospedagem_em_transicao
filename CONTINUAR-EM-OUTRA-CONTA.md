@@ -121,7 +121,7 @@ ter nome de aluno colado de alguma saída.
      `chargedback_purchase`; sem duplicar por tipo+transação; e-mail sem conta = crédito pendente aplicado no 1º login
      (some no purge LGPD e em 180 dias). Migração `pa16_01_imagens_semana`.
    - n8n: `compra-assiny.json` com 10 nós e o script `crystal-em-casa/n8n/compra-assiny-imagens.py` (commit
-     `cbffaa4`, sha256 `9678ed91ca50e24b6660dccab18539c8215d9faa042bb0b7655947f94429a179`), testado num n8n 1.123.10 local.
+     `cbffaa4`, sha256 `f8ea4111a1c7fd24828dbf31295a901b38f143c8b7f0f5210dc6b82ec68a42ae`), testado num n8n 1.123.10 local.
      Rodar **só depois** da onda 4 no ar.
    - Falta do dono: o link do checkout, o produto do pacote na Assiny e quantas imagens ele dá, e conferir se o webhook
      da Assiny é por produto.

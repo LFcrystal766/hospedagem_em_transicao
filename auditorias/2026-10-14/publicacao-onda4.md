@@ -16,4 +16,16 @@ Feita pelo dono na VPS, fora da janela (de manhã cedo, movimento baixo), com o 
 - `crystal-conferir` depois: TUDO LIGADO (haiku-4.5 em 2,9 s; reserva gpt-4.1-mini; 6 trechos da base; saldo US$ 41,20).
 
 Falta: configurar as imagens no painel (link do checkout e pacotes), rodar o script do n8n
-(`compra-assiny-imagens.py`, commit `cbffaa4`; o `b449e66` não achava o fluxo por causa do sufixo secreto do webhook), reiniciar a VPS e, em 14/10, `painel-diagnostico 6`.
+(`compra-assiny-imagens.py`, commit `8cb2ea9`; o `b449e66` não achava o fluxo por causa do sufixo secreto do webhook), reiniciar a VPS e, em 14/10, `painel-diagnostico 6`.
+
+## n8n: repasse do pacote de imagens (14/10 ~09:38 UTC)
+
+- `compra-assiny-imagens.py` do commit `b449e66` não achou o fluxo: em produção o webhook é `assiny-compras-<sufixo
+  secreto>`. Corrigido em `cbffaa4` (acha pelo começo do caminho; o caminho real fica só em memória).
+- Com `cbffaa4`: cópia de antes em `/root/crystal/n8n-copias/compra-assiny-20261014-093750.json`; fluxo `qMRPSFT9OAScVUP4`
+  importado com o mesmo id e ativo; editor, webhook e worker reiniciados; webhook registrado. Conferido pelo conector do
+  n8n: 10 nós, "Responder à Assiny" → "Produto fora da lista?" → "Repassar ao app (pacote de imagens)" para
+  `/webhooks/imagens`, ativo.
+- O "500 em vez de 403" do teste sem token era esperado: o webhook de produção não pede token no cabeçalho (protegido só
+  pelo caminho secreto); o POST vazio roda o fluxo, o Supabase recusa (EVENTO_INVALIDO) e responde 500, sem compra.
+  A conferência deixou de exigir o 403 nesse caso (`8cb2ea9`).
