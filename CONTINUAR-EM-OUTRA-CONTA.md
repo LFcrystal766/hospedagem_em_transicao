@@ -151,6 +151,13 @@ ter nome de aluno colado de alguma saída.
    antes de fixar o relógio; falhava de manhã em Brasília). **Etiqueta esperada da onda 5: `sha-989df6c`**, que só sai
    depois da cobrança do GitHub resolvida (item 10): re-rodar o CI da branch e disparar o `imagens-vps`.
 
+12. **Teste do GPT-5.6 Sol pela Letícia (14/10).** Modelo `openai/gpt-5.6-sol` (US$ 2/10 por milhão; ~5x o Haiku 4.5
+   por pergunta). Hoje (caminho A): trocar o modelo de todos em Crystal › Modelo por 20–30 min, ela conversa no app com
+   uma conta local de aluna criada só para o teste, volta o modelo; a conversa vem para a sessão, que monta o dossiê.
+   Caminho B em construção (agente Sonnet, `painel/onda5-alma`): "Conversa de teste" no painel, 1 ou 2 modelos lado a lado,
+   com histórico e sem tocar alunos, e "Gerar dossiê" (avaliação contra a alma e as regras de formato, custo/tempo,
+   comparação, PDF pela impressão). Entra com a onda 5.
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
