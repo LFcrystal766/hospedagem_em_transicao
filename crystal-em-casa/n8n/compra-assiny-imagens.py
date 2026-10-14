@@ -240,6 +240,13 @@ def conferir(pg, wid, publico=True):
             problemas.append(f'"{SE}" não tem as condições acao == ignorado e motivo == produto')
     if not e["webhook"]:
         problemas.append(f"o webhook '{CAMINHO}' não está registrado (reiniciar o n8n)")
+    gancho = next((n for n in nos if n.get("type") == "n8n-nodes-base.webhook"), {}) or {}
+    com_token = bool((gancho.get("parameters") or {}).get("authentication") not in (None, "", "none"))
+    if publico and not com_token:
+        # Produção (14/10): o webhook não pede token no cabeçalho; quem protege é o sufixo secreto do caminho.
+        # Sem token o fluxo roda, o Supabase recusa o corpo vazio e a resposta é 500, sem compra nenhuma.
+        print("  aviso: o webhook não pede token no cabeçalho (protegido só pelo caminho secreto); não testo o 403")
+        publico = False
     if publico:
         st = status_publico()
         if st != 403:
