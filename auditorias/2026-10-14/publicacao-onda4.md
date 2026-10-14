@@ -29,3 +29,9 @@ Falta: configurar as imagens no painel (link do checkout e pacotes), rodar o scr
 - O "500 em vez de 403" do teste sem token era esperado: o webhook de produção não pede token no cabeçalho (protegido só
   pelo caminho secreto); o POST vazio roda o fluxo, o Supabase recusa (EVENTO_INVALIDO) e responde 500, sem compra.
   A conferência deixou de exigir o 403 nesse caso (`8cb2ea9`).
+
+## Reinício da VPS (14/10, manhã)
+
+Kernel novo (`6.8.0-147`, antes `6.8.0-142`) e o aviso "System restart required" sumiu. Depois do reinício: os três
+serviços do app em `sha-9ec8151`, app. e api. 200, `crystal-conferir` TUDO LIGADO (haiku-4.5 em 2,7 s, reserva ok,
+6 trechos da base, saldo US$ 40,96).

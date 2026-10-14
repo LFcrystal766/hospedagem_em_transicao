@@ -64,7 +64,8 @@ ter nome de aluno colado de alguma saída.
    variable"); corrigido em `182a12e`. Esperando o dono rodar de novo e colar a saída (deve terminar em
    "TUDO LIGADO").
 3. **Painel novo (onda 4, caminho A): NO AR desde 14/10 ~09:25 UTC** (`auditorias/2026-10-14/publicacao-onda4.md`;
-   backfill 80/80, cadeia íntegra, TUDO LIGADO). Faltam: imagens no painel, script do n8n, reboot da VPS. Antes: `painel/onda4` em `9ec8151`, CI verde (run
+   backfill 80/80, cadeia íntegra, TUDO LIGADO). n8n do pacote aplicado e VPS reiniciada (kernel 6.8.0-147) em 14/10, TUDO
+   LIGADO depois. Falta: cadastrar link do checkout e pacotes no painel. Antes: `painel/onda4` em `9ec8151`, CI verde (run
    38463529669), imagem **`sha-9ec8151`** (com o limite de imagens e o crédito do pacote; não usar `sha-06aaa0a` nem
    `sha-22a65c1`). Tem a T2, as fichas, 16
    correções da QA (`auditorias/2026-10-13/onda4-qa.md`) e a correção do painel intermitente (com o índice em
@@ -170,7 +171,6 @@ ter nome de aluno colado de alguma saída.
 - Decisão da migração final do site (degrau 2; resposta da AZAN).
 - Sessão "Adicionar novo usuário Crystal" (outro sistema) esperando o dono.
 - Branch `qa/painel-2026-10-10` do app pode ser apagada pelo dono no GitHub.
-- A VPS pede reinício (atualização de kernel): fazer na janela 02:00–05:00, de preferência junto com a onda 4.
 
 ## 6. Mapa rápido
 
