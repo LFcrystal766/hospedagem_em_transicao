@@ -793,7 +793,7 @@ bash bootstrap-vps.sh crystal-conferir
 da onda 4: trocar essa linha por `CREATE INDEX IF NOT EXISTS`, levar a pasta `e3_27_painel_indice_mensagens` e
 fazer cherry-pick dos 6 commits (`e24509f` a `3773e2e`). Testado: os 4 casos de `migrate deploy` passam.
 
-## Publicação do painel novo (onda 4): imagem `sha-9ec8151` (13/10, CI verde)
+## Publicação do painel novo (onda 4): imagem `sha-9ec8151`, NO AR desde 14/10 ~09:25 UTC
 
 O painel novo (`painel/base` + `otimizacao/publicar-10-10`, juntados pela T1 em `painel/onda4`) traz 9 migrações do
 Prisma (todas aditivas), uma migração da T1 que apaga `scheduled_notices` (os avisos programados de 10/10) e um passo
