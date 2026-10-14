@@ -2552,7 +2552,7 @@ painel_diagnostico() {
 # Conferência depois de publicar o painel novo, sem mudar nada: migrações limpas de dentro
 # da API, cadeia de hash conferida pelo código do próprio app, rotas e telas novas no ar.
 app_painel_conferir() {
-  local erros=0 api pg saida n sem code u esperado metodo
+  local erros=0 api pg saida n sem code u esperado metodo destino="" corpo=""
   echo "== 1. serviços e tag"
   echo "  API em $(app_tag_atual)"
   app_status
@@ -2609,10 +2609,20 @@ TS
     "https://app.$DOMINIO/equipe/auditoria GET 200" \
     "https://app.$DOMINIO/equipe/configuracoes GET 200" \
     "https://app.$DOMINIO/equipe/crystal GET 200" \
-    "https://app.$DOMINIO/equipe/operacao GET 307" \
-    "https://app.$DOMINIO/equipe/avisos GET 307" \
-    "https://app.$DOMINIO/equipe/painel GET 307"; do
-    read -r u metodo esperado <<<"$u"
+    "https://app.$DOMINIO/equipe/operacao GET 307 /equipe/alunos?aba=lotes" \
+    "https://app.$DOMINIO/equipe/avisos GET 307 /equipe/mensagens" \
+    "https://app.$DOMINIO/equipe/painel GET 307 /equipe/metricas"; do
+    read -r u metodo esperado destino <<<"$u"
+    if [ -n "${destino:-}" ]; then
+      # Tela antiga: o layout da equipe é de cliente, então o Next manda 200 com NEXT_REDIRECT no corpo
+      # (o navegador vai para o destino) em vez do 307 de cabeçalho. Os dois valem (14/10).
+      corpo=$(curl -s -m 20 -w '\n%{http_code}' "$u" 2>/dev/null) || true
+      code=${corpo##*$'\n'}
+      if [ "$code" = "$esperado" ] || { [ "$code" = "200" ] && printf '%s' "$corpo" | grep -qF "NEXT_REDIRECT;replace;$destino;"; }; then
+        ok "$metodo $u -> $code (vai para $destino)"
+      else aviso "$metodo $u -> ${code:-000} (esperava ir para $destino)"; erros=$((erros+1)); fi
+      continue
+    fi
     code=$(curl -s -o /dev/null -m 20 -X "$metodo" -w '%{http_code}' "$u" 2>/dev/null) || true
     if [ "${code:-000}" = "$esperado" ]; then ok "$metodo $u -> $code"
     else aviso "$metodo $u -> ${code:-000} (esperava $esperado)"; erros=$((erros+1)); fi
@@ -2620,7 +2630,7 @@ TS
 
   echo
   if [ "$erros" -eq 0 ]; then ok "PAINEL NOVO NO AR: migrações limpas, cadeia da auditoria íntegra, telas e rotas novas respondendo"
-  else aviso "$erros ponto(s) com problema, marcados com ! acima. Volta: bash $0 app-subir sha-5a5b198 (ver crystal-em-casa/publicar-prd.md, onda 4)"; return 1; fi
+  else aviso "$erros ponto(s) com problema, marcados com ! acima. Volta: ver crystal-em-casa/publicar-prd.md, onda 4 (app-subir da versão anterior)"; return 1; fi
 }
 
 vigia_telegram() { # vigia_telegram TEXTO -> 0 se o Telegram aceitou
