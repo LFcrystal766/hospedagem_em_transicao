@@ -170,6 +170,11 @@ ter nome de aluno colado de alguma saída.
    0,7 s; compras chegando (123 liberações em 5 dias, a última às 16:44 UTC, nenhuma "ignorado_produto"). Um segundo
    aluno sem acesso não está em base nenhuma (nem e-mail parecido, nem nome): comprou com outro e-mail ou a compra não
    foi aprovada; com o número da transação da Assiny dá para achar em `crystal_compras_eventos.transacao`.
+   Verificação geral (16/10, noite): `auditorias/2026-10-16/verificacao-login.md`. A função de login da PRODUÇÃO é mais
+   nova que a do repositório (11/10, fim dos lotes; cópia em `crystal-em-casa/supabase/app_verificar_login_email.producao-20261016.sql`).
+   Ponto de atenção: 3 produtos da lista nunca mandaram evento ao nosso n8n (Todos os Cursos, Do Oi ao Encontro,
+   Trimestral): conferir na Assiny se vendem e se o webhook deles aponta para o nosso n8n. Uma 3ª troca de e-mail
+   (aluno da nossa tabela de compras) feita; mais um aluno sem cadastro em lugar nenhum.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
