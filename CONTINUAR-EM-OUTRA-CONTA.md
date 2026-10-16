@@ -207,6 +207,12 @@ ter nome de aluno colado de alguma saída.
    do mesmo jeito, aguardando o "sim" do dono. Outros 18 casos isolados são, na maioria, a mesma pessoa com outro
    e-mail (não mexer). Detalhes: `auditorias/2026-10-16/compras-juntadas-por-cpf.md`.
 
+16. **Links de checkout (lidos das vendas da base antiga, 16/10).** Pacote de imagens ("Pacote de Imagens Crystal -
+   30img", R$ 29,90, 90 vendas até 10/10): `https://pay.assiny.com.br/c26844/node/Qx6Lpp` é o valor para
+   `imagens_checkout_link` (painel › Configurações › Produto). Crystal anual R$ 297 ("CHECKOUT 01", o mais vendido):
+   `https://pay.assiny.com.br/fe5c30/node/T2MJj3`. Nenhum evento do pacote chegou ainda ao nosso n8n
+   (`crystal_compras_eventos`): conferir na Assiny se o webhook desse produto aponta para o nosso n8n.
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
