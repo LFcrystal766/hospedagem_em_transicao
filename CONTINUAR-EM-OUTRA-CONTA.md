@@ -159,6 +159,13 @@ ter nome de aluno colado de alguma saída.
    `pa18_01_crystal_conversas_teste`) e "Gerar dossiê" (avaliador gpt-4.1-mini, custo previsto antes, copiar/PDF). O e2e
    novo não rodou aqui: roda no CI. **Etiqueta esperada da onda 5 agora: `sha-98d30d0`** (depois da cobrança do GitHub).
 
+13. **Atendimentos de 16/10 (pedidos da Letícia e da Giseli).** Duas trocas de e-mail de alunos da base feitas pela
+   função `app_aluno_trocar_email` (ambas `trocado`, origem base; e-mail novo entra, antigo não); conferido que o nome do
+   cadastro bate com o e-mail novo (sem CPF desta vez). Um aluno que "não encontra cadastro": na base, assinatura ativa
+   e `app_verificar_login_email` o acha como liberado, então o problema não é cadastro: pedir print da tela e o e-mail
+   exatamente como ele digita. Enquanto a onda 5 não sobe, troca de e-mail de aluno da base continua sendo pedida à
+   sessão (o painel no ar ainda não faz).
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
