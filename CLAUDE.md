@@ -40,6 +40,8 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
    `scripts/cloudflare-degrau2.sh preparar` (simulação). Mostrar o resultado e
    aplicar com `--aplicar`. Tudo em `preparar` só age com a nuvem laranja.
 3. Registrar cada rodada em `auditorias/<data>/` e atualizar o overview.
+4. Pedido do dono (16/10): a cada passo, atualizar `CONTINUAR-EM-OUTRA-CONTA.md` e, ao fim de cada resposta,
+   entregá-lo como arquivo baixável (SendUserFile com `display: attach`).
 
 ## Regras que não mudam
 

@@ -213,6 +213,8 @@ ter nome de aluno colado de alguma saída.
 - Sem agência desde 09/10; nada combinado com o Tuan. Fatura da AZAN: não cancelar.
 - Alma da Crystal: edição só pelo superadmin; tudo com teste antes, histórico e volta em 1 clique.
 - Agentes e orquestrações em **Sonnet** (`model: 'sonnet'`), para gastar menos tokens (pedido de 13/10 à noite).
+- **Ao fim de cada resposta, entregar este arquivo (`CONTINUAR-EM-OUTRA-CONTA.md`) atualizado como arquivo baixável**
+  (SendUserFile, `display: attach`). Pedido de 16/10 à noite.
 
 ## 5. Pendências antigas
 
