@@ -215,6 +215,15 @@ ter nome de aluno colado de alguma saída.
    `https://pay.assiny.com.br/fe5c30/node/T2MJj3`. Nenhum evento do pacote chegou ainda ao nosso n8n
    (`crystal_compras_eventos`): conferir na Assiny se o webhook desse produto aponta para o nosso n8n.
 
+17. **Crystal mandou a base de conhecimento ao aluno (16/10, noite; vídeo da equipe).** Modelo do painel estava em
+   `google/gemini-2.5-flash-lite` (trocado por alguém da equipe; padrão `anthropic/claude-haiku-4.5`). Contenção: o
+   dono volta o modelo para `anthropic/claude-haiku-4.5` no painel e roda `crystal-conferir`. Alcance (só leitura, VPS):
+   `cid=$(docker ps -qf name=crystal_app_app_postgres | head -1)` e depois
+   `docker exec "$cid" psql -U crystal -d crystal_web_chat -c "select key, value, updated_at, updated_by from system_settings where key like 'op_crystal_modelo%';"`
+   e `docker exec "$cid" psql -U crystal -d crystal_web_chat -c "select model, count(*) respostas, count(distinct conversation_id) conversas, min(created_at), max(created_at) from messages where direction='out' and (content ilike '%base de conhecimento%' or content like '%[principio_%') group by model;"`.
+   Correção no código por agente (Sonnet): trava na saída + um system só para modelo não Anthropic, em `painel/onda4`
+   e `painel/onda5-alma`. Nota: `auditorias/2026-10-16/vazamento-base-gemini.md`.
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
