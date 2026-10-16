@@ -176,6 +176,16 @@ ter nome de aluno colado de alguma saída.
    Trimestral): conferir na Assiny se vendem e se o webhook deles aponta para o nosso n8n. Uma 3ª troca de e-mail
    (aluno da nossa tabela de compras) feita; mais um aluno sem cadastro em lugar nenhum.
 
+14. **iPhone antigo: "Algo deu errado do meu lado. Um erro crítico aconteceu" (16/10, noite).** Causa confirmada no
+   bundle de produção (`sha-9ec8151`): regex com lookbehind (`(?<!`) em código que vai para o navegador
+   (`packages/shared/src/risco.ts` linhas 25 e 117, `packages/shared/src/notices.ts:120`); o Safari só aceita a partir
+   do iOS 16.4 e o módulo quebra ao abrir. Também `initial.at(-1)` em `apps/web/lib/use-chat.ts` (iOS 15.4+). Afeta
+   quem não atualizou o iPhone e modelos que não passam do iOS 15/16.3. O `risco.ts` está no ar desde 05/10. Contorno
+   para o aluno hoje: atualizar o iOS (Ajustes › Geral › Atualização de Software) ou usar outro aparelho/computador.
+   Correção em andamento por agente (Sonnet) em `painel/onda4` (vira nova etiqueta da produção) com merge em
+   `painel/onda5-alma`, mais uma trava no build do web que falha se o bundle tiver lookbehind. Imagem só depois da
+   cobrança do GitHub (item 10). Nota: `auditorias/2026-10-16/erro-iphone-antigo.md`.
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
