@@ -227,6 +227,9 @@ ter nome de aluno colado de alguma saída.
    74 conversas** com material da base até 21:33 UTC (ainda acontecendo). Passado ao dono o `update` direto do
    `op_crystal_modelo` para `anthropic/claude-haiku-4.5` (cache da API 30 s) + `crystal-conferir`. Falta: confirmar a
    volta, olhar as 47 respostas sem modelo (20 conversas desde 10/10) e decidir aviso de desculpas às 74 conversas.
+   **Contido em 16/10 ~21:45 UTC:** o dono rodou o `update`; `crystal-conferir` TUDO LIGADO com
+   `op_crystal_modelo = anthropic/claude-haiku-4.5` e resposta do Haiku. Saldo do OpenRouter US$ 20,87 (Haiku custa
+   ~5x o Flash-Lite por resposta: a troca da equipe foi, provavelmente, para economizar).
 
 ## 4. Decisões do dono (valem até ele mudar)
 

@@ -23,3 +23,4 @@ TOM", "2. O EQUILÍBRIO CERTO DE TOM", "O que EVITAR"), e o aluno perguntando po
   investigar: aviso, resposta interrompida ou menção comum).
 - **Contenção passada ao dono:** `update system_settings set value='anthropic/claude-haiku-4.5' ... where key =
   'op_crystal_modelo'` (o cache da API é de 30 s) e `crystal-conferir`; ou pelo painel.
+- **Contido (~21:45 UTC):** `update` aplicado pelo dono; `crystal-conferir` TUDO LIGADO, modelo do painel `anthropic/claude-haiku-4.5`.
