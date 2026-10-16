@@ -16,3 +16,10 @@ TOM", "2. O EQUILÍBRIO CERTO DE TOM", "O que EVITAR"), e o aluno perguntando po
   para modelos não Anthropic, uma mensagem de sistema só. Em `painel/onda4`, com merge em `painel/onda5-alma`; sai na
   próxima imagem (depende da cobrança do GitHub).
 - **Medir o alcance (VPS, só leitura):** ver o comando em `CONTINUAR-EM-OUTRA-CONTA.md`, item 17.
+- **Alcance medido (16/10 21:40 UTC, VPS, só leitura):** `op_crystal_modelo` gravado como
+  `google/gemini-2.5-flash-lite` em 16/10 13:56:40 UTC por uma conta da equipe (id `c532536b…`). Respostas com
+  marcador da base: **525 em 74 conversas** com o Flash-Lite, de 13:59 a 21:33 UTC (ainda acontecendo na medição);
+  2 com o Haiku (14 e 15/10, provável menção comum); 47 sem modelo gravado em 20 conversas desde 10/10 (a
+  investigar: aviso, resposta interrompida ou menção comum).
+- **Contenção passada ao dono:** `update system_settings set value='anthropic/claude-haiku-4.5' ... where key =
+  'op_crystal_modelo'` (o cache da API é de 30 s) e `crystal-conferir`; ou pelo painel.

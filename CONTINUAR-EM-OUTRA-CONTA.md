@@ -223,6 +223,10 @@ ter nome de aluno colado de alguma saída.
    e `docker exec "$cid" psql -U crystal -d crystal_web_chat -c "select model, count(*) respostas, count(distinct conversation_id) conversas, min(created_at), max(created_at) from messages where direction='out' and (content ilike '%base de conhecimento%' or content like '%[principio_%') group by model;"`.
    Correção no código por agente (Sonnet): trava na saída + um system só para modelo não Anthropic, em `painel/onda4`
    e `painel/onda5-alma`. Nota: `auditorias/2026-10-16/vazamento-base-gemini.md`.
+   Alcance (21:40 UTC): troca para o Flash-Lite em 16/10 13:56 UTC por conta da equipe `c532536b…`; **525 respostas em
+   74 conversas** com material da base até 21:33 UTC (ainda acontecendo). Passado ao dono o `update` direto do
+   `op_crystal_modelo` para `anthropic/claude-haiku-4.5` (cache da API 30 s) + `crystal-conferir`. Falta: confirmar a
+   volta, olhar as 47 respostas sem modelo (20 conversas desde 10/10) e decidir aviso de desculpas às 74 conversas.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
