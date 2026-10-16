@@ -895,6 +895,27 @@ Só então rodar o script do n8n da seção "Pacote de imagens extras (13/10)" (
 `cbffaa4`): antes disso a API ainda não tem `/webhooks/imagens`.
 
 
+## Correção do iPhone antigo (16/10): imagem `sha-f8f53b4` (sai depois da cobrança do GitHub)
+
+Aluno com iPhone abaixo do iOS 16.4 via a tela "Algo deu errado do meu lado. Um erro crítico aconteceu." ao abrir o
+app: o código do navegador tinha regex com lookbehind, que esse Safari não compila (detalhes em
+`auditorias/2026-10-16/erro-iphone-antigo.md`). Branch `painel/onda4` em `f8f53b4` = produção (`9ec8151`) + 4 commits:
+regex de risco e de CPF reescritas sem lookbehind (mesmo resultado em ~500 mil textos de teste), `.at(-1)`,
+`crypto.randomUUID` e `AbortSignal.timeout` com plano B no navegador, e uma trava no build do web (Dockerfile e CI)
+que falha se o bundle voltar a ter lookbehind. Testes: shared 285, web 832, crystal 239, api 1219, nenhum falhou.
+**Sem migração e sem variável nova:** pode subir a qualquer hora; os serviços só reiniciam.
+
+```bash
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-f8f53b4
+bash bootstrap-vps.sh crystal-conferir
+# Voltar: bash bootstrap-vps.sh app-subir sha-9ec8151 (nada de SQL)
+```
+
+Conferência em aparelho: abrir `app.crystalnowpp.com.br` num iPhone com iOS 15 ou 16.0–16.3 (ou pedir a um aluno que
+mandou o print): a tela de entrada aparece em vez do erro. A onda 5 já leva a correção (merge em `painel/onda5-alma`
+`82c6d7f`): **etiqueta esperada da onda 5 agora `sha-82c6d7f`**.
+
 ## Alma da Crystal no painel (onda 5): imagem `sha-f3d6616` (13/10, CI verde)
 
 Branch `painel/onda5-alma` do app em `f3d6616` = onda 4 (`9ec8151`) + a alma. CI run 38469721794 (e2e 68 passaram) e

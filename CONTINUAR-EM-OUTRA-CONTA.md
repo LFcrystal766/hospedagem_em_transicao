@@ -98,7 +98,7 @@ ter nome de aluno colado de alguma saída.
    CI verde (run 38469721794), imagem **`sha-f3d6616`**. QA: 19 achados, 7 médios corrigidos (relatório em
    `auditorias/2026-10-13/onda5-alma.md`). Roteiro: `publicar-prd.md`, "Alma da Crystal no painel (onda 5)": SQL
    `app_conhecimento_editar.sql` no Supabase, `app-definir SUPERADMIN_EMAILS` (aceito desde o bootstrap `36c0efd`),
-   `app-subir sha-f3d6616` na janela 02:00–05:00 (trava a `uso_turnos` uma vez). Decisões do desenho para o dono
+   `app-subir sha-82c6d7f` (etiqueta atual da onda 5, ver item 14) na janela 02:00–05:00 (trava a `uso_turnos` uma vez). Decisões do desenho para o dono
    rever: apagar trecho tira a linha da tabela viva e guarda inteira no histórico (restaurar volta com o mesmo id);
    amostra de conversas só para admin; só o superadmin testa (custa). A busca segue pela Edge Function da agência
    até alguém conferir de quem é a chave dela.
@@ -148,7 +148,7 @@ ter nome de aluno colado de alguma saída.
    senha e manda código de 6 dígitos para o e-mail de quem está logado (10 min, uso único, limites). **Pronto em 14/10**
    em `painel/onda5-alma` `640b9a0` (rotas `POST /auth/staff/reauth/codigo` e `POST /auth/staff/reauth { codigo }`;
    caminho por senha removido; e2e com `dev_code`). Depois, `989df6c` consertou o teste `staff-notices-agenda` (logava
-   antes de fixar o relógio; falhava de manhã em Brasília). **Etiqueta esperada da onda 5: `sha-98d30d0`** (antes `sha-989df6c`), que só sai
+   antes de fixar o relógio; falhava de manhã em Brasília). **Etiqueta esperada da onda 5: `sha-82c6d7f`** (16/10; antes `sha-98d30d0`), que só sai
    depois da cobrança do GitHub resolvida (item 10): re-rodar o CI da branch e disparar o `imagens-vps`.
 
 12. **Teste do GPT-5.6 Sol pela Letícia (14/10).** Modelo `openai/gpt-5.6-sol` (US$ 2/10 por milhão; ~5x o Haiku 4.5
@@ -157,7 +157,7 @@ ter nome de aluno colado de alguma saída.
    Caminho B **pronto** em `painel/onda5-alma` `98d30d0`: bloco "Conversa de teste" na área Crystal (1 ou 2 modelos lado a
    lado, histórico por lado, até 30 turnos, sem tocar alunos; rotas `/staff/crystal/conversas-teste`; migração
    `pa18_01_crystal_conversas_teste`) e "Gerar dossiê" (avaliador gpt-4.1-mini, custo previsto antes, copiar/PDF). O e2e
-   novo não rodou aqui: roda no CI. **Etiqueta esperada da onda 5 agora: `sha-98d30d0`** (depois da cobrança do GitHub).
+   novo não rodou aqui: roda no CI. **Etiqueta esperada da onda 5 agora: `sha-82c6d7f`** (item 14; depois da cobrança do GitHub).
 
 13. **Atendimentos de 16/10 (pedidos da Letícia e da Giseli).** Duas trocas de e-mail de alunos da base feitas pela
    função `app_aluno_trocar_email` (ambas `trocado`, origem base; e-mail novo entra, antigo não); conferido que o nome do
@@ -182,9 +182,14 @@ ter nome de aluno colado de alguma saída.
    do iOS 16.4 e o módulo quebra ao abrir. Também `initial.at(-1)` em `apps/web/lib/use-chat.ts` (iOS 15.4+). Afeta
    quem não atualizou o iPhone e modelos que não passam do iOS 15/16.3. O `risco.ts` está no ar desde 05/10. Contorno
    para o aluno hoje: atualizar o iOS (Ajustes › Geral › Atualização de Software) ou usar outro aparelho/computador.
-   Correção em andamento por agente (Sonnet) em `painel/onda4` (vira nova etiqueta da produção) com merge em
-   `painel/onda5-alma`, mais uma trava no build do web que falha se o bundle tiver lookbehind. Imagem só depois da
-   cobrança do GitHub (item 10). Nota: `auditorias/2026-10-16/erro-iphone-antigo.md`.
+   **Corrigido em 16/10 (código):** `painel/onda4` `f8f53b4` (regex sem lookbehind, mesmo resultado em ~500 mil
+   textos; `.at(-1)`, `crypto.randomUUID` e `AbortSignal.timeout` com plano B; trava no Dockerfile e no CI do web que
+   falha se o bundle tiver lookbehind; testes todos passando) e merge em `painel/onda5-alma` `82c6d7f` sem conflito.
+   **Etiquetas esperadas: produção `sha-f8f53b4` (sem SQL; volta `sha-9ec8151`) e onda 5 `sha-82c6d7f`.** Só saem
+   depois da cobrança do GitHub (item 10): aí disparar o `imagens-vps` nas duas branches (a sessão pode disparar).
+   Roteiro em `publicar-prd.md` › "Correção do iPhone antigo". Observação: o Tailwind v4 do web pede Safari 16.4 para
+   o visual completo; abaixo disso pode sair com cor/estilo degradado, mas não derruba a página.
+   Nota: `auditorias/2026-10-16/erro-iphone-antigo.md`.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
