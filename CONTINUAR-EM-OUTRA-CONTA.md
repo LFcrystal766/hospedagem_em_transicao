@@ -197,6 +197,7 @@ ter nome de aluno colado de alguma saída.
    38960622563) e dispara o `imagens-vps` de `painel/onda5-alma`. Notado na mesma saída: modelo do painel trocado para
    `google/gemini-2.5-flash-lite` (alguém da equipe) e saldo do OpenRouter em US$ 21,69 (era 40,96 em 14/10: ~US$ 8
    por dia; recarregar ou ligar a recarga automática).
+   Re-tentado pela sessão às 20:40 e 21:12 UTC: mesma recusa por cobrança (nenhuma imagem `sha-f8f53b4` ainda).
 
 15. **Compras juntadas por CPF na base antiga (16/10, noite).** Aluno sem acesso: a compra dele estava num cadastro da
    base antiga que junta 25 assinaturas de pessoas diferentes com o mesmo CPF; o cadastro ficou com o e-mail da última
