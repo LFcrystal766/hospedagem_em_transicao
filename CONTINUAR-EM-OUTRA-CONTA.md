@@ -142,7 +142,9 @@ ter nome de aluno colado de alguma saída.
    **APLICADO em 14/10** (migração `app_aluno_trocar_email_20261014`, só `service_role`). Falta CI e imagem: ver item 10.
 10. **GitHub Actions BLOQUEADO por cobrança (14/10):** o CI de `dd49156` não começou ("recent account payments have
    failed or your spending limit needs to be increased"). Sem CI não sai imagem nova. O dono resolve em GitHub ›
-   Settings › Billing; depois re-rodar o CI da branch `painel/onda5-alma` e disparar o `imagens-vps`. O teste da API que
+   Settings › Billing; depois re-rodar o CI da branch `painel/onda5-alma` e disparar o `imagens-vps`. Conta do app é
+   pessoal (`LFcrystal766`, repositório privado): https://github.com/settings/billing (resumo e fatura pendente),
+   `/settings/billing/payment_information` (cartão) e `/settings/billing/budgets` (limite de Actions). O teste da API que
    dependia da hora do dia (`staff-notices-agenda.test.ts`) foi consertado em `989df6c`.
 11. **Reautenticação por código no e-mail (pedido do dono, 14/10):** toda confirmação forte do painel deixa de pedir
    senha e manda código de 6 dígitos para o e-mail de quem está logado (10 min, uso único, limites). **Pronto em 14/10**
