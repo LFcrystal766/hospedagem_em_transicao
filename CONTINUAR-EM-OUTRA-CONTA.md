@@ -198,6 +198,14 @@ ter nome de aluno colado de alguma saída.
    `google/gemini-2.5-flash-lite` (alguém da equipe) e saldo do OpenRouter em US$ 21,69 (era 40,96 em 14/10: ~US$ 8
    por dia; recarregar ou ligar a recarga automática).
 
+15. **Compras juntadas por CPF na base antiga (16/10, noite).** Aluno sem acesso: a compra dele estava num cadastro da
+   base antiga que junta 25 assinaturas de pessoas diferentes com o mesmo CPF; o cadastro ficou com o e-mail da última
+   compra, então os outros não entram. Trocar o e-mail do cadastro daria a ele a conta de outra pessoa; em vez disso,
+   linha nova em `crystal_compras` ("Liberação manual", `transacao manual-20261016-assinatura-agencia-23678`), login
+   conferido (`liberado = true`, conta própria). **Faltam 18 compradores no mesmo cadastro**: proposta de liberar todos
+   do mesmo jeito, aguardando o "sim" do dono. Outros 18 casos isolados são, na maioria, a mesma pessoa com outro
+   e-mail (não mexer). Detalhes: `auditorias/2026-10-16/compras-juntadas-por-cpf.md`.
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
