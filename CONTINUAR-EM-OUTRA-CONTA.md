@@ -165,6 +165,11 @@ ter nome de aluno colado de alguma saída.
    e `app_verificar_login_email` o acha como liberado, então o problema não é cadastro: pedir print da tela e o e-mail
    exatamente como ele digita. Enquanto a onda 5 não sobe, troca de e-mail de aluno da base continua sendo pedida à
    sessão (o painel no ar ainda não faz).
+   Conferência geral do login (16/10, fim da tarde): NÃO é geral. Supabase: 24 h de `app_verificar_login_email` com
+   12 a 57 chamadas por hora, todas 200; API `POST /auth/login` com e-mail inexistente responde 404 LOGIN_NOT_FOUND em
+   0,7 s; compras chegando (123 liberações em 5 dias, a última às 16:44 UTC, nenhuma "ignorado_produto"). Um segundo
+   aluno sem acesso não está em base nenhuma (nem e-mail parecido, nem nome): comprou com outro e-mail ou a compra não
+   foi aprovada; com o número da transação da Assiny dá para achar em `crystal_compras_eventos.transacao`.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
