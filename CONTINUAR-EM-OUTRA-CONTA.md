@@ -190,6 +190,13 @@ ter nome de aluno colado de alguma saída.
    Roteiro em `publicar-prd.md` › "Correção do iPhone antigo". Observação: o Tailwind v4 do web pede Safari 16.4 para
    o visual completo; abaixo disso pode sair com cor/estilo degradado, mas não derruba a página.
    Nota: `auditorias/2026-10-16/erro-iphone-antigo.md`.
+   16/10 20:25 UTC: o dono rodou `backup` + `app-subir sha-f8f53b4` antes de a imagem existir; o `app-subir` parou
+   em "não baixou as imagens" sem mexer em nada (produção segue `sha-9ec8151`, `crystal-conferir` TUDO LIGADO). O push
+   de 20:06 abriu CI e `imagens-vps`, mas os jobs nem começaram: cobrança do GitHub ainda bloqueada. Quando o dono
+   resolver, a sessão re-roda os runs que falharam (`imagens-vps` 38959770645 de `painel/onda4`; CI 38959770713 e
+   38960622563) e dispara o `imagens-vps` de `painel/onda5-alma`. Notado na mesma saída: modelo do painel trocado para
+   `google/gemini-2.5-flash-lite` (alguém da equipe) e saldo do OpenRouter em US$ 21,69 (era 40,96 em 14/10: ~US$ 8
+   por dia; recarregar ou ligar a recarga automática).
 
 ## 4. Decisões do dono (valem até ele mudar)
 

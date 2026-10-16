@@ -16,3 +16,6 @@ Um erro crítico aconteceu. Quer tentar de novo?" (tela global de erro do app). 
 - **Correção:** regex reescritas sem lookbehind (mesmo comportamento, com testes), `.at(-1)` trocado, e uma conferência
   no build do web que falha se o bundle tiver `(?<!` ou `(?<=`. Feita em `painel/onda4` (nova etiqueta da produção) e
   levada para `painel/onda5-alma`. A imagem depende da cobrança do GitHub Actions (bloqueada desde 14/10).
+- **Primeira tentativa de publicar (16/10 20:25 UTC):** `app-subir sha-f8f53b4` parou em "não baixou as imagens" sem
+  tocar nos serviços; a imagem não existe porque o GitHub Actions recusou os jobs ("recent account payments have
+  failed or your spending limit needs to be increased"). Produção seguiu em `sha-9ec8151`, TUDO LIGADO.
