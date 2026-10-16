@@ -230,6 +230,10 @@ ter nome de aluno colado de alguma saída.
    **Contido em 16/10 ~21:45 UTC:** o dono rodou o `update`; `crystal-conferir` TUDO LIGADO com
    `op_crystal_modelo = anthropic/claude-haiku-4.5` e resposta do Haiku. Saldo do OpenRouter US$ 20,87 (Haiku custa
    ~5x o Flash-Lite por resposta: a troca da equipe foi, provavelmente, para economizar).
+   Pergunta do dono: "no WhatsApp o Gemini funciona". Resposta: o WhatsApp é o código da agência (`crystal-ia`, fora
+   do nosso alcance; o nosso n8n só tem o fluxo de compras), que monta as instruções de outro jeito; o nosso manda a
+   base como mensagem de sistema separada no meio, o que o Claude aceita e o Flash-Lite às vezes devolve. Depois da
+   trava (system único para não-Claude), testar o Gemini pela "Conversa de teste" (onda 5) antes de trocar.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
