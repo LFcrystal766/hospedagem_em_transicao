@@ -238,6 +238,10 @@ ter nome de aluno colado de alguma saída.
    snake_case só conta abrindo a linha, para não barrar roteiro com "[nome_dela]"). **Etiquetas agora: produção
    `sha-8308e71` (iPhone + trava, sem SQL; volta `sha-9ec8151`) e onda 5 `sha-e05ba35`.** Testes do apps/crystal: 293 e
    353 passaram. Roteiro em `publicar-prd.md` › "Correção do iPhone antigo + trava contra vazamento".
+   17/10 00:30 UTC: `app-subir sha-8308e71` parou sem imagem (os runs de 00:25 também recusados pela cobrança do
+   GitHub). **Saldo do OpenRouter caiu para US$ 6,21** (US$ 20,87 às ~21:45 UTC: ~US$ 5 por hora, muito acima do
+   esperado para o app). Pedido ao dono: recarregar já e rodar, no banco `crystal_agente`, a soma de `uso_turnos` por
+   hora/tipo/modelo das últimas 12 h, e olhar https://openrouter.ai/activity, para achar quem está gastando.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
