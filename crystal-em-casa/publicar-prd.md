@@ -895,7 +895,7 @@ Só então rodar o script do n8n da seção "Pacote de imagens extras (13/10)" (
 `cbffaa4`): antes disso a API ainda não tem `/webhooks/imagens`.
 
 
-## Correção do iPhone antigo (16/10): imagem `sha-f8f53b4` (sai depois da cobrança do GitHub)
+## Correção do iPhone antigo + trava contra vazamento (16–17/10): imagem `sha-8308e71` (sai depois da cobrança do GitHub)
 
 Aluno com iPhone abaixo do iOS 16.4 via a tela "Algo deu errado do meu lado. Um erro crítico aconteceu." ao abrir o
 app: o código do navegador tinha regex com lookbehind, que esse Safari não compila (detalhes em
@@ -907,14 +907,22 @@ que falha se o bundle voltar a ter lookbehind. Testes: shared 285, web 832, crys
 
 ```bash
 bash bootstrap-vps.sh backup
-bash bootstrap-vps.sh app-subir sha-f8f53b4
+bash bootstrap-vps.sh app-subir sha-8308e71
 bash bootstrap-vps.sh crystal-conferir
 # Voltar: bash bootstrap-vps.sh app-subir sha-9ec8151 (nada de SQL)
 ```
 
 Conferência em aparelho: abrir `app.crystalnowpp.com.br` num iPhone com iOS 15 ou 16.0–16.3 (ou pedir a um aluno que
 mandou o print): a tela de entrada aparece em vez do erro. A onda 5 já leva a correção (merge em `painel/onda5-alma`
-`82c6d7f`): **etiqueta esperada da onda 5 agora `sha-82c6d7f`**.
+`e05ba35`): **etiqueta esperada da onda 5 agora `sha-e05ba35`**.
+
+**Trava contra vazamento (17/10, `5a99dcd` a `8308e71`, por cima de `f8f53b4`):** depois do vazamento de 16/10
+(`auditorias/2026-10-16/vazamento-base-gemini.md`), a Crystal confere cada resposta antes de entregar: se trouxer o
+cabeçalho da base, uma categoria em snake_case abrindo a linha, tag ou frase do prompt, descarta, tenta uma vez a
+reserva e, se de novo, responde "Desculpa, me perdi aqui. Pode repetir?" (nada disso vai para a memória; o log leva
+só o tipo). Modelos que não são `anthropic/*` recebem um `system` só no começo. Testes do apps/crystal: 293 passaram
+(onda 4) e 353 (onda 5). Depois de subir: `crystal-conferir` e, por uns dias, a contagem de respostas vazadas (item 17
+do `CONTINUAR-EM-OUTRA-CONTA.md`) tem que ficar em zero.
 
 ## Alma da Crystal no painel (onda 5): imagem `sha-f3d6616` (13/10, CI verde)
 
