@@ -282,13 +282,16 @@ ter nome de aluno colado de alguma saída.
    limpos; migrações `pa19_01` → `pa20_01` sem deriva. Revisão de segurança: nenhum crítico/alto; médios abertos: teto do
    Laboratório pode passar um pouco em rajada, resposta com erro não soma custo, `/v1/laboratorio/responder` sem rate
    limit (pôr limite de crédito na chave do OpenRouter), **regra nova do prompt só vale se a alma publicada no painel for
-   republicada**. **Etiqueta esperada: `sha-cd83fc5`** (substitui a da onda 5; precisa do que a onda 5 pede: SQL
+   republicada**. **Etiqueta esperada: `sha-16a0469`** (com o #reset, item 20; substitui a da onda 5; precisa do que a onda 5 pede: SQL
    `app_conhecimento_editar.sql` e `SUPERADMIN_EMAILS`). Roteiro em `publicar-prd.md` › "Onda 6".
 
 20. **#reset (pedido do dono, 20/10).** O aluno manda `#reset` (ou `/reset`, `#resetar`) e a Crystal recomeça do zero:
    apaga a memória dela (forget) e o resumo da memória única, deixa de usar a memória antiga do WhatsApp para esse aluno,
    não gasta modelo, limite de 3 por dia, a tela mantém o histórico; botão igual na ficha do aluno no painel. Agente
-   Sonnet fazendo em `painel/onda6` (worktree `/home/user/cw-banners`); a etiqueta da onda 6 vai mudar.
+   **Pronto em `painel/onda6` `16a0469`** (migração `pa22_01_reset_conversa`: `users.conversa_recomecada_em`; nenhum SQL
+   novo no Supabase, usa `app_memoria_apagar`; quem recomeça deixa de mandar `pessoa_id`, então a memória do WhatsApp
+   não volta; botão "Recomeçar conversa da Crystal" na ficha, admin e suporte; api 1598, web 1044, shared 334, crystal
+   362 testes ok). **Etiqueta da onda 6 agora: `sha-16a0469`.**
 
 ## 4. Decisões do dono (valem até ele mudar)
 

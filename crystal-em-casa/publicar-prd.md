@@ -924,15 +924,15 @@ só o tipo). Modelos que não são `anthropic/*` recebem um `system` só no come
 (onda 4) e 353 (onda 5). Depois de subir: `crystal-conferir` e, por uns dias, a contagem de respostas vazadas (item 17
 do `CONTINUAR-EM-OUTRA-CONTA.md`) tem que ficar em zero.
 
-## Onda 6 (20/10): imagem `sha-cd83fc5` (sai depois da cobrança do GitHub)
+## Onda 6 (20/10): imagem `sha-16a0469` (sai depois da cobrança do GitHub)
 
-Branch `painel/onda6` `cd83fc5` = onda 5 (`e05ba35`, já com a correção do iPhone e a trava contra vazamento) + B01
+Branch `painel/onda6` `16a0469` (com o #reset) = onda 5 (`e05ba35`, já com a correção do iPhone e a trava contra vazamento) + B01
 (notificação só para quem está fora do app, texto genérico na tela bloqueada) + banners e eventos B02–B08 (PRD de 15/10)
 + Laboratório da Crystal (área própria no painel) + regra "limite em abuso" no prompt. Publicar a onda 6 no lugar da
 onda 5: vale tudo o que a seção da onda 5 abaixo pede (SQL `app_conhecimento_editar.sql` no Supabase e
 `SUPERADMIN_EMAILS`), na janela 02:00–05:00.
 
-- Migrações novas, só aditivas: `pa19_01_banners` e `pa20_01_laboratorio` (rodam no `app-subir`).
+- Migrações novas, só aditivas: `pa19_01_banners`, `pa20_01_laboratorio` e `pa22_01_reset_conversa` (#reset; rodam no `app-subir`).
 - A Crystal, ao subir, recria o check de `uso_turnos` com o tipo `laboratorio` (DDL no banco dela, no boot).
 - Variáveis novas, só na API e opcionais no começo: `ACTIVEDEV_URL` (https, sem barra no fim) e
   `ACTIVEDEV_INBOUND_TOKEN` (do Bitwarden, nunca no chat), pelas duas juntas no `app-definir` quando o token do ActiveDev
@@ -943,7 +943,7 @@ onda 5: vale tudo o que a seção da onda 5 abaixo pede (SQL `app_conhecimento_e
 
 ```bash
 bash bootstrap-vps.sh backup
-bash bootstrap-vps.sh app-subir sha-cd83fc5
+bash bootstrap-vps.sh app-subir sha-16a0469
 bash bootstrap-vps.sh crystal-conferir
 # Volta: bash bootstrap-vps.sh app-subir sha-9ec8151 (as tabelas novas ficam; não atrapalham a versão anterior)
 ```

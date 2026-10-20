@@ -19,7 +19,7 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
   combinado com o Tuan. A Crystal do WhatsApp será encerrada: todo mundo vai para o app.
   Ordem do corte em `PROXIMOS-PASSOS.md`.
 - **Em 14/10 (~09:25 UTC)**: **painel novo no ar**, app em `sha-9ec8151` (onda 4 + limite semanal de imagens + crédito
-  do pacote; volta `sha-3773e2e` com o SQL de volta da onda 4). Onda 6 pronta (onda 5 + B01 + banners + Laboratório), etiqueta esperada `sha-cd83fc5` (sai
+  do pacote; volta `sha-3773e2e` com o SQL de volta da onda 4). Onda 6 pronta (onda 5 + B01 + banners + Laboratório), etiqueta esperada `sha-16a0469` (sai
   depois da cobrança do GitHub), para uma próxima madrugada. Correção do iPhone antigo + trava contra vazamento da base (16–17/10): `sha-8308e71`, sem SQL. Detalhes em `CONTINUAR-EM-OUTRA-CONTA.md`.
 - **Frente paralela, o app da Crystal**: VPS Hostinger KVM 4 (`177.7.61.136`). Em 06/10:
   app em `sha-74092e0` (09/10, no ar: memória única ligada, SQL aplicado; volta: `sha-c320aa0`): alma da agência (prompt v2.2 + busca na base do Supabase), login
