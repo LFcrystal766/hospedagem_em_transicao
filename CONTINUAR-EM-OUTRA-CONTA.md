@@ -270,6 +270,13 @@ ter nome de aluno colado de alguma saída.
    crystal 361 ok). Banners (B02–B08) ainda em andamento.
    Decisões do dono (20/10): notificação da conversa com aviso genérico também no Web Push (feito em
    `painel/b01-presenca` `7f152f8`, api 1368 testes ok) e manter o "aviso de saída" (`2910e1b`).
+   **Banners B02–B08 prontos** em `painel/banners` `5ffd9a1` (um commit por item; migração `pa19_01_banners`; variáveis
+   novas `ACTIVEDEV_URL` e `ACTIVEDEV_INBOUND_TOKEN`; shared 329, api 1454, web 992 testes ok; e2e não rodado). Texto de
+   privacidade (ActiveDev, Alemanha) marcado "a aprovar pelo Luiz" em `apps/web/app/privacidade/page.tsx` e
+   `docs/lojas/`. Antes de ligar o B06: trocar o token do ActiveDev (e na Assiny) e conferir `INBOUND_HOOK_TOKEN_CRYSTAL`;
+   testar o `sharp` na imagem alpine. **Integração em andamento:** agente juntando as três em `painel/onda6` (a partir de
+   `painel/banners`, no worktree `/home/user/cw-banners`), com regra nova no prompt (a Crystal nunca diz que bloqueou
+   alguém) e revisão de segurança do conjunto.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
