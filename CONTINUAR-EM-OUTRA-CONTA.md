@@ -296,6 +296,12 @@ ter nome de aluno colado de alguma saída.
    O dono rodou o forget do aluno na VPS ("deu certo"): memória da Crystal e resumo do aluno limpos.
    GitHub Actions re-testado depois: ainda recusado pela cobrança. Nada da onda 6 está no ar.
 
+21. **Revisão antes de publicar a onda 6 (20/10, pedido do dono).** (a) Consultor independente sem contexto: sessão
+   remota `session_014oCjbRWuGAxVSKAYQMTv7X` (Sonnet) lendo `git diff 9ec8151..painel/onda6` linha a linha; relatório
+   vai para `docs/consultoria/2026-10-20-onda6.md` na branch `consultoria/onda6` do app; check-in agendado para 21:03
+   UTC. (b) Agente rodando o e2e (Playwright, Chromium de /opt/pw-browsers) e escrevendo e2e novos para banners,
+   Laboratório, #reset e iOS 15, corrigindo bugs reais em `painel/onda6`. A etiqueta da onda 6 pode mudar de novo.
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
