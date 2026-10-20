@@ -282,7 +282,7 @@ ter nome de aluno colado de alguma saída.
    limpos; migrações `pa19_01` → `pa20_01` sem deriva. Revisão de segurança: nenhum crítico/alto; médios abertos: teto do
    Laboratório pode passar um pouco em rajada, resposta com erro não soma custo, `/v1/laboratorio/responder` sem rate
    limit (pôr limite de crédito na chave do OpenRouter), **regra nova do prompt só vale se a alma publicada no painel for
-   republicada**. **Etiqueta esperada: `sha-e65abe0`** (com o #reset, item 20; substitui a da onda 5; precisa do que a onda 5 pede: SQL
+   republicada**. **Etiqueta esperada: `sha-7978ac6`** (com o #reset, item 20; substitui a da onda 5; precisa do que a onda 5 pede: SQL
    `app_conhecimento_editar.sql` e `SUPERADMIN_EMAILS`). Roteiro em `publicar-prd.md` › "Onda 6".
 
 20. **#reset (pedido do dono, 20/10).** O aluno manda `#reset` (ou `/reset`, `#resetar`) e a Crystal recomeça do zero:
@@ -291,7 +291,7 @@ ter nome de aluno colado de alguma saída.
    **Pronto em `painel/onda6` `16a0469`** (migração `pa22_01_reset_conversa`: `users.conversa_recomecada_em`; nenhum SQL
    novo no Supabase, usa `app_memoria_apagar`; quem recomeça deixa de mandar `pessoa_id`, então a memória do WhatsApp
    não volta; botão "Recomeçar conversa da Crystal" na ficha, admin e suporte; api 1598, web 1044, shared 334, crystal
-   362 testes ok). **Etiqueta da onda 6 agora: `sha-e65abe0`.**
+   362 testes ok). **Etiqueta da onda 6 agora: `sha-7978ac6`.**
    **Texto de privacidade do ActiveDev aprovado pelo dono (20/10)**; marcadores tirados em `docs/lojas` (`e65abe0`).
    O dono rodou o forget do aluno na VPS ("deu certo"): memória da Crystal e resumo do aluno limpos.
    GitHub Actions re-testado depois: ainda recusado pela cobrança. Nada da onda 6 está no ar.
@@ -301,6 +301,12 @@ ter nome de aluno colado de alguma saída.
    vai para `docs/consultoria/2026-10-20-onda6.md` na branch `consultoria/onda6` do app; check-in agendado para 21:03
    UTC. (b) Agente rodando o e2e (Playwright, Chromium de /opt/pw-browsers) e escrevendo e2e novos para banners,
    Laboratório, #reset e iOS 15, corrigindo bugs reais em `painel/onda6`. A etiqueta da onda 6 pode mudar de novo.
+   **e2e pronto (`7978ac6`):** suíte inteira 86 passaram, 0 falharam, 7 puladas (precisam da Crystal real). 18 e2e
+   novos (banners, Laboratório, #reset, iPhone iOS 15). 4 bugs corrigidos: troca de provedor no Laboratório voltava ao
+   modelo do painel; título da conversa do Laboratório voltava a "Nova conversa"; HTML inválido na ficha do aluno; o
+   e2e deixava ~450 MB por rodada em `/tmp` (limpei ~10 GB). Relatado: no iOS 15.0–15.3 o CSS (Tailwind v4 em `@layer`)
+   pode sair sem estilo — já é assim em produção hoje; decisão de produto se vale um CSS de reserva. **Etiqueta da onda 6
+   agora: `sha-7978ac6`.** Consultor ainda trabalhando; novo check-in às 21:45 UTC.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
