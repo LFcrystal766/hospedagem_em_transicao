@@ -242,6 +242,7 @@ ter nome de aluno colado de alguma saída.
    GitHub). **Saldo do OpenRouter caiu para US$ 6,21** (US$ 20,87 às ~21:45 UTC: ~US$ 5 por hora, muito acima do
    esperado para o app). Pedido ao dono: recarregar já e rodar, no banco `crystal_agente`, a soma de `uso_turnos` por
    hora/tipo/modelo das últimas 12 h, e olhar https://openrouter.ai/activity, para achar quem está gastando.
+   20/10: re-tentado o `imagens-vps` de `8308e71`: ainda recusado pela cobrança do GitHub. Justificativa do gasto passada ao dono.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
