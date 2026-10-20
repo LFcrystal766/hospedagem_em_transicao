@@ -285,6 +285,11 @@ ter nome de aluno colado de alguma saída.
    republicada**. **Etiqueta esperada: `sha-cd83fc5`** (substitui a da onda 5; precisa do que a onda 5 pede: SQL
    `app_conhecimento_editar.sql` e `SUPERADMIN_EMAILS`). Roteiro em `publicar-prd.md` › "Onda 6".
 
+20. **#reset (pedido do dono, 20/10).** O aluno manda `#reset` (ou `/reset`, `#resetar`) e a Crystal recomeça do zero:
+   apaga a memória dela (forget) e o resumo da memória única, deixa de usar a memória antiga do WhatsApp para esse aluno,
+   não gasta modelo, limite de 3 por dia, a tela mantém o histórico; botão igual na ficha do aluno no painel. Agente
+   Sonnet fazendo em `painel/onda6` (worktree `/home/user/cw-banners`); a etiqueta da onda 6 vai mudar.
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
