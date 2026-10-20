@@ -268,6 +268,8 @@ ter nome de aluno colado de alguma saída.
    2910e1b "aviso de saída" além do PRD); Laboratório pronto em `painel/laboratorio` `1b46ab3` (migração `pa20_01`,
    rota interna nova na Crystal `/v1/laboratorio/responder`, `uso_turnos` aceita tipo `laboratorio`; api 1324, web 903,
    crystal 361 ok). Banners (B02–B08) ainda em andamento.
+   Decisões do dono (20/10): notificação da conversa com aviso genérico também no Web Push (feito em
+   `painel/b01-presenca` `7f152f8`, api 1368 testes ok) e manter o "aviso de saída" (`2910e1b`).
 
 ## 4. Decisões do dono (valem até ele mudar)
 
