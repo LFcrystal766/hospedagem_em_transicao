@@ -253,6 +253,15 @@ ter nome de aluno colado de alguma saída.
    `pa20_`). Depois: juntar as três numa branch de integração, revisão de segurança do conjunto e imagem (depende da
    cobrança do GitHub). Disco da sessão quase cheio (limpos `node_modules`/`.next` dos worktrees antigos).
 
+19. **Atendimentos de 20/10.** (a) Liberados os 18 compradores do cadastro juntado por CPF (item 15): linhas
+   "Liberação manual" em `crystal_compras`, `transacao manual-20261020-assinatura-agencia-<id>`; conferido: os 18 acham a
+   conta própria, `liberado = true`. (b) Aluno pedido pelo dono sem compra achada em lugar nenhum (nem CPF): liberado à
+   mão por pedido do dono (`transacao manual-20261020-pedido-do-dono-sem-compra-achada`, sem prazo; cortar se não houver
+   compra). (c) Aluno que via "Você está bloqueado permanentemente": o app não tem bloqueio; o login está liberado. Foi
+   a própria Crystal (modelo) que "bloqueou" depois de ameaças e xingamentos, e o resumo dela (`crystal_memoria_unica.
+   app_resumo`) guardou isso, então ela repete. Decisão do dono pendente: manter ou limpar a memória dele; e regra no
+   prompt para a Crystal nunca dizer que bloqueia (ela não tem esse poder).
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
