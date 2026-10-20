@@ -277,6 +277,13 @@ ter nome de aluno colado de alguma saída.
    testar o `sharp` na imagem alpine. **Integração em andamento:** agente juntando as três em `painel/onda6` (a partir de
    `painel/banners`, no worktree `/home/user/cw-banners`), com regra nova no prompt (a Crystal nunca diz que bloqueou
    alguém) e revisão de segurança do conjunto.
+   **Onda 6 integrada (20/10):** `painel/onda6` `cd83fc5` = onda 5 + B01 + banners B02–B08 + Laboratório + regra "limite
+   em abuso" no prompt. shared 331, api 1564 (+18 pulados sem banco), web 1040, crystal 362 testes ok; lint/typecheck
+   limpos; migrações `pa19_01` → `pa20_01` sem deriva. Revisão de segurança: nenhum crítico/alto; médios abertos: teto do
+   Laboratório pode passar um pouco em rajada, resposta com erro não soma custo, `/v1/laboratorio/responder` sem rate
+   limit (pôr limite de crédito na chave do OpenRouter), **regra nova do prompt só vale se a alma publicada no painel for
+   republicada**. **Etiqueta esperada: `sha-cd83fc5`** (substitui a da onda 5; precisa do que a onda 5 pede: SQL
+   `app_conhecimento_editar.sql` e `SUPERADMIN_EMAILS`). Roteiro em `publicar-prd.md` › "Onda 6".
 
 ## 4. Decisões do dono (valem até ele mudar)
 

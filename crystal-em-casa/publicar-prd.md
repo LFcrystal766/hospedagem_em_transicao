@@ -924,6 +924,30 @@ só o tipo). Modelos que não são `anthropic/*` recebem um `system` só no come
 (onda 4) e 353 (onda 5). Depois de subir: `crystal-conferir` e, por uns dias, a contagem de respostas vazadas (item 17
 do `CONTINUAR-EM-OUTRA-CONTA.md`) tem que ficar em zero.
 
+## Onda 6 (20/10): imagem `sha-cd83fc5` (sai depois da cobrança do GitHub)
+
+Branch `painel/onda6` `cd83fc5` = onda 5 (`e05ba35`, já com a correção do iPhone e a trava contra vazamento) + B01
+(notificação só para quem está fora do app, texto genérico na tela bloqueada) + banners e eventos B02–B08 (PRD de 15/10)
++ Laboratório da Crystal (área própria no painel) + regra "limite em abuso" no prompt. Publicar a onda 6 no lugar da
+onda 5: vale tudo o que a seção da onda 5 abaixo pede (SQL `app_conhecimento_editar.sql` no Supabase e
+`SUPERADMIN_EMAILS`), na janela 02:00–05:00.
+
+- Migrações novas, só aditivas: `pa19_01_banners` e `pa20_01_laboratorio` (rodam no `app-subir`).
+- A Crystal, ao subir, recria o check de `uso_turnos` com o tipo `laboratorio` (DDL no banco dela, no boot).
+- Variáveis novas, só na API e opcionais no começo: `ACTIVEDEV_URL` (https, sem barra no fim) e
+  `ACTIVEDEV_INBOUND_TOKEN` (do Bitwarden, nunca no chat), pelas duas juntas no `app-definir` quando o token do ActiveDev
+  for trocado. Sem elas, inscrição e lembrete funcionam e o envio fica "Aguardando configuração".
+- Depois de subir: `crystal-conferir`; conferir que `app_crystal` segue sem rota pública; republicar a alma em Crystal ›
+  Alma se houver versão publicada (para a regra nova valer); banners nascem desligados: ligar o primeiro só depois do
+  teste no iPhone e no Android e do "Testar no ActiveDev"; texto de privacidade a aprovar pelo Luiz antes.
+
+```bash
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-subir sha-cd83fc5
+bash bootstrap-vps.sh crystal-conferir
+# Volta: bash bootstrap-vps.sh app-subir sha-9ec8151 (as tabelas novas ficam; não atrapalham a versão anterior)
+```
+
 ## Alma da Crystal no painel (onda 5): imagem `sha-f3d6616` (13/10, CI verde)
 
 Branch `painel/onda5-alma` do app em `f3d6616` = onda 4 (`9ec8151`) + a alma. CI run 38469721794 (e2e 68 passaram) e
