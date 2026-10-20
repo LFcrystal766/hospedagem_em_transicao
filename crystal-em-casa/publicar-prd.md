@@ -948,6 +948,18 @@ bash bootstrap-vps.sh crystal-conferir
 # Volta: bash bootstrap-vps.sh app-subir sha-9ec8151 (as tabelas novas ficam; não atrapalham a versão anterior)
 ```
 
+**Da consultoria independente (20/10, `docs/consultoria/2026-10-20-onda6.md` no app):**
+- Ordem: Supabase (o SQL da base `app_conhecimento_editar.sql` só depois de confirmar que ninguém escreve na tabela da
+  agência com os papéis `anon`/`authenticated`; a troca de e-mail já está aplicada desde 14/10) → migrações (rodam no
+  `app-subir`, antes da API nova; a API nova lê `users.conversa_recomecada_em` em todo login) → Crystal → API → web.
+- `ACTIVEDEV_URL` e `ACTIVEDEV_INBOUND_TOKEN`: as duas juntas (ou nenhuma), URL https, senão a API não sobe.
+- `SUPERADMIN_EMAILS` vazia = ninguém edita alma, base nem bateria (respondem 404).
+- **Antes de voltar para `sha-9ec8151`** (o agendador antigo mandaria lembretes de evento sem as proteções novas),
+  rodar no banco do app:
+  `UPDATE notices SET status='canceled' WHERE lembrete=true AND status IN ('scheduled','sending');` e
+  `UPDATE notice_deliveries SET status='skipped' WHERE status='queued' AND notice_id IN (SELECT id FROM notices WHERE evento_id IS NOT NULL);`
+  Nunca rodar os comandos de volta comentados nas migrações (apagam dados). Detalhes: `docs/deploy/rollback-onda6.md` no app.
+
 ## Alma da Crystal no painel (onda 5): imagem `sha-f3d6616` (13/10, CI verde)
 
 Branch `painel/onda5-alma` do app em `f3d6616` = onda 4 (`9ec8151`) + a alma. CI run 38469721794 (e2e 68 passaram) e

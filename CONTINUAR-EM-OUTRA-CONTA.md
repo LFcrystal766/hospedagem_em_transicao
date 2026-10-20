@@ -307,6 +307,12 @@ ter nome de aluno colado de alguma saída.
    e2e deixava ~450 MB por rodada em `/tmp` (limpei ~10 GB). Relatado: no iOS 15.0–15.3 o CSS (Tailwind v4 em `@layer`)
    pode sair sem estilo — já é assim em produção hoje; decisão de produto se vale um CSS de reserva. **Etiqueta da onda 6
    agora: `sha-7978ac6`.** Consultor ainda trabalhando; novo check-in às 21:45 UTC.
+   **Relatório do consultor (21:46 UTC):** nada crítico; 3 altos já corrigidos por ele na branch `consultoria/onda6`
+   `9277287` (A1 custo de IA vazio fora dos tetos; A2 rollback com lembretes agendados → SQL de preparação no roteiro;
+   A3 LGPD: inscrições na cópia de dados e aviso de contato pendente no ActiveDev) + trava do prompt por impressão
+   digital (pega cópia, base64, ROT13, invertido) + varredura de 246 rotas. 14 médios e 20 baixos. Agente juntando isso
+   em `painel/onda6` e corrigindo M1 (#reset concorrente), M3, M5 (fila de inscrição no aparelho passando de um aluno
+   para outro), M7 (lembrete de evento nunca pula o push), M10, M12, M13, B11, B15, B19. A etiqueta vai mudar.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
