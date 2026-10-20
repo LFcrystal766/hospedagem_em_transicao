@@ -244,6 +244,15 @@ ter nome de aluno colado de alguma saída.
    hora/tipo/modelo das últimas 12 h, e olhar https://openrouter.ai/activity, para achar quem está gastando.
    20/10: re-tentado o `imagens-vps` de `8308e71`: ainda recusado pela cobrança do GitHub. Justificativa do gasto passada ao dono.
 
+18. **PRD dos banners (B01–B08) + Laboratório da Crystal (20/10).** PRD do Luiz (15/10, artefato "Banners e Eventos
+   da Crystal"; cópia enviada pelo dono). Pedido extra: área separada "Laboratório" no painel para a Letícia escolher
+   provedor e modelo, conversar do zero com a Crystal e ajustar as conversas (editar, regenerar, apagar a partir de,
+   duplicar, 👍/👎 com nota, teto diário de custo). Três agentes Sonnet em paralelo, cada um num worktree saído de
+   `painel/onda5-alma` `e05ba35`: `painel/b01-presenca` (`/home/user/cw-b01-presenca`, B01), `painel/banners`
+   (`/home/user/cw-banners`, B02–B08, migração `pa19_`), `painel/laboratorio` (`/home/user/cw-laboratorio`, migração
+   `pa20_`). Depois: juntar as três numa branch de integração, revisão de segurança do conjunto e imagem (depende da
+   cobrança do GitHub). Disco da sessão quase cheio (limpos `node_modules`/`.next` dos worktrees antigos).
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
