@@ -261,6 +261,13 @@ ter nome de aluno colado de alguma saída.
    a própria Crystal (modelo) que "bloqueou" depois de ameaças e xingamentos, e o resumo dela (`crystal_memoria_unica.
    app_resumo`) guardou isso, então ela repete. Decisão do dono pendente: manter ou limpar a memória dele; e regra no
    prompt para a Crystal nunca dizer que bloqueia (ela não tem esse poder).
+   Dono escolheu **A (limpar)**: `crystal_memoria_unica.app_resumo` do aluno zerado (string vazia; a coluna não aceita
+   null) pela sessão; falta o dono rodar na VPS o `POST /v1/contacts/forget` (de dentro do contêiner da API) para apagar o
+   histórico na memória da Crystal (`crystal_agente.mensagens/resumos`, chave `c:<contact_id>`).
+   Agentes: B01 pronto em `painel/b01-presenca` `2910e1b` (api 1368, web 897, shared 302 testes ok; commit extra
+   2910e1b "aviso de saída" além do PRD); Laboratório pronto em `painel/laboratorio` `1b46ab3` (migração `pa20_01`,
+   rota interna nova na Crystal `/v1/laboratorio/responder`, `uso_turnos` aceita tipo `laboratorio`; api 1324, web 903,
+   crystal 361 ok). Banners (B02–B08) ainda em andamento.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
