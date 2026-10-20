@@ -293,6 +293,8 @@ ter nome de aluno colado de alguma saída.
    não volta; botão "Recomeçar conversa da Crystal" na ficha, admin e suporte; api 1598, web 1044, shared 334, crystal
    362 testes ok). **Etiqueta da onda 6 agora: `sha-e65abe0`.**
    **Texto de privacidade do ActiveDev aprovado pelo dono (20/10)**; marcadores tirados em `docs/lojas` (`e65abe0`).
+   O dono rodou o forget do aluno na VPS ("deu certo"): memória da Crystal e resumo do aluno limpos.
+   GitHub Actions re-testado depois: ainda recusado pela cobrança. Nada da onda 6 está no ar.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
