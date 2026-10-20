@@ -924,7 +924,7 @@ só o tipo). Modelos que não são `anthropic/*` recebem um `system` só no come
 (onda 4) e 353 (onda 5). Depois de subir: `crystal-conferir` e, por uns dias, a contagem de respostas vazadas (item 17
 do `CONTINUAR-EM-OUTRA-CONTA.md`) tem que ficar em zero.
 
-## Onda 6 (20/10): imagem `sha-16a0469` (sai depois da cobrança do GitHub)
+## Onda 6 (20/10): imagem `sha-e65abe0` (sai depois da cobrança do GitHub)
 
 Branch `painel/onda6` `16a0469` (com o #reset) = onda 5 (`e05ba35`, já com a correção do iPhone e a trava contra vazamento) + B01
 (notificação só para quem está fora do app, texto genérico na tela bloqueada) + banners e eventos B02–B08 (PRD de 15/10)
@@ -939,11 +939,11 @@ onda 5: vale tudo o que a seção da onda 5 abaixo pede (SQL `app_conhecimento_e
   for trocado. Sem elas, inscrição e lembrete funcionam e o envio fica "Aguardando configuração".
 - Depois de subir: `crystal-conferir`; conferir que `app_crystal` segue sem rota pública; republicar a alma em Crystal ›
   Alma se houver versão publicada (para a regra nova valer); banners nascem desligados: ligar o primeiro só depois do
-  teste no iPhone e no Android e do "Testar no ActiveDev"; texto de privacidade a aprovar pelo Luiz antes.
+  teste no iPhone e no Android e do "Testar no ActiveDev" (texto de privacidade aprovado pelo Luiz em 20/10).
 
 ```bash
 bash bootstrap-vps.sh backup
-bash bootstrap-vps.sh app-subir sha-16a0469
+bash bootstrap-vps.sh app-subir sha-e65abe0
 bash bootstrap-vps.sh crystal-conferir
 # Volta: bash bootstrap-vps.sh app-subir sha-9ec8151 (as tabelas novas ficam; não atrapalham a versão anterior)
 ```
