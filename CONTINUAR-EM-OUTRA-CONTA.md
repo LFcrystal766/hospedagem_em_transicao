@@ -340,6 +340,13 @@ ter nome de aluno colado de alguma saída.
    Pedido do dono (21/10): na publicação da onda 6, trocar o modelo para `google/gemini-2.5-flash` — só depois de a onda
    6 estar no ar (trava contra vazamento) e de um teste no Laboratório; roteiro em `publicar-prd.md` › Onda 6.
 
+23. **Autonomia do suporte (pedido do dono, 21/10).** Na onda 6 o suporte (admin + support) já: cria conta local com
+   prazo, troca e-mail (local e da base), telefone só de conta local, desliga/religa, importa memória do WhatsApp,
+   "Recomeçar conversa da Crystal" (#reset) e vínculo de WhatsApp. Faltava: nome, telefone de aluno da base, CPF (com
+   código por e-mail) e liberação manual de quem comprou e não está na base. Agente Sonnet fazendo em
+   `painel/onda6-suporte` (worktree `/home/user/cw-suporte`, a partir de `c45a71a`), com SQL novo no Supabase a
+   aplicar. Entra numa onda 6.1, depois da onda 6 no ar.
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
