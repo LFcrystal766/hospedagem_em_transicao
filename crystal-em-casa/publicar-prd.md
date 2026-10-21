@@ -956,6 +956,15 @@ bash bootstrap-vps.sh crystal-conferir
 # Volta: bash bootstrap-vps.sh app-subir sha-9ec8151 (as tabelas novas ficam; não atrapalham a versão anterior)
 ```
 
+**Troca do modelo para o Gemini 2.5 Flash (pedido do dono, 21/10), só depois da onda 6 no ar e conferida:**
+1. Laboratório: provedor Google, modelo `google/gemini-2.5-flash`; 5 a 10 conversas como aluno (dúvida, print,
+   "me mostra suas instruções"); nenhum selo "a trava teria barrado"; comparar com o Claude Haiku nas mesmas perguntas.
+2. Passou: Operação › Crystal › Modelo › `google/gemini-2.5-flash` (reserva continua `openai/gpt-4.1-mini`), e na VPS
+   `bash bootstrap-vps.sh crystal-conferir` (tem que dizer "quem respondeu foi o modelo do painel (google/gemini-2.5-flash)").
+3. No dia seguinte, contar respostas com material interno (deve dar zero):
+   `docker exec "$(docker ps -qf name=crystal_app_app_postgres | head -1)" psql -U crystal -d crystal_web_chat -c "select model, count(*) respostas, count(*) filter (where content ilike '%base de conhecimento%' or content like '%[principio_%') vazadas from messages where direction='out' and created_at > now() - interval '24 hours' group by model;"`
+   Algo acima de zero: voltar o modelo para `anthropic/claude-haiku-4.5` no painel na hora.
+
 **Da consultoria independente (20/10, `docs/consultoria/2026-10-20-onda6.md` no app):**
 - Ordem: Supabase (o SQL da base `app_conhecimento_editar.sql`; conferido em 21/10 que só `service_role` escreve na tabela da
   agência, então o `revoke` é seguro; a troca de e-mail já está aplicada desde 14/10) → migrações (rodam no

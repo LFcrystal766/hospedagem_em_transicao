@@ -337,6 +337,8 @@ ter nome de aluno colado de alguma saída.
    passado ao dono. Como a onda 5 nunca subiu, não há alma publicada no banco: a Crystal lê a alma da imagem (já com a
    regra "limite em abuso"), então **não precisa republicar a alma** nesta subida.
    **Imagens `sha-c45a71a` (api, web, crystal) prontas no ghcr.io e CI verde (run 39506167394, tentativa 2). Liberado publicar.**
+   Pedido do dono (21/10): na publicação da onda 6, trocar o modelo para `google/gemini-2.5-flash` — só depois de a onda
+   6 estar no ar (trava contra vazamento) e de um teste no Laboratório; roteiro em `publicar-prd.md` › Onda 6.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
