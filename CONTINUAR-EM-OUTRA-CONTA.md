@@ -361,7 +361,7 @@ ter nome de aluno colado de alguma saída.
    de aluno da base grava na base mas não vale no login (a tela avisa). Nome e CPF valem. Decisão do dono pendente: mudar
    a função de login para preferir o telefone corrigido, ou deixar assim (o WhatsApp da Crystal vai ser encerrado).
    **Dono escolheu A (21/10): deixar assim** (login não muda; telefone corrigido de aluno da base não vale no login,
-   a tela avisa). Onda 6.1 = `sha-2bba5dc` (CI verde; `imagens-vps` run 39592654451 disparado). Publicar: dono roda
+   a tela avisa). Onda 6.1 = `sha-2bba5dc` (CI verde; `imagens-vps` run 39592654451 terminou verde em 21/10: as 3 imagens estão no ghcr.io). Publicar: dono roda
    `crystal-em-casa/supabase/app_aluno_corrigir_cadastro.sql` no SQL Editor (o MCP trava em escrita), depois
    backup + `app-subir sha-2bba5dc` + `crystal-conferir` + `app-painel-conferir`. Volta: `app-subir sha-c45a71a`.
 
