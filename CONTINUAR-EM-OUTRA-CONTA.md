@@ -418,3 +418,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 - Em script com `set -u`, `local x` sem valor quebra no primeiro uso: sempre `local x=""`.
 - Comparar modelo do OpenRouter pelo nome canônico ou só pelo sufixo de data (`gpt-4.1` não é `gpt-4.1-mini`).
 - O proxy deste ambiente retermina TLS: auditoria do site roda de fora.
+
+24. **Queixa de 21/10: "a Crystal não fala de mais de uma coisa ao mesmo tempo".** Duas causas prováveis, nenhuma é
+    mudança de prompt da onda 6 (só entrou a linha LIMITE EM ABUSO):
+    (a) o prompt (vindo da agência) manda "2-4 frases", "1 pergunta por mensagem", "máx 3 balões" e "se o conselho for
+    grande, entregue só o ponto mais importante"; (b) no app, cada mensagem do aluno vira um turno separado, sem juntar
+    as mensagens seguidas, e o turno novo não vê a mensagem anterior enquanto a resposta dela não termina. A trava de
+    vazamento (onda 6) segura a resposta inteira antes de mostrar, então a espera cresceu e o atropelo deve ter aumentado.
+    Diagnóstico só de leitura em `auditorias/2026-10-21/diag-crystal-conversa.sql` (commit bae5c38): dono roda na VPS e
+    manda a saída. Correção proposta depois dos números: juntar mensagens seguidas (esperar alguns segundos) e afrouxar
+    a regra de brevidade pela alma no painel (sem imagem nova).
+    Banner: imagem 16:9, no mínimo 1280 × 720, JPG/PNG/WebP até 2 MB; o app grava WebP 1280 × 720 e corta as bordas.
