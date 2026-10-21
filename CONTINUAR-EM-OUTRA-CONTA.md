@@ -34,7 +34,7 @@ ter nome de aluno colado de alguma saída.
 
 | Coisa | Estado |
 |---|---|
-| App na VPS (`177.7.61.136`) | **`sha-9ec8151`** (painel novo) desde 14/10 ~09:25 UTC; antes **`sha-3773e2e`** desde 13/10 18:44 UTC (correção do painel que derrubava a API por falta de memória; volta `sha-0e2f79d`). Antes, `sha-0e2f79d`, publicado em 13/10 14:13 UTC. É o `sha-5a5b198` de 10/10 (modelo por fornecedor com tabela de gasto de 7 dias, "Ligações da Crystal", avisos programados com prévia, correções da bateria do painel) **mais as fichas**. Volta: `bash bootstrap-vps.sh app-subir sha-74092e0`. Backup feito antes, cópia cifrada no R2. |
+| App na VPS (`177.7.61.136`) | **`sha-c45a71a`** (onda 6) desde 21/10 ~11:00 UTC; antes **`sha-9ec8151`** (painel novo) desde 14/10 ~09:25 UTC; antes **`sha-3773e2e`** desde 13/10 18:44 UTC (correção do painel que derrubava a API por falta de memória; volta `sha-0e2f79d`). Antes, `sha-0e2f79d`, publicado em 13/10 14:13 UTC. É o `sha-5a5b198` de 10/10 (modelo por fornecedor com tabela de gasto de 7 dias, "Ligações da Crystal", avisos programados com prévia, correções da bateria do painel) **mais as fichas**. Volta: `bash bootstrap-vps.sh app-subir sha-74092e0`. Backup feito antes, cópia cifrada no R2. |
 | Painel (Operação) | `op_memoria_unica = on`, `op_whatsapp_silencio = on`, **sem modelo salvo** (a Crystal usa o padrão da imagem). |
 | Supabase | `app_memoria_ficha.sql` aplicado em 13/10 (migração `app_memoria_ficha_20261012`): tabela com RLS, 6 funções só para `service_role`, 0 linhas. A função de teste `zz_teste_cabecalho_20261009` foi apagada pelo dono em 13/10. |
 | Chatwoot | v4.18.0-ce em `atendimento.`, canal do app ligado (`CHAT_TRANSPORT=chatwoot`). |
@@ -339,6 +339,12 @@ ter nome de aluno colado de alguma saída.
    **Imagens `sha-c45a71a` (api, web, crystal) prontas no ghcr.io e CI verde (run 39506167394, tentativa 2). Liberado publicar.**
    Pedido do dono (21/10): na publicação da onda 6, trocar o modelo para `google/gemini-2.5-flash` — só depois de a onda
    6 estar no ar (trava contra vazamento) e de um teste no Laboratório; roteiro em `publicar-prd.md` › Onda 6.
+   **ONDA 6 NO AR (21/10 ~11:00 UTC):** dono rodou backup + `app-subir sha-c45a71a`; `crystal-conferir` TUDO LIGADO
+   (Haiku, saldo OpenRouter US$ 26,29) e `app-painel-conferir` "PAINEL NOVO NO AR" (migrações limpas, auditoria íntegra).
+   `SUPERADMIN_EMAILS` = o e-mail da Crystal/Letícia. SQL `app_conhecimento_editar.sql`: a sessão aplicou tabela, semente
+   e leitura; as funções de escrita travaram no MCP (confirmação de comando destrutivo) e o dono rodou o arquivo inteiro
+   no SQL Editor: vivos 27, semente 27, fts gerada, anon/authenticated sem execute, service_role executa, histórico
+   fechado, tabela viva fechada. Falta: teste rápido no app/painel e o teste do Gemini 2.5 Flash no Laboratório.
 
 23. **Autonomia do suporte (pedido do dono, 21/10).** Na onda 6 o suporte (admin + support) já: cria conta local com
    prazo, troca e-mail (local e da base), telefone só de conta local, desliga/religa, importa memória do WhatsApp,
