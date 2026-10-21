@@ -333,6 +333,9 @@ ter nome de aluno colado de alguma saída.
    **21/10 01:34 UTC: GitHub liberado (dono assinou o GitHub Pro).** `imagens-vps` de `painel/onda6` rodando
    (run 39528145311) e CI re-rodado (39506167394). Com a imagem saindo do GitHub, o `app-construir` não é preciso agora;
    fica como plano B. O token de leitura, se criado, pode ser apagado.
+   01:5x UTC: imagens `crystal` e `api` prontas; `web` e CI (tentativa 2) em andamento. Passo a passo da publicação
+   passado ao dono. Como a onda 5 nunca subiu, não há alma publicada no banco: a Crystal lê a alma da imagem (já com a
+   regra "limite em abuso"), então **não precisa republicar a alma** nesta subida.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
