@@ -364,6 +364,8 @@ ter nome de aluno colado de alguma saída.
    a tela avisa). Onda 6.1 = `sha-2bba5dc` (CI verde; `imagens-vps` run 39592654451 terminou verde em 21/10: as 3 imagens estão no ghcr.io). Publicar: dono roda
    `crystal-em-casa/supabase/app_aluno_corrigir_cadastro.sql` no SQL Editor (o MCP trava em escrita), depois
    backup + `app-subir sha-2bba5dc` + `crystal-conferir` + `app-painel-conferir`. Volta: `app-subir sha-c45a71a`.
+   **SQL aplicado pelo dono em 21/10** (conferido: `app_aluno_corrigir_cadastro` existe, security definer, só `service_role`
+   executa). Falta: backup + `app-subir sha-2bba5dc` + conferências.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
