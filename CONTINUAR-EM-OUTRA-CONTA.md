@@ -330,6 +330,9 @@ ter nome de aluno colado de alguma saída.
    ghcr.io. Uso: `bash bootstrap-vps.sh app-construir painel/onda6 c45a71a` → `app-subir sha-c45a71a`. Rodar de
    madrugada (CPU). **Pendência do dono (pedido de 21/10): assim que a cobrança do GitHub normalizar, voltar ao GitHub
    Actions** (re-rodar `imagens-vps` e o CI de `painel/onda6`, conferir CI verde, e apagar o token de leitura).
+   **21/10 01:34 UTC: GitHub liberado (dono assinou o GitHub Pro).** `imagens-vps` de `painel/onda6` rodando
+   (run 39528145311) e CI re-rodado (39506167394). Com a imagem saindo do GitHub, o `app-construir` não é preciso agora;
+   fica como plano B. O token de leitura, se criado, pode ser apagado.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
@@ -351,7 +354,7 @@ ter nome de aluno colado de alguma saída.
 
 ## 5. Pendências antigas
 
-- **Voltar ao GitHub Actions quando a cobrança normalizar** (item 22): imagens e CI pelo GitHub de novo; apagar o token só de leitura usado no `app-construir`.
+- **GitHub Actions voltou em 21/10 (GitHub Pro)** (item 22): conferir a imagem `sha-c45a71a` e o CI verde; apagar o token só de leitura, se tiver sido criado.
 - Giseli desligar o webhook da Assiny que ainda aponta para a agência.
 - Decisão da migração final do site (degrau 2; resposta da AZAN).
 - Sessão "Adicionar novo usuário Crystal" (outro sistema) esperando o dono.
