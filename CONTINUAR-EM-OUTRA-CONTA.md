@@ -446,3 +446,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Groq, rede ou demora). A API loga `"transcrição: falhou"` com `code`/`status`/`motivo` (sem conteúdo). Comando só de
     leitura para o dono: `docker service logs --since 48h --raw crystal_app_app_api 2>&1 | grep -F '"transcrição: ' | grep -oE
     '"(msg|code|status|motivo)":("[^"]*"|null|[0-9]+)' | paste -d' ' - - - - | sort | uniq -c | sort -rn`. Aguardando a saída.
+
+27. **Modelo (21/10):** dono diz que está no Gemini 2.5 Flash, mas o banco do app só registrou `google/gemini-2.5-flash-lite`
+    (578) e a reserva `openai/gpt-4.1-mini` (233) no dia, nenhum `gemini-2.5-flash`. Ou o painel está no Flash-Lite, ou a
+    troca foi depois do diagnóstico. Atenção: o 2.5 Flash "pensa" antes de responder e esse pensamento sai do teto de
+    700 tokens (`CRYSTAL_MAX_TOKENS`; painel "Tamanho máximo da resposta", 300–2000): pode cortar ou esvaziar resposta
+    e jogar na reserva. Pedido ao dono: consulta por hora (modelo, respostas, tokens de saída) das últimas 24 h.
