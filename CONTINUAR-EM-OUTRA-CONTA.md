@@ -336,6 +336,7 @@ ter nome de aluno colado de alguma saída.
    01:5x UTC: imagens `crystal` e `api` prontas; `web` e CI (tentativa 2) em andamento. Passo a passo da publicação
    passado ao dono. Como a onda 5 nunca subiu, não há alma publicada no banco: a Crystal lê a alma da imagem (já com a
    regra "limite em abuso"), então **não precisa republicar a alma** nesta subida.
+   **Imagens `sha-c45a71a` (api, web, crystal) prontas no ghcr.io e CI verde (run 39506167394, tentativa 2). Liberado publicar.**
 
 ## 4. Decisões do dono (valem até ele mudar)
 
