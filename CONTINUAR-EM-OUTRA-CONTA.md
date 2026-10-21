@@ -365,7 +365,8 @@ ter nome de aluno colado de alguma saída.
    `crystal-em-casa/supabase/app_aluno_corrigir_cadastro.sql` no SQL Editor (o MCP trava em escrita), depois
    backup + `app-subir sha-2bba5dc` + `crystal-conferir` + `app-painel-conferir`. Volta: `app-subir sha-c45a71a`.
    **SQL aplicado pelo dono em 21/10** (conferido: `app_aluno_corrigir_cadastro` existe, security definer, só `service_role`
-   executa). Falta: backup + `app-subir sha-2bba5dc` + conferências.
+   executa). **Onda 6.1 no ar em 21/10: `sha-2bba5dc`** (dono rodou backup + app-subir + conferências: tudo certo).
+   Volta: `app-subir sha-c45a71a` (o SQL pode ficar). Falta o dono testar os botões no /equipe › Alunos com conta de suporte.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
