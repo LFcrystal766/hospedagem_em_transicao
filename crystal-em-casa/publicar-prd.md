@@ -924,9 +924,9 @@ só o tipo). Modelos que não são `anthropic/*` recebem um `system` só no come
 (onda 4) e 353 (onda 5). Depois de subir: `crystal-conferir` e, por uns dias, a contagem de respostas vazadas (item 17
 do `CONTINUAR-EM-OUTRA-CONTA.md`) tem que ficar em zero.
 
-## Onda 6 (20/10): imagem `sha-7978ac6` (sai depois da cobrança do GitHub)
+## Onda 6 (20/10): imagem `sha-c45a71a` (sai depois da cobrança do GitHub)
 
-Branch `painel/onda6` `16a0469` (com o #reset) = onda 5 (`e05ba35`, já com a correção do iPhone e a trava contra vazamento) + B01
+Branch `painel/onda6` `c45a71a` (com o #reset, o e2e e as correções da consultoria) = onda 5 (`e05ba35`, já com a correção do iPhone e a trava contra vazamento) + B01
 (notificação só para quem está fora do app, texto genérico na tela bloqueada) + banners e eventos B02–B08 (PRD de 15/10)
 + Laboratório da Crystal (área própria no painel) + regra "limite em abuso" no prompt. Publicar a onda 6 no lugar da
 onda 5: vale tudo o que a seção da onda 5 abaixo pede (SQL `app_conhecimento_editar.sql` no Supabase e
@@ -943,14 +943,14 @@ onda 5: vale tudo o que a seção da onda 5 abaixo pede (SQL `app_conhecimento_e
 
 ```bash
 bash bootstrap-vps.sh backup
-bash bootstrap-vps.sh app-subir sha-7978ac6
+bash bootstrap-vps.sh app-subir sha-c45a71a
 bash bootstrap-vps.sh crystal-conferir
 # Volta: bash bootstrap-vps.sh app-subir sha-9ec8151 (as tabelas novas ficam; não atrapalham a versão anterior)
 ```
 
 **Da consultoria independente (20/10, `docs/consultoria/2026-10-20-onda6.md` no app):**
-- Ordem: Supabase (o SQL da base `app_conhecimento_editar.sql` só depois de confirmar que ninguém escreve na tabela da
-  agência com os papéis `anon`/`authenticated`; a troca de e-mail já está aplicada desde 14/10) → migrações (rodam no
+- Ordem: Supabase (o SQL da base `app_conhecimento_editar.sql`; conferido em 21/10 que só `service_role` escreve na tabela da
+  agência, então o `revoke` é seguro; a troca de e-mail já está aplicada desde 14/10) → migrações (rodam no
   `app-subir`, antes da API nova; a API nova lê `users.conversa_recomecada_em` em todo login) → Crystal → API → web.
 - `ACTIVEDEV_URL` e `ACTIVEDEV_INBOUND_TOKEN`: as duas juntas (ou nenhuma), URL https, senão a API não sobe.
 - `SUPERADMIN_EMAILS` vazia = ninguém edita alma, base nem bateria (respondem 404).

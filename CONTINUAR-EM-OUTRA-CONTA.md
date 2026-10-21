@@ -282,7 +282,7 @@ ter nome de aluno colado de alguma saída.
    limpos; migrações `pa19_01` → `pa20_01` sem deriva. Revisão de segurança: nenhum crítico/alto; médios abertos: teto do
    Laboratório pode passar um pouco em rajada, resposta com erro não soma custo, `/v1/laboratorio/responder` sem rate
    limit (pôr limite de crédito na chave do OpenRouter), **regra nova do prompt só vale se a alma publicada no painel for
-   republicada**. **Etiqueta esperada: `sha-7978ac6`** (com o #reset, item 20; substitui a da onda 5; precisa do que a onda 5 pede: SQL
+   republicada**. **Etiqueta esperada: `sha-c45a71a`** (com o #reset, item 20; substitui a da onda 5; precisa do que a onda 5 pede: SQL
    `app_conhecimento_editar.sql` e `SUPERADMIN_EMAILS`). Roteiro em `publicar-prd.md` › "Onda 6".
 
 20. **#reset (pedido do dono, 20/10).** O aluno manda `#reset` (ou `/reset`, `#resetar`) e a Crystal recomeça do zero:
@@ -291,7 +291,7 @@ ter nome de aluno colado de alguma saída.
    **Pronto em `painel/onda6` `16a0469`** (migração `pa22_01_reset_conversa`: `users.conversa_recomecada_em`; nenhum SQL
    novo no Supabase, usa `app_memoria_apagar`; quem recomeça deixa de mandar `pessoa_id`, então a memória do WhatsApp
    não volta; botão "Recomeçar conversa da Crystal" na ficha, admin e suporte; api 1598, web 1044, shared 334, crystal
-   362 testes ok). **Etiqueta da onda 6 agora: `sha-7978ac6`.**
+   362 testes ok). **Etiqueta da onda 6 agora: `sha-c45a71a`.**
    **Texto de privacidade do ActiveDev aprovado pelo dono (20/10)**; marcadores tirados em `docs/lojas` (`e65abe0`).
    O dono rodou o forget do aluno na VPS ("deu certo"): memória da Crystal e resumo do aluno limpos.
    GitHub Actions re-testado depois: ainda recusado pela cobrança. Nada da onda 6 está no ar.
@@ -306,13 +306,18 @@ ter nome de aluno colado de alguma saída.
    modelo do painel; título da conversa do Laboratório voltava a "Nova conversa"; HTML inválido na ficha do aluno; o
    e2e deixava ~450 MB por rodada em `/tmp` (limpei ~10 GB). Relatado: no iOS 15.0–15.3 o CSS (Tailwind v4 em `@layer`)
    pode sair sem estilo — já é assim em produção hoje; decisão de produto se vale um CSS de reserva. **Etiqueta da onda 6
-   agora: `sha-7978ac6`.** Consultor ainda trabalhando; novo check-in às 21:45 UTC.
+   agora: `sha-c45a71a`.** Consultor ainda trabalhando; novo check-in às 21:45 UTC.
    **Relatório do consultor (21:46 UTC):** nada crítico; 3 altos já corrigidos por ele na branch `consultoria/onda6`
    `9277287` (A1 custo de IA vazio fora dos tetos; A2 rollback com lembretes agendados → SQL de preparação no roteiro;
    A3 LGPD: inscrições na cópia de dados e aviso de contato pendente no ActiveDev) + trava do prompt por impressão
    digital (pega cópia, base64, ROT13, invertido) + varredura de 246 rotas. 14 médios e 20 baixos. Agente juntando isso
    em `painel/onda6` e corrigindo M1 (#reset concorrente), M3, M5 (fila de inscrição no aparelho passando de um aluno
    para outro), M7 (lembrete de evento nunca pula o push), M10, M12, M13, B11, B15, B19. A etiqueta vai mudar.
+   **Feito (`c45a71a`):** merge da consultoria sem conflito + M1, M3, M5, M7, M10, M12, M13, B11, B15, B19 com teste;
+   shared 334, crystal 402, api 1626, web 1056, e2e 25, `eventos.pg`/`banners.pg` em Postgres real ok. Abertos: A2 (só
+   roteiro), parte manual do A3, M2, M4, M6, M8, M9, M11, M14 e os baixos. B4 conferido no Supabase (21/10): a tabela
+   da base tem RLS ligado e só `service_role` escreve (27 inserções, nenhuma edição) — o `revoke` do SQL da onda 5 é
+   seguro. **Etiqueta da onda 6 agora: `sha-c45a71a`.**
 
 ## 4. Decisões do dono (valem até ele mudar)
 
