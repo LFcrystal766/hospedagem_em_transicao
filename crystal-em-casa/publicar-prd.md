@@ -941,6 +941,14 @@ onda 5: vale tudo o que a seção da onda 5 abaixo pede (SQL `app_conhecimento_e
   Alma se houver versão publicada (para a regra nova valer); banners nascem desligados: ligar o primeiro só depois do
   teste no iPhone e no Android e do "Testar no ActiveDev" (texto de privacidade aprovado pelo Luiz em 20/10).
 
+**Sem o GitHub Actions (provisório, 21/10):** baixar o bootstrap novo e montar as imagens na VPS antes do `app-subir`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/1075cb3/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+echo "f865a1a7a9392406b311c70cd1329c1e1ddb7877f1a95c2705e0f1064239821a  bootstrap-vps.sh" | sha256sum -c   # tem que dizer OK
+bash bootstrap-vps.sh app-construir painel/onda6 c45a71a   # pede o token só de leitura; 15 a 30 min
+```
+
 ```bash
 bash bootstrap-vps.sh backup
 bash bootstrap-vps.sh app-subir sha-c45a71a

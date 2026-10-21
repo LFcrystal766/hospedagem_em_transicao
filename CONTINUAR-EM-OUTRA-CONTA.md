@@ -41,7 +41,7 @@ ter nome de aluno colado de alguma saída.
 | Compras | Assiny → nosso n8n → `crystal_compras` no Supabase → app liberado. Sem agência desde 09/10. |
 | Site | Degrau 1 feito (DNS no Cloudflare, cinza). Degrau 2 não começou; chamado AZAN #RAI-374885. |
 | OpenRouter | Saldo US$ 47,79 por volta de 15h UTC e US$ 32,87 às 18h50 UTC de 13/10 (US$ 15 em ~4 h). Conferir a origem (pilotos das fichas ou uso dos alunos) e recarregar antes de zerar: sem saldo, a Crystal para. |
-| `bootstrap-vps.sh` | Versão atual: commit `54acea7` (sha256 `ef72390c430af804d8371c84e9a7a6dcd24a5f08a1ecf90d71f09b12e563eec6`); antes `c0379c9`, sha256 `770983400c98d05bd98065e7efc515dc48de5b9ccc4e91ae9a2c505c47ad7d6d` (tem o `crystal-conferir` corrigido e o `painel-diagnostico`). |
+| `bootstrap-vps.sh` | Versão atual: commit `1075cb3` (sha256 `f865a1a7a9392406b311c70cd1329c1e1ddb7877f1a95c2705e0f1064239821a`, com `app-construir`); antes `54acea7` (sha256 `ef72390c430af804d8371c84e9a7a6dcd24a5f08a1ecf90d71f09b12e563eec6`); antes `c0379c9`, sha256 `770983400c98d05bd98065e7efc515dc48de5b9ccc4e91ae9a2c505c47ad7d6d` (tem o `crystal-conferir` corrigido e o `painel-diagnostico`). |
 
 ## 3. O que estava em andamento
 
@@ -323,6 +323,14 @@ ter nome de aluno colado de alguma saída.
    Nova tentativa agendada para 00:55 UTC. Obs.: o `CI` não tem `workflow_dispatch` (só roda em push).
    00:56 UTC: nova tentativa (run 39524333677) também recusada pela cobrança. Pedido ao dono: print da página de billing.
 
+22. **Publicar sem o GitHub Actions (provisório, autorizado pelo dono em 21/10).** Comando novo `app-construir REF [SHA7]`
+   no `bootstrap-vps.sh` (commit `1075cb3`, sha256 `f865a1a7a9392406b311c70cd1329c1e1ddb7877f1a95c2705e0f1064239821a`):
+   baixa o código com token fine-grained só de leitura (Contents: Read, 7 dias), confere o commit e monta api/web/crystal
+   na VPS com o rótulo `crystal.construida-na-vps=1`; o `app-subir` aceita essas imagens quando a tag não existe no
+   ghcr.io. Uso: `bash bootstrap-vps.sh app-construir painel/onda6 c45a71a` → `app-subir sha-c45a71a`. Rodar de
+   madrugada (CPU). **Pendência do dono (pedido de 21/10): assim que a cobrança do GitHub normalizar, voltar ao GitHub
+   Actions** (re-rodar `imagens-vps` e o CI de `painel/onda6`, conferir CI verde, e apagar o token de leitura).
+
 ## 4. Decisões do dono (valem até ele mudar)
 
 - Comunicação em português simples, contando cada passo. Orquestração com subagentes e esforço por etapa, para
@@ -343,6 +351,7 @@ ter nome de aluno colado de alguma saída.
 
 ## 5. Pendências antigas
 
+- **Voltar ao GitHub Actions quando a cobrança normalizar** (item 22): imagens e CI pelo GitHub de novo; apagar o token só de leitura usado no `app-construir`.
 - Giseli desligar o webhook da Assiny que ainda aponta para a agência.
 - Decisão da migração final do site (degrau 2; resposta da AZAN).
 - Sessão "Adicionar novo usuário Crystal" (outro sistema) esperando o dono.
