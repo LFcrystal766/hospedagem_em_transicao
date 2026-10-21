@@ -49,6 +49,10 @@
 # App da Crystal (crystal-web-chat), em app. e api.crystalnowpp.com.br:
 #   bash bootstrap-vps.sh app-ghcr             docker login no ghcr.io (token read:packages,
 #                                              digitado sem aparecer). As imagens são privadas
+#   bash bootstrap-vps.sh app-construir REF [SHA7]  monta as 3 imagens do app NA VPS, sem o GitHub
+#                                              Actions (autorizado pelo dono em 21/10, provisorio ate a
+#                                              cobranca do GitHub voltar). Pede um token so de leitura
+#                                              do codigo, sem aparecer. SHA7 confere o commit
 #   bash bootstrap-vps.sh app-resend           pergunta a chave do Resend (sem aparecer) e o
 #                                              remetente. Nada vai na linha de comando
 #   bash bootstrap-vps.sh app-definir NOME     grava um valor externo (RESEND_API_KEY, EMAIL_FROM,
@@ -1641,6 +1645,63 @@ app_uploads_dono() {
   fi
 }
 
+# Provisório (autorizado pelo dono em 21/10, enquanto a cobrança do GitHub Actions está bloqueada):
+# baixa o código do app com um token só de leitura e monta as três imagens aqui, com os mesmos
+# Dockerfiles e argumentos do imagens-vps.yml. O token vai por variável de ambiente do git (nunca na
+# linha de comando, no .git/config nem em log) e some no fim. As imagens ganham o rótulo
+# crystal.construida-na-vps=1, que o app-subir aceita quando a tag não existe no ghcr.io. Rodar de
+# madrugada: o build do web pesa na CPU. Voltar ao GitHub assim que a cobrança normalizar.
+app_construir() {
+  local ref="${2:-}" esperado="${3:-}" t dir sha tag app livre url cab
+  echo "$ref" | grep -Eq '^[A-Za-z0-9._/-]{1,100}$' || falha "informe a branch ou o commit: bash $0 app-construir painel/onda6 c45a71a"
+  [ -z "$esperado" ] || echo "$esperado" | grep -Eq '^[0-9a-f]{7,40}$' || falha "SHA esperado inválido: use 7 a 40 letras de 0-9a-f"
+  command -v git >/dev/null || falha "falta o git: apt-get install -y git"
+  livre=$(df -Pk /var/lib/docker 2>/dev/null | awk 'NR==2{print int($4/1048576)}')
+  [ "${livre:-0}" -ge 8 ] || falha "pouco disco para montar as imagens (${livre:-?} GB livres em /var/lib/docker; precisa de 8). Rode: docker image prune -f"
+  url="https://github.com/LFcrystal766/crystal-web-chat.git"
+  echo "Token do GitHub SÓ DE LEITURA do código do crystal-web-chat (fine-grained: Contents = Read-only)."
+  read -rsp "Cole e dê Enter (não aparece na tela): " t; echo
+  [ -n "$t" ] || falha "token vazio"
+  cab="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$t" | base64 -w0)"
+  unset t
+  dir=$(mktemp -d /root/crystal-construir.XXXXXX); chmod 700 "$dir"
+  echo "== código ($ref)"
+  if ! GIT_TERMINAL_PROMPT=0 GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.https://github.com/.extraheader GIT_CONFIG_VALUE_0="$cab" \
+       git -C "$dir" clone -q --filter=blob:none --no-checkout "$url" src >/dev/null 2>&1; then
+    unset cab; rm -rf "$dir"; falha "o GitHub recusou o token (vencido, sem acesso ao crystal-web-chat ou sem Contents: Read)"
+  fi
+  if ! GIT_TERMINAL_PROMPT=0 GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.https://github.com/.extraheader GIT_CONFIG_VALUE_0="$cab" \
+       git -C "$dir/src" fetch -q origin "$ref" >/dev/null 2>&1; then
+    unset cab; rm -rf "$dir"; falha "não achei '$ref' no crystal-web-chat"
+  fi
+  unset cab
+  git -C "$dir/src" checkout -q FETCH_HEAD || { rm -rf "$dir"; falha "checkout de $ref falhou"; }
+  sha=$(git -C "$dir/src" rev-parse HEAD)
+  if [ -n "$esperado" ] && [ "${sha#"$esperado"}" = "$sha" ]; then
+    rm -rf "$dir"; falha "o código de '$ref' está em ${sha:0:7}, não em $esperado: confira antes de montar"
+  fi
+  tag="sha-${sha:0:7}"
+  ok "código em ${sha:0:7} (tag $tag)"
+  for app in api web crystal; do
+    echo "== imagem $app ($tag): pode levar de 3 a 15 minutos"
+    if ! DOCKER_BUILDKIT=1 nice -n 10 docker build -q \
+        -f "$dir/src/apps/$app/Dockerfile" \
+        --build-arg NEXT_PUBLIC_API_URL=https://api.crystalnowpp.com.br \
+        --build-arg APP_VERSION="$tag" \
+        --label crystal.construida-na-vps=1 \
+        --label org.opencontainers.image.revision="$sha" \
+        --label org.opencontainers.image.version="$tag" \
+        -t "$APP_IMG-$app:$tag" "$dir/src" >/dev/null; then
+      rm -rf "$dir"
+      falha "a imagem $app não montou. Rode de novo e mande a saída (sem o -q do docker build dá para ver o erro)"
+    fi
+    ok "$APP_IMG-$app:$tag"
+  done
+  rm -rf "$dir"
+  echo
+  ok "imagens prontas nesta VPS. Próximo passo: bash $0 backup && bash $0 app-subir $tag"
+}
+
 app_subir() {
   local tag="${2:-}"
   echo "$tag" | grep -Eq '^(sha-[0-9a-f]{7}|v[0-9][0-9A-Za-z.-]*)$' \
@@ -1650,10 +1711,17 @@ app_subir() {
   docker service ls --format '{{.Name}}' | grep -q '^traefik_traefik$' || aviso "Traefik não encontrado: sem ele app. e api. não respondem"
 
   echo "== imagens $tag"
-  docker pull -q "$APP_IMG-api:$tag" >/dev/null && docker pull -q "$APP_IMG-web:$tag" >/dev/null \
-    && docker pull -q "$APP_IMG-crystal:$tag" >/dev/null \
-    || falha "não baixou as imagens $tag. Rodou 'bash $0 app-ghcr'? O build terminou no GitHub?"
-  ok "$APP_IMG-api, -web e -crystal:$tag baixadas"
+  local img locais=0
+  for img in api web crystal; do
+    if docker pull -q "$APP_IMG-$img:$tag" >/dev/null 2>&1; then
+      continue
+    elif [ "$(docker image inspect -f '{{index .Config.Labels "crystal.construida-na-vps"}}' "$APP_IMG-$img:$tag" 2>/dev/null)" = "1" ]; then
+      locais=$((locais + 1))   # montada aqui por app-construir: não existe no ghcr.io
+    else
+      falha "não baixou $APP_IMG-$img:$tag. Rodou 'bash $0 app-ghcr'? O build terminou no GitHub? (sem o GitHub: bash $0 app-construir)"
+    fi
+  done
+  if [ "$locais" -gt 0 ]; then ok "imagens $tag: $locais montada(s) nesta VPS (app-construir), o resto baixado"; else ok "$APP_IMG-api, -web e -crystal:$tag baixadas"; fi
 
   echo "== segredos e ambiente"
   app_gerar_segredos "$tag"
@@ -3294,6 +3362,7 @@ app_segredos() {
 
 case "$CMD" in
   app-ghcr) app_ghcr ;;
+  app-construir) app_construir "$@" ;;
   app-definir) app_definir "$@" ;;
   app-remover) app_remover "$@" ;;
   app-resend) app_resend ;;
