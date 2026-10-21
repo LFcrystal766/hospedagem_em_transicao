@@ -455,3 +455,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     **Dono confirmou (21/10): Flash-Lite de propósito, para economizar.** Caminho: ajuste da alma testado no Laboratório
     com o Flash-Lite e ativado; amanhã, contagem de vazamento de 24 h. Pedido ao dono: custo por dia e modelo
     (`uso_turnos` no banco `crystal_agente`) para comparar Flash-Lite x Haiku x GPT-4.1 mini.
+
+28. **Pedidos do suporte (21/10, noite), feitos por mim no Supabase:**
+    - Carlos: e-mail trocado (`app_aluno_trocar_email`) de `carlosschramm0912@` para `carlos.schramm0912@gmail.com`; login liberado.
+    - Marcos: de `oficialmarcosmagno@` para `oficialmarcosfraga@gmail.com`; login liberado.
+    - Bruno (`bruno_devesa@hotmail.com`, PayPal, 1 ano): linha manual em `crystal_compras`
+      (`manual-20261021-paypal-1-ano-ate-20271021`, telefone de Portugal). **Cortar em 21/10/2027** (não há vencimento automático).
+    - `agf.centronorte@outlook.com`: cadastro ativo e login liberado; o código não chega. Hipótese: Outlook/Hotmail
+      barrando o Resend ou endereço na lista de supressão do Resend. Dono confere em resend.com › Emails (buscar o
+      endereço) e nos logs (`"e-mail: envio falhou"`). Saída: tirar da supressão ou trocar o e-mail do aluno por outro.
+    - Superadmin: `bash bootstrap-vps.sh app-definir SUPERADMIN_EMAILS` (lista inteira, vírgula) + `app-subir sha-2bba5dc`.
