@@ -452,3 +452,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     troca foi depois do diagnóstico. Atenção: o 2.5 Flash "pensa" antes de responder e esse pensamento sai do teto de
     700 tokens (`CRYSTAL_MAX_TOKENS`; painel "Tamanho máximo da resposta", 300–2000): pode cortar ou esvaziar resposta
     e jogar na reserva. Pedido ao dono: consulta por hora (modelo, respostas, tokens de saída) das últimas 24 h.
+    **Dono confirmou (21/10): Flash-Lite de propósito, para economizar.** Caminho: ajuste da alma testado no Laboratório
+    com o Flash-Lite e ativado; amanhã, contagem de vazamento de 24 h. Pedido ao dono: custo por dia e modelo
+    (`uso_turnos` no banco `crystal_agente`) para comparar Flash-Lite x Haiku x GPT-4.1 mini.
