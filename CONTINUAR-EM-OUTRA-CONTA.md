@@ -440,3 +440,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     17/09). Liberado com linha manual em `crystal_compras` (`manual-20261021-pedido-do-dono-assinatura-agencia-24613`);
     login conferido: liberado = true, conta nova (a antiga não aparece por estar cancelada). Volta: dono roda no SQL
     Editor `delete from crystal_compras where transacao = 'manual-20261021-pedido-do-dono-assinatura-agencia-24613';`.
+
+26. **Áudios com `transcription_unavailable` (57 em 2 dias, 21/10):** o código da transcrição (Groq, `whisper-large-v3-turbo`,
+    prazo 20 s, `TRANSCRIPTION_*` no api.env) não mudou entre `9ec8151` e `2bba5dc`: a causa é de fora (chave, cota 429 do
+    Groq, rede ou demora). A API loga `"transcrição: falhou"` com `code`/`status`/`motivo` (sem conteúdo). Comando só de
+    leitura para o dono: `docker service logs --since 48h --raw crystal_app_app_api 2>&1 | grep -F '"transcrição: ' | grep -oE
+    '"(msg|code|status|motivo)":("[^"]*"|null|[0-9]+)' | paste -d' ' - - - - | sort | uniq -c | sort -rn`. Aguardando a saída.
