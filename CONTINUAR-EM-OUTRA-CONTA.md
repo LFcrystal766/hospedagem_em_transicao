@@ -321,6 +321,7 @@ ter nome de aluno colado de alguma saída.
    21/10 00:38 UTC: dono disse "Git ta ok"; a sessão disparou `imagens-vps` em `painel/onda6` (run 39522496591) e
    re-rodou o de `painel/onda4`: os dois ainda recusados por cobrança (pode demorar alguns minutos para valer).
    Nova tentativa agendada para 00:55 UTC. Obs.: o `CI` não tem `workflow_dispatch` (só roda em push).
+   00:56 UTC: nova tentativa (run 39524333677) também recusada pela cobrança. Pedido ao dono: print da página de billing.
 
 ## 4. Decisões do dono (valem até ele mudar)
 
