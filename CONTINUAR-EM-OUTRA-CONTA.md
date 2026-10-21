@@ -429,3 +429,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     manda a saída. Correção proposta depois dos números: juntar mensagens seguidas (esperar alguns segundos) e afrouxar
     a regra de brevidade pela alma no painel (sem imagem nova).
     Banner: imagem 16:9, no mínimo 1280 × 720, JPG/PNG/WebP até 2 MB; o app grava WebP 1280 × 720 e corta as bordas.
+    **Resultado do diagnóstico (21/10):** atropelo só 1–2% das mensagens/dia; tempo igual antes e depois da onda 6
+    (mediana ~3,4 s, 90% em ~6,5 s); respostas de ~3 bolhas de ~75 letras. Causa principal = regra de brevidade.
+    Proposta de troca de texto da alma em `crystal-em-casa/alma-ajuste-varios-assuntos.md` (dono/Letícia testam no
+    Laboratório e ativam no painel). Achados extras: em 21/10 houve 578 respostas do `google/gemini-2.5-flash-lite`
+    e 233 do `openai/gpt-4.1-mini` (reserva): conferir qual modelo está ativo em Operação › Crystal › Modelo
+    (o Flash-Lite foi o do vazamento de 16/10). E 57 áudios com `transcription_unavailable` em 2 dias: investigar.
+
+25. **Nuno (21/10, pedido do dono):** assinatura da agência 24613 cancelada em 22/09 (5 dias depois da compra de
+    17/09). Liberado com linha manual em `crystal_compras` (`manual-20261021-pedido-do-dono-assinatura-agencia-24613`);
+    login conferido: liberado = true, conta nova (a antiga não aparece por estar cancelada). Volta: dono roda no SQL
+    Editor `delete from crystal_compras where transacao = 'manual-20261021-pedido-do-dono-assinatura-agencia-24613';`.
