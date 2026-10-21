@@ -346,6 +346,14 @@ ter nome de aluno colado de alguma saída.
    código por e-mail) e liberação manual de quem comprou e não está na base. Agente Sonnet fazendo em
    `painel/onda6-suporte` (worktree `/home/user/cw-suporte`, a partir de `c45a71a`), com SQL novo no Supabase a
    aplicar. Entra numa onda 6.1, depois da onda 6 no ar.
+   **Pronto (21/10):** `painel/onda6-suporte` `2bba5dc` (shared 339, api 1672, web 1075 testes ok). Ficha › Ações:
+   Corrigir nome, Corrigir WhatsApp, Corrigir CPF (com código no e-mail; o app guarda só hash + 4 últimos); lista:
+   "Liberar acesso manual" (linha `crystal_compras` + conta no app com prazo `local_until`; o login passa a conferir
+   `local_until` também em conta da base — hoje nenhuma tem). SQL novo `crystal-em-casa/supabase/app_aluno_corrigir_cadastro.sql`
+   (commit `2c51aec`), **não aplicado**; aplicar na publicação da 6.1. Conferido no Supabase (21/10): **as 9.672 contas
+   da base com acesso têm o telefone na tabela de acessos da agência**, que o login lê primeiro: "Corrigir WhatsApp"
+   de aluno da base grava na base mas não vale no login (a tela avisa). Nome e CPF valem. Decisão do dono pendente: mudar
+   a função de login para preferir o telefone corrigido, ou deixar assim (o WhatsApp da Crystal vai ser encerrado).
 
 ## 4. Decisões do dono (valem até ele mudar)
 
