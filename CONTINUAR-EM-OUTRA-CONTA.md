@@ -318,6 +318,9 @@ ter nome de aluno colado de alguma saída.
    roteiro), parte manual do A3, M2, M4, M6, M8, M9, M11, M14 e os baixos. B4 conferido no Supabase (21/10): a tabela
    da base tem RLS ligado e só `service_role` escreve (27 inserções, nenhuma edição) — o `revoke` do SQL da onda 5 é
    seguro. **Etiqueta da onda 6 agora: `sha-c45a71a`.**
+   21/10 00:38 UTC: dono disse "Git ta ok"; a sessão disparou `imagens-vps` em `painel/onda6` (run 39522496591) e
+   re-rodou o de `painel/onda4`: os dois ainda recusados por cobrança (pode demorar alguns minutos para valer).
+   Nova tentativa agendada para 00:55 UTC. Obs.: o `CI` não tem `workflow_dispatch` (só roda em push).
 
 ## 4. Decisões do dono (valem até ele mudar)
 
