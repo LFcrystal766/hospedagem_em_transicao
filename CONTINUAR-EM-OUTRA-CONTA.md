@@ -487,7 +487,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     (crítico GHSA-2464-fhr4-w9xw, execução remota de código no otimizador de imagens com SVG; alto GHSA-p3m5-59mp-jv5r, DoS
     no App Router; corrigidos em 15.5.28). **A produção (`2bba5dc`) está nessa versão vulnerável.** O app não usa
     `next/image`, mas a rota do otimizador existe. Corrigido na branch: commit `c93b8e2` (só `next` 15.5.28 e lockfile;
-    typecheck, 1077 testes do web, build e audit limpos). CI 39828991857 e imagens-vps 39829003216 em andamento.
+    typecheck, 1077 testes do web, build e audit limpos). **CI verde (gate, audit, e2e) e imagem `sha-c93b8e2` pronta.**
     Publicar: sem SQL, backup + `app-subir sha-c93b8e2` + `crystal-conferir` + `app-painel-conferir`; volta
     `app-subir sha-2bba5dc` (mas volta para a versão vulnerável do Next).
 
