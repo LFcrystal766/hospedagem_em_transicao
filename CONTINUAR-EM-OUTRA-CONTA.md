@@ -470,3 +470,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `docs/consultoria/`). `bangeheitor@gmail.com`: não existe em cadastro, assinatura, acesso nem `crystal_compras`; nenhum
     e-mail parecido nem nome "Bange" na base. O n8n de compras está vivo (38 compras automáticas em 24 h, última 16:08 UTC).
     Provável: comprou com outro e-mail ou por fora (PayPal). Aguardando o dono: CPF/nome/comprovante ou pedido de liberação manual.
+    Artefato do relatório para o grupo: https://claude.ai/artifact/G8XLS7i3APGE7W7ZuThMHe (cópia em
+    `artefato/revisao-onda6-2026-10-20.html`). É privado: o dono precisa abrir o Share e liberar antes de mandar no grupo.

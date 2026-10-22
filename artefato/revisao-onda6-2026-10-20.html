@@ -1,0 +1,256 @@
+<title>Revisão da Onda 6</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+/* Layout: uma coluna de leitura (68ch), faixa de veredito no topo, tabelas de achados dentro de blocos abríveis por gravidade. */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --fg: #1c2230;
+  --muted: #5b6577;
+  --line: #d9dee6;
+  --accent: #0f6e8c;
+  --accent-soft: #e3f1f5;
+  --ok: #1f7a4d; --ok-soft: #e2f3e9;
+  --high: #b3261e; --high-soft: #fbe7e5;
+  --mid: #9a5b00; --mid-soft: #fff1d6;
+  --low: #4a5a78; --low-soft: #e8ecf4;
+  --display: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: "IBM Plex Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12161d; --surface: #1a2029; --fg: #e6e9ef; --muted: #9aa5b8; --line: #2d3644;
+    --accent: #5fb7d4; --accent-soft: #15303a;
+    --ok: #6cc79a; --ok-soft: #173327;
+    --high: #f28b84; --high-soft: #3b1d1b;
+    --mid: #f0b85a; --mid-soft: #3a2c12;
+    --low: #aab6cc; --low-soft: #262d3a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12161d; --surface: #1a2029; --fg: #e6e9ef; --muted: #9aa5b8; --line: #2d3644;
+  --accent: #5fb7d4; --accent-soft: #15303a;
+  --ok: #6cc79a; --ok-soft: #173327;
+  --high: #f28b84; --high-soft: #3b1d1b;
+  --mid: #f0b85a; --mid-soft: #3a2c12;
+  --low: #aab6cc; --low-soft: #262d3a;
+  color-scheme: dark;
+}
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--body); font-size: 16px; line-height: 1.55;
+  padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.page { max-width: 68ch; margin: 0 auto; display: grid; gap: 36px; }
+header { display: grid; gap: 10px; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(30px, 6vw, 40px); line-height: 1.12; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 24px; line-height: 1.2; margin: 0 0 12px; text-wrap: balance; }
+h3 { font-size: 16px; font-weight: 600; margin: 18px 0 6px; }
+p { margin: 0 0 12px; }
+.lead { font-size: 17px; color: var(--muted); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; color: var(--muted); }
+.meta b { color: var(--fg); font-weight: 500; }
+
+.verdict { display: grid; grid-template-columns: 6px 1fr; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.verdict .bar { background: var(--ok); }
+.verdict .in { padding: 18px 20px; display: grid; gap: 8px; }
+.verdict .in strong { font-size: 19px; font-family: var(--display); }
+.verdict ul { margin: 4px 0 0; padding-left: 20px; display: grid; gap: 6px; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 2px; min-width: 0; }
+.tile .n { font-family: var(--display); font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.tile .l { font-size: 13px; color: var(--muted); }
+.tile.high .n { color: var(--high); } .tile.mid .n { color: var(--mid); } .tile.low .n { color: var(--low); } .tile.ok .n { color: var(--ok); }
+
+.pill { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .03em; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.pend { background: var(--low-soft); color: var(--low); }
+.pill.doc { background: var(--accent-soft); color: var(--accent); }
+
+ul.plain { padding-left: 20px; margin: 0; display: grid; gap: 8px; }
+ul.plain li::marker { color: var(--muted); }
+
+details { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+details + details { margin-top: 10px; }
+summary { cursor: pointer; padding: 14px 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: ""; width: 8px; height: 8px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(-45deg); transition: transform .15s; flex: none; }
+details[open] summary::before { transform: rotate(45deg); }
+summary .pill { margin-left: auto; }
+summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 10px; }
+details .body { padding: 0 16px 16px; }
+details.sev-high summary { border-left: 4px solid var(--high); border-radius: 10px 0 0 10px; }
+details.sev-mid summary { border-left: 4px solid var(--mid); border-radius: 10px 0 0 10px; }
+details.sev-low summary { border-left: 4px solid var(--low); border-radius: 10px 0 0 10px; }
+
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 10px; border-top: 1px solid var(--line); }
+th { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border-top: 0; font-weight: 600; }
+td.id { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+td.st { white-space: nowrap; }
+.findings td:nth-child(3) { min-width: 26ch; }
+.findings td:nth-child(4) { min-width: 22ch; }
+code { font-family: var(--mono); font-size: 13px; background: var(--low-soft); padding: 1px 5px; border-radius: 4px; word-break: break-all; }
+.note { font-size: 14px; color: var(--muted); }
+
+.checks { display: grid; gap: 10px; }
+.check { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; }
+.check .ic { width: 22px; height: 22px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); display: grid; place-items: center; font-size: 13px; font-weight: 700; margin-top: 2px; }
+.check .ic.ro { background: var(--accent-soft); color: var(--accent); }
+.check b { font-weight: 600; }
+
+.limits { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+@media (prefers-reduced-motion: reduce) { summary::before { transition: none; } }
+</style>
+
+<div class="page">
+<header>
+  <div class="eyebrow">App da Crystal · consultoria independente</div>
+  <h1>Revisão da Onda 6</h1>
+  <p class="lead">Um revisor sem contexto do projeto leu, linha a linha, tudo o que mudou entre a versão que estava no ar e a onda 6, rodou os testes e tentou invadir o app antes de a versão ser publicada.</p>
+  <div class="meta">
+    <span>Revisão: <b>20/10/2026</b></span>
+    <span>Publicada: <b>21/10/2026</b></span>
+    <span>Mudança revisada: <b>321 arquivos, ~36 mil linhas</b></span>
+  </div>
+</header>
+
+<section class="verdict">
+  <div class="bar"></div>
+  <div class="in">
+    <strong>Veredito: nada impedia ir ao ar. Nenhum achado crítico.</strong>
+    <p style="margin:0">Lint e verificação de tipos passaram, e 3.340 testes automáticos passaram. Os três pontos mais sérios foram corrigidos pelo próprio consultor antes da publicação:</p>
+    <ul>
+      <li><b>Custo de IA escapando do teto.</b> Uma resposta vazia do modelo não entrava na conta do limite diário. Corrigido.</li>
+      <li><b>Voltar de versão não era limpo.</b> Lembretes de evento já agendados sairiam sem as proteções novas. Hoje existe um passo de preparação no roteiro de volta.</li>
+      <li><b>LGPD.</b> "Apagar meus dados" não apagava o contato já enviado ao ActiveDev e a inscrição em evento não saía na cópia dos dados do aluno. A cópia foi corrigida; a exclusão no ActiveDev fica registrada como pendência manual na auditoria.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>Os números</h2>
+  <div class="tiles">
+    <div class="tile ok"><span class="n">3.340</span><span class="l">testes passando</span></div>
+    <div class="tile"><span class="n">0</span><span class="l">achados críticos</span></div>
+    <div class="tile high"><span class="n">3</span><span class="l">altos, todos corrigidos</span></div>
+    <div class="tile mid"><span class="n">14</span><span class="l">médios, 7 corrigidos</span></div>
+    <div class="tile low"><span class="n">20</span><span class="l">baixos, 4 corrigidos</span></div>
+    <div class="tile"><span class="n">246</span><span class="l">rotas varridas</span></div>
+  </div>
+  <p class="note" style="margin-top:12px">Gravidade é a escala do consultor: crítico impede publicar; alto pede correção antes; médio e baixo entram na fila. Os médios que sobraram são de custo e de dois cliques ao mesmo tempo, não de acesso indevido a dados de aluno.</p>
+</section>
+
+<section>
+  <h2>O que foi conferido e está certo</h2>
+  <div class="checks">
+    <div class="check"><span class="ic">✓</span><div><b>Quem pode o quê.</b> Banners, eventos, ActiveDev e Laboratório só para admin; quem não é admin recebe "não existe". Publicar, voltar, apagar e restaurar a alma pedem o código de confirmação no e-mail.</div></div>
+    <div class="check"><span class="ic">✓</span><div><b>Dados do aluno.</b> Toda rota do aluno usa a identidade da sessão. Nenhum aluno consegue ver dados de outro.</div></div>
+    <div class="check"><span class="ic">✓</span><div><b>Upload de banner.</b> Confere bytes, tipo e extensão, limita o tamanho em pixels e regrava a imagem com nome novo. Link de banner só aceita <code>https://</code> ou caminho do app.</div></div>
+    <div class="check"><span class="ic">✓</span><div><b>Sem vazamento em log.</b> Nenhum CPF, token ou texto de conversa nos registros. O texto do <code>#reset</code> não vai a log nem a auditoria.</div></div>
+    <div class="check"><span class="ic">✓</span><div><b>Fuso.</b> Datas de evento, banner, reset diário e teto de IA usam o horário de São Paulo.</div></div>
+    <div class="check"><span class="ic">✓</span><div><b>Crystal.</b> Toda chamada ao modelo tem limite de tamanho; não há loop de agente; a bateria roda em série com teto por rodada.</div></div>
+    <div class="check"><span class="ic">✓</span><div><b>iPhone antigo (iOS 15).</b> Nenhum recurso de JavaScript novo que o Safari 15 não entende. O CI confirma em 84 arquivos.</div></div>
+    <div class="check"><span class="ic">✓</span><div><b>Banco.</b> As migrações só criam tabelas, índices e colunas; nada apaga dados. Aplicadas do zero num Postgres 16 sem erro.</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Teste de invasão</h2>
+  <p><b>Brecha achada e fechada antes de publicar.</b> A trava que impede a Crystal de entregar o próprio prompt ao aluno só reconhecia 6 frases fixas. Fingindo um modelo que obedece ao atacante, o consultor conseguiu passar uma linha do prompt em negrito, em bloco de código, letra por letra, invertida, em ROT13, em base64 e em hexadecimal. Como a alma agora é editada no painel, as frases fixas deixariam de valer na primeira reescrita.</p>
+  <p>Correção: a cada resposta, a Crystal compara o texto com uma "impressão digital" da alma em vigor, também no texto invertido, em ROT13, em base64 e em hexadecimal. Se vazar, descarta, tenta o modelo reserva e, no pior caso, manda a frase neutra. Nada vai para a memória nem para o log. 16 disfarces testados e barrados; as falas normais da Crystal passam.</p>
+  <p><b>Varredura das 246 rotas da API</b> (sem lista à mão, lendo as rotas registradas): sem login só respondem as 8 rotas públicas; aluno logado não abre nenhuma rota do painel; nenhuma resposta pública leva segredo; tentativa de ler arquivo fora da pasta dá 404; corpo gigante é recusado; o código de acesso trava em 4 erros; 120 e-mails do mesmo IP batem no limite. No serviço da Crystal, toda rota sem chave ou com chave errada dá 401.</p>
+  <div class="limits">
+    <b>Limites que sobram, ditos com franqueza</b>
+    <ul class="plain" style="margin-top:8px">
+      <li>Tradução ou paráfrase de uma regra do prompt não é pega pela impressão digital. Só a instrução do prompt e a escolha do modelo seguram isso.</li>
+      <li>O login por e-mail responde diferente quando o e-mail não existe, o que permite descobrir se alguém é aluno. Decisão de produto já tomada; o limite de 50 tentativas por IP em 15 minutos reduz a varredura, mas não elimina.</li>
+      <li>O teste foi feito simulando o modelo. Não houve chamada a um modelo de verdade no ambiente do consultor.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>Todos os achados</h2>
+  <p class="note">Cada linha diz onde está, o cenário em que dá problema e o que foi feito. "Corrigido" entrou na versão publicada em 21/10.</p>
+
+  <details class="sev-high" open>
+    <summary>Altos <span class="pill ok">3 de 3 corrigidos</span></summary>
+    <div class="body"><div class="scroll"><table class="findings">
+      <tr><th>#</th><th>Onde</th><th>Cenário</th><th>O que foi feito</th><th>Situação</th></tr>
+      <tr><td class="id">A1</td><td>Custo de IA (Crystal, Laboratório, bateria)</td><td>Resposta vazia do modelo não entrava em nenhum teto. Com um modelo que gasta tudo pensando, o teto diário de US$ 5 nunca disparava.</td><td>Resposta vazia agora devolve tokens e custo; custo não informado vira estimativa por tokens; o Laboratório soma a resposta vazia ao dia.</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+      <tr><td class="id">A2</td><td>Volta de versão</td><td>Lembretes e convites de evento já agendados sairiam pelo agendador antigo, sem as proteções novas.</td><td>Roteiro de volta com dois comandos SQL de preparação (cancelar lembretes agendados e pular entregas na fila).</td><td class="st"><span class="pill doc">Roteiro</span></td></tr>
+      <tr><td class="id">A3</td><td>LGPD das inscrições</td><td>"Apagar meus dados" não removia o contato enviado ao ActiveDev e a inscrição não saía na cópia dos dados.</td><td>Cópia dos dados leva as inscrições; o apagamento grava "contato externo pendente" na auditoria. A exclusão no ActiveDev continua manual.</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+    </table></div></div>
+  </details>
+
+  <details class="sev-mid">
+    <summary>Médios <span class="pill ok">7 de 14 corrigidos</span></summary>
+    <div class="body"><div class="scroll"><table class="findings">
+      <tr><th>#</th><th>Onde</th><th>Cenário</th><th>Correção</th><th>Situação</th></tr>
+      <tr><td class="id">M1</td><td><code>#reset</code></td><td>Dois resets ao mesmo tempo (duas abas, ou aluno e equipe) podiam trazer de volta a conversa apagada.</td><td>Restaura só se a marca ainda for a desta chamada.</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+      <tr><td class="id">M2</td><td>Botão "Recomeçar conversa" na ficha</td><td>Um clique de admin ou suporte apaga de forma irreversível, sem código de confirmação nem motivo.</td><td>Exigir confirmação ou motivo obrigatório.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">M3</td><td>Apagar evento e banner</td><td>Aluno que se inscreve entre a contagem e o apagamento perdia a inscrição. Falha no meio deixava estado parcial.</td><td>Contagem e apagamento na mesma transação.</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+      <tr><td class="id">M4</td><td>Trocar e-mail do aluno</td><td>A base troca primeiro; se o app falhar depois, base e app ficam com e-mails diferentes.</td><td>Tratar o erro com compensação.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">M5</td><td>Banner de evento sem rede</td><td>A inscrição pendente ficava no aparelho sem o nome do aluno: outra aluna no mesmo celular seria inscrita no evento da primeira.</td><td>Chave com o id do aluno e limpeza no logout.</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+      <tr><td class="id">M6</td><td>Fila do ActiveDev</td><td>Com o ActiveDev lento, o lote passa do prazo e outra instância reenvia (contato e tag repetidos).</td><td>Renovar o prazo a cada pedido.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">M7</td><td>Push e presença</td><td>Com o app aberto no computador, o lembrete de evento era pulado também no celular.</td><td>Lembrete de evento nunca pula o push.</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+      <tr><td class="id">M8</td><td>Rotas de teste da Crystal</td><td>Sem orçamento somado por dia para testar alma, dossiê e bateria (só admin e superadmin: risco de custo, não de acesso).</td><td>Teto diário consultando o gasto do dia.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">M9</td><td>Teto do Laboratório</td><td>Várias conversas ao mesmo tempo passam pela checagem e estouram o teto (o limite de 120 respostas por hora segura o estrago).</td><td>Reservar o custo antes da chamada.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">M10</td><td>Escolha de modelo</td><td>Aceitava <code>openrouter/auto</code> e sufixo <code>:online</code> (cobra busca na web).</td><td>Recusados.</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+      <tr><td class="id">M11</td><td>Trava de vazamento</td><td>Usava frases fixas do arquivo; a alma editada no painel ficaria sem proteção.</td><td>Impressão digital da alma ativa (ver teste de invasão).</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+      <tr><td class="id">M12</td><td>Criar trecho da base</td><td>A Crystal podia levar 35 s e a API desistia em 15 s; reenviar duplicava o trecho.</td><td>Prazo da API ampliado.</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+      <tr><td class="id">M13</td><td>Laboratório</td><td>Qualquer erro do banco era tratado como "conversa apagada" e o gasto se perdia sem registro.</td><td>Só o erro de registro não encontrado é tratado assim.</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+      <tr><td class="id">M14</td><td>iPhone com iOS 15.0 a 15.3</td><td>Pode abrir sem estilo. Já era assim antes da onda 6; quase todo iOS 15 em uso é 15.6 ou mais.</td><td>Decidir o mínimo (15.4) ou criar um CSS de reserva.</td><td class="st"><span class="pill pend">Decisão</span></td></tr>
+    </table></div></div>
+  </details>
+
+  <details class="sev-low">
+    <summary>Baixos <span class="pill ok">4 de 20 corrigidos</span></summary>
+    <div class="body"><div class="scroll"><table class="findings">
+      <tr><th>#</th><th>Onde</th><th>Cenário</th><th>Situação</th></tr>
+      <tr><td class="id">B1</td><td>Migrações</td><td>Adicionar coluna em tabela grande espera transações abertas. Aplicar em horário calmo.</td><td class="st"><span class="pill doc">Roteiro</span></td></tr>
+      <tr><td class="id">B2</td><td>Tabela financeira</td><td>Pequena divergência entre schema e SQL, anterior à onda 6.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">B3</td><td>Migrações</td><td>Numeração pula a 21. Conferir que nada se perdeu.</td><td class="st"><span class="pill ok">Conferido</span></td></tr>
+      <tr><td class="id">B4</td><td>SQL da base de conhecimento</td><td>Tira a escrita de papéis públicos na tabela da agência. Confirmar quem escreve nela.</td><td class="st"><span class="pill ok">Conferido e aplicado</span></td></tr>
+      <tr><td class="id">B5</td><td>Código de confirmação da equipe</td><td>Sem limite próprio na rota; modo de teste do código fora de produção anula o segundo fator.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">B6</td><td>Clique em banner</td><td>Pode ser inflado (até 120 por minuto por aluno). Só afeta a métrica.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">B7</td><td>Avaliação de qualidade</td><td>Não aplica a data de consentimento da amostra; pergunta do aluno sai sem mascarar CPF e e-mail.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">B8</td><td>Laboratório</td><td>Trava em memória (vale com uma instância); rotas de criar e duplicar sem limite próprio.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">B9</td><td>Campo "motivo" na ficha</td><td>Só proíbe "@"; CPF ou telefone digitados vão para a auditoria.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">B10</td><td>ActiveDev</td><td>Sonda de saúde ignora o caminho da URL; pedido sem e-mail nunca é recriado.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">B11</td><td>Confirmação por código</td><td>Valor corrompido no Redis virava erro 500.</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+      <tr><td class="id">B12</td><td>Bateria</td><td>Estado vive no processo; numa troca de versão a instância nova marca a rodada antiga como falha.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">B13</td><td>Trava de vazamento</td><td>Falso positivo com linha começando por <code>[nome_dela]</code>.</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+      <tr><td class="id">B14</td><td>Saúde da Crystal</td><td>Rota aberta consulta o banco a cada chamada; nomes de chave diferentes nos dois lados.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">B15</td><td>Imagem do app</td><td>Endereço da API vazio no build abria o app sem nada funcionar e sem erro claro.</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+      <tr><td class="id">B16</td><td>Imagem do app</td><td>Variáveis do Sentry não chegam ao build.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">B17</td><td>Painel</td><td>Uma configuração sem efeito continua editável; uma constante morta.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">B18</td><td>Banners no app</td><td>Código pela metade; banner expira pelo relógio do aparelho; imagem sem tratamento de erro.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+      <tr><td class="id">B19</td><td>Exportar CSV dos lotes</td><td>Nome do arquivo com data UTC virava o dia seguinte depois das 21h.</td><td class="st"><span class="pill ok">Corrigido</span></td></tr>
+      <tr><td class="id">B20</td><td>Contabilidade de custo</td><td>Custo da busca na base caía em "painel" e o gasto com alunos aparecia menor.</td><td class="st"><span class="pill pend">Pendente</span></td></tr>
+    </table></div></div>
+  </details>
+</section>
+
+<section>
+  <h2>Como foi feito</h2>
+  <ul class="plain">
+    <li>O diff foi dividido em cinco áreas (rotas da API, serviços e banco, migrações, serviço Crystal e custo de IA, web e iOS 15). Cada área foi lida por um revisor separado, com arquivo e linha em cada achado.</li>
+    <li>O consultor rodou instalação, lint, verificação de tipos e todos os testes: shared 334, Crystal 362, web 1.045, API 1.599. Uma falha só, num teste instável de ordenação, corrigida.</li>
+    <li>Os testes com Postgres real e os testes de ponta a ponta no navegador não rodaram no ambiente do consultor. Rodaram depois, do nosso lado: 86 e2e passaram e 4 bugs foram corrigidos antes de publicar.</li>
+    <li>Conferido em aparelho ainda pendente: iPhone iOS 15, banner de evento sem rede, lembrete no horário certo, push com o app aberto no computador, <code>#reset</code> em duas abas, Android e app nativo.</li>
+  </ul>
+</section>
+
+<footer>Relatório completo (195 linhas, com arquivos e linhas) está no repositório do app em <code>docs/consultoria/2026-10-20-onda6.md</code>. Versão publicada: onda 6 em 21/10, seguida da onda 6.1 (autonomia do suporte).</footer>
+</div>
