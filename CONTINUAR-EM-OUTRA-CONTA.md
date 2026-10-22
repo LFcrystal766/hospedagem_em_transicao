@@ -494,3 +494,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 31. **22/10:** `walterprezotti@gmail.com` não existe em cadastro, assinatura, acesso nem `crystal_compras`; nada com
     "prezotti" na base. Dono informou o e-mail da compra: `valtersilva@gmail.com` (assinatura 5456 ativa até 06/2027).
     Feito: e-mail do cadastro trocado para `walterprezotti@gmail.com` (`app_aluno_trocar_email`, mesma conta). Login ok.
+
+32. **22/10:** `edsonserafinmoveis@gmail.com`: cadastro de 23/09, assinatura 25575 **pending** (pagamento não confirmado
+    desde 23/09, fim 09/2027), acesso pending; o login aceita pending e responde liberado = true. Do nosso lado entra.
+    Pedido ao dono: print do que ele vê (tela de login ou fala da Crystal) para saber se "não reconhece" é o app ou a Crystal.
