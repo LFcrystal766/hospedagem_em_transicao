@@ -507,3 +507,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     mudou para **`openai/gpt-5.6-sol`** (o dono tinha dito Flash-Lite em 21/10); a reserva segue `openai/gpt-4.1-mini`.
     Também: `CHAT_TRANSPORT = crystal` (o CLAUDE.md dizia chatwoot desde 06/10). Pedido ao dono: crédito no OpenRouter já,
     voltar o modelo para o Flash-Lite e rodar a consulta de quem mudou o modelo e do gasto por modelo.
+    Print do dono (22/10 17:51): "Olá" → "Não consegui terminar minha resposta / Tentar de novo" = o mesmo NO_CREDIT.
+    Achado à parte no mesmo print (12/10): "Lembra da nossa conversa no WhatsApp" recebeu a frase de proteção
+    "Olha... Vamos voltar ao foco da conversa." (falso positivo da regra anti-ataque do prompt). Ajustar na alma depois.
