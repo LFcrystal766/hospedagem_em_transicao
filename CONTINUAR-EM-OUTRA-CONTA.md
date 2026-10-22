@@ -500,3 +500,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Pedido ao dono: print do que ele vê (tela de login ou fala da Crystal) para saber se "não reconhece" é o app ou a Crystal.
     Dono pediu "libera": linha manual em `crystal_compras` (`manual-20261022-pedido-do-dono-assinatura-agencia-25575-pendente`)
     para ele seguir entrando mesmo se a pendente for cancelada. O login continua na mesma conta da base.
+
+33. **22/10 ~19:30 UTC: custo por aluno + Next 15.5.28 NO AR (`sha-c93b8e2`)**; volta `sha-2bba5dc`. Backup ok (R2 também),
+    migrações limpas, auditoria íntegra (192 linhas). **ALERTA no crystal-conferir:** saldo do OpenRouter **US$ -0,19** e a
+    Crystal respondendo **503 NO_CREDIT** (aluno e reserva): ninguém recebe resposta até pôr crédito. Modelo no painel
+    mudou para **`openai/gpt-5.6-sol`** (o dono tinha dito Flash-Lite em 21/10); a reserva segue `openai/gpt-4.1-mini`.
+    Também: `CHAT_TRANSPORT = crystal` (o CLAUDE.md dizia chatwoot desde 06/10). Pedido ao dono: crédito no OpenRouter já,
+    voltar o modelo para o Flash-Lite e rodar a consulta de quem mudou o modelo e do gasto por modelo.
