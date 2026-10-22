@@ -492,5 +492,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `app-subir sha-2bba5dc` (mas volta para a versão vulnerável do Next).
 
 31. **22/10:** `walterprezotti@gmail.com` não existe em cadastro, assinatura, acesso nem `crystal_compras`; nada com
-    "prezotti" na base. Mesmo caso do Heitor: comprou com outro e-mail/por fora, ou não comprou. Aguardando CPF,
-    comprovante ou "libera" do dono.
+    "prezotti" na base. Dono informou o e-mail da compra: `valtersilva@gmail.com` (assinatura 5456 ativa até 06/2027).
+    Feito: e-mail do cadastro trocado para `walterprezotti@gmail.com` (`app_aluno_trocar_email`, mesma conta). Login ok.
