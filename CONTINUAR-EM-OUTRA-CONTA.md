@@ -477,4 +477,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     (`manual-20261022-pedido-do-dono-sem-compra-achada`; volta: `delete from crystal_compras where transacao = '...'`).
     Leonardo: e-mail trocado de `la7957702@gmail.com` para `leonardo79783@gmail.com` (mesma conta da base); login ok.
     **Pedido novo:** coluna "custo por aluno" na tabela de custos da área onde se troca o provedor de IA
-    (Operação › Crystal). Em andamento em worktree `/home/user/cw-custo`, branch `painel/onda6-custo-aluno` (a partir de `2bba5dc`).
+    (Operação › Crystal). Detalhe do dono: dois números dos últimos 30 dias: custo por aluno **ativo** (custo ÷ alunos que
+    usaram) e custo por aluno **da base** (custo ÷ todos os alunos com acesso). Em andamento no worktree
+    `/home/user/cw-custo-aluno` (o `/home/user/cw-custo` é antigo, branch `otimizacao/custo-modelo`: não usar), branch
+    `painel/onda6-custo-aluno` a partir de `2bba5dc`.
