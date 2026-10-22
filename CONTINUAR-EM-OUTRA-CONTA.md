@@ -480,4 +480,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     (Operação › Crystal). Detalhe do dono: dois números dos últimos 30 dias: custo por aluno **ativo** (custo ÷ alunos que
     usaram) e custo por aluno **da base** (custo ÷ todos os alunos com acesso). Em andamento no worktree
     `/home/user/cw-custo-aluno` (o `/home/user/cw-custo` é antigo, branch `otimizacao/custo-modelo`: não usar), branch
-    `painel/onda6-custo-aluno` a partir de `2bba5dc`.
+    `painel/onda6-custo-aluno-2` (a `-1` já existia vazia) a partir de `2bba5dc`. **Pronto: commit `ff1eb04`** (bloco "Custo por
+    aluno" acima da tabela de 7 dias em Operação › Crystal: por aluno ativo e por aluno da base, 30 dias, `/v1/uso?dias=30`;
+    base = "Na base" do painel de lotes, com recuo para contas do app se o Supabase falhar). Testes: shared 339, crystal 404,
+    web 1077, api 1675. CI run 39826986392 e imagens-vps 39827055710 em andamento. Publicar: sem SQL, backup +
+    `app-subir sha-ff1eb04` + `crystal-conferir` + `app-painel-conferir`; volta `app-subir sha-2bba5dc`.
