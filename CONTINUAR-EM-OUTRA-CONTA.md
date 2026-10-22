@@ -465,3 +465,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       barrando o Resend ou endereço na lista de supressão do Resend. Dono confere em resend.com › Emails (buscar o
       endereço) e nos logs (`"e-mail: envio falhou"`). Saída: tirar da supressão ou trocar o e-mail do aluno por outro.
     - Superadmin: `bash bootstrap-vps.sh app-definir SUPERADMIN_EMAILS` (lista inteira, vírgula) + `app-subir sha-2bba5dc`.
+
+29. **22/10:** relatório do consultor (20/10) copiado para `auditorias/2026-10-20/consultoria-onda6.md` (já estava no app em
+    `docs/consultoria/`). `bangeheitor@gmail.com`: não existe em cadastro, assinatura, acesso nem `crystal_compras`; nenhum
+    e-mail parecido nem nome "Bange" na base. O n8n de compras está vivo (38 compras automáticas em 24 h, última 16:08 UTC).
+    Provável: comprou com outro e-mail ou por fora (PayPal). Aguardando o dono: CPF/nome/comprovante ou pedido de liberação manual.
