@@ -498,3 +498,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 32. **22/10:** `edsonserafinmoveis@gmail.com`: cadastro de 23/09, assinatura 25575 **pending** (pagamento não confirmado
     desde 23/09, fim 09/2027), acesso pending; o login aceita pending e responde liberado = true. Do nosso lado entra.
     Pedido ao dono: print do que ele vê (tela de login ou fala da Crystal) para saber se "não reconhece" é o app ou a Crystal.
+    Dono pediu "libera": linha manual em `crystal_compras` (`manual-20261022-pedido-do-dono-assinatura-agencia-25575-pendente`)
+    para ele seguir entrando mesmo se a pendente for cancelada. O login continua na mesma conta da base.
