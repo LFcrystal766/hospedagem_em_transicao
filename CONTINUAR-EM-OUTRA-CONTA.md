@@ -472,3 +472,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Provável: comprou com outro e-mail ou por fora (PayPal). Aguardando o dono: CPF/nome/comprovante ou pedido de liberação manual.
     Artefato do relatório para o grupo: https://claude.ai/artifact/G8XLS7i3APGE7W7ZuThMHe (cópia em
     `artefato/revisao-onda6-2026-10-20.html`). É privado: o dono precisa abrir o Share e liberar antes de mandar no grupo.
+
+30. **22/10, pedidos do dono:** Heitor (`bangeheitor@gmail.com`) liberado à mão sem compra achada
+    (`manual-20261022-pedido-do-dono-sem-compra-achada`; volta: `delete from crystal_compras where transacao = '...'`).
+    Leonardo: e-mail trocado de `la7957702@gmail.com` para `leonardo79783@gmail.com` (mesma conta da base); login ok.
+    **Pedido novo:** coluna "custo por aluno" na tabela de custos da área onde se troca o provedor de IA
+    (Operação › Crystal). Em andamento em worktree `/home/user/cw-custo`, branch `painel/onda6-custo-aluno` (a partir de `2bba5dc`).
