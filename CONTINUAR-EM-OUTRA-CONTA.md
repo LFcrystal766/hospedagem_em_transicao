@@ -483,5 +483,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `painel/onda6-custo-aluno-2` (a `-1` já existia vazia) a partir de `2bba5dc`. **Pronto: commit `ff1eb04`** (bloco "Custo por
     aluno" acima da tabela de 7 dias em Operação › Crystal: por aluno ativo e por aluno da base, 30 dias, `/v1/uso?dias=30`;
     base = "Na base" do painel de lotes, com recuo para contas do app se o Supabase falhar). Testes: shared 339, crystal 404,
-    web 1077, api 1675. CI run 39826986392 e imagens-vps 39827055710 em andamento. Publicar: sem SQL, backup +
-    `app-subir sha-ff1eb04` + `crystal-conferir` + `app-painel-conferir`; volta `app-subir sha-2bba5dc`.
+    web 1077, api 1675. **CI de `ff1eb04` vermelho no job `audit`:** aviso novo (22/10) de segurança do Next.js 15.5.25
+    (crítico GHSA-2464-fhr4-w9xw, execução remota de código no otimizador de imagens com SVG; alto GHSA-p3m5-59mp-jv5r, DoS
+    no App Router; corrigidos em 15.5.28). **A produção (`2bba5dc`) está nessa versão vulnerável.** O app não usa
+    `next/image`, mas a rota do otimizador existe. Corrigido na branch: commit `c93b8e2` (só `next` 15.5.28 e lockfile;
+    typecheck, 1077 testes do web, build e audit limpos). CI 39828991857 e imagens-vps 39829003216 em andamento.
+    Publicar: sem SQL, backup + `app-subir sha-c93b8e2` + `crystal-conferir` + `app-painel-conferir`; volta
+    `app-subir sha-2bba5dc` (mas volta para a versão vulnerável do Next).
+
+31. **22/10:** `walterprezotti@gmail.com` não existe em cadastro, assinatura, acesso nem `crystal_compras`; nada com
+    "prezotti" na base. Mesmo caso do Heitor: comprou com outro e-mail/por fora, ou não comprou. Aguardando CPF,
+    comprovante ou "libera" do dono.
