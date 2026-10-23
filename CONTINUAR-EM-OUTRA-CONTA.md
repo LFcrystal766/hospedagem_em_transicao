@@ -704,3 +704,4 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Dono: o vazamento foi **no Laboratório**, agora mesmo (não num aluno). Agente avisado: começar por
     `rotas-laboratorio.ts`/`staff-laboratorio.ts` (a trava lá rodava "só as camadas determinísticas" e talvez nem isso), e
     confirmar se o caminho do aluno pegaria esse texto. Mitigação para o aluno continua: Haiku no painel até a correção.
+    Dono: no Laboratório vazou **também com o Gemini 2.5** (não é só o 3.1 Flash-Lite): bug de caminho/trava, não do modelo.
