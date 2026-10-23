@@ -546,3 +546,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     famílias). Base = 11.149 alunos (`app_equipe_lote_resumo().total`, o "Na base" do painel). Falta o volume de tokens:
     consulta só de leitura `auditorias/2026-10-23/tokens-desde-o-app.sql` no banco `crystal_agente` (dono roda e manda).
     Com a saída, monto a tabela como artefato.
+    **Feito:** tokens de 07/10 a 23/10 (16,1 dias): 111.508 respostas, 2.392 alunos, 1,11 bi tokens lidos (534 mi em
+    cache, 48%), 10,9 mi escritos, US$ 833,66 real (US$ 1.553/mês no ritmo); resumos à parte US$ 77,71 (~US$ 145/mês,
+    modelo fixo `CRYSTAL_MODEL_RESUMO`). ~10 mil tokens lidos por resposta e ~100 escritos: 99% do custo é a leitura.
+    Real por mil respostas: Haiku 4.5 US$ 6,10 (estimativa com cache 6,15: bate), GPT-5.6 Sol US$ 43,52 (sem cache 41,85),
+    Flash-Lite US$ 0,76, GPT-4.1 mini US$ 2,16. Nos modelos OpenAI/Google o cache quase não pegou: a tabela usa preço
+    cheio para eles (opção na página para simular com cache). GPT-5.6 Sol no ritmo: ~US$ 8.700/mês.
+    Artefato: https://claude.ai/artifact/Kk84P3By6CKmdThmAmUMgF (cópia em `artefato/custo-modelos-2026-10-23.html`).
+    Ideia de economia para qualquer modelo: enxugar o que vai em cada mensagem (alma + base + 20 mensagens de histórico).

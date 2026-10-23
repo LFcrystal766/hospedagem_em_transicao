@@ -1,0 +1,195 @@
+<title>Custo da Crystal por modelo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: resumo do volume real em faixa no topo, depois a tabela de modelos ordenável com filtros, e a conferência com o gasto real embaixo. */
+:root {
+  --bg: #f5f7f8; --surface: #ffffff; --fg: #18222b; --muted: #5a6875; --line: #d8dfe4;
+  --accent: #0b6e7a; --accent-soft: #e0f0f2;
+  --good: #1d7a4b; --good-soft: #e1f2e8; --warn: #9a5a00; --warn-soft: #fff0d4; --bad: #b02a22; --bad-soft: #fbe6e4;
+  --row-hi: #f0f7f8;
+  --display: "IBM Plex Serif", Georgia, serif; --body: "IBM Plex Sans", "Segoe UI", Roboto, Arial, sans-serif; --mono: "IBM Plex Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11171c; --surface: #182129; --fg: #e5eaee; --muted: #9aa8b4; --line: #2b3742;
+  --accent: #5cc1cc; --accent-soft: #143238; --good: #6fcf9b; --good-soft: #163325; --warn: #f0b75a; --warn-soft: #3a2b11; --bad: #f08a82; --bad-soft: #3a1c1a; --row-hi: #1b2a31; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #11171c; --surface: #182129; --fg: #e5eaee; --muted: #9aa8b4; --line: #2b3742;
+  --accent: #5cc1cc; --accent-soft: #143238; --good: #6fcf9b; --good-soft: #163325; --warn: #f0b75a; --warn-soft: #3a2b11; --bad: #f08a82; --bad-soft: #3a1c1a; --row-hi: #1b2a31; color-scheme: dark; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding-block: 24px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.page { max-width: 1120px; margin: 0 auto; display: grid; gap: 28px; }
+.read { max-width: 72ch; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(28px, 5vw, 38px); line-height: 1.15; margin: 4px 0 8px; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0 0 10px; text-wrap: balance; }
+p { margin: 0 0 10px; }
+.muted { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 13.5px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.fact { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 2px; min-width: 0; }
+.fact .v { font-family: var(--display); font-weight: 600; font-size: 24px; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.fact .l { font-size: 13px; color: var(--muted); }
+.callout { background: var(--accent-soft); border-radius: 10px; padding: 14px 16px; }
+.callout b { color: var(--accent); }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-bottom: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.chip:focus-visible, input:focus-visible, th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input[type="search"] { font: inherit; font-size: 14px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); min-width: 0; width: 220px; max-width: 100%; }
+label.toggle { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; cursor: pointer; }
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 880px; }
+th, td { padding: 8px 10px; text-align: right; border-top: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; white-space: normal; min-width: 210px; }
+thead th { border-top: 0; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); font-weight: 600; vertical-align: bottom; position: sticky; top: 0; background: var(--surface); }
+th button { all: unset; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; }
+th button[data-dir]::after { content: attr(data-dir); color: var(--accent); }
+tbody tr:hover { background: var(--row-hi); }
+tr.usado td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+.mname { font-weight: 500; }
+.mid { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; margin-left: 6px; vertical-align: 1px; }
+.tag.agora { background: var(--bad-soft); color: var(--bad); }
+.tag.usou { background: var(--accent-soft); color: var(--accent); }
+.tag.padrao { background: var(--good-soft); color: var(--good); }
+.cmp { font-size: 12px; }
+.cmp.menos { color: var(--good); } .cmp.mais { color: var(--bad); }
+.legend { font-size: 13px; color: var(--muted); margin-top: 8px; }
+.calib { overflow-x: auto; }
+.calib table { min-width: 620px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+</style>
+<div class="page">
+<header class="read">
+  <div class="eyebrow">Crystal · OpenRouter · uso real de 07/10 a 23/10/2026</div>
+  <h1>Custo da Crystal por modelo</h1>
+  <p class="muted">Quanto a Crystal custaria com cada modelo de Claude, GPT e Gemini, usando o volume real de conversa dos alunos desde que viemos para o app e o preço de cada modelo no OpenRouter em 23/10.</p>
+</header>
+
+<section>
+  <div class="facts">
+    <div class="fact"><span class="v">16 dias</span><span class="l">de 07/10 a 23/10</span></div>
+    <div class="fact"><span class="v">111.508</span><span class="l">respostas aos alunos</span></div>
+    <div class="fact"><span class="v">2.392</span><span class="l">alunos que usaram</span></div>
+    <div class="fact"><span class="v">11.149</span><span class="l">alunos na base</span></div>
+    <div class="fact"><span class="v">US$ 834</span><span class="l">gasto real nas respostas</span></div>
+    <div class="fact"><span class="v">US$ 1.553</span><span class="l">ritmo real por mês</span></div>
+  </div>
+</section>
+
+<section class="read callout">
+  <p><b>Onde está o custo:</b> cada resposta lê cerca de <b>10 mil tokens</b> (o texto da Crystal, os trechos da base, o resumo e as últimas mensagens) e escreve só uns <b>100</b>. Ou seja, 99% do gasto é a leitura. Por isso o preço de <b>entrada</b> do modelo é o que mais pesa, e diminuir o que vai junto em cada mensagem corta o custo em qualquer modelo.</p>
+  <p style="margin:0">Fora da tabela: os <b>resumos da memória</b> usam um modelo fixo e custam cerca de <b>US$ 145 por mês</b>, seja qual for o modelo das respostas.</p>
+</section>
+
+<section>
+  <h2>Todos os modelos</h2>
+  <div class="controls">
+    <div class="chips" role="group" aria-label="Família">
+      <button class="chip" type="button" data-f="todos" aria-pressed="true">Todos</button>
+      <button class="chip" type="button" data-f="Claude" aria-pressed="false">Claude</button>
+      <button class="chip" type="button" data-f="GPT" aria-pressed="false">GPT</button>
+      <button class="chip" type="button" data-f="Gemini" aria-pressed="false">Gemini</button>
+    </div>
+    <input id="busca" type="search" placeholder="Buscar modelo" aria-label="Buscar modelo">
+    <label class="toggle"><input id="otimista" type="checkbox"> Considerar cache também em GPT e Gemini</label>
+  </div>
+  <div class="tablewrap">
+    <table id="tabela">
+      <thead><tr>
+        <th><button type="button" data-k="nome">Modelo</button></th>
+        <th><button type="button" data-k="pin">Entrada<br>US$/1M</button></th>
+        <th><button type="button" data-k="pout">Saída<br>US$/1M</button></th>
+        <th><button type="button" data-k="semana">Por semana</button></th>
+        <th><button type="button" data-k="mes" data-dir="↑">Por mês</button></th>
+        <th><button type="button" data-k="ativo">Por aluno ativo<br>/mês</button></th>
+        <th><button type="button" data-k="base">Por aluno da base<br>/mês</button></th>
+        <th><button type="button" data-k="mes">Vs. hoje</button></th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="legend"><span id="contagem"></span> Valores em dólar, só as respostas aos alunos. "Vs. hoje" compara com o ritmo real de US$ 1.553 por mês. Por aluno ativo divide pelos 2.392 que usaram; por aluno da base divide pelos 11.149. Ficaram de fora as versões de imagem, áudio, código e "batch", que não servem para conversa.</p>
+</section>
+
+<section>
+  <h2>A estimativa bate com o gasto real?</h2>
+  <p class="read">Para os modelos que a Crystal já usou, comparei o custo real por mil respostas com a conta da tabela. No Claude, o cache (o desconto por reler o mesmo começo de texto) funcionou e a conta bate. Nos modelos da OpenAI e do Google o cache quase não pegou, então a tabela usa o preço cheio para eles. A caixa acima mostra o cenário em que o cache passa a funcionar.</p>
+  <div class="calib"><table>
+    <thead><tr><th>Modelo usado</th><th>Respostas</th><th>Gasto real</th><th>Real por mil respostas</th><th>Tabela por mil respostas</th></tr></thead>
+    <tbody id="calib"></tbody>
+  </table></div>
+</section>
+
+<section class="read">
+  <h2>Como ler</h2>
+  <ul class="plain">
+    <li>É estimativa: cada modelo escreve com tamanhos diferentes e conta tokens de um jeito um pouco diferente. A ordem de grandeza é confiável; o centavo, não.</li>
+    <li>O <b>GPT-5.6 Sol</b>, que estava no painel, custou US$ 310 em pouco mais de um dia. No ritmo de hoje ele sai por volta de US$ 8.700 por mês, e foi o que zerou o saldo.</li>
+    <li>Modelo barato demais pode errar mais ou soltar trechos da base. A trava contra vazamento segura o pior, mas vale testar no Laboratório antes de trocar.</li>
+    <li>O "por aluno da base" é o custo médio de cada aluno com acesso, usando ou não. É o número para comparar com o preço do produto.</li>
+  </ul>
+</section>
+
+<footer>Fontes: tabela de uso da Crystal no banco da VPS (só somas, sem conversa nem aluno), catálogo público do OpenRouter de 23/10/2026 e o total "Na base" do painel. Volume usado: 1,11 bilhão de tokens lidos (48% em cache), 10,9 milhões escritos, em 16,1 dias.</footer>
+</div>
+<script>
+const MODELOS = [{"id": "openai/gpt-oss-20b", "nome": "OpenAI: gpt-oss-20b", "f": "GPT", "pin": 0.018, "pout": 0.09, "pc": 0.009}, {"id": "openai/gpt-5-nano", "nome": "OpenAI: GPT-5 Nano", "f": "GPT", "pin": 0.05, "pout": 0.4, "pc": 0.005}, {"id": "google/gemini-2.5-flash-lite", "nome": "Google: Gemini 2.5 Flash Lite", "f": "Gemini", "pin": 0.1, "pout": 0.4, "pc": 0.01}, {"id": "anthropic/claude-haiku-5.5", "nome": "Anthropic: Claude Haiku 5.5", "f": "Claude", "pin": 0.1, "pout": 0.5, "pc": 0.01}, {"id": "openai/gpt-6-luna-pro", "nome": "OpenAI: GPT-6 Luna Pro", "f": "GPT", "pin": 0.1, "pout": 0.5, "pc": 0.01}, {"id": "openai/gpt-6-luna", "nome": "OpenAI: GPT-6 Luna", "f": "GPT", "pin": 0.1, "pout": 0.5, "pc": 0.01}, {"id": "openai/gpt-4.1-nano", "nome": "OpenAI: GPT-4.1 Nano", "f": "GPT", "pin": 0.1, "pout": 0.4, "pc": 0.025}, {"id": "openai/gpt-oss-120b", "nome": "OpenAI: gpt-oss-120b", "f": "GPT", "pin": 0.15, "pout": 0.6, "pc": 0.075}, {"id": "openai/gpt-4o-mini", "nome": "OpenAI: GPT-4o-mini", "f": "GPT", "pin": 0.15, "pout": 0.6, "pc": 0.075}, {"id": "openai/gpt-5.6-luna-pro", "nome": "OpenAI: GPT-5.6 Luna Pro", "f": "GPT", "pin": 0.2, "pout": 1.2, "pc": 0.02}, {"id": "openai/gpt-5.6-luna", "nome": "OpenAI: GPT-5.6 Luna", "f": "GPT", "pin": 0.2, "pout": 1.2, "pc": 0.02}, {"id": "openai/gpt-5.4-nano", "nome": "OpenAI: GPT-5.4 Nano", "f": "GPT", "pin": 0.2, "pout": 1.25, "pc": 0.02}, {"id": "google/gemini-3.1-flash-lite", "nome": "Google: Gemini 3.1 Flash Lite", "f": "Gemini", "pin": 0.25, "pout": 1.5, "pc": 0.025}, {"id": "openai/gpt-5-mini", "nome": "OpenAI: GPT-5 Mini", "f": "GPT", "pin": 0.25, "pout": 2.0, "pc": 0.025}, {"id": "google/gemini-3.5-flash-lite", "nome": "Google: Gemini 3.5 Flash Lite", "f": "Gemini", "pin": 0.3, "pout": 2.5, "pc": 0.03}, {"id": "google/gemini-2.5-flash", "nome": "Google: Gemini 2.5 Flash", "f": "Gemini", "pin": 0.3, "pout": 2.5, "pc": 0.03}, {"id": "openai/gpt-4.1-mini", "nome": "OpenAI: GPT-4.1 Mini", "f": "GPT", "pin": 0.4, "pout": 1.6, "pc": 0.1}, {"id": "google/gemini-3.7-flash", "nome": "Google: Gemini 3.7 Flash", "f": "Gemini", "pin": 0.75, "pout": 3.75, "pc": 0.075}, {"id": "google/gemini-3.6-flash", "nome": "Google: Gemini 3.6 Flash", "f": "Gemini", "pin": 0.75, "pout": 3.75, "pc": 0.075}, {"id": "openai/gpt-5.4-mini", "nome": "OpenAI: GPT-5.4 Mini", "f": "GPT", "pin": 0.75, "pout": 4.5, "pc": 0.075}, {"id": "google/gemini-3.8-flash", "nome": "Google: Gemini 3.8 Flash", "f": "Gemini", "pin": 0.825, "pout": 4.125, "pc": 0.0825}, {"id": "openai/gpt-3.5-turbo", "nome": "OpenAI: GPT-3.5 Turbo", "f": "GPT", "pin": 0.5, "pout": 1.5, "pc": null}, {"id": "anthropic/claude-haiku-4.5", "nome": "Anthropic: Claude Haiku 4.5", "f": "Claude", "pin": 1.0, "pout": 5.0, "pc": 0.1}, {"id": "openai/gpt-5.1", "nome": "OpenAI: GPT-5.1", "f": "GPT", "pin": 1.25, "pout": 10.0, "pc": 0.125}, {"id": "openai/gpt-5", "nome": "OpenAI: GPT-5", "f": "GPT", "pin": 1.25, "pout": 10.0, "pc": 0.125}, {"id": "google/gemini-2.5-pro", "nome": "Google: Gemini 2.5 Pro", "f": "Gemini", "pin": 1.25, "pout": 10.0, "pc": 0.125}, {"id": "google/gemini-3.5-flash", "nome": "Google: Gemini 3.5 Flash", "f": "Gemini", "pin": 1.5, "pout": 9.0, "pc": 0.15}, {"id": "openai/gpt-5.2-chat", "nome": "OpenAI: GPT-5.2 Chat", "f": "GPT", "pin": 1.75, "pout": 14.0, "pc": 0.175}, {"id": "openai/gpt-5.2", "nome": "OpenAI: GPT-5.2", "f": "GPT", "pin": 1.75, "pout": 14.0, "pc": 0.175}, {"id": "google/gemini-4-argon", "nome": "Google: Gemini 4 Argon", "f": "Gemini", "pin": 2.0, "pout": 10.0, "pc": 0.1}, {"id": "openai/gpt-6.1-sol-pro", "nome": "OpenAI: GPT-6.1 Sol Pro", "f": "GPT", "pin": 2.0, "pout": 10.0, "pc": 0.1}, {"id": "openai/gpt-6.1-sol", "nome": "OpenAI: GPT-6.1 Sol", "f": "GPT", "pin": 2.0, "pout": 10.0, "pc": 0.1}, {"id": "anthropic/claude-sonnet-5.5", "nome": "Anthropic: Claude Sonnet 5.5", "f": "Claude", "pin": 2.0, "pout": 10.0, "pc": 0.1}, {"id": "openai/gpt-6-sol-pro", "nome": "OpenAI: GPT-6 Sol Pro", "f": "GPT", "pin": 2.0, "pout": 10.0, "pc": 0.2}, {"id": "openai/gpt-6-sol", "nome": "OpenAI: GPT-6 Sol", "f": "GPT", "pin": 2.0, "pout": 10.0, "pc": 0.2}, {"id": "anthropic/claude-sonnet-5", "nome": "Anthropic: Claude Sonnet 5", "f": "Claude", "pin": 2.0, "pout": 10.0, "pc": 0.2}, {"id": "openai/gpt-5.6-terra-pro", "nome": "OpenAI: GPT-5.6 Terra Pro", "f": "GPT", "pin": 2.0, "pout": 12.0, "pc": 0.2}, {"id": "openai/gpt-5.6-terra", "nome": "OpenAI: GPT-5.6 Terra", "f": "GPT", "pin": 2.0, "pout": 12.0, "pc": 0.2}, {"id": "openai/gpt-4.1", "nome": "OpenAI: GPT-4.1", "f": "GPT", "pin": 2.0, "pout": 8.0, "pc": 0.5}, {"id": "openai/gpt-5.4", "nome": "OpenAI: GPT-5.4", "f": "GPT", "pin": 2.5, "pout": 15.0, "pc": 0.25}, {"id": "anthropic/claude-sonnet-4.6", "nome": "Anthropic: Claude Sonnet 4.6", "f": "Claude", "pin": 3.0, "pout": 15.0, "pc": 0.3}, {"id": "anthropic/claude-sonnet-4.5", "nome": "Anthropic: Claude Sonnet 4.5", "f": "Claude", "pin": 3.0, "pout": 15.0, "pc": 0.3}, {"id": "openai/gpt-4o", "nome": "OpenAI: GPT-4o", "f": "GPT", "pin": 2.5, "pout": 10.0, "pc": 1.25}, {"id": "anthropic/claude-opus-5.5", "nome": "Anthropic: Claude Opus 5.5", "f": "Claude", "pin": 4.0, "pout": 20.0, "pc": 0.2}, {"id": "openai/gpt-5.6-sol-pro", "nome": "OpenAI: GPT-5.6 Sol Pro", "f": "GPT", "pin": 4.0, "pout": 20.0, "pc": 0.4}, {"id": "openai/gpt-5.6-sol", "nome": "OpenAI: GPT-5.6 Sol", "f": "GPT", "pin": 4.0, "pout": 20.0, "pc": 0.4}, {"id": "anthropic/claude-opus-5", "nome": "Anthropic: Claude Opus 5", "f": "Claude", "pin": 5.0, "pout": 25.0, "pc": 0.5}, {"id": "anthropic/claude-opus-4.8", "nome": "Anthropic: Claude Opus 4.8", "f": "Claude", "pin": 5.0, "pout": 25.0, "pc": 0.5}, {"id": "anthropic/claude-opus-4.7", "nome": "Anthropic: Claude Opus 4.7", "f": "Claude", "pin": 5.0, "pout": 25.0, "pc": 0.5}, {"id": "anthropic/claude-opus-4.6", "nome": "Anthropic: Claude Opus 4.6", "f": "Claude", "pin": 5.0, "pout": 25.0, "pc": 0.5}, {"id": "anthropic/claude-opus-4.5", "nome": "Anthropic: Claude Opus 4.5", "f": "Claude", "pin": 5.0, "pout": 25.0, "pc": 0.5}, {"id": "openai/gpt-5.5", "nome": "OpenAI: GPT-5.5", "f": "GPT", "pin": 5.0, "pout": 30.0, "pc": 0.5}, {"id": "anthropic/claude-fable-5.1", "nome": "Anthropic: Claude Fable 5.1", "f": "Claude", "pin": 10.0, "pout": 50.0, "pc": 0.25}, {"id": "openai/gpt-6-astra", "nome": "OpenAI: GPT-6 Astra", "f": "GPT", "pin": 10.0, "pout": 50.0, "pc": 1.0}, {"id": "openai/gpt-6-astra-pro", "nome": "OpenAI: GPT-6 Astra Pro", "f": "GPT", "pin": 10.0, "pout": 50.0, "pc": 1.0}, {"id": "anthropic/claude-fable-5", "nome": "Anthropic: Claude Fable 5", "f": "Claude", "pin": 10.0, "pout": 50.0, "pc": 1.0}, {"id": "anthropic/claude-opus-4.1", "nome": "Anthropic: Claude Opus 4.1", "f": "Claude", "pin": 15.0, "pout": 75.0, "pc": 1.5}, {"id": "openai/gpt-4-turbo", "nome": "OpenAI: GPT-4 Turbo", "f": "GPT", "pin": 10.0, "pout": 30.0, "pc": null}, {"id": "openai/gpt-5-pro", "nome": "OpenAI: GPT-5 Pro", "f": "GPT", "pin": 15.0, "pout": 120.0, "pc": null}, {"id": "openai/gpt-5.2-pro", "nome": "OpenAI: GPT-5.2 Pro", "f": "GPT", "pin": 21.0, "pout": 168.0, "pc": null}, {"id": "openai/gpt-4", "nome": "OpenAI: GPT-4", "f": "GPT", "pin": 30.0, "pout": 60.0, "pc": null}, {"id": "openai/gpt-5.5-pro", "nome": "OpenAI: GPT-5.5 Pro", "f": "GPT", "pin": 30.0, "pout": 180.0, "pc": null}, {"id": "openai/gpt-5.4-pro", "nome": "OpenAI: GPT-5.4 Pro", "f": "GPT", "pin": 30.0, "pout": 180.0, "pc": null}];
+</script>
+<script>
+const DIAS = 16.1, TIN = 1112425491, TCACHE = 534341289, TOUT = 10867739, ATIVOS = 2392, BASE = 11149, REAL_MES = 833.66 / DIAS * 30;
+const AGORA = "openai/gpt-5.6-sol", PADRAO = "anthropic/claude-haiku-4.5";
+const USADOS = { "anthropic/claude-haiku-4.5": [79805, 486.75], "openai/gpt-4.1-mini": [12969, 28.00], "google/gemini-2.5-flash-lite": [11317, 8.59], "openai/gpt-5.6-sol": [7123, 310.02], "openai/gpt-6-luna": [225, 0.28], "openai/gpt-5-nano": [66, 0.03] };
+const TURNOS = 111508;
+let familia = "todos", chave = "mes", dir = 1;
+const usd = (v, casas) => "US$ " + v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
+const dinheiro = (v) => v >= 100 ? usd(v, 0) : v >= 1 ? usd(v, 2) : usd(v, v >= 0.1 ? 3 : 4);
+const preco = (v) => v === null ? "—" : v.toLocaleString("pt-BR", { maximumFractionDigits: v < 0.1 ? 3 : 2 });
+function custoPeriodo(m, comCache) {
+  const pin = m.pin / 1e6, pout = m.pout / 1e6, pc = m.pc === null ? pin : m.pc / 1e6;
+  return comCache ? (TIN - TCACHE) * pin + TCACHE * pc + TOUT * pout : TIN * pin + TOUT * pout;
+}
+function linhas() {
+  const otimista = document.getElementById("otimista").checked;
+  const q = document.getElementById("busca").value.trim().toLowerCase();
+  return MODELOS.filter(m => (familia === "todos" || m.f === familia) && (!q || (m.nome + " " + m.id).toLowerCase().includes(q))).map(m => {
+    const total = custoPeriodo(m, m.f === "Claude" || otimista), dia = total / DIAS, mes = dia * 30;
+    return { ...m, semana: dia * 7, mes, ativo: mes / ATIVOS, base: mes / BASE, total };
+  });
+}
+function desenhar() {
+  const rows = linhas().sort((a, b) => (typeof a[chave] === "string" ? a[chave].localeCompare(b[chave]) : a[chave] - b[chave]) * dir);
+  const tb = document.querySelector("#tabela tbody");
+  tb.innerHTML = rows.map(r => {
+    const pct = Math.round((r.mes / REAL_MES - 1) * 100);
+    const tags = (r.id === AGORA ? '<span class="tag agora">no painel agora</span>' : "") + (r.id === PADRAO ? '<span class="tag padrao">padrão da imagem</span>' : "") + (USADOS[r.id] && r.id !== AGORA && r.id !== PADRAO ? '<span class="tag usou">já usado</span>' : "");
+    return `<tr class="${USADOS[r.id] ? "usado" : ""}"><td><div class="mname">${r.nome.replace(/^[^:]+:\s*/, "")}${tags}</div><div class="mid">${r.id}</div></td>` +
+      `<td class="num">${preco(r.pin)}</td><td class="num">${preco(r.pout)}</td><td class="num">${dinheiro(r.semana)}</td><td class="num"><b>${dinheiro(r.mes)}</b></td>` +
+      `<td class="num">${dinheiro(r.ativo)}</td><td class="num">${dinheiro(r.base)}</td><td class="num cmp ${pct < 0 ? "menos" : "mais"}">${pct > 0 ? "+" : pct < 0 ? "−" : ""}${Math.abs(pct)}%</td></tr>`;
+  }).join("");
+  document.getElementById("contagem").textContent = rows.length + " modelos.";
+  document.querySelectorAll("th button").forEach(b => b.removeAttribute("data-dir"));
+  const ativo = [...document.querySelectorAll("th button")].find(b => b.dataset.k === chave);
+  if (ativo) ativo.dataset.dir = dir === 1 ? "↑" : "↓";
+}
+function calibrar() {
+  const tb = document.getElementById("calib");
+  tb.innerHTML = Object.entries(USADOS).map(([id, [t, c]]) => {
+    const m = MODELOS.find(x => x.id === id); if (!m) return "";
+    const est = custoPeriodo(m, m.f === "Claude") / TURNOS * 1000;
+    return `<tr><td><div class="mname">${m.nome.replace(/^[^:]+:\s*/, "")}</div><div class="mid">${id}</div></td><td class="num">${t.toLocaleString("pt-BR")}</td><td class="num">${dinheiro(c)}</td><td class="num">${dinheiro(c / t * 1000)}</td><td class="num">${dinheiro(est)}</td></tr>`;
+  }).join("");
+}
+document.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+  familia = b.dataset.f; document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", String(x === b))); desenhar();
+}));
+document.querySelectorAll("th button").forEach(b => b.addEventListener("click", () => {
+  if (chave === b.dataset.k) dir = -dir; else { chave = b.dataset.k; dir = 1; } desenhar();
+}));
+document.getElementById("busca").addEventListener("input", desenhar);
+document.getElementById("otimista").addEventListener("change", desenhar);
+desenhar(); calibrar();
+</script>
