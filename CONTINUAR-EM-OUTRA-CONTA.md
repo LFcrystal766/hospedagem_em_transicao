@@ -633,3 +633,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     **Dono (23/10): não vai mexer na alma.** Alternativa oferecida: colocar as regras (dúvidas do app → Menu > Suporte,
     vários assuntos, frase de proteção) num bloco fixo no código, junto do bloco de formato (`BLOCO_FORMATO`,
     `apps/crystal/src/prompt.ts`), que vale para qualquer versão da alma; o dono só publica. Aguardando o "sim".
+    **Decisão final do dono (23/10): não mexer na alma** (nem pelo painel nem por bloco fixo no código). Proposta
+    arquivada; `alma-ajuste-varios-assuntos.md` marcado "não aplicar". Não reabrir sem pedido dele.

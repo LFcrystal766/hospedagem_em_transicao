@@ -1,5 +1,8 @@
 # Ajuste da alma: responder a mais de um assunto (proposta de 21/10)
 
+> **Decisão do dono (23/10): não aplicar.** A alma fica como está, e as regras também não vão para o código. Arquivo
+> guardado só como registro.
+
 Queixa: "a Crystal não consegue falar de mais de uma coisa ao mesmo tempo". O diagnóstico só de leitura
 (`auditorias/2026-10-21/diag-crystal-conversa.sql`) mostrou:
 
