@@ -628,3 +628,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     DO APP E DO CURSO" e a correção da frase de proteção para "lembra da conversa do WhatsApp") acrescentado em
     `crystal-em-casa/alma-ajuste-varios-assuntos.md` (itens 4 e 5). Quem ativa: superadmin em Crystal › Alma, depois de
     testar no Laboratório.
+    Dono confirmou (23/10): não há aulas gravadas no app; a orientação é sempre Menu > Suporte. Falta aplicar o item 4
+    na alma (superadmin, Crystal › Alma, depois de testar no Laboratório).
