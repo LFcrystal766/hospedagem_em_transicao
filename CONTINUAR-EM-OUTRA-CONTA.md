@@ -581,3 +581,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     (carga, memória/swap, disco, vmstat com espera de disco e CPU roubada, docker stats, top de CPU/memória, OOM em 24 h,
     backup/envio rodando, serviços reiniciados). Suspeitas: memória cheia/OOM (Postgres + Chatwoot + n8n + app), backup
     com 2,6 GB de uploads e envio cifrado ao R2, ou CPU roubada pela Hostinger. Aguardando a saída.
+    **Resultado (23/10 18:35, logo depois do backup):** VPS folgada: carga 1,05 em 4 núcleos, 12 GiB livres de 15,
+    sem swap, CPU 94% ociosa, espera de disco 0, CPU roubada 0–1%, nenhum OOM em 24 h, disco 32%. Os "reinícios" do app
+    são do `app-subir` de 22/10. Causa provável do travamento: o próprio `backup` (tar+gzip de 2,9 GB de fotos, cifrar
+    com age e enviar ao R2), que acabou às 18:35; o diferencial de uploads cresce todo dia e é reenviado inteiro.
+    Proposta: backup antes de publicar só dos bancos (rápido) e os uploads só no cron das 03:30, com nice/ionice e sem
+    regzipar fotos. Publicar `sha-92e3031` agora sem novo backup (o das 18:30 vale).
