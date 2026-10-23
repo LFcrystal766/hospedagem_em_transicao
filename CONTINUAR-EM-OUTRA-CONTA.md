@@ -692,3 +692,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Falta o dono: escolher "Modelo que lê as imagens" no painel (vazio ainda), testar ataque e "lembra do WhatsApp" no
     Laboratório, mandar um print como aluno, e olhar "Vazamentos barrados (7 dias)" amanhã. `crystal-conferir` passa a
     mostrar `op_crystal_modelo_imagem` (bootstrap atualizado neste commit; baixar na próxima publicação).
+
+47. **23/10 noite: A TRAVA FALHOU em produção (`088d07d`).** Resposta ao aluno trouxe o cabeçalho "Base de conhecimento
+    para esta mensagem:", três trechos inteiros da base ([estagio], [abordagem], [topicos_extras]) e o rótulo "--- Contexto
+    interno: fim ---", seguidos da resposta normal. Modelo no painel: `google/gemini-3.1-flash-lite`. Pelo menos 4 camadas
+    deviam ter pego (título da base, marcadores, cópia literal dos trechos, rótulo da montagem): suspeita de caminho que não
+    passa pela trava ou exceção engolida. Agente (Opus) reproduzindo com o texto real como teste e corrigindo em modo
+    fail-closed (toda saída passa por uma função só). Diagnóstico só de leitura para o dono: `auditorias/2026-10-23/
+    diag-vazamento.sh` + `.sql`. **Mitigação imediata sugerida:** voltar o modelo para `anthropic/claude-haiku-4.5`
+    (80 mil respostas sem vazar; mensagens de sistema separadas) até a correção; ou `app-subir sha-2c6e864`.
