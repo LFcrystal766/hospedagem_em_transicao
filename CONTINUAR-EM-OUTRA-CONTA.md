@@ -587,3 +587,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     com age e enviar ao R2), que acabou às 18:35; o diferencial de uploads cresce todo dia e é reenviado inteiro.
     Proposta: backup antes de publicar só dos bancos (rápido) e os uploads só no cron das 03:30, com nice/ionice e sem
     regzipar fotos. Publicar `sha-92e3031` agora sem novo backup (o das 18:30 vale).
+
+42. **23/10 ~18:40 UTC: `sha-92e3031` NO AR** (simulação do custo por aluno por modelo); volta `sha-c93b8e2`. Sem backup novo
+    (valeu o das 18:30). `crystal-conferir` TUDO LIGADO, Gemini 2.5 Flash, saldo US$ 34,16. Achado: a mesma pergunta de
+    teste ("onde ficam as aulas gravadas") teve duas respostas diferentes em 20 min: "Menu > Minhas Aulas, no app" e "área
+    de membros na Hotmart". Pedido ao dono/Letícia: dizer qual é a certa e corrigir a base de conhecimento (Crystal › Base).
