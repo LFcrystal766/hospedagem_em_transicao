@@ -18,10 +18,13 @@
 #                                              Redis, pra copiar pro cofre (Bitwarden). Não colar em chat
 #   O Redis do n8n sobe COM senha (N8N_REDIS_SENHA, gerada no preparar; o original da agência não tem).
 #   Trocá-la exige redeploy de 03, 04, 05 e 06: bash bootstrap-vps.sh preparar EMAIL && bash bootstrap-vps.sh bancos && bash bootstrap-vps.sh n8n
-#   bash bootstrap-vps.sh backup               pg_dump dos bancos (n8n, app, memória da Crystal, Chatwoot)
+#   bash bootstrap-vps.sh backup [--completo]  pg_dump dos bancos (n8n, app, memória da Crystal, Chatwoot)
 #                                              e tar incremental dos uploads em /root/crystal/backups
 #                                              (14 dias). Parte que falha não para as outras nem o R2;
-#                                              no fim, resumo e saída 1. A chave do n8n NÃO vai junto
+#                                              no fim, resumo e saída 1. A chave do n8n NÃO vai junto.
+#                                              Rodado à mão (no terminal) faz só os bancos, em segundos:
+#                                              as fotos e os anexos ficam para o cron das 03:30 (23/10: o
+#                                              tar de ~3 GB de fotos travava a VPS). --completo inclui agora
 #   bash bootstrap-vps.sh backup-cron          agenda o backup todo dia às 03:30 (hora da VPS)
 #   bash bootstrap-vps.sh backup-chave         gera a chave dos backups: a privada aparece só no
 #                                              less (vai pro Bitwarden), a pública fica na VPS
@@ -141,7 +144,7 @@
 #                                              (https://api.groq.com/openai/v1/audio/transcriptions, whisper-large-v3-turbo)
 #   CHATWOOT_API_TOKEN: NÃO definir (decisão de 05/10: excluir conta não apaga o contato no Chatwoot)
 #   bash bootstrap-vps.sh app-status           anotar a tag atual, para poder voltar
-#   bash bootstrap-vps.sh backup               banco do app e uploads antes de trocar a imagem
+#   bash bootstrap-vps.sh backup               os bancos antes de trocar a imagem (as fotos vão no cron)
 #   bash bootstrap-vps.sh app-subir sha-XXXXXXX    a tag nova (ajusta o dono do volume de uploads antes)
 #   Volta: bash bootstrap-vps.sh app-subir TAG_ANTERIOR
 #   Conferir no OpenRouter que CRYSTAL_MODEL (anthropic/claude-haiku-4.5) e CRYSTAL_MODEL_RESERVA
@@ -470,8 +473,13 @@ VOLUMES="${DOCKER_VOLUMES:-/var/lib/docker/volumes}"   # trocável só para test
 
 # pg_dump de um banco para ARQ.gz. Falha (e apaga o arquivo) se o pg_dump falhar ou
 # o dump vier vazio.
+# Prioridade baixa de CPU e de disco (nice/ionice) em tudo que o backup faz na VPS, para o app e a
+# Crystal seguirem respondendo enquanto ele roda (23/10). O pg_dump roda dentro do contêiner; o
+# que pesa aqui é comprimir, cifrar e empacotar.
+devagar() { nice -n 19 ionice -c3 "$@"; }
+
 backup_pg() { # backup_pg CID USUÁRIO BANCO ARQ
-  if docker exec "$1" pg_dump -U "$2" -d "$3" --no-owner | gzip > "$4" \
+  if docker exec "$1" pg_dump -U "$2" -d "$3" --no-owner | devagar gzip > "$4" \
      && [ "$(gzip -dc "$4" 2>/dev/null | head -c 1 | wc -c)" = 1 ]; then
     ok "$3 em $4 ($(du -h "$4" | cut -f1))"
     return 0
@@ -496,7 +504,8 @@ backup_tar() { # backup_tar PASTA TIPO TS
     modo=diferencial; cp "$base" "$novo"
   fi
   arq="$BACKUPS/$tipo-$ts-$modo.tar.gz"
-  tar -C "$orig" --listed-incremental="$novo" -czf "$arq" . 2>"$BACKUPS/.tar-erros" || rc=$?
+  # gzip -1: fotos e áudios já vêm comprimidos; o nível padrão (6) gastava CPU à toa (23/10).
+  devagar tar -C "$orig" --listed-incremental="$novo" --use-compress-program='gzip -1' -cf "$arq" . 2>"$BACKUPS/.tar-erros" || rc=$?
   if [ "$rc" -le 1 ] && [ -s "$arq" ]; then
     [ "$rc" = 1 ] && aviso "$tipo: arquivo mudou durante a cópia (tar saiu 1); a cópia vale: $(head -c 200 "$BACKUPS/.tar-erros" | tr '\n' ' ')" >&2
     if [ "$modo" = completo ]; then mv "$novo" "$base"; else rm -f "$novo"; fi
@@ -510,11 +519,19 @@ backup_tar() { # backup_tar PASTA TIPO TS
 }
 
 backup() {
-  local dir="$BACKUPS" cid ts arq novos=() falhas=() up
+  local dir="$BACKUPS" cid ts arq novos=() falhas=() up completo=1
+  # 23/10: à mão (com terminal) o padrão é só os bancos; o cron (sem terminal) e --completo fazem tudo.
+  case "${2:-}" in
+    --completo) completo=1 ;;
+    --bancos) completo=0 ;;
+    "") [ -t 1 ] && completo=0 ;;
+    *) falha "uso: bash $0 backup [--completo|--bancos]" ;;
+  esac
   mkdir -p "$dir"; chmod 700 "$dir"
   umask 077
   ts=$(date -u +%Y%m%dT%H%M%SZ)
-  echo "== backup $ts"
+  if [ "$completo" = 1 ]; then echo "== backup $ts (completo: bancos, fotos e anexos)"
+  else echo "== backup $ts (só os bancos; fotos e anexos vão no cron das 03:30. Para incluir agora: bash $0 backup --completo)"; fi
   # Cada parte é independente (achado 22): a que falha fica registrada e as outras
   # seguem, inclusive o envio ao R2. No fim, código de erro e resumo do que falhou,
   # que a vigia lê de $BACKUPS/.backup-falhas.
@@ -544,7 +561,7 @@ backup() {
   fi
   # Arquivos que os alunos mandam pelo app (imagem, áudio).
   up=$VOLUMES/${APP_STACK}_app_uploads/_data
-  if [ -d "$up" ]; then
+  if [ "$completo" = 1 ] && [ -d "$up" ]; then
     if arq=$(backup_tar "$up" crystal_uploads "$ts"); then
       ok "uploads do app em $arq ($(du -h "$arq" | cut -f1))"; novos+=("$arq")
     else
@@ -561,7 +578,7 @@ backup() {
     aviso "o serviço do Postgres do Chatwoot existe mas não está rodando"; falhas+=("Chatwoot: Postgres fora do ar")
   fi
   up=$VOLUMES/crystal_atendimento_cw_storage/_data
-  if [ -d "$up" ]; then
+  if [ "$completo" = 1 ] && [ -d "$up" ]; then
     if arq=$(backup_tar "$up" chatwoot_storage "$ts"); then
       ok "anexos do Chatwoot em $arq ($(du -h "$arq" | cut -f1))"; novos+=("$arq")
     else
@@ -585,6 +602,12 @@ backup() {
     aviso "cópia fora da VPS não configurada (backup-chave e backup-fora-config)"
   fi
 
+  if [ ${#falhas[@]} -eq 0 ] && [ "$completo" = 0 ]; then
+    # Só os bancos: não conta como backup completo para a vigia nem apaga a falha de um completo anterior.
+    date -u +%FT%TZ > "$BACKUPS/.backup-bancos-ultimo"
+    ok "backup dos bancos completo (fotos e anexos: no cron das 03:30)"
+    return 0
+  fi
   if [ ${#falhas[@]} -eq 0 ]; then
     date -u +%FT%TZ > "$BACKUPS/.backup-ultimo"
     rm -f "$BACKUPS/.backup-falhas"
@@ -639,7 +662,7 @@ horas_desde() { # horas_desde ARQUIVO_COM_DATA
 }
 
 backup_cron() {
-  local linha="30 3 * * * root /usr/bin/bash $BASE/bootstrap-vps.sh backup >> $BACKUPS/backup.log 2>&1"
+  local linha="30 3 * * * root /usr/bin/bash $BASE/bootstrap-vps.sh backup --completo >> $BACKUPS/backup.log 2>&1"
   mkdir -p "$BACKUPS"; chmod 700 "$BACKUPS"
   copia_cron_atualizar --criar
   printf '%s\n' "$linha" > /etc/cron.d/crystal-backup-n8n
@@ -695,7 +718,7 @@ backup_fora() { # backup_fora ARQUIVO... cifra e envia; volta 1 se algum não su
   for a in "$@"; do
     obj="$FORA_PREFIXO/$(basename "$a" | sed -E 's/-[0-9]{8}T.*//')/$(date -u +%Y/%m)/$(basename "$a").age"
     tmp=$(mktemp "$BACKUPS/.envio.XXXXXX")
-    if age -r "$dest" -o "$tmp" "$a" && fora_enviar "$tmp" "$obj"; then
+    if devagar age -r "$dest" -o "$tmp" "$a" && fora_enviar "$tmp" "$obj"; then
       ok "$obj ($(du -h "$tmp" | cut -f1), cifrado)"
     else
       erros=$((erros+1))
@@ -3398,7 +3421,7 @@ case "$CMD" in
   preparar) preparar "$@" ;;
   recomecar-n8n) recomecar_n8n "$@" ;;
   docker-api) docker_api ;;
-  backup) backup ;;
+  backup) backup "$@" ;;
   backup-cron) backup_cron ;;
   backup-chave) shift; backup_chave "$@" ;;
   backup-fora-config) backup_fora_config ;;

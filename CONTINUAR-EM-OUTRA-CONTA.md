@@ -592,3 +592,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     (valeu o das 18:30). `crystal-conferir` TUDO LIGADO, Gemini 2.5 Flash, saldo US$ 34,16. Achado: a mesma pergunta de
     teste ("onde ficam as aulas gravadas") teve duas respostas diferentes em 20 min: "Menu > Minhas Aulas, no app" e "área
     de membros na Hotmart". Pedido ao dono/Letícia: dizer qual é a certa e corrigir a base de conhecimento (Crystal › Base).
+
+43. **23/10: backup mais leve (pedido do dono).** `bootstrap-vps.sh backup`: rodado à mão (com terminal) faz **só os
+    bancos** (segundos); fotos e anexos só no cron das 03:30 (sem terminal) ou com `backup --completo` (`--bancos` força
+    o leve). Tudo com `nice -n 19 ionice -c3` (gzip, tar, age); o tar das fotos usa `gzip -1` (o arquivo segue `.tar.gz`,
+    restaura igual com `tar -xzf`). O leve grava `.backup-bancos-ultimo` e não mexe em `.backup-ultimo` nem apaga
+    `.backup-falhas` (a vigia segue cobrando o completo). Linha do cron passa a ser `backup --completo` (o cron antigo,
+    sem a opção, continua completo porque roda sem terminal). shellcheck sem avisos novos; tar com gzip -1 testado.
+    Na VPS: baixar o bootstrap novo (commit fixo + sha256) e rodar `backup-cron` para atualizar a cópia e a linha.
+    **Modelos de raciocínio:** agente corrigindo no app (branch `painel/onda6-custo-aluno-2` sobre `92e3031`).
