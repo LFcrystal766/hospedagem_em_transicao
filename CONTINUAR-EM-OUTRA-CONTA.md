@@ -635,3 +635,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `apps/crystal/src/prompt.ts`), que vale para qualquer versão da alma; o dono só publica. Aguardando o "sim".
     **Decisão final do dono (23/10): não mexer na alma** (nem pelo painel nem por bloco fixo no código). Proposta
     arquivada; `alma-ajuste-varios-assuntos.md` marcado "não aplicar". Não reabrir sem pedido dele.
+
+45. **23/10: "precisamos usar modelos baratos, porém ele está vazando nosso código; precisamos desenvolver a trava".**
+    Sem mexer na alma. Agente desenvolvendo a trava em camadas no app (branch `painel/onda6-custo-aluno-2` sobre
+    `2c6e864`): (1) impressão digital também dos trechos da base e do resumo entregues no turno; (2) sobreposição de
+    n-gramas com a alma (pega paráfrase leve); (3) marcadores de estrutura tirados da alma ativa (tags, títulos de regra)
+    e frases como "minhas instruções"/"system prompt"; (4) detector de ataque na mensagem do aluno: tentativa clara de
+    extrair instruções nem chega ao modelo, responde a frase de proteção (com testes para não pegar "lembra da conversa do
+    WhatsApp" e afins); (5) contagem sem texto por modelo, mostrada em Operação › Crystal ("vazamentos barrados, 7 dias").
+    Pedido ao dono: um print ou trecho do que vazou, para virar teste.
