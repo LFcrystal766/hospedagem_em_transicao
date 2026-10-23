@@ -719,5 +719,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     corrige, troca maior). Exceção documentada em `docs/seguranca/audit-excecoes.md` + `pnpm.auditConfig.ignoreGhsas`
     (corpo já limitado: API 1 MiB, Crystal 32 KiB). Pendência: migrar para zod 4 e tirar a exceção.
     Etiqueta para publicar: **`sha-fe6dbd7`** (= 0c47d56 + exceção do audit). CI 40030743969 e imagens-vps 40030742909
-    em andamento. Publicar: `backup` + `app-subir sha-fe6dbd7` + `crystal-conferir` + `app-painel-conferir`; volta
+    **CI verde (gate, audit, e2e) e imagem pronta.** Publicar: `backup` + `app-subir sha-fe6dbd7` + `crystal-conferir` + `app-painel-conferir`; volta
     `app-subir sha-088d07d` (mas essa deixa o Laboratório vazar) ou `sha-2c6e864`.
