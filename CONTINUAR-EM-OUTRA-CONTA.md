@@ -623,3 +623,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     (auditoria 210 linhas íntegra). **Terceira resposta diferente** para "onde ficam as aulas gravadas": agora "Menu >
     Suporte" (antes "Menu > Minhas Aulas" e "Hotmart"). Precisa da resposta certa na base de conhecimento.
     Falta o dono reconferir o painel de testes ("fora do ar") e testar GPT-5 nano no Laboratório.
+    **Dono (23/10): a resposta certa é Menu > Suporte.** Não há nada sobre aulas/Hotmart na base de conhecimento (27
+    trechos de tática) nem em `conhecimento/*.md` da imagem: o modelo inventava. Texto pronto para a alma (regra "DÚVIDAS
+    DO APP E DO CURSO" e a correção da frase de proteção para "lembra da conversa do WhatsApp") acrescentado em
+    `crystal-em-casa/alma-ajuste-varios-assuntos.md` (itens 4 e 5). Quem ativa: superadmin em Crystal › Alma, depois de
+    testar no Laboratório.

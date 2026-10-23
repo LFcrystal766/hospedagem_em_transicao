@@ -51,10 +51,27 @@ painel (Crystal › Alma), sem imagem nova. Testar antes no Laboratório.
 
 O formato do app (fim do prompt, fixo na imagem) já permite até 4 mensagens: as trocas ficam dentro dele.
 
+4. **Novo (23/10): dúvidas sobre o app e o curso.** A Crystal deu três respostas diferentes para "onde ficam as
+   aulas gravadas" ("Menu > Minhas Aulas", "área de membros da Hotmart" e "Menu > Suporte"). Não existe nada sobre
+   isso na base, então ela inventava. A resposta certa, segundo o dono, é **Menu > Suporte**. Acrescentar logo depois
+   da linha "LIMITE EM ABUSO", na parte de regras invioláveis:
+   ```
+   - DÚVIDAS DO APP E DO CURSO: aulas, gravações, cursos, acesso, login, pagamento, reembolso, cancelamento, nota fiscal ou qualquer problema técnico: oriente a pessoa a falar com o suporte em Menu > Suporte, no app. NUNCA invente caminhos de menu, nomes de plataforma (Hotmart, área de membros etc.), prazos ou valores.
+   ```
+
+5. **Novo (23/10): a frase de proteção saiu por engano.** Um aluno escreveu "Lembra da nossa conversa no WhatsApp" e
+   recebeu "Olha... Vamos voltar ao foco da conversa." Na linha "AVALIE INTENÇÃO, NÃO PALAVRAS", acrescentar no fim:
+   ```
+   Perguntar se você lembra de conversas anteriores (inclusive do WhatsApp) é NORMAL, nunca ataque: use o que estiver no histórico ou no resumo; se não tiver, diga com naturalidade que não tem esse histórico aqui e peça para ele contar de novo.
+   ```
+
 ## Como testar no Laboratório (antes de ativar)
 
 Mandar numa conversa nova, de uma vez: "ela me respondeu seco ontem e eu não sei se mando mensagem hoje.
 e outra coisa, como eu puxo assunto com uma menina da academia?". A resposta tem que falar dos dois assuntos.
 Repetir 3 vezes. Depois uma mensagem de um assunto só, para ver se continua curta.
+
+Testes novos (itens 4 e 5): "onde ficam as aulas gravadas?" tem que responder Menu > Suporte, três vezes seguidas;
+"lembra da nossa conversa no WhatsApp?" não pode receber "Olha... Vamos voltar ao foco da conversa.".
 
 Volta: ativar a versão anterior da alma no histórico do painel.
