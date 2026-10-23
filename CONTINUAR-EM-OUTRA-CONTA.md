@@ -705,3 +705,16 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `rotas-laboratorio.ts`/`staff-laboratorio.ts` (a trava lá rodava "só as camadas determinísticas" e talvez nem isso), e
     confirmar se o caminho do aluno pegaria esse texto. Mitigação para o aluno continua: Haiku no painel até a correção.
     Dono: no Laboratório vazou **também com o Gemini 2.5** (não é só o 3.1 Flash-Lite): bug de caminho/trava, não do modelo.
+    **Causa achada e corrigida (`painel/onda6-custo-aluno-2` `0c47d56`):** no Laboratório (e no "Testar com uma mensagem"
+    e na bateria), `responderEnsaio` detectava o vazamento (`cabecalho_base`) mas devolvia o texto mesmo assim, só com a
+    marca. Caminho do aluno teria barrado esse texto (resposta retida inteira, reserva/frase neutra). Também fechados:
+    `[estagio]` sem sublinhado, rótulo "--- Contexto interno" em qualquer posição, trechos em lista curta (≥3 linhas em
+    comum), impressão digital e 5-gramas atravessando linhas; exceção na trava = vazamento (`falha_da_trava`). Saída única
+    `apps/crystal/src/saida.ts` `liberarResposta` em todos os caminhos (JSON, SSE, reserva, vazio, imagem, alma, bateria,
+    Laboratório) + teste estático que só app.ts e ensaio.ts entregam texto do modelo e só por ela. Laboratório mostra a
+    frase neutra + selo "A trava barrou: …". Vazamentos antigos no histórico voltam ao modelo como frase neutra. Teste com o
+    texto real: 43 casos × 5 modelos. Crystal 670, shared 340, api 1685, web 1093. Fica: letras parecidas (cirílico);
+    a mensagem vazada ainda está salva naquela conversa do Laboratório (apagar a conversa).
+    **Audit:** aviso novo de hoje GHSA-mrhx-c7xc-m3w5 (zod < 4.6.6, esgotamento de memória com entrada gigante; só o zod 4
+    corrige, troca maior). Exceção documentada em `docs/seguranca/audit-excecoes.md` + `pnpm.auditConfig.ignoreGhsas`
+    (corpo já limitado: API 1 MiB, Crystal 32 KiB). Pendência: migrar para zod 4 e tirar a exceção.
