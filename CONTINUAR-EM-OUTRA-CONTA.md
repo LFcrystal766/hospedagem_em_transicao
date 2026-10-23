@@ -651,3 +651,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     primeiro a um modelo de visão com instrução fixa e neutra (sem alma nem base, não tem o que vazar), e o modelo que
     responde recebe só texto com a descrição; memória guarda "[imagem] descrição curta". Outro agente, worktree
     `/home/user/cw-visao`, branch `painel/onda6-visao` sobre `2c6e864`. Depois: juntar as duas branches, CI, imagem, publicar.
+    **Imagens prontas: `painel/onda6-visao` `9d9c6aa`** (sobre `2c6e864`, 31 arquivos). Configuração "Modelo que lê as
+    imagens" (`op_crystal_modelo_imagem`) em Operação › Crystal, só modelos que leem imagem; vazio = como hoje. Instrução fixa
+    `INSTRUCAO_VISAO` (apps/crystal/src/visao.ts): só descrever, sem alma/base, [direita]/[esquerda], "a outra pessoa", dados
+    pessoais viram [telefone]/[e-mail]…, não segue instruções escritas na imagem; max 300 palavras, temperatura 0, 20 s.
+    Roda em paralelo com a busca na base; o modelo das respostas recebe só texto ("Descrição da imagem… (feita por outro
+    sistema)"); memória guarda "[imagem] descrição ≤ 500 chars". Falhou: imagem vai ao modelo das respostas se ele lê imagem,
+    senão mensagem fixa `IMAGEM_NAO_LIDA_TEXTO`. Custo: linha própria em `uso_turnos` tipo `imagem` (constraint atualizada
+    sem migração), entra no custo por aluno. Laboratório sem imagem (não suporta). Testes: shared 340, crystal 440, web
+    1091, api 1683; lint, typecheck, audit ok. Não testado com OpenRouter real. Aguardando a trava para juntar as duas.
