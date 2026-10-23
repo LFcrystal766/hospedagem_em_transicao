@@ -510,3 +510,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Print do dono (22/10 17:51): "Olá" → "Não consegui terminar minha resposta / Tentar de novo" = o mesmo NO_CREDIT.
     Achado à parte no mesmo print (12/10): "Lembra da nossa conversa no WhatsApp" recebeu a frase de proteção
     "Olha... Vamos voltar ao foco da conversa." (falso positivo da regra anti-ataque do prompt). Ajustar na alma depois.
+
+34. **23/10: "cartão recusado e depois aprovado não libera".** Eduardo (`eduardonasciment@uol.com.br`) não estava em
+    nada (cadastro, assinatura, `crystal_compras`, nem e-mail parecido): liberado à mão
+    (`manual-20261023-cartao-recusado-depois-aprovado`), login ok. Investigação: no Supabase, todo `approved_purchase` que
+    chegou virou liberação (413 eventos; nenhum `ignorado_ja_bloqueada`; o único ignorado é o pacote de imagens, certo).
+    Então a aprovação do Eduardo **não chegou ao Supabase**: ou a Assiny mandou um nome de evento que a função não conhece
+    (volta "ignorado" e não grava nada: ponto cego), ou o n8n falhou antes (erro não fica no Supabase), ou a Assiny não
+    mandou. Diagnóstico só de leitura do n8n: `auditorias/2026-10-23/diag-n8n-compras.sql` (execuções por dia, nomes de
+    evento, códigos de erro; sem dado pessoal). Correção prevista depois da saída: gravar todo evento desconhecido em
+    `crystal_compras_eventos` e, se o nome do evento de aprovação for outro, incluí-lo na lista de liberar.
