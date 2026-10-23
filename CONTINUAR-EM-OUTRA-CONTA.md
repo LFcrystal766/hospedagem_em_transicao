@@ -523,3 +523,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 
 35. **23/10: dono pôs crédito no OpenRouter.** Falta confirmar com `crystal-conferir` (as linhas "pergunta como aluno" e
     "reserva sozinha" têm que dar ok) e decidir o modelo (painel estava em `openai/gpt-5.6-sol`; o dono queria Flash-Lite).
+
+36. **23/10: código de login que não chega, só em Microsoft** (`rafaeldrmachado@outlook.com`, `joaopaulosj2009@hotmail.com`,
+    e antes `agf.centronorte@outlook.com`). Os três estão liberados no login (o app manda o código). DNS do remetente
+    `acesso@crystalnowpp.com.br` conferido de fora: DKIM `resend._domainkey` publicado, `send.` com SPF e MX do Resend,
+    `_dmarc` p=none: autenticação ok. Causa provável: Outlook/Hotmail jogando no lixo/"Outros" ou segurando, ou endereço
+    na lista de supressão do Resend. Dono confere em resend.com › Emails (status de cada um). Contorno: trocar o e-mail do
+    aluno por um Gmail pelo painel. Melhoria possível depois: cadastrar o domínio no Microsoft SNDS/JMRP.
