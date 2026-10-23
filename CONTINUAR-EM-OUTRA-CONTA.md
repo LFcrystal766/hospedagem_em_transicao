@@ -614,3 +614,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Passo a passo entregue ao dono (23/10): esperar o CI verde (audit já ok; gate e e2e rodando); atualizar o bootstrap
     (`97b5ad2`, sha256 `5d3d349d…ef7fc`) + `backup-cron`; `backup` (leve); `app-subir sha-2c6e864`; `crystal-conferir`;
     `app-painel-conferir`; teste no Laboratório com GPT-5 nano. Volta: `app-subir sha-92e3031`.
+    Dono (23/10 noite): "no painel de testes a Crystal está fora do ar". De fora: `api./healthz` 200 e `app.` 200; CI de
+    `2c6e864` ainda rodando (gate e e2e). Pedido: saber se já publicou, `app-status`, `crystal-conferir` e print da tela.
