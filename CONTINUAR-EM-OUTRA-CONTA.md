@@ -701,3 +701,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     fail-closed (toda saída passa por uma função só). Diagnóstico só de leitura para o dono: `auditorias/2026-10-23/
     diag-vazamento.sh` + `.sql`. **Mitigação imediata sugerida:** voltar o modelo para `anthropic/claude-haiku-4.5`
     (80 mil respostas sem vazar; mensagens de sistema separadas) até a correção; ou `app-subir sha-2c6e864`.
+    Dono: o vazamento foi **no Laboratório**, agora mesmo (não num aluno). Agente avisado: começar por
+    `rotas-laboratorio.ts`/`staff-laboratorio.ts` (a trava lá rodava "só as camadas determinísticas" e talvez nem isso), e
+    confirmar se o caminho do aluno pegaria esse texto. Mitigação para o aluno continua: Haiku no painel até a correção.
