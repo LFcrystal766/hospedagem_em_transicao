@@ -718,3 +718,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     **Audit:** aviso novo de hoje GHSA-mrhx-c7xc-m3w5 (zod < 4.6.6, esgotamento de memória com entrada gigante; só o zod 4
     corrige, troca maior). Exceção documentada em `docs/seguranca/audit-excecoes.md` + `pnpm.auditConfig.ignoreGhsas`
     (corpo já limitado: API 1 MiB, Crystal 32 KiB). Pendência: migrar para zod 4 e tirar a exceção.
+    Etiqueta para publicar: **`sha-fe6dbd7`** (= 0c47d56 + exceção do audit). CI 40030743969 e imagens-vps 40030742909
+    em andamento. Publicar: `backup` + `app-subir sha-fe6dbd7` + `crystal-conferir` + `app-painel-conferir`; volta
+    `app-subir sha-088d07d` (mas essa deixa o Laboratório vazar) ou `sha-2c6e864`.
