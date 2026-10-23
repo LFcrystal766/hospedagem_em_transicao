@@ -576,3 +576,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `openai/gpt-4.1-mini`, saldo US$ 34,44. Estimativa do 2.5 Flash: ~US$ 22/dia (~US$ 670/mês), o saldo dura ~1,5 dia.
     Laboratório: o erro era o modelo de raciocínio (gpt-5-nano vazio), não o código; rotas respondem 404 sem sessão (certo).
     Próximo: publicar `sha-92e3031`.
+
+41. **23/10: "a VPS está péssima, travando muito".** Diagnóstico só de leitura `auditorias/2026-10-23/diag-vps-lenta.sh`
+    (carga, memória/swap, disco, vmstat com espera de disco e CPU roubada, docker stats, top de CPU/memória, OOM em 24 h,
+    backup/envio rodando, serviços reiniciados). Suspeitas: memória cheia/OOM (Postgres + Chatwoot + n8n + app), backup
+    com 2,6 GB de uploads e envio cifrado ao R2, ou CPU roubada pela Hostinger. Aguardando a saída.
