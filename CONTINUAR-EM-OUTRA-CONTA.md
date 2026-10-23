@@ -609,7 +609,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     tenta o modelo reserva na segunda vez (antes repetia o mesmo). Laboratório: erro `LABORATORIO_MODELO_VAZIO` com
     explicação. Aviso "modelo de raciocínio" no seletor do painel e do Laboratório. Testes: crystal 426, api 1678,
     web 1086, shared 339; lint, typecheck e audit ok. Não testado com chamada real ao OpenRouter.
-    CI 40008199554 e imagens-vps 40008347379 em andamento. Publicar: sem SQL, `backup` (agora leve) + `app-subir
+    **CI verde (gate, audit, e2e) e imagem `sha-2c6e864` pronta.** Publicar: sem SQL, `backup` (agora leve) + `app-subir
     sha-2c6e864` + `crystal-conferir`; volta `app-subir sha-92e3031`.
     Passo a passo entregue ao dono (23/10): esperar o CI verde (audit já ok; gate e e2e rodando); atualizar o bootstrap
     (`97b5ad2`, sha256 `5d3d349d…ef7fc`) + `backup-cron`; `backup` (leve); `app-subir sha-2c6e864`; `crystal-conferir`;
