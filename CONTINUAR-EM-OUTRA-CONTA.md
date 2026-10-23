@@ -681,3 +681,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     imagens-vps 40019594834 em andamento. Publicar: sem SQL, `backup` + `app-subir sha-088d07d` + `crystal-conferir` +
     `app-painel-conferir`; volta `app-subir sha-2c6e864`. Depois de publicar: escolher o modelo das imagens em Operação ›
     Crystal (vazio = como hoje) e acompanhar "Vazamentos barrados" por modelo para calibrar `CRYSTAL_TRAVA_*`.
+    Passo a passo da `088d07d` entregue ao dono (audit verde; gate e e2e rodando): esperar o CI; `backup` (leve);
+    `app-subir sha-088d07d`; `crystal-conferir`; `app-painel-conferir`; no painel escolher "Modelo que lê as imagens"
+    (sugestão Gemini 2.5 Flash) e conferir "Vazamentos barrados"; teste de ataque no Laboratório. Volta `sha-2c6e864`.
