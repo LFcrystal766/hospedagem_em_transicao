@@ -601,3 +601,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     sem a opção, continua completo porque roda sem terminal). shellcheck sem avisos novos; tar com gzip -1 testado.
     Na VPS: baixar o bootstrap novo (commit fixo + sha256) e rodar `backup-cron` para atualizar a cópia e a linha.
     **Modelos de raciocínio:** agente corrigindo no app (branch `painel/onda6-custo-aluno-2` sobre `92e3031`).
+    **Modelos de raciocínio prontos: commit `2c6e864`** (sobre `92e3031`). Envia `reasoning: { effort: "minimal",
+    exclude: true }` (doc do OpenRouter "reasoning tokens") só para modelos de raciocínio (`apps/crystal/src/raciocinio.ts`:
+    sinais do catálogo `reasoning.mandatory/default_enabled` + padrões de id gpt-5*/gpt-6*/o*/gpt-oss, gemini-2.5-flash e
+    -pro, gemini-3*, deepseek-r1, `-thinking`; Flash-Lite e Claude ficam de fora). Nesses, `max_tokens` mínimo 1500 (até
+    2000 do painel). 400 com `reasoning` tenta uma vez sem. **Mudança de comportamento:** resposta vazia do aluno agora
+    tenta o modelo reserva na segunda vez (antes repetia o mesmo). Laboratório: erro `LABORATORIO_MODELO_VAZIO` com
+    explicação. Aviso "modelo de raciocínio" no seletor do painel e do Laboratório. Testes: crystal 426, api 1678,
+    web 1086, shared 339; lint, typecheck e audit ok. Não testado com chamada real ao OpenRouter.
+    CI 40008199554 e imagens-vps 40008347379 em andamento. Publicar: sem SQL, `backup` (agora leve) + `app-subir
+    sha-2c6e864` + `crystal-conferir`; volta `app-subir sha-92e3031`.
