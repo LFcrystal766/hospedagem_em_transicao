@@ -2300,7 +2300,7 @@ crystal_nossa_teste() {
 # dado de aluno (conversa de teste "teste-conferencia", sem memória).
 crystal_conferir() {
   # Tudo com valor inicial: com set -u, `local x` sem valor quebra no primeiro "$x" (13/10: sem modelo no painel).
-  local opcao="${2:-}" erros=0 svc="" r="" pg="" api="" linha="" modelo="" reserva="" match="" memu="" canal="" re="" chave="" url="" code=""
+  local opcao="${2:-}" erros=0 svc="" r="" pg="" api="" linha="" modelo="" reserva="" imagem="" match="" memu="" canal="" re="" chave="" url="" code=""
   echo "== 1. serviços na VPS"
   for svc in ${APP_STACK}_app_api ${APP_STACK}_app_crystal ${APP_STACK}_app_web ${APP_STACK}_app_postgres ${APP_STACK}_app_redis \
            ${CW_STACK}_cw_rails ${CW_STACK}_cw_sidekiq; do
