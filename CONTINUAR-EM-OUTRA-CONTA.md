@@ -565,3 +565,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 40. **23/10: "Crystal parou" (de novo).** Suspeita principal: o crédito novo acabou com o `openai/gpt-5.6-sol` ainda no
     painel (~US$ 13/hora no ritmo de 22/10). Pedido ao dono: `crystal-conferir` (saldo e modelo) e `app-status`; trocar o
     modelo para Flash-Lite ou Haiku em Operação › Crystal › Modelo (vale na hora, sem publicar); pôr crédito se negativo.
+
+40. **23/10: Laboratório e "Crystal parou".** Log de 6 h: no Laboratório, `openai/gpt-5-nano` respondeu **vazio** 2 vezes
+    (modelo de raciocínio: gasta o limite de tokens "pensando" e não escreve nada). Na produção, 23/10 teve respostas de
+    `openai/gpt-5-nano` e `openai/gpt-6-luna`: alguém trocou o modelo do painel para modelos minúsculos/de raciocínio, o que
+    explica o "Crystal parou" (respostas vazias viram "Não consegui terminar"). Pedido ao dono: voltar o modelo para
+    Gemini 2.5 Flash-Lite ou Claude Haiku 4.5 e rodar `crystal-conferir`. Correção de código proposta: mandar raciocínio
+    mínimo para modelos de raciocínio e avisar no seletor; e marcar esses modelos na tabela de custos.
