@@ -530,3 +530,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `_dmarc` p=none: autenticação ok. Causa provável: Outlook/Hotmail jogando no lixo/"Outros" ou segurando, ou endereço
     na lista de supressão do Resend. Dono confere em resend.com › Emails (status de cada um). Contorno: trocar o e-mail do
     aluno por um Gmail pelo painel. Melhoria possível depois: cadastrar o domínio no Microsoft SNDS/JMRP.
+
+37. **23/10, pedido do dono: simular o custo por aluno ao trocar o modelo no seletor, antes de salvar.** Em andamento
+    (agente) em `/home/user/cw-custo-aluno`, branch `painel/onda6-custo-aluno-2` sobre `c93b8e2`: a Crystal passa a somar os
+    tokens dos turnos de aluno em 30 dias; o painel multiplica pelos preços do catálogo do OpenRouter do modelo escolhido
+    (já vêm no seletor) e mostra "Simulado com <modelo>: US$ X por aluno" e a diferença em %. É estimativa (volume de
+    tokens dos últimos 30 dias). Depois: CI, imagem e publicação sem SQL.
