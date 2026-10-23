@@ -616,3 +616,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `app-painel-conferir`; teste no Laboratório com GPT-5 nano. Volta: `app-subir sha-92e3031`.
     Dono (23/10 noite): "no painel de testes a Crystal está fora do ar". De fora: `api./healthz` 200 e `app.` 200; CI de
     `2c6e864` ainda rodando (gate e e2e). Pedido: saber se já publicou, `app-status`, `crystal-conferir` e print da tela.
+
+44. **23/10 ~19:10 UTC: `sha-2c6e864` NO AR** (modelos de raciocínio); volta `sha-92e3031`. Bootstrap `97b5ad2` na VPS
+    (sha256 OK), `backup-cron` atualizado (linha `backup --completo`, cópia `5d3d349d3ad9`), primeiro backup leve: só os
+    bancos, ok no R2. `crystal-conferir` TUDO LIGADO (Gemini 2.5 Flash, saldo US$ 32,92); `app-painel-conferir` ok
+    (auditoria 210 linhas íntegra). **Terceira resposta diferente** para "onde ficam as aulas gravadas": agora "Menu >
+    Suporte" (antes "Menu > Minhas Aulas" e "Hotmart"). Precisa da resposta certa na base de conhecimento.
+    Falta o dono reconferir o painel de testes ("fora do ar") e testar GPT-5 nano no Laboratório.
