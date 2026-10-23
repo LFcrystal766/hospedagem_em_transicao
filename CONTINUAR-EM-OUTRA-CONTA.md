@@ -561,3 +561,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     os outros veem 404). Diagnóstico só de leitura: `auditorias/2026-10-23/diag-laboratorio.sh` (logs de 24 h da API e da
     Crystal contados por mensagem/código/status, e as rotas). Pedido ao dono: a saída e um print do erro na tela.
     Depois disso, publicar `sha-92e3031` (simulação de custo por aluno), como ele pediu.
+
+40. **23/10: "Crystal parou" (de novo).** Suspeita principal: o crédito novo acabou com o `openai/gpt-5.6-sol` ainda no
+    painel (~US$ 13/hora no ritmo de 22/10). Pedido ao dono: `crystal-conferir` (saldo e modelo) e `app-status`; trocar o
+    modelo para Flash-Lite ou Haiku em Operação › Crystal › Modelo (vale na hora, sem publicar); pôr crédito se negativo.
