@@ -536,3 +536,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     tokens dos turnos de aluno em 30 dias; o painel multiplica pelos preços do catálogo do OpenRouter do modelo escolhido
     (já vêm no seletor) e mostra "Simulado com <modelo>: US$ X por aluno" e a diferença em %. É estimativa (volume de
     tokens dos últimos 30 dias). Depois: CI, imagem e publicação sem SQL.
+
+38. **23/10, pedido do dono: tabela de todos os modelos Claude, GPT e Gemini** com custo estimado por mês, por semana,
+    por aluno ativo e por aluno da base, a partir do gasto de tokens desde que viemos para o app. Preços do catálogo
+    público do OpenRouter baixados hoje (`auditorias/2026-10-23/openrouter-precos-23-10.json`, 154 modelos dessas três
+    famílias). Base = 11.149 alunos (`app_equipe_lote_resumo().total`, o "Na base" do painel). Falta o volume de tokens:
+    consulta só de leitura `auditorias/2026-10-23/tokens-desde-o-app.sql` no banco `crystal_agente` (dono roda e manda).
+    Com a saída, monto a tabela como artefato.
