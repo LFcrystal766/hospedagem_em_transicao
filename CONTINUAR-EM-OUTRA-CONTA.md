@@ -630,3 +630,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     testar no Laboratório.
     Dono confirmou (23/10): não há aulas gravadas no app; a orientação é sempre Menu > Suporte. Falta aplicar o item 4
     na alma (superadmin, Crystal › Alma, depois de testar no Laboratório).
+    **Dono (23/10): não vai mexer na alma.** Alternativa oferecida: colocar as regras (dúvidas do app → Menu > Suporte,
+    vários assuntos, frase de proteção) num bloco fixo no código, junto do bloco de formato (`BLOCO_FORMATO`,
+    `apps/crystal/src/prompt.ts`), que vale para qualquer versão da alma; o dono só publica. Aguardando o "sim".
