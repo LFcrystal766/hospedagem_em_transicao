@@ -572,3 +572,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     explica o "Crystal parou" (respostas vazias viram "Não consegui terminar"). Pedido ao dono: voltar o modelo para
     Gemini 2.5 Flash-Lite ou Claude Haiku 4.5 e rodar `crystal-conferir`. Correção de código proposta: mandar raciocínio
     mínimo para modelos de raciocínio e avisar no seletor; e marcar esses modelos na tabela de custos.
+    **Resolvido (23/10 ~18 h):** `crystal-conferir` TUDO LIGADO, modelo do painel `google/gemini-2.5-flash`, reserva
+    `openai/gpt-4.1-mini`, saldo US$ 34,44. Estimativa do 2.5 Flash: ~US$ 22/dia (~US$ 670/mês), o saldo dura ~1,5 dia.
+    Laboratório: o erro era o modelo de raciocínio (gpt-5-nano vazio), não o código; rotas respondem 404 sem sessão (certo).
+    Próximo: publicar `sha-92e3031`.
