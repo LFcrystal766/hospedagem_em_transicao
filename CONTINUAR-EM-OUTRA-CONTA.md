@@ -537,7 +537,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     (já vêm no seletor) e mostra "Simulado com <modelo>: US$ X por aluno" e a diferença em %. É estimativa (volume de
     tokens dos últimos 30 dias). **Pronto: commit `92e3031`** (fórmula: (entrada − cache) × preço entrada + cache × preço
     cache + saída × preço saída; `tokens_saida` já inclui raciocínio, `tokens_entrada` já inclui cache). Testes: shared 339,
-    crystal 406, web 1083, api 1675; audit ok. CI 39987855022 e imagens-vps 39987917719 em andamento. Publicar: sem SQL,
+    crystal 406, web 1083, api 1675; audit ok. **CI verde (gate, audit, e2e) e imagem `sha-92e3031` pronta.** Publicar: sem SQL,
     backup + `app-subir sha-92e3031` + `crystal-conferir` + `app-painel-conferir`; volta `app-subir sha-c93b8e2`.
 
 38. **23/10, pedido do dono: tabela de todos os modelos Claude, GPT e Gemini** com custo estimado por mês, por semana,
