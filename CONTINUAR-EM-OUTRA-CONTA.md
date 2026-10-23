@@ -684,3 +684,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Passo a passo da `088d07d` entregue ao dono (audit verde; gate e e2e rodando): esperar o CI; `backup` (leve);
     `app-subir sha-088d07d`; `crystal-conferir`; `app-painel-conferir`; no painel escolher "Modelo que lê as imagens"
     (sugestão Gemini 2.5 Flash) e conferir "Vazamentos barrados"; teste de ataque no Laboratório. Volta `sha-2c6e864`.
+
+46. **23/10 ~21:30 UTC: `sha-088d07d` NO AR** (trava em camadas + modelo das imagens); volta `sha-2c6e864`. Backup leve ok
+    (R2 também). `crystal-conferir` TUDO LIGADO; `app-painel-conferir` ok (auditoria 212 íntegra). Dono trocou o modelo para
+    **`google/gemini-3.1-flash-lite`** (na tabela: ~US$ 325/mês; é tratado como modelo de raciocínio pelo padrão `gemini-3*`,
+    recebe raciocínio mínimo e 1500 tokens). Saldo **US$ 28,66** (caiu de 34 para 28 em ~3 h): com esse modelo dura ~2,5 dias.
+    Falta o dono: escolher "Modelo que lê as imagens" no painel (vazio ainda), testar ataque e "lembra do WhatsApp" no
+    Laboratório, mandar um print como aluno, e olhar "Vazamentos barrados (7 dias)" amanhã. `crystal-conferir` passa a
+    mostrar `op_crystal_modelo_imagem` (bootstrap atualizado neste commit; baixar na próxima publicação).

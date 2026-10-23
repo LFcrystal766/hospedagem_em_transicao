@@ -2317,17 +2317,21 @@ crystal_conferir() {
     case "$chave" in
       op_crystal_modelo) modelo=$linha ;;
       op_crystal_modelo_reserva) reserva=$linha ;;
+      op_crystal_modelo_imagem) imagem=$linha ;;
       op_crystal_match_count) match=$linha ;;
       op_memoria_unica) memu=$linha ;;
     esac
     echo "  $chave = $linha"
   done < <(docker exec "$pg" psql -U crystal -d crystal_web_chat -tA -c \
-    "select key, value from system_settings where key in ('op_crystal_modelo','op_crystal_modelo_reserva','op_crystal_match_count','op_memoria_unica','op_memoria_chegada','op_whatsapp_silencio','op_manutencao','crystal_history_messages') order by key" 2>/dev/null)
+    "select key, value from system_settings where key in ('op_crystal_modelo','op_crystal_modelo_reserva','op_crystal_modelo_imagem','op_crystal_match_count','op_memoria_unica','op_memoria_chegada','op_whatsapp_silencio','op_manutencao','crystal_history_messages') order by key" 2>/dev/null)
   [ -n "$modelo" ] || echo "  (sem modelo no painel: vale o padrão da imagem da Crystal)"
+  # 23/10 (sha-088d07d): modelo separado que lê as imagens; vazio = a imagem vai ao modelo das respostas.
+  [ -n "$imagem" ] || echo "  (op_crystal_modelo_imagem vazio: a imagem vai ao modelo das respostas, como antes)"
   # O valor sai do banco e vai para o teste: só no formato de modelo do OpenRouter.
   re='^~?[a-z0-9-]+/[a-z0-9.:-]+$'
   if [ -n "$modelo" ] && ! printf '%s' "$modelo" | grep -Eq "$re"; then aviso "modelo do painel fora do formato: $modelo"; modelo=""; erros=$((erros+1)); fi
   if [ -n "$reserva" ] && ! printf '%s' "$reserva" | grep -Eq "$re"; then aviso "reserva do painel fora do formato: $reserva"; reserva=""; erros=$((erros+1)); fi
+  if [ -n "$imagem" ] && ! printf '%s' "$imagem" | grep -Eq "$re"; then aviso "modelo das imagens fora do formato: $imagem"; imagem=""; erros=$((erros+1)); fi
   printf '%s' "$match" | grep -Eq '^[0-9]{1,2}$' || match=""
   canal=$(app_valor "$APP_EXT" CHAT_TRANSPORT); canal=${canal:-crystal}
   echo "  canal do app (CHAT_TRANSPORT) = $canal"
