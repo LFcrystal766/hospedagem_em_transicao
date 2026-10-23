@@ -660,3 +660,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     senão mensagem fixa `IMAGEM_NAO_LIDA_TEXTO`. Custo: linha própria em `uso_turnos` tipo `imagem` (constraint atualizada
     sem migração), entra no custo por aluno. Laboratório sem imagem (não suporta). Testes: shared 340, crystal 440, web
     1091, api 1683; lint, typecheck, audit ok. Não testado com OpenRouter real. Aguardando a trava para juntar as duas.
+    **Trava pronta: `painel/onda6-custo-aluno-2` `a496f6a`** (sobre `2c6e864`). Camadas: cópia literal dos trechos do
+    turno (≥79 chars normalizados) e do resumo (≥99); 5-gramas de palavras contra a alma (≥12 palavras e ≥35% da
+    resposta, ou ≥30) e contra a base (≥20 e 50%, ou ≥45); estrutura (tags e títulos em CAIXA ALTA lidos da alma ativa,
+    "minhas instruções", "system prompt", "as an AI", blocos de código com palavras internas); semântica
+    (`trava-semantica.ts`, embedding `text-embedding-3-small` da alma por versão + 1 chamada por resposta, 3 s, limiares
+    `CRYSTAL_TRAVA_*`: alma 0,82, base 0,90, entrada 0,86: **não calibrados com embedding real**); entrada (`ataque.ts`,
+    PT/EN/ES, 49 ataques × 47 normais, responde a frase de proteção da alma sem chamar o modelo). Códigos em
+    `uso_turnos.erro`: vazamento_prompt/base/contexto/estrutura/semantico, ataque_entrada; painel "Vazamentos barrados
+    (7 dias)" por modelo ao lado do custo por aluno. Custo extra ~US$ 0,007 a 0,07 por mil respostas; ~3 ms por resposta.
+    Não pega: paráfrase profunda; `[nome_dela]` no meio da frase; Laboratório só com as camadas determinísticas.
+    Testes: crystal 607, shared 339, api 1680, web 1088. **Agente juntando as duas branches** (conflitos só em
+    `app.ts` e `uso.ts`), depois CI, imagem e publicação (sem SQL).
