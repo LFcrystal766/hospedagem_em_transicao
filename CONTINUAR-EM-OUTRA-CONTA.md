@@ -672,3 +672,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Não pega: paráfrase profunda; `[nome_dela]` no meio da frase; Laboratório só com as camadas determinísticas.
     Testes: crystal 607, shared 339, api 1680, web 1088. **Agente juntando as duas branches** (conflitos só em
     `app.ts` e `uso.ts`), depois CI, imagem e publicação (sem SQL).
+    **Juntado: `painel/onda6-custo-aluno-2` `088d07d`** (merge de `a496f6a` + `9d9c6aa`). Conflitos: app.ts (imports) e
+    uso.ts (custo conta linhas `imagem` e as barradas por `vazamento_*`). Ajustes no merge: legenda barrada na entrada vira
+    `ataque_entrada` mesmo com a leitura da imagem falhando; instrução da imagem descrita entra nos textos fixos da camada
+    semântica; a descrição da imagem nunca vai à camada semântica nem à busca. Ordem: checagem gratuita de ataque antes de
+    qualquer chamada paga; a semântica de entrada roda em paralelo com a leitura da imagem (uma leitura pode ser paga antes
+    do bloqueio). Testes: shared 340, crystal 627, api 1685, web 1093; lint/typecheck/audit ok. CI 40019564945 e
+    imagens-vps 40019594834 em andamento. Publicar: sem SQL, `backup` + `app-subir sha-088d07d` + `crystal-conferir` +
+    `app-painel-conferir`; volta `app-subir sha-2c6e864`. Depois de publicar: escolher o modelo das imagens em Operação ›
+    Crystal (vazio = como hoje) e acompanhar "Vazamentos barrados" por modelo para calibrar `CRYSTAL_TRAVA_*`.
