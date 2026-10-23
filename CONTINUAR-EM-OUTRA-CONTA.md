@@ -554,3 +554,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     cheio para eles (opção na página para simular com cache). GPT-5.6 Sol no ritmo: ~US$ 8.700/mês.
     Artefato: https://claude.ai/artifact/Kk84P3By6CKmdThmAmUMgF (cópia em `artefato/custo-modelos-2026-10-23.html`).
     Ideia de economia para qualquer modelo: enxugar o que vai em cada mensagem (alma + base + 20 mensagens de histórico).
+
+39. **23/10: "o Laboratório não está funcionando".** Suspeitas: (a) a resposta do modelo falhou (o saldo zerado de 22/10 dá
+    NO_CREDIT também lá; o modelo do Laboratório pode ser o GPT-5.6 Sol); (b) teto diário do Laboratório (US$ 5, só conta
+    o próprio Laboratório: em 16 dias gastou US$ 0,12, improvável); (c) a conta usada não é admin (Laboratório é só admin,
+    os outros veem 404). Diagnóstico só de leitura: `auditorias/2026-10-23/diag-laboratorio.sh` (logs de 24 h da API e da
+    Crystal contados por mensagem/código/status, e as rotas). Pedido ao dono: a saída e um print do erro na tela.
+    Depois disso, publicar `sha-92e3031` (simulação de custo por aluno), como ele pediu.
