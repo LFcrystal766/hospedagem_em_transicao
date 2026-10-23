@@ -520,3 +520,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     mandou. Diagnóstico só de leitura do n8n: `auditorias/2026-10-23/diag-n8n-compras.sql` (execuções por dia, nomes de
     evento, códigos de erro; sem dado pessoal). Correção prevista depois da saída: gravar todo evento desconhecido em
     `crystal_compras_eventos` e, se o nome do evento de aprovação for outro, incluí-lo na lista de liberar.
+
+35. **23/10: dono pôs crédito no OpenRouter.** Falta confirmar com `crystal-conferir` (as linhas "pergunta como aluno" e
+    "reserva sozinha" têm que dar ok) e decidir o modelo (painel estava em `openai/gpt-5.6-sol`; o dono queria Flash-Lite).
