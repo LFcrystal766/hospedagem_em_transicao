@@ -644,3 +644,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     extrair instruções nem chega ao modelo, responde a frase de proteção (com testes para não pegar "lembra da conversa do
     WhatsApp" e afins); (5) contagem sem texto por modelo, mostrada em Operação › Crystal ("vazamentos barrados, 7 dias").
     Pedido ao dono: um print ou trecho do que vazou, para virar teste.
+    **Mais dois pedidos (23/10):** (a) a trava tem que pegar **outras línguas**: camada semântica com embeddings
+    multilíngues (`text-embedding-3-small`, já usado na busca) comparando a resposta com pedaços da alma e dos trechos do
+    turno; o detector de ataque cobre EN/ES (mesmo agente, mesma branch). (b) **Separar a IA que vê as imagens da que
+    responde**: configuração nova `op_crystal_modelo_imagem` em Operação › Crystal (vazio = como hoje); com ela, a imagem vai
+    primeiro a um modelo de visão com instrução fixa e neutra (sem alma nem base, não tem o que vazar), e o modelo que
+    responde recebe só texto com a descrição; memória guarda "[imagem] descrição curta". Outro agente, worktree
+    `/home/user/cw-visao`, branch `painel/onda6-visao` sobre `2c6e864`. Depois: juntar as duas branches, CI, imagem, publicar.
