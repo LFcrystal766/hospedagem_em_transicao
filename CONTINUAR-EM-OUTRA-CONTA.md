@@ -803,3 +803,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     sha256 `53eb057f840cd018b2a8f0ed52a911d9d80f6ee5c2f542c29913c3130927a1ea`. Roteiro em README › "Revisão de
     segurança de 24/10". **Atenção:** o dono usa o terminal do navegador da Hostinger (login de 169.254.0.1): não rodar a
     trava de SSH sem chave própria testada.
+    **Dono (24/10): "quando terminar todas as ondas me avise".** Entregar uma só mensagem no fim, com: tags do app para
+    publicar (e volta), sha256 do bootstrap, roteiro da VPS numa madrugada só, SQL pendente e ações dele. Até lá, só
+    o CONTINUAR em anexo a cada passo; nenhuma pergunta.
