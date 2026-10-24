@@ -10,6 +10,16 @@
 #   com Postgres e Redis PRÓPRIOS do app, numa rede interna só dele. Não usa o
 #   Postgres nem o Redis do n8n, e não toca no Supabase da agência.
 #
+# REDES (revisão de segurança de 24/10, INF-06)
+#   app_interno  API, Crystal, Postgres e Redis do app. Só esta stack.
+#   borda_api    Traefik e app_api. Mais ninguém: é a faixa em que a API confia para
+#                ler o X-Forwarded-For (TRUST_PROXY, gravado pelo bootstrap).
+#   borda_web    Traefik e app_web.
+#   O Traefik não está na app_interno: não alcança o Postgres, o Redis nem a Crystal.
+#   Os nomes de sempre continuam valendo (app_postgres, app_redis, app_crystal), porque
+#   quem os usa está na mesma app_interno. borda_api e borda_web são criadas pelo
+#   'bootstrap-vps.sh preparar'; o app-subir recusa subir se o Traefik ainda não está nelas.
+#
 # DE ONDE VÊM AS IMAGENS
 #   GitHub Actions do repositório LFcrystal766/crystal-web-chat
 #   (.github/workflows/imagens-vps.yml), em ghcr.io, com tag sha-XXXXXXX ou vX.
@@ -18,8 +28,8 @@
 #
 # O QUE NÃO ESTÁ NESTE ARQUIVO
 #   Segredo nenhum. A API lê /root/crystal/app/api.env, a Crystal lê
-#   crystal.env, o web lê web.env (só o público do /.well-known) e o Postgres lê
-#   postgres.env, todos gerados na VPS pelo bootstrap
+#   crystal.env, o web lê web.env (só o público do /.well-known), o Postgres lê
+#   postgres.env e o Redis lê redis.env, todos gerados na VPS pelo bootstrap
 #   (chmod 600). Os marcadores abaixo são trocados pelo bootstrap:
 #     APP_TAG       tag das imagens
 #     APP_ENV_DIR   pasta dos .env (padrão /root/crystal/app)
@@ -59,7 +69,10 @@ services:
 
   # ---------------------------------------------------------------- Postgres
   app_postgres:
-    image: postgres:16-alpine
+    # Versão fixa (revisão de 24/10, INF-14): era 16-alpine, que mudava de patch sozinho no
+    # próximo app-subir. 16.15-alpine3.24 é o que 16-alpine dava em 24/10 (mesmo digest).
+    # Atualizar: ler as notas da 16.x, backup, trocar aqui e app-subir com a tag atual.
+    image: postgres:16.15-alpine3.24
     logging: *logs
     env_file: APP_ENV_DIR/postgres.env
     networks:
@@ -82,16 +95,26 @@ services:
   # ---------------------------------------------------------------- Redis
   # Sessões (janela do refresh) e rate limit vivem aqui: sem despejo de chave
   # (noeviction) e com persistência, senão um reinício desloga todo mundo.
+  # Com senha desde 24/10 (INF-12): a Crystal, na mesma rede interna e processando saída de
+  # modelo, não escreve mais nas sessões nem nos contadores de limite. A senha vem do
+  # redis.env (gerado pelo bootstrap, chmod 600) e o REDIS_URL da API a leva. O command passa
+  # pelo docker-entrypoint.sh da imagem, que troca para o usuário redis (sem root).
   app_redis:
-    image: redis:7-alpine
+    # Versão fixa (24/10, INF-14): era 7-alpine; 7.4.11-alpine é o mesmo digest em 24/10 e a
+    # mesma versão do Redis do Chatwoot.
+    image: redis:7.4.11-alpine
     logging: *logs
-    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    env_file: APP_ENV_DIR/redis.env
+    command:
+      - sh
+      - -c
+      - exec docker-entrypoint.sh redis-server --appendonly yes --maxmemory-policy noeviction --requirepass "$$REDIS_PASSWORD"
     networks:
       - app_interno
     volumes:
       - app_redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping | grep -q PONG"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -109,6 +132,8 @@ services:
   # Postgres lento na subida (achado 28): a migração tenta de novo por até 1 min
   # antes de desistir, e o restart_policy sem max_attempts nunca deixa a API em 0/1.
   app_api:
+    # APP_TAG vira sha-XXXXXXX@sha256:... (o digest que o app-subir baixou do ghcr.io, INF-17);
+    # imagem montada na VPS (app-construir) fica só com a tag.
     image: ghcr.io/lfcrystal766/crystal-web-chat-api:APP_TAG
     logging: *logs
     command:
@@ -120,9 +145,16 @@ services:
         do n=$$((n+1)); [ $$n -ge 12 ] && exit 1; echo "migração: app_postgres ainda não aceita ($$n/12), de novo em 5 s"; sleep 5; done;
         exec pnpm --filter @crystal/api start
     env_file: APP_ENV_DIR/api.env
+    # Revisão de 24/10 (INF-15): nenhuma capability (roda como node, porta 3001; o
+    # 'docker exec -u 0' do bootstrap grava em /app/apps/api, que é do root, sem precisar
+    # delas). Sistema de arquivos só de leitura AINDA NÃO: o bootstrap grava scripts
+    # temporários em /app/apps/api (app-admin, app-aluno...) e o pnpm/corepack do start não
+    # foi ensaiado sem escrita. Fica para quando o app tiver um 'dist' e um comando próprio.
+    cap_drop:
+      - ALL
     networks:
       - app_interno
-      - network_swarm_public
+      - borda_api
     volumes:
       - app_uploads:/app/uploads
     healthcheck:
@@ -149,7 +181,7 @@ services:
       restart_policy: {condition: any, delay: 10s}
       labels:
         - traefik.enable=true
-        - traefik.docker.network=network_swarm_public
+        - traefik.docker.network=borda_api
         - traefik.http.routers.crystal_app_api.rule=Host(`api.crystalnowpp.com.br`)
         - traefik.http.routers.crystal_app_api.entrypoints=websecure
         - traefik.http.routers.crystal_app_api.tls.certresolver=letsencryptresolver
@@ -166,6 +198,18 @@ services:
     image: ghcr.io/lfcrystal766/crystal-web-chat-crystal:APP_TAG
     logging: *logs
     env_file: APP_ENV_DIR/crystal.env
+    # Revisão de 24/10 (INF-15): a Crystal processa saída de modelo, então é a que mais ganha
+    # com isto. Sistema de arquivos só de leitura (ela só lê o código, o prompt e a base; o
+    # tsx guarda o que compila em /tmp, que é tmpfs) e nenhuma capability (roda como node,
+    # porta 8080). Se não subir assim: touch /root/crystal/.sem-somente-leitura e app-subir.
+    read_only: true
+    cap_drop:
+      - ALL
+    volumes:
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 67108864
     networks:
       - app_interno
     healthcheck:
@@ -192,12 +236,17 @@ services:
     logging: *logs
     # Só ANDROID_CERT_SHA256 e APPLE_TEAM_ID (públicos, para o /.well-known).
     env_file: APP_ENV_DIR/web.env
+    # Revisão de 24/10 (INF-15): nenhuma capability (roda como nextjs, porta 3000). Só
+    # leitura ainda não: o Next grava cache de imagem e de página em .next/ (e talvez em
+    # .next/server); falta ensaiar com um tmpfs no lugar certo antes de travar.
+    cap_drop:
+      - ALL
     environment:
       - NODE_ENV=production
       - HOSTNAME=0.0.0.0
       - PORT=3000
     networks:
-      - network_swarm_public
+      - borda_web
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
       interval: 15s
@@ -218,7 +267,7 @@ services:
       restart_policy: {condition: any, delay: 5s}
       labels:
         - traefik.enable=true
-        - traefik.docker.network=network_swarm_public
+        - traefik.docker.network=borda_web
         - traefik.http.routers.crystal_app_web.rule=Host(`app.crystalnowpp.com.br`)
         - traefik.http.routers.crystal_app_web.entrypoints=websecure
         - traefik.http.routers.crystal_app_web.tls.certresolver=letsencryptresolver
@@ -227,11 +276,15 @@ services:
         - traefik.http.services.crystal_app_web.loadbalancer.passHostHeader=true
 
 networks:
+  # Overlay comum (não internal): a Crystal sai para o OpenRouter e o Supabase por ela.
   app_interno:
     driver: overlay
-  network_swarm_public:
+  borda_api:
     external: true
-    name: network_swarm_public
+    name: borda_api
+  borda_web:
+    external: true
+    name: borda_web
 
 volumes:
   app_postgres_data:

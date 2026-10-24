@@ -11,13 +11,22 @@
 #                                              ARQ_SHA256 para colar no topo depois de mudar um yaml
 #   bash bootstrap-vps.sh docker-api           Docker 29 recusa o Traefik v2 (API 1.24): grava
 #                                              min-api-version=1.24 no daemon.json e reinicia o Docker
+#   bash bootstrap-vps.sh docker-daemon [--confirmo]
+#                                              (24/10, INF-28) o piso acima mais no-new-privileges e log
+#                                              json-file 10 MB x 3 por padrão. Sem --confirmo mostra o que
+#                                              mudaria; com ele reinicia o Docker (tudo cai por 1 a 2 min)
 #   bash bootstrap-vps.sh traefik              sobe 00, espera ficar 1/1, mostra a versão no ar e, com o
 #                                              Chatwoot no ar, testa a trava do /super_admin (403 até com /../)
 #   bash bootstrap-vps.sh portainer            sobe 01
-#   bash bootstrap-vps.sh bancos               sobe 02 e 03
+#   bash bootstrap-vps.sh bancos               sobe 02 e 03 (se o n8n estiver na rede antiga, sobe 04 a 06 junto)
 #   bash bootstrap-vps.sh n8n                  sobe 04, 05 e 06
 #   bash bootstrap-vps.sh tudo                 os quatro acima, na ordem
 #   bash bootstrap-vps.sh status               serviços + HTTPS dos três nomes
+#   bash bootstrap-vps.sh redes-conferir       só leitura (24/10, INF-06): em que rede está cada serviço e a prova,
+#                                              de dentro dos contêineres, de que um vizinho não alcança o outro
+#   bash bootstrap-vps.sh redes-voltar --confirmo
+#                                              volta de uma vez: n8n, painel, app e Chatwoot de novo na rede única
+#                                              network_swarm_public (o Traefik fica em todas). redes-separar desfaz
 #   bash bootstrap-vps.sh segredos             mostra a senha do banco, a chave do n8n e a senha do
 #                                              Redis, pra copiar pro cofre (Bitwarden). Não colar em chat
 #   O Redis do n8n sobe COM senha (N8N_REDIS_SENHA, gerada no preparar; o original da agência não tem).
@@ -39,7 +48,9 @@
 #   bash bootstrap-vps.sh backup-link [TIPO]   link de 10 min para baixar o backup mais novo (teste de
 #                                              restauração no Mac). TIPO: n8n_queue (padrão), crystal_web_chat,
 #                                              crystal_agente, crystal_uploads, chatwoot, chatwoot_storage
-#   bash bootstrap-vps.sh seguranca            atualização de segurança automática, fail2ban no SSH
+#   bash bootstrap-vps.sh seguranca [--sem-ssh]
+#                                              atualização de segurança automática, fail2ban no SSH e, com chave
+#                                              de root instalada, SSH só com chave (--sem-ssh pula essa trava)
 #                                              e relatório (senha no SSH, root, portas, pendências).
 #                                              Com chave de root instalada, trava o SSH em só chave e root
 #                                              só com chave; volta sozinha em 10 min sem confirmação
@@ -98,6 +109,10 @@
 #   bash bootstrap-vps.sh vigia-config         liga a vigia do app (a cada 5 min, avisa no Telegram;
 #                                              pede o token do bot sem aparecer)
 #   bash bootstrap-vps.sh app-segredos         mostra os segredos do app pra copiar pro cofre
+#   bash bootstrap-vps.sh ia-encerrar --confirmo
+#                                              (24/10, INF-30) depois do corte para o app: tira a Crystal do
+#                                              WhatsApp da agência (stack crystal_ia) do ar e apaga o .env dela;
+#                                              lista o que revogar fora da VPS
 #   bash bootstrap-vps.sh app-telefone EMAIL   grava o WhatsApp de uma conta criada aqui (canal da inbox)
 #   bash bootstrap-vps.sh app-db-papel [--confirmo|--voltar]
 #                                              TESTAR PRIMEIRO. A API deixa de entrar no Postgres como
@@ -194,19 +209,19 @@ DOMINIO=crystalnowpp.com.br
 # com o commit atual; 3) colar aqui e commitar o script. REF=<commit de 40 letras> troca o
 # commit (o sha256 continua valendo); branch não é aceita. Rodando de dentro de um clone do
 # repositório, usa a cópia local (o git garante a origem) e só avisa se divergir da tabela.
-STACKS_COMMIT=10131831340c9e74a7c78d4b2773ae28e9a10c79
+STACKS_COMMIT=91e7971058d91929c93b5421791def4b5ba9ba22
 declare -A ARQ_SHA256=(
-  [stacks-exemplo/00-traefik.yaml]=1e394a5780c529cd8ac9c5745573b011c13dadefb6a856a538f9d349fd957ef5
-  [stacks-exemplo/01-portainer.yaml]=956304308fdea7b905c0807ceda69f2380584e3f4f43d303a3c5a69d45118463
-  [stacks-exemplo/02-n8n-postgres.yaml]=2efac56e511214308ec20c71307467b44cbece60cf35e7f2be6b7156582cca78
-  [stacks-exemplo/03-n8n-redis.yaml]=01b3963db27eb03b5fa9736fd77e2a6d0aac164cf51d38388f798c9c98533de1
-  [stacks-exemplo/04-n8n-editor.yaml]=fe00ea4d9276e2e927c1ef4391df2c6fafa8aa121a0dfc329ea7cb2d81ea3e11
-  [stacks-exemplo/05-n8n-webhook.yaml]=89ab11299c1583e9c1a794b630a7ce5f0ca5aaaa1ce221c28eca338531756688
-  [stacks-exemplo/06-n8n-worker.yaml]=d04fa99497375408662d53340a4fc622e768c262ec91a905014311e31d37ed5f
-  [stacks-app/01-portainer-restrito.yaml]=bc035b6d6dd35ac159080dce72e9fa2bea5f21e662d2c035be994e51ac9b23d4
-  [stacks-app/10-crystal-app.yaml]=cf0741a0fca6531620a72c61b0edf1266df76982b5adb7026f05039c3c848330
-  [stacks-app/20-atendimento.yaml]=bffde96b7388352d79ee0faa3baae00d4e7a6ab0afc41ccf737b267c5f23b9cb
   [n8n/crystal-provisoria.json]=6ba9a2183c94c4fcff07207e7fc29b9b510907d013a51cffea6d32d84e0d7387
+  [stacks-app/01-portainer-restrito.yaml]=d646706f7e52b36d7bdd632ab0096e5bcdb597c3f7ecd5dda0925e230b312639
+  [stacks-app/10-crystal-app.yaml]=476867fa6b86b2a36d23258108d4f5b3620f8badb7cf533cb21b0f34569a22e7
+  [stacks-app/20-atendimento.yaml]=edf37f34d97d046b7adaaa34468a8a95137a6ce6874321a01f93ad12b06dd58c
+  [stacks-exemplo/00-traefik.yaml]=b8bbd7ffd93a69976223f7677ad70600d7188c0bc49b7e64671c7a0381de405d
+  [stacks-exemplo/01-portainer.yaml]=a3c3b94eb42cb8f433cf14387cc47cdc060e159baaffa0a9e418fc5f7ee80943
+  [stacks-exemplo/02-n8n-postgres.yaml]=9efd884653d814488eca7eab47416ae5f238433c2316e57218615b76e0a6b6c6
+  [stacks-exemplo/03-n8n-redis.yaml]=d3d53f2773626ac10d160aeae1ff317d49319590232d6f5de0ba71eadc41c6f5
+  [stacks-exemplo/04-n8n-editor.yaml]=215f474cb20515e615772016f7bb8d09114a6d889ac209afcf85acdf611d303e
+  [stacks-exemplo/05-n8n-webhook.yaml]=cfbd56ac26977d4963964acc57fd1a10438a66273bacf35ebc8d9ca32befa769
+  [stacks-exemplo/06-n8n-worker.yaml]=093c8fd28483daf13712f759059777e7ee7aae60e7b87727c55ee0619402927a
 )
 STACKS_REF="${REF:-$STACKS_COMMIT}"
 RAW_BASE="https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/$STACKS_REF/crystal-em-casa"
@@ -292,31 +307,91 @@ conferir_fundacao() {
   [ "$min" = "1.24" ] || aviso "o daemon exige API $min e o Traefik v2 usa 1.24: rode 'bash $0 docker-api' antes de subir o Traefik"
 }
 
-# ------------------------------------------------------------------ docker-api
+# ------------------------------------------------------------------ docker-api / docker-daemon
 # O Traefik v2.11 da agência fala com o Docker pela API 1.24. O Docker 29 exige
 # 1.44 por padrão e recusa o Traefik ("client version 1.24 is too old"): sem
 # isso o Traefik não descobre serviço nenhum e não pede certificado. A saída
 # documentada é baixar o piso do daemon em /etc/docker/daemon.json.
-docker_api() {
-  local min; min=$(docker version --format '{{.Server.MinAPIVersion}}' 2>/dev/null || echo "?")
-  if [ "$min" = "1.24" ]; then ok "daemon já aceita API 1.24"; return 0; fi
-  echo "  piso atual do daemon: $min. Gravando min-api-version=1.24 em /etc/docker/daemon.json"
-  python3 - <<'PY'
-import json, os
-p = '/etc/docker/daemon.json'
+# docker-daemon (revisão de 24/10, INF-28) grava, além do piso:
+#   "no-new-privileges": true   nenhum processo de contêiner ganha privilégio por binário
+#                               setuid (as imagens oficiais trocam de usuário com gosu/su-exec,
+#                               o que continua valendo; nenhuma das nossas usa sudo/su);
+#   log json-file 10 MB x 3     para todo contêiner novo que não disser outra coisa.
+# Reinicia o Docker: TODOS os serviços caem e voltam em até 1 a 2 minutos. Por isso pede
+# --confirmo e é para a janela da madrugada. Cópia do daemon.json anterior ao lado.
+DAEMON_JSON="${DOCKER_DAEMON_JSON:-/etc/docker/daemon.json}"   # trocável só para teste
+
+# Grava $DAEMON_JSON.novo com o que falta e mostra o que muda. 0 = há mudança, 1 = já estava.
+docker_daemon_novo() { # docker_daemon_novo api|completo
+  python3 - "$DAEMON_JSON" "$1" <<'PY'
+import json, os, sys
+p, modo = sys.argv[1], sys.argv[2]
 d = {}
 if os.path.exists(p) and os.path.getsize(p) > 0:
     d = json.load(open(p))
-d['min-api-version'] = '1.24'
-json.dump(d, open(p, 'w'), indent=2)
+novo = json.loads(json.dumps(d))
+novo["min-api-version"] = "1.24"
+if modo == "completo":
+    novo["no-new-privileges"] = True
+    novo.setdefault("log-driver", "json-file")
+    if novo["log-driver"] == "json-file":
+        lo = dict(novo.get("log-opts") or {})
+        lo.setdefault("max-size", "10m")
+        lo.setdefault("max-file", "3")
+        novo["log-opts"] = lo
+if novo == d:
+    sys.exit(1)
+for k in sorted(set(novo) | set(d)):
+    if novo.get(k) != d.get(k):
+        print(f"  {k}: {json.dumps(d.get(k))} -> {json.dumps(novo.get(k))}")
+json.dump(novo, open(p + ".novo", "w"), indent=2)
 PY
-  dockerd --validate --config-file=/etc/docker/daemon.json >/dev/null || falha "daemon.json inválido; ver /etc/docker/daemon.json"
-  systemctl restart docker
+}
+
+docker_daemon_aplicar() { # valida o .novo, guarda o anterior, troca e reinicia o Docker
   local t=0
+  dockerd --validate --config-file="$DAEMON_JSON.novo" >/dev/null || { rm -f "$DAEMON_JSON.novo"; falha "daemon.json novo inválido: nada mudou"; }
+  if [ -f "$DAEMON_JSON" ]; then cp -p "$DAEMON_JSON" "$DAEMON_JSON.antes-$(date -u +%Y%m%dT%H%M%SZ)"; fi
+  mv -f "$DAEMON_JSON.novo" "$DAEMON_JSON"
+  systemctl restart docker
   until docker info >/dev/null 2>&1 || [ $t -ge 60 ]; do sleep 3; t=$((t+3)); done
+  docker info >/dev/null 2>&1 || falha "o Docker não voltou em 60 s: journalctl -u docker -n 50 (o daemon.json anterior está ao lado, .antes-*)"
+}
+
+docker_api() {
+  local min; min=$(docker version --format '{{.Server.MinAPIVersion}}' 2>/dev/null || echo "?")
+  if [ "$min" = "1.24" ]; then ok "daemon já aceita API 1.24"; return 0; fi
+  echo "  piso atual do daemon: $min. Gravando min-api-version=1.24 em $DAEMON_JSON"
+  rm -f "$DAEMON_JSON.novo"
+  docker_daemon_novo api >/dev/null || true
+  [ -f "$DAEMON_JSON.novo" ] || falha "não montei o daemon.json novo"
+  docker_daemon_aplicar
   min=$(docker version --format '{{.Server.MinAPIVersion}}' 2>/dev/null || echo "?")
   [ "$min" = "1.24" ] && ok "daemon reiniciado, piso da API = 1.24" || falha "piso continua $min"
   echo "  os serviços do Swarm voltam sozinhos em até 1 min. Depois: bash $0 status"
+}
+
+docker_daemon() {
+  local nnp
+  rm -f "$DAEMON_JSON.novo"
+  echo "== $DAEMON_JSON"
+  if ! docker_daemon_novo completo; then
+    ok "já tem o piso da API, no-new-privileges e a rotação de log"
+  else
+    if [ "${2:-}" != --confirmo ]; then
+      rm -f "$DAEMON_JSON.novo"
+      echo "  (acima, o que mudaria) Isto reinicia o Docker: todos os serviços caem e voltam em 1 a 2 min."
+      falha "de madrugada, depois de um backup: bash $0 docker-daemon --confirmo"
+    fi
+    docker_daemon_aplicar
+    ok "Docker reiniciado com o daemon.json novo (o anterior ficou em $DAEMON_JSON.antes-*)"
+    echo "  os serviços voltam sozinhos; a rotação e o no-new-privileges valem para cada contêiner"
+    echo "  recriado (todo deploy recria). Conferir em 2 min: bash $0 status"
+  fi
+  # Prova num contêiner descartável: o kernel marca NoNewPrivs=1.
+  nnp=$(docker run --rm --network none "$ALPINE_IMG" grep -E '^NoNewPrivs:' /proc/self/status 2>/dev/null | awk '{print $2}' || true)
+  if [ "$nnp" = 1 ]; then ok "contêiner novo nasce com no-new-privileges (NoNewPrivs: 1)"
+  else aviso "não confirmei o no-new-privileges num contêiner de teste (NoNewPrivs: ${nnp:-?})"; fi
 }
 
 # ------------------------------------------------------------------ preparar
@@ -325,6 +400,7 @@ preparar() {
   [ -n "$email" ] || falha "informe o e-mail do Let's Encrypt: bash bootstrap-vps.sh preparar voce@exemplo.com"
   echo "$email" | grep -Eq '^[^@ ]+@[^@ ]+\.[^@ ]+$' || falha "e-mail inválido: $email"
   conferir_fundacao
+  redes_criar
   mkdir -p "$ORIG" "$STACKS"
   chmod 700 "$BASE" "$STACKS"
 
@@ -380,6 +456,8 @@ preparar() {
     if grep -nE 'SUBSTITUA|SEU_EMAIL|seudominio' "$STACKS/$a" | grep -vE '^\s*[0-9]+:\s*#' | grep -q .; then
       falha "$a ainda tem placeholder fora de comentário"
     fi
+    redes_ajustar "$STACKS/$a"   # só depois do redes-voltar: rede única
+    somente_leitura_ajustar "$STACKS/$a"
   done
   ok "${#ARQUIVOS[@]} arquivos prontos em $STACKS (chmod 600)"
   # O 01 acima saiu do original, aberto. Se o painel já estava restrito, refaz a trava.
@@ -452,6 +530,34 @@ u = d.get("UpdateStatus") or {}
 print(ep(d.get("UpdatedAt")), u.get("State") or "-", ep(u.get("StartedAt")))' 2>/dev/null || echo "0 ausente 0"
 }
 
+# Tira de um log o que tiver cara de segredo antes de ir para a tela, e daí para o chat
+# (revisão de 24/10, INF-26): senha em URL (postgres://u:SENHA@, redis://:SENHA@), Bearer,
+# chaves com prefixo conhecido, JWT, chave privada do age e hex/base64 longos (as chaves que o
+# bootstrap gera). Caminho de arquivo e texto comum passam.
+redigir() {
+  python3 -c '
+import re, sys
+R = [
+    (re.compile(r"(://[^:/@\s]*:)[^@/\s]+@"), r"\1***@"),
+    (re.compile(r"([Bb]earer\s+)[A-Za-z0-9._~+/=-]+"), r"\1***"),
+    (re.compile(r"\b(sk-or-v1-|sk-or-|sb_secret_|sb_publishable_|re_|gsk_|ghp_|github_pat_)[A-Za-z0-9_-]{8,}"), r"\1***"),
+    (re.compile(r"\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]*"), "eyJ***"),
+    (re.compile(r"AGE-SECRET-KEY-1[0-9A-Z]+"), "AGE-SECRET-KEY-***"),
+    (re.compile(r"\b[0-9a-fA-F]{48,}\b"), "<hex>"),
+]
+B64 = re.compile(r"[A-Za-z0-9+/]{40,}={0,2}")
+def b64(m):
+    t = m.group(0)
+    if ("+" not in t and "=" not in t and t.count("/") > 1) or sum(c.isdigit() for c in t) < 4:
+        return t
+    return "<b64>"
+for linha in sys.stdin:
+    for r, novo in R:
+        linha = r.sub(novo, linha)
+    sys.stdout.write(B64.sub(b64, linha))
+'
+}
+
 # Últimas linhas do contêiner mais novo que morreu num serviço, sem as linhas de
 # requisição, e o erro das últimas tarefas.
 servico_log_morto() { # servico_log_morto SERVIÇO
@@ -460,7 +566,7 @@ servico_log_morto() { # servico_log_morto SERVIÇO
   cid=$(docker ps -a -q --filter "label=com.docker.swarm.service.name=$1" --filter status=exited 2>/dev/null | head -1 || true)
   if [ -n "$cid" ]; then
     echo "  -- últimas linhas do contêiner que morreu ($1):"
-    docker logs --tail 40 "$cid" 2>&1 | grep -vE '"request completed"|"incoming request"' | sed 's/^/     /' | tail -25 || true
+    docker logs --tail 40 "$cid" 2>&1 | grep -vE '"request completed"|"incoming request"' | redigir | sed 's/^/     /' | tail -25 || true
   fi
 }
 
@@ -528,7 +634,347 @@ deploy() { # deploy ARQUIVO STACK
   conferir_atualizacao "$t0" - $svcs || falha "a stack $2 não ficou de pé (log acima)"
 }
 
-traefik()   { conferir_fundacao; deploy 00-traefik.yaml traefik; traefik_conferir; }
+# ------------------------------------------------------------------ redes (INF-06)
+# Revisão de segurança de 24/10 (INF-06). Antes, tudo numa rede só, a network_swarm_public:
+# Traefik, Portainer, n8n (com o Postgres e o Redis dele), API, web e Chatwoot. Um contêiner
+# comprometido falava direto com qualquer outro, por fora do Traefik, e o banco do n8n (com as
+# credenciais cifradas) ficava ao alcance de todos. Agora:
+#   borda_api, borda_web, borda_atendimento, borda_n8n, borda_painel   uma borda por stack: só
+#       o Traefik e o que ele publica (no n8n, o editor e o webhook);
+#   n8n_interno   Postgres, Redis, editor, webhook e worker do n8n (externa: o n8n são 5 stacks);
+#   app_interno, cw_interno, portainer_agentes   internas de cada stack, como já eram.
+# O Traefik fica em todas as bordas e também na network_swarm_public (a da volta e a da
+# Crystal do WhatsApp da agência), e em nenhuma rede de banco. Os nomes que os apps usam
+# (app_postgres, app_redis, app_crystal, cw_postgres, cw_redis, n8n_postgres, n8n_redis) não
+# mudam: quem os usa está na mesma rede interna. API, Chatwoot e n8n só se falam pelos
+# endereços públicos (https://api., https://atendimento., https://webhook.), pelo Traefik.
+# Corte, uma stack por vez e conferindo cada uma: preparar, traefik, painel, bancos (que já
+# sobe o n8n), app-subir, atendimento-subir e redes-conferir. Volta: redes-voltar --confirmo.
+REDES_MODO_ARQ="$BASE/.redes"   # "unica" depois de redes-voltar: o que subir vai para a network_swarm_public
+REDES_EXTERNAS=(borda_api borda_web borda_atendimento borda_n8n borda_painel n8n_interno)
+
+redes_unica() { [ "$(cat "$REDES_MODO_ARQ" 2>/dev/null || true)" = unica ]; }
+
+# Cria as redes que faltam, uma vez só (idempotente). Sem --attachable: só serviço do Swarm
+# entra; um 'docker run --network' avulso não.
+redes_criar() {
+  local r d novas=()
+  for r in "${REDES_EXTERNAS[@]}"; do
+    if d=$(docker network inspect "$r" --format '{{.Driver}}/{{.Scope}}' 2>/dev/null); then
+      [ "$d" = "overlay/swarm" ] || falha "já existe uma rede $r que não é overlay do Swarm ($d): renomeie ou apague antes"
+      continue
+    fi
+    docker network create --driver overlay --label crystal.revisao=2026-10-24 "$r" >/dev/null || falha "não criou a rede $r"
+    novas+=("$r")
+  done
+  if [ ${#novas[@]} -eq 0 ]; then ok "redes separadas já existem (${REDES_EXTERNAS[*]})"
+  else ok "rede(s) criada(s): ${novas[*]}"; fi
+}
+
+# Redes de um serviço, pelo nome (o spec guarda o id), uma por linha. Nada se não existe.
+svc_redes() { # svc_redes SERVIÇO
+  local ids id
+  ids=$(docker service inspect "$1" --format '{{range .Spec.TaskTemplate.Networks}}{{.Target}} {{end}}' 2>/dev/null) || return 0
+  for id in $ids; do docker network inspect "$id" --format '{{.Name}}' 2>/dev/null || echo "$id"; done
+}
+svc_na_rede() { svc_redes "$1" | grep -qx "$2"; }   # svc_na_rede SERVIÇO REDE
+
+# Antes de pôr uma stack na borda nova, o Traefik tem de estar nela: senão o endereço sai do
+# ar (o Traefik não alcança o serviço). Depois do redes-voltar não confere (rede única).
+redes_exigir_traefik() { # redes_exigir_traefik REDE...
+  redes_unica && return 0
+  docker service inspect traefik_traefik >/dev/null 2>&1 || { aviso "Traefik não encontrado: sem ele nada responde"; return 0; }
+  local r faltam=()
+  for r in "$@"; do svc_na_rede traefik_traefik "$r" || faltam+=("$r"); done
+  [ ${#faltam[@]} -eq 0 ] && return 0
+  falha "o Traefik no ar ainda não está em ${faltam[*]}: subir agora tiraria esta stack do ar. Antes: bash $0 preparar EMAIL && bash $0 traefik"
+}
+
+# Depois do redes-voltar, cada arquivo gerado passa por aqui: as redes novas viram a
+# network_swarm_public de antes, sem item repetido (no n8n, borda_n8n e n8n_interno viram
+# uma só). Sem a marca não muda nada. O 00 (Traefik) não passa: ele fica em todas as redes,
+# e é isso que deixa cada stack voltar sozinha, sem tocar no Traefik.
+redes_ajustar() { # redes_ajustar ARQUIVO
+  redes_unica || return 0
+  case "$(basename "$1")" in 00-*) return 0 ;; esac
+  python3 - "$1" <<'PY' || falha "não ajustei as redes de $1 para a rede única"
+import re, sys
+NOVAS = re.compile(r"\b(borda_api|borda_web|borda_atendimento|borda_n8n|borda_painel|n8n_interno)\b")
+p = sys.argv[1]
+txt = open(p, encoding="utf-8").read()
+fim = "\n" if txt.endswith("\n") else ""
+saida, lista, vistos, topo, chaves, pular = [], None, set(), False, set(), False
+def recuo(l):
+    return len(l) - len(l.lstrip(" "))
+for l in txt[: len(txt) - len(fim)].split("\n"):
+    vazia = l.strip() == "" or l.lstrip().startswith("#")
+    if not vazia:
+        l = NOVAS.sub("network_swarm_public", l)
+    if topo and not vazia and recuo(l) == 0:
+        topo = False
+    if lista is not None and not vazia and recuo(l) <= lista:
+        lista = None
+    if re.match(r"^networks:\s*$", l):
+        topo, chaves, pular = True, set(), False
+        saida.append(l); continue
+    if topo:   # bloco networks: do fim do arquivo: chave repetida sai com as linhas dela
+        m = re.match(r"^  ([A-Za-z0-9_.-]+):\s*$", l)
+        if m:
+            pular = m.group(1) in chaves
+            chaves.add(m.group(1))
+        if pular and (m or (not vazia and recuo(l) > 2)):
+            continue
+        saida.append(l); continue
+    m = re.match(r"^( +)networks:\s*$", l)
+    if m:      # lista de redes de um serviço: item repetido sai
+        lista, vistos = len(m.group(1)), set()
+        saida.append(l); continue
+    if lista is not None:
+        m = re.match(r"^ +- *([A-Za-z0-9_.-]+)\s*$", l)
+        if m:
+            if m.group(1) in vistos:
+                continue
+            vistos.add(m.group(1))
+    saida.append(l)
+open(p, "w", encoding="utf-8").write("\n".join(saida) + fim)
+PY
+}
+
+# Escape do sistema de arquivos só de leitura (INF-15, 24/10): o Traefik e a Crystal sobem com
+# read_only: true. Se um deles não subir assim numa versão nova, 'touch $BASE/.sem-somente-leitura'
+# e preparar/traefik ou app-subir de novo: o arquivo gerado sai sem a trava, com aviso.
+somente_leitura_ajustar() { # somente_leitura_ajustar ARQUIVO
+  [ -f "$BASE/.sem-somente-leitura" ] || return 0
+  grep -qE '^ *read_only: true *$' "$1" || return 0
+  sed -i -E '/^ *read_only: true *$/d' "$1"
+  aviso "$(basename "$1") sem read_only ($BASE/.sem-somente-leitura existe): apague o arquivo assim que der"
+}
+
+# Conexão TCP de dentro de um contêiner com node (n8n, API, web, Crystal). 0 se conectou.
+tcp_de() { # tcp_de CID HOST PORTA
+  docker exec "$1" node -e 'const s=require("net").connect(Number(process.argv[2]),process.argv[1]);s.on("connect",()=>process.exit(0));s.on("error",()=>process.exit(1));setTimeout(()=>process.exit(1),4000)' "$2" "$3" >/dev/null 2>&1
+}
+# IP de um contêiner numa rede (pelo nome da rede). Vazio se não está nela.
+ip_na_rede() { # ip_na_rede CID REDE
+  docker inspect "$1" --format '{{range $n, $v := .NetworkSettings.Networks}}{{$n}}={{$v.IPAddress}} {{end}}' 2>/dev/null \
+    | tr ' ' '\n' | sed -n "s/^$2=//p" | head -1
+}
+cid_de() { docker ps -q -f "name=$1" 2>/dev/null | head -1; }   # cid_de SERVIÇO
+
+# Só leitura: em que rede está cada serviço, comparado com o desenho, e a prova de que um
+# vizinho não alcança o outro (tentativas de conexão de 4 s, por IP, de dentro dos contêineres).
+redes_conferir() {
+  local modo=separadas s linhas="" falhou=0
+  redes_unica && modo=unica
+  echo "== redes dos serviços (INF-06; modo: $modo)"
+  [ "$modo" = unica ] && aviso "modo de volta ($REDES_MODO_ARQ): tudo na network_swarm_public. Para separar de novo: bash $0 redes-separar"
+  while read -r s; do
+    [ -n "$s" ] && linhas+="$s $(svc_redes "$s" | paste -sd, -)"$'\n'
+  done < <(docker service ls --format '{{.Name}}' 2>/dev/null)
+  printf '%s' "$linhas" | python3 -c '
+import sys
+modo = sys.argv[1]
+BORDAS = {"borda_api", "borda_web", "borda_atendimento", "borda_n8n", "borda_painel"}
+INTERNAS = {"n8n_interno", "crystal_app_app_interno", "crystal_atendimento_cw_interno", "portainer_portainer_agentes"}
+E = {
+  "portainer_portainer": {"borda_painel", "portainer_portainer_agentes"},
+  "portainer_agent": {"portainer_portainer_agentes"},
+  "n8n_postgres_n8n_postgres": {"n8n_interno"}, "n8n_redis_n8n_redis": {"n8n_interno"},
+  "n8n_editor_n8n_editor": {"borda_n8n", "n8n_interno"}, "n8n_webhook_n8n_webhook": {"borda_n8n", "n8n_interno"},
+  "n8n_worker_n8n_worker": {"n8n_interno"}, "n8n_mcp_n8n_mcp": {"borda_n8n", "n8n_interno"},
+  "crystal_app_app_api": {"crystal_app_app_interno", "borda_api"}, "crystal_app_app_web": {"borda_web"},
+  "crystal_app_app_crystal": {"crystal_app_app_interno"}, "crystal_app_app_postgres": {"crystal_app_app_interno"},
+  "crystal_app_app_redis": {"crystal_app_app_interno"},
+  "crystal_atendimento_cw_rails": {"crystal_atendimento_cw_interno", "borda_atendimento"},
+  "crystal_atendimento_cw_sidekiq": {"crystal_atendimento_cw_interno"},
+  "crystal_atendimento_cw_postgres": {"crystal_atendimento_cw_interno"},
+  "crystal_atendimento_cw_redis": {"crystal_atendimento_cw_interno"},
+}
+def unica(c):
+    return {"network_swarm_public" if r in BORDAS or r == "n8n_interno" else r for r in c}
+ruim = 0
+for linha in sys.stdin:
+    if not linha.strip():
+        continue
+    nome, _, r = linha.strip().partition(" ")
+    tem = {x for x in r.split(",") if x}
+    msg = ""
+    if nome == "traefik_traefik":
+        precisa = {"network_swarm_public"} | (set() if modo == "unica" else BORDAS)
+        if not precisa <= tem:
+            msg = "faltam " + ", ".join(sorted(precisa - tem))
+        if tem & INTERNAS:
+            msg += (" e " if msg else "") + "está em rede de banco: " + ", ".join(sorted(tem & INTERNAS))
+    elif nome in E:
+        quer = unica(E[nome]) if modo == "unica" else E[nome]
+        if tem != quer:
+            msg = "esperado " + ", ".join(sorted(quer))
+    elif "network_swarm_public" in tem and modo != "unica":
+        print(f"  ! {nome}: {r} (fora do desenho, na rede pública com o Traefik; a Crystal do WhatsApp da agência, enquanto existir)")
+        continue
+    if msg:
+        ruim = 1
+        print(f"  !! {nome}: {r} ({msg})")
+    else:
+        print(f"  ok {nome}: {r}")
+sys.exit(ruim)
+' "$modo" || falhou=1
+  [ "$modo" = unica ] && { [ "$falhou" = 0 ] || aviso "algum serviço fora do desenho (acima)"; return 0; }
+
+  echo "== vizinhos que NÃO podem se alcançar (por IP, de dentro dos contêineres)"
+  local -A C=()
+  local de alvo rede porta ip
+  C[n8n]=$(cid_de n8n_editor_n8n_editor); C[crystal]=$(cid_de "${APP_STACK}_app_crystal")
+  C[web]=$(cid_de "${APP_STACK}_app_web"); C[api]=$(cid_de "${APP_STACK}_app_api")
+  C[chatwoot]=$(cid_de "${CW_STACK}_cw_rails"); C[portainer]=$(cid_de portainer_portainer)
+  C[pg_n8n]=$(cid_de n8n_postgres_n8n_postgres); C[pg_app]=$(cid_de "${APP_STACK}_app_postgres")
+  # "origem destino rede porta": a origem tenta o IP que o destino tem naquela rede.
+  while read -r de alvo rede porta; do
+    [ -n "${C[$de]}" ] && [ -n "${C[$alvo]}" ] || continue
+    ip=$(ip_na_rede "${C[$alvo]}" "$rede"); [ -n "$ip" ] || continue
+    if tcp_de "${C[$de]}" "$ip" "$porta"; then
+      falhou=1; echo "  !! $de alcança $alvo ($rede, porta $porta)"
+    else
+      ok "$de não alcança $alvo ($rede, porta $porta)"
+    fi
+  done <<'PARES'
+n8n api borda_api 3001
+n8n api crystal_app_app_interno 3001
+n8n pg_app crystal_app_app_interno 5432
+n8n chatwoot borda_atendimento 3000
+n8n portainer borda_painel 9000
+crystal pg_n8n n8n_interno 5432
+crystal chatwoot borda_atendimento 3000
+web api borda_api 3001
+web pg_app crystal_app_app_interno 5432
+PARES
+  echo "== vizinhos que PRECISAM se alcançar (pelos nomes de sempre)"
+  while read -r de alvo porta; do
+    [ -n "${C[$de]}" ] || continue
+    if tcp_de "${C[$de]}" "$alvo" "$porta"; then ok "$de -> $alvo:$porta"
+    else falhou=1; echo "  !! $de NÃO alcança $alvo:$porta (o serviço caiu? a rede interna mudou?)"; fi
+  done <<'PARES'
+n8n n8n_postgres 5432
+n8n n8n_redis 6379
+api app_postgres 5432
+api app_redis 6379
+api app_crystal 8080
+PARES
+  app_ip_conferir || falhou=1
+  if [ "$falhou" = 0 ]; then ok "redes como o desenho"
+  else aviso "há diferença (acima). No meio do corte é o esperado: siga o roteiro. Algo quebrou depois dele? Volta de tudo: bash $0 redes-voltar --confirmo"; fi
+  return 0
+}
+
+# O IP que a API registra (e usa no limite de tentativas) não pode ser escolhido por quem
+# chama: um X-Forwarded-For forjado, de fora (pelo Traefik) ou de um vizinho de rede (direto
+# na API), não pode aparecer no log. Usa rotas que não existem (404) para não mexer em nada.
+app_ip_conferir() {
+  local api cid_crystal n linha visto falhou=0 tp
+  api=$(cid_de "${APP_STACK}_app_api"); [ -n "$api" ] || return 0
+  tp=$(docker exec "$api" sh -c 'printf %s "$TRUST_PROXY"' 2>/dev/null || true)
+  echo "== IP do cliente que a API registra (TRUST_PROXY=${tp:-?})"
+  n="$(date +%s)$$"
+  curl -s -o /dev/null -m 15 -H 'X-Forwarded-For: 198.51.100.77' "https://api.$DOMINIO/xff-teste-$n" || true
+  cid_crystal=$(cid_de "${APP_STACK}_app_crystal")
+  if [ -n "$cid_crystal" ]; then
+    docker exec "$cid_crystal" node -e 'fetch("http://app_api:3001/xff-direto-"+process.argv[1],{headers:{"x-forwarded-for":"198.51.100.88"},signal:AbortSignal.timeout(8000)}).then(()=>{},()=>{})' "$n" >/dev/null 2>&1 || true
+  fi
+  sleep 3
+  for linha in "xff-teste-$n de fora, pelo Traefik" "xff-direto-$n da Crystal, direto na API"; do
+    visto=$(docker service logs --since 3m --raw "${APP_STACK}_app_api" 2>/dev/null | grep -F "/${linha%% *}" | grep -oE '"remoteAddress":"[^"]*"' | head -1 | cut -d'"' -f4 || true)
+    if [ -z "$visto" ]; then
+      [ -n "$cid_crystal" ] || [ "${linha#*direto}" = "$linha" ] || continue
+      aviso "não achei no log da API o pedido ${linha#* } (log em outro nível?)"; continue
+    fi
+    case "$visto" in
+      198.51.100.*) falhou=1; echo "  !! ${linha#* }: a API registrou o IP FORJADO ($visto)" ;;
+      *) if python3 -c 'import ipaddress,sys; sys.exit(0 if ipaddress.ip_address(sys.argv[1]) in ipaddress.ip_network(sys.argv[2], strict=False) else 1)' "$visto" "$tp" 2>/dev/null; then
+           falhou=1; echo "  !! ${linha#* }: a API registrou o IP do próprio Traefik ($visto): todo mundo dividiria o mesmo limite"
+         else
+           ok "${linha#* }: a API registrou $visto, não o forjado"
+         fi ;;
+    esac
+  done
+  return "$falhou"
+}
+
+# Volta de tudo de uma vez: grava a marca e sobe n8n, painel, app e Chatwoot de novo na
+# network_swarm_public (com a mesma tag do app). O Traefik fica como está, em todas as redes.
+redes_voltar() {
+  [ "${2:-}" = --confirmo ] || falha "isto devolve n8n, painel, app e Chatwoot à rede única de antes (network_swarm_public), uma stack por vez; o Traefik fica como está. Se for isso: bash $0 redes-voltar --confirmo"
+  docker network inspect network_swarm_public >/dev/null 2>&1 || falha "a rede network_swarm_public não existe: a volta precisa dela"
+  svc_na_rede traefik_traefik network_swarm_public || falha "o Traefik não está na network_swarm_public: nada foi mudado"
+  mkdir -p "$BASE"; umask 077; echo unica > "$REDES_MODO_ARQ"; chmod 600 "$REDES_MODO_ARQ"
+  ok "marca gravada em $REDES_MODO_ARQ: o que subir daqui em diante vai para a network_swarm_public"
+  local a
+  for a in 01-portainer.yaml 02-n8n-postgres.yaml 03-n8n-redis.yaml 04-n8n-editor.yaml 05-n8n-webhook.yaml 06-n8n-worker.yaml; do
+    if [ -f "$STACKS/$a" ]; then redes_ajustar "$STACKS/$a"; fi
+  done
+  if docker service inspect n8n_postgres_n8n_postgres >/dev/null 2>&1; then bancos; fi   # bancos já sobe o n8n junto
+  if docker service inspect portainer_portainer >/dev/null 2>&1; then
+    if [ -s "$PAINEL_IPS_ARQ" ]; then painel_gerar || falha "não regravei o painel restrito (acima)"; fi
+    portainer
+  fi
+  if docker service inspect "${APP_STACK}_app_api" >/dev/null 2>&1; then app_subir app-subir "$(app_tag_atual)"; fi
+  if docker service inspect "${CW_STACK}_cw_rails" >/dev/null 2>&1; then atendimento_subir; fi
+  echo
+  redes_conferir
+}
+
+redes_separar() {
+  if ! redes_unica; then ok "as redes já estão separadas (não há $REDES_MODO_ARQ)"; return 0; fi
+  rm -f "$REDES_MODO_ARQ"
+  ok "marca da volta apagada. Para separar de novo, um passo por vez, conferindo cada um:"
+  echo "  bash $0 preparar EMAIL      (regrava os arquivos com as redes separadas)"
+  echo "  bash $0 painel-restringir IP...   (ou: bash $0 portainer)"
+  echo "  bash $0 bancos              (já sobe o n8n junto)"
+  echo "  bash $0 app-subir $(app_tag_atual)"
+  echo "  bash $0 atendimento-subir"
+  echo "  bash $0 redes-conferir"
+}
+
+traefik() {
+  conferir_fundacao; redes_criar
+  local t0 upd _e _i; t0=$(date +%s)
+  deploy 00-traefik.yaml traefik
+  # O Traefik lê as rotas pelo proxy só de leitura do docker.sock (INF-22). Se o novo não as
+  # lê (permissão do proxy, rede), todo endereço daria 404: volta sozinho ao anterior, mas só
+  # quando este deploy mudou mesmo o serviço (rollback sem mudança voltaria a algo antigo).
+  if ! traefik_rotas_conferir; then
+    aviso "nenhum endereço conhecido respondeu em 2 min: o Traefik novo não está lendo as rotas"
+    docker service logs --since 5m traefik_traefik 2>&1 | grep -iE 'provider|docker|error' | tail -8 | sed 's/^/     /' || true
+    docker service logs --since 5m traefik_docker_proxy 2>&1 | tail -5 | redigir | sed 's/^/     /' || true
+    read -r upd _e _i <<<"$(svc_estado traefik_traefik)"
+    if [ "$upd" -ge "$t0" ]; then
+      echo "  voltando o Traefik à versão anterior (docker service rollback traefik_traefik)"
+      docker service rollback --detach=false traefik_traefik >/dev/null 2>&1 || aviso "o rollback não confirmou: docker service ps traefik_traefik"
+      falha "o Traefik novo não leu as rotas e foi desfeito. Mande o log acima para a sessão"
+    fi
+    falha "o Traefik não mudou neste deploy e mesmo assim nada responde: ver DNS, certificado e 'docker service logs traefik_traefik'"
+  fi
+  traefik_conferir
+}
+
+# Depois de subir o Traefik: ele tem de ter lido as rotas das stacks que existem. Basta um
+# endereço conhecido responder (200, 30x, 401 ou 403); sem rota o Traefik dá 404. Até 2 min:
+# o provedor consulta o Swarm a cada 15 s e tenta de novo se o proxy ainda não subiu.
+traefik_rotas_conferir() {
+  local u code t=0 urls=()
+  docker service inspect "${APP_STACK}_app_api" >/dev/null 2>&1 && urls+=("https://api.$DOMINIO/healthz")
+  docker service inspect "${CW_STACK}_cw_rails" >/dev/null 2>&1 && urls+=("https://$CW_HOST/api")
+  docker service inspect n8n_editor_n8n_editor >/dev/null 2>&1 && urls+=("https://editor.$DOMINIO/")
+  docker service inspect portainer_portainer >/dev/null 2>&1 && urls+=("https://painel.$DOMINIO/")
+  [ ${#urls[@]} -gt 0 ] || return 0
+  while :; do
+    for u in "${urls[@]}"; do
+      code=$(curl -s -o /dev/null -m 10 -w '%{http_code}' "$u" 2>/dev/null) || code=000
+      case "$code" in 200|301|302|401|403) ok "Traefik lendo as rotas: $u -> $code"; return 0 ;; esac
+    done
+    [ $t -ge 120 ] && return 1
+    sleep 10; t=$((t+10))
+  done
+}
 # Depois de subir o Traefik: a versão que ficou no ar e, com o Chatwoot no ar, a prova de
 # que a trava da área de administração pega também com /../ e %2e%2e (INF-01, 24/10).
 traefik_conferir() {
@@ -543,6 +989,7 @@ traefik_conferir() {
   admin_trava_conferir
 }
 portainer() {
+  redes_exigir_traefik borda_painel
   # Com lista de IPs, nunca sobe o painel aberto (achado 34).
   if [ -s "$PAINEL_IPS_ARQ" ] && ! grep -q 'ipallowlist.sourcerange=' "$STACKS/01-portainer.yaml" 2>/dev/null; then
     falha "o painel. é restrito ($PAINEL_IPS_ARQ) e $STACKS/01-portainer.yaml está sem a lista. Rode: bash $0 painel-restringir $(paste -sd' ' "$PAINEL_IPS_ARQ")"
@@ -550,8 +997,37 @@ portainer() {
   deploy 01-portainer.yaml portainer
   [ -s "$PAINEL_IPS_ARQ" ] || echo "  Abra https://painel.$DOMINIO AGORA e crie o admin: o Portainer tranca a criação se demorar"
 }
-bancos()    { deploy 02-n8n-postgres.yaml n8n_postgres; deploy 03-n8n-redis.yaml n8n_redis; }
-n8n()       { deploy 04-n8n-editor.yaml n8n_editor; deploy 05-n8n-webhook.yaml n8n_webhook; deploy 06-n8n-worker.yaml n8n_worker; }
+# Rede do banco e da fila do n8n: n8n_interno; na volta (redes-voltar), a network_swarm_public.
+n8n_rede_banco() { if redes_unica; then echo network_swarm_public; else echo n8n_interno; fi; }
+bancos() {
+  local rede; rede=$(n8n_rede_banco)
+  # Se o n8n vai ter de subir junto (banco mudando de rede), confere ANTES de mexer no banco que
+  # o Traefik já está na borda_n8n: senão o banco mudava e o n8n ficava parado sem ele.
+  if docker service inspect n8n_editor_n8n_editor >/dev/null 2>&1 && ! svc_na_rede n8n_editor_n8n_editor "$rede"; then
+    redes_exigir_traefik borda_n8n
+    # Dito ANTES de mexer: se este passo parar no meio (uma falha sai do script), o n8n fica
+    # sem banco até alguém agir, e a volta tem de estar na tela.
+    echo "  o n8n vai ficar sem banco e sem fila até o fim deste passo (1 a 3 min; a Assiny reenvia webhook que falhou)."
+    echo "  Se parar no meio com ERRO, volta tudo do n8n à rede de antes:"
+    echo "    for s in postgres redis editor webhook worker; do docker service rollback n8n_\${s}_n8n_\${s}; done"
+  fi
+  deploy 02-n8n-postgres.yaml n8n_postgres; deploy 03-n8n-redis.yaml n8n_redis
+  # Banco e fila acabaram de mudar de rede (corte do INF-06 ou volta): o editor, o webhook e o
+  # worker ficam sem banco até subirem na mesma rede. Sobe os três já: a parada do n8n dura só
+  # a troca (1 a 2 minutos; a Assiny reenvia webhook que falhou).
+  if docker service inspect n8n_editor_n8n_editor >/dev/null 2>&1 && ! svc_na_rede n8n_editor_n8n_editor "$rede"; then
+    echo "  o n8n ainda está na rede antiga e acabou de perder o banco: subindo editor, webhook e worker agora"
+    n8n
+  fi
+}
+n8n() {
+  local rede; rede=$(n8n_rede_banco)
+  redes_exigir_traefik borda_n8n
+  if docker service inspect n8n_postgres_n8n_postgres >/dev/null 2>&1 && ! svc_na_rede n8n_postgres_n8n_postgres "$rede"; then
+    falha "o Postgres do n8n ainda não está na $rede: o n8n subiria sem banco. Rode: bash $0 bancos (ele já sobe o n8n junto)"
+  fi
+  deploy 04-n8n-editor.yaml n8n_editor; deploy 05-n8n-webhook.yaml n8n_webhook; deploy 06-n8n-worker.yaml n8n_worker
+}
 tudo()      { traefik; portainer; bancos; n8n; echo; status; }
 
 # ------------------------------------------------------------------ backup
@@ -563,6 +1039,46 @@ BACKUPS="$BASE/backups"
 FORA_CONF="$BASE/.backup-fora"            # conta, bucket e chave do R2 (chmod 600)
 FORA_DEST="$BASE/.backup-destinatario"    # chave PÚBLICA do age; a privada fica só no Bitwarden
 FORA_PREFIXO=vps-crystal
+# Revisão de 24/10 (INF-18): a chave PÚBLICA que cifra os backups mora na VPS, e quem mandar na
+# VPS poderia trocá-la por uma dele: os backups seguiriam subindo, cifrados para o atacante, e o
+# backup-conferir passaria. Defesas: (1) com a pública aqui (é pública, pode ir para o
+# repositório: o 'age1...' que o status mostra e que está no Bitwarden), o backup se recusa a
+# cifrar para outra; (2) o status, o backup-conferir e a vigia (todo dia 1º, ao meio-dia UTC)
+# mostram o fim da chave para comparar com o Bitwarden; (3) a cada 3 meses a vigia lembra o
+# teste de restauração (backup-link e abrir no Mac). Vazio: só (2) e (3).
+FORA_DEST_ESPERADO=""
+
+# "age1...XXXXXXXX" (os 8 últimos), para comparar com o Bitwarden sem copiar a chave inteira.
+backup_destinatario_resumo() {
+  local d; d=$(cat "$FORA_DEST" 2>/dev/null || true)
+  [ -n "$d" ] && printf 'age1...%s' "${d: -8}"
+}
+# 0 se a chave pública da VPS é a esperada (ou não há esperada); 1, com aviso, se divergir.
+backup_destinatario_conferir() {
+  [ -n "$FORA_DEST_ESPERADO" ] || return 0
+  [ "$(cat "$FORA_DEST" 2>/dev/null || true)" = "$FORA_DEST_ESPERADO" ] && return 0
+  aviso "a chave pública dos backups na VPS ($(backup_destinatario_resumo)) NÃO é a esperada (age1...${FORA_DEST_ESPERADO: -8}): alguém trocou $FORA_DEST? Nada é cifrado para ela"
+  return 1
+}
+
+# Revisão de 24/10 (INF-19): os dumps (.sql.gz) e as cópias de pastas (.tar.gz) ficavam 14 dias
+# em claro na VPS. Agora cada backup cifra, com a chave pública, os das rodadas anteriores (mais
+# de 20 h): em claro fica só o da última rodada, para uma volta rápida. Abrir um .age pede a
+# chave privada do Bitwarden, que nunca fica na VPS (README, "Backup fora da VPS").
+backup_cifrar_locais() { # backup_cifrar_locais PASTA
+  local f n=0 falhou=0 dest
+  if [ ! -s "$FORA_DEST" ] || ! command -v age >/dev/null; then
+    aviso "backups antigos seguem em claro na VPS: falta a chave dos backups (bash $0 backup-chave)"; return 0
+  fi
+  backup_destinatario_conferir || return 1
+  dest=$(cat "$FORA_DEST")
+  while IFS= read -r -d '' f; do
+    if devagar age -r "$dest" -o "$f.age.tmp" "$f" && mv -f "$f.age.tmp" "$f.age" && rm -f "$f"; then n=$((n+1))
+    else rm -f "$f.age.tmp"; falhou=1; fi
+  done < <(find "$1" -maxdepth 1 -type f \( -name '*.sql.gz' -o -name '*.tar.gz' \) -mmin +1200 -print0 2>/dev/null)
+  [ "$n" = 0 ] || ok "$n backup(s) de rodadas anteriores cifrados na VPS (.age)"
+  [ "$falhou" = 0 ] || { aviso "algum backup antigo não foi cifrado (fica em claro até a próxima rodada)"; return 1; }
+}
 VOLUMES="${DOCKER_VOLUMES:-/var/lib/docker/volumes}"   # trocável só para teste
 
 # pg_dump de um banco para ARQ.gz. Falha (e apaga o arquivo) se o pg_dump falhar ou
@@ -624,6 +1140,7 @@ backup() {
   mkdir -p "$dir"; chmod 700 "$dir"
   umask 077
   ts=$(date -u +%Y%m%dT%H%M%SZ)
+  backup_cifrar_locais "$dir" || falhas+=("VPS: backup antigo não cifrado (ou chave pública trocada)")
   if [ "$completo" = 1 ]; then echo "== backup $ts (completo: bancos, fotos e anexos)"
   else echo "== backup $ts (só os bancos; fotos e anexos vão no cron das 03:30. Para incluir agora: bash $0 backup --completo)"; fi
   # Cada parte é independente (achado 22): a que falha fica registrada e as outras
@@ -680,9 +1197,10 @@ backup() {
     fi
   fi
   find "$dir" -maxdepth 1 \( -name 'n8n_queue-*' -o -name 'crystal_web_chat-*' -o -name 'crystal_agente-*' -o -name 'crystal_uploads-*' \
-    -o -name 'chatwoot-*' -o -name 'chatwoot_storage-*' \) -mtime +14 -delete || true
-  echo "  $(find "$dir" -maxdepth 1 -name '*.gz' | wc -l) arquivo(s) na VPS (14 dias)"
+    -o -name 'chatwoot-*' -o -name 'chatwoot_storage-*' \) -mtime +14 -delete || true   # pega também os .age
+  echo "  $(find "$dir" -maxdepth 1 \( -name '*.gz' -o -name '*.gz.age' \) | wc -l) arquivo(s) na VPS (14 dias; em claro só a última rodada)"
   echo "  Restaurar banco: gunzip -c ARQ | docker exec -i CID psql -U USUÁRIO -d BANCO"
+  echo "    (.age: read -rsp 'chave: ' k; printf '%s\\n' \"\$k\" | age -d -i - ARQ.age | gunzip | docker exec -i CID psql ...; k=)"
   echo "  Restaurar pasta: tar -xzf ...-completo.tar.gz --listed-incremental=/dev/null -C DESTINO, depois o -diferencial mais novo"
 
   if [ -s "$FORA_CONF" ] && [ -s "$FORA_DEST" ]; then
@@ -750,13 +1268,13 @@ horas_desde() { # horas_desde ARQUIVO_COM_DATA
   local t=""
   [ -s "$1" ] && t=$(date -d "$(cat "$1")" +%s 2>/dev/null || true)
   if [ -z "$t" ] && [ "$1" = "$BACKUPS/.backup-ultimo" ]; then
-    t=$(find "$BACKUPS" -maxdepth 1 -name '*.gz' -printf '%T@\n' 2>/dev/null | sort -n | tail -1 | cut -d. -f1 || true)
+    t=$(find "$BACKUPS" -maxdepth 1 \( -name '*.gz' -o -name '*.gz.age' \) -printf '%T@\n' 2>/dev/null | sort -n | tail -1 | cut -d. -f1 || true)
   fi
   if [ -n "$t" ]; then echo $(( ($(date +%s) - t) / 3600 )); else echo nunca; fi
 }
 
 backup_cron() {
-  local linha="30 3 * * * root /usr/bin/bash $BASE/bootstrap-vps.sh backup --completo >> $BACKUPS/backup.log 2>&1"
+  local linha="30 3 * * * root PATH=/usr/sbin:/usr/bin:/sbin:/bin /usr/bin/bash $BASE/bootstrap-vps.sh backup --completo >> $BACKUPS/backup.log 2>&1"
   mkdir -p "$BACKUPS"; chmod 700 "$BACKUPS"
   copia_cron_atualizar --criar
   printf '%s\n' "$linha" > /etc/cron.d/crystal-backup-n8n
@@ -807,6 +1325,7 @@ backup_fora() { # backup_fora ARQUIVO... cifra e envia; volta 1 se algum não su
   command -v age >/dev/null || { aviso "age não instalado: bash $0 backup-chave"; return 1; }
   fora_ler_conf
   local dest a obj tmp erros=0
+  backup_destinatario_conferir || return 1
   dest=$(cat "$FORA_DEST")
   echo "== fora da VPS (R2, bucket $R2_BUCKET)"
   for a in "$@"; do
@@ -856,6 +1375,9 @@ backup_chave() {
       umask 077; echo "$pub" > "$FORA_DEST"; chmod 600 "$FORA_DEST"
       priv=""
       ok "chave pública gravada em $FORA_DEST; a privada só no Bitwarden"
+      echo "  Guarde também a PÚBLICA no mesmo item do Bitwarden (é ela que o status mostra, $(backup_destinatario_resumo)):"
+      echo "  $pub"
+      echo "  Para a VPS se recusar a cifrar para outra (INF-18): FORA_DEST_ESPERADO=\"$pub\" no topo do script (é pública)."
       echo "Próximo: bash $0 backup-fora-config"
       return 0
     fi
@@ -994,6 +1516,11 @@ backup_testar_trava() {
 backup_conferir() {
   fora_ler_conf
   local xml code
+  if [ -s "$FORA_DEST" ]; then
+    if backup_destinatario_conferir; then
+      ok "chave pública dos backups: $(backup_destinatario_resumo) (compare com o Bitwarden$([ -n "$FORA_DEST_ESPERADO" ] && echo '; igual à esperada do script'))"
+    fi
+  fi
   xml=$(mktemp)
   code=$(fora_curl -o "$xml" -w '%{http_code}' "$R2_URL?list-type=2&prefix=$FORA_PREFIXO") || code=000
   if [ "$code" != 200 ]; then aviso "listagem do R2 respondeu $code: $(head -c 300 "$xml")"; rm -f "$xml"; exit 1; fi
@@ -1088,7 +1615,15 @@ CFG
   fail2ban-client status sshd >/dev/null 2>&1 && ok "fail2ban protegendo o SSH" || aviso "fail2ban no ar, mas a regra do SSH não respondeu: fail2ban-client status sshd"
 
   echo "== SSH"
-  ssh_travar
+  # --sem-ssh (revisão de 24/10): quem entra pelo terminal do navegador da Hostinger, sem chave
+  # própria, não troca o SSH no meio do roteiro da madrugada; a trava fica para quando houver chave.
+  if [ "${2:-}" = --sem-ssh ]; then
+    aviso "trava do SSH pulada (--sem-ssh): o SSH fica como está. Com a sua chave num aparelho seu: bash $0 seguranca"
+  else
+    ssh_travar
+  fi
+  echo "== quem fala com o Docker (lê os segredos do spec dos serviços)"
+  docker_acesso_conferir
   echo "== o que ainda depende de decisão"
   ufw status 2>/dev/null | grep -q "Status: active" && ok "ufw ativo" || aviso "ufw desligado: bash $0 firewall"
   portas_docker_conferir
@@ -1253,6 +1788,7 @@ painel_gerar() { # grava $STACKS/01-portainer.yaml restrito, a partir do modelo 
   sed -e "s|PAINEL_IPS|$ips|g" -e "s|PORTAINER_IMG|$pimg|g" -e "s|AGENT_IMG|$aimg|g" \
     "$ORIG/$PAINEL_YAML" > "$STACKS/01-portainer.yaml"
   chmod 600 "$STACKS/01-portainer.yaml"
+  redes_ajustar "$STACKS/01-portainer.yaml"
   if grep -nE 'PAINEL_IPS|PORTAINER_IMG|AGENT_IMG' "$STACKS/01-portainer.yaml" | grep -vE '^\s*[0-9]+:\s*#' | grep -q .; then
     aviso "marcador sobrando em $STACKS/01-portainer.yaml"; return 1
   fi
@@ -1279,6 +1815,7 @@ painel_restringir() {
   printf '%s\n' "$lista" > "$PAINEL_IPS_ARQ.novo"
   mv "$PAINEL_IPS_ARQ.novo" "$PAINEL_IPS_ARQ"
   painel_gerar || exit 2
+  redes_exigir_traefik borda_painel
   echo "== portainer (o painel fica fora do ar por uns segundos)"
   local t0; t0=$(date +%s)
   docker stack deploy -c "$STACKS/01-portainer.yaml" portainer --detach=true >/dev/null
@@ -1308,6 +1845,13 @@ painel_conferir() {
       aviso "o n8n ainda alcança o agente do Portainer (porta 9001)"
     else
       ok "o n8n não alcança mais o agente do Portainer"
+    fi
+    # Desde 24/10 (INF-06) a tela do Portainer está na borda_painel: o n8n também não chega à
+    # porta 9000 (por fora do Traefik e da lista de IPs).
+    if ! redes_unica && tcp_de "$cid" portainer 9000; then
+      aviso "o n8n alcança a tela do Portainer (porta 9000) por fora do Traefik: bash $0 redes-conferir"
+    elif ! redes_unica; then
+      ok "o n8n não alcança a tela do Portainer (9000)"
     fi
   fi
   echo "  Agora, de um IP liberado: abra https://painel.$DOMINIO, entre, e confira que o ambiente"
@@ -1351,6 +1895,69 @@ painel_ligar() {
   [ -s "$PAINEL_IPS_ARQ" ] || aviso "painel. aberto para qualquer IP: bash $0 painel-restringir"
 }
 
+# ------------------------------------------------------------------ quem fala com o Docker
+# Revisão de 24/10 (INF-05, INF-29). Os valores dos env_file do app e do Chatwoot vão para o spec
+# dos serviços no Swarm (docker service inspect, tela do Portainer). Docker secrets não servem
+# aqui: as imagens do app e do Chatwoot leem só variável de ambiente (nenhuma lê NOME_FILE), e um
+# command que exportasse /run/secrets/* mudaria o boot dos quatro serviços sem ensaio. Então a
+# defesa é deixar o spec ao alcance só do root: ninguém no grupo docker, docker.sock só do root e
+# do grupo docker, nada da API do Docker em TCP, o Portainer só para IPs liberados
+# (painel-restringir) e o Traefik pelo proxy só de leitura (INF-22). Também confere a credencial
+# do ghcr.io guardada pelo docker login (/root/.docker/config.json, base64): 600 e com idade.
+GHCR_DESDE="$BASE/.ghcr-desde"
+docker_acesso_conferir() {
+  local membros modo dias
+  membros=$(getent group docker 2>/dev/null | cut -d: -f4 || true)
+  if [ -n "$membros" ]; then
+    aviso "no grupo docker (equivale a root e lê os segredos do spec dos serviços): $membros. Tirar: gpasswd -d USUÁRIO docker"
+  else
+    ok "ninguém no grupo docker: só o root lê o spec dos serviços (docker service inspect)"
+  fi
+  modo=$(stat -c '%a %U:%G' /var/run/docker.sock 2>/dev/null || true)
+  case "$modo" in
+    "660 root:docker"|"660 root:root"|"600 root:root") ok "docker.sock $modo" ;;
+    "") aviso "não achei /var/run/docker.sock" ;;
+    *) aviso "docker.sock com permissão $modo (esperado 660 root:docker): chmod 660 /var/run/docker.sock" ;;
+  esac
+  if ss -Htln 2>/dev/null | awk '{print $4}' | grep -Eq ':(2375|2376)$'; then
+    aviso "a API do Docker escuta em TCP (2375/2376): tirar o -H tcp:// do dockerd (systemctl cat docker)"
+  fi
+  if [ -f /root/.docker/config.json ]; then
+    modo=$(stat -c '%a' /root/.docker/config.json)
+    if [ "$modo" != 600 ]; then
+      chmod 600 /root/.docker/config.json && ok "/root/.docker/config.json estava $modo: agora 600 (token do ghcr.io)"
+    else
+      ok "/root/.docker/config.json 600 (token do ghcr.io)"
+    fi
+    if [ -s "$GHCR_DESDE" ]; then
+      dias=$(( ($(date +%s) - $(date -d "$(cat "$GHCR_DESDE")" +%s 2>/dev/null || date +%s)) / 86400 ))
+      if [ "$dias" -ge 80 ]; then aviso "o token do ghcr.io foi gravado há $dias dias: gere outro (só read:packages, 90 dias) e rode app-ghcr"
+      else ok "token do ghcr.io gravado há $dias dia(s) (trocar antes de 90)"; fi
+    else
+      aviso "não sei a idade do token do ghcr.io: na próxima troca (só read:packages, validade de 90 dias), rode app-ghcr"
+    fi
+  fi
+}
+
+# Cron (achado 24 e revisão de 24/10): o cron roda como root a cópia em $BASE/bootstrap-vps.sh.
+# Se ela, a pasta ou o arquivo do cron ficassem graváveis por outro usuário, quem escrevesse ali
+# viraria root às 03:30. Confere dono e permissão.
+cron_conferir() {
+  local f m
+  for f in /etc/cron.d/crystal-backup-n8n /etc/cron.d/crystal-vigia; do
+    [ -f "$f" ] || continue
+    m=$(stat -c '%a %U' "$f")
+    [ "$m" = "644 root" ] || aviso "$f com $m (esperado 644 root): chown root:root $f && chmod 644 $f"
+    grep -q ' PATH=/usr/sbin:/usr/bin:/sbin:/bin ' "$f" || aviso "$f sem PATH fixo (de antes de 24/10): bash $0 backup-cron (ou vigia-config) regrava"
+  done
+  if [ -f "$BASE/bootstrap-vps.sh" ]; then
+    m=$(stat -c '%a %U' "$BASE/bootstrap-vps.sh")
+    [ "$m" = "700 root" ] || aviso "$BASE/bootstrap-vps.sh com $m (esperado 700 root): chmod 700 e chown root"
+  fi
+  m=$(stat -c '%a %U' "$BASE" 2>/dev/null || true)
+  [ -z "$m" ] || [ "$m" = "700 root" ] || aviso "$BASE com $m (esperado 700 root): chmod 700 $BASE"
+}
+
 # ------------------------------------------------------------------ status
 status() {
   echo "== Serviços"
@@ -1378,16 +1985,25 @@ status() {
   else
     aviso "backup fora da VPS não configurado (backup-chave, backup-fora-config)"
   fi
+  if [ -s "$FORA_DEST" ] && backup_destinatario_conferir; then
+    ok "chave pública dos backups: $(backup_destinatario_resumo) (compare com o Bitwarden)"
+  fi
   copia_cron_conferir
+  cron_conferir
   painel_trava_conferir || true
   portas_docker_conferir
+  docker_acesso_conferir
+  if redes_unica; then aviso "redes: modo de volta, tudo na network_swarm_public (bash $0 redes-separar desfaz)"
+  elif svc_na_rede traefik_traefik borda_api; then ok "redes separadas por stack (detalhe e prova: bash $0 redes-conferir)"
+  else aviso "redes: ainda a rede única de antes; corte do INF-06 por fazer (README, revisão de 24/10)"; fi
   echo
-  echo "== Últimas linhas do Traefik sobre certificado (o log vai pra arquivo dentro do contêiner)"
-  local cid; cid=$(docker ps -q -f name=traefik_traefik | head -1)
-  if [ -n "$cid" ]; then
-    docker exec "$cid" tail -200 /var/log/traefik/traefik.log 2>/dev/null | grep -iE 'acme|certif|error' | tail -8 || echo "  (nada sobre certificado no log ainda)"
+  echo "== Últimas linhas do Traefik sobre certificado (desde 24/10 o log vai para a saída do contêiner, INF-20)"
+  if docker service inspect traefik_traefik >/dev/null 2>&1; then
+    # Sem as linhas do log de acesso (começam pelo IP de quem acessou): só as do próprio Traefik.
+    docker service logs --since 24h --raw traefik_traefik 2>&1 | grep -vE '^[0-9a-fA-F.:]+ - ' | grep -iE 'acme|certif|level=error' \
+      | grep -v 'port is missing' | tail -8 | grep . || echo "  (nada sobre certificado nas últimas 24 h)"
   else
-    aviso "contêiner do Traefik não encontrado"
+    aviso "serviço do Traefik não encontrado"
   fi
 }
 
@@ -1504,13 +2120,16 @@ app_valor() { # app_valor ARQUIVO NOME -> valor (sem imprimir nada se não houve
 app_ghcr() {
   local u t
   read -rp "Usuário do GitHub dono das imagens [LFcrystal766]: " u; u=${u:-LFcrystal766}
-  echo "Token do GitHub com read:packages (o write:packages do cofre também serve)."
+  echo "Token do GitHub com read:packages, de preferência um só para a VPS (sem write:packages), com validade de 90 dias."
   read -rsp "Cole e dê Enter (não aparece na tela): " t; echo
   [ -n "$t" ] || falha "token vazio"
   printf '%s' "$t" | docker login ghcr.io -u "$u" --password-stdin >/dev/null || falha "login no ghcr.io recusado"
   unset t
+  chmod 600 /root/.docker/config.json 2>/dev/null || true
+  mkdir -p "$BASE"; umask 077; date -u +%FT%TZ > "$GHCR_DESDE"
   ok "docker login ghcr.io como $u"
-  echo "  O Docker guarda a credencial em /root/.docker/config.json. Se o token vencer, rode de novo."
+  echo "  O Docker guarda a credencial em /root/.docker/config.json (base64, chmod 600). Use um token clássico"
+  echo "  SÓ com read:packages e validade de 90 dias (INF-29); o status avisa a partir de 80 dias. Venceu: rode de novo."
 }
 
 app_definir() {
@@ -1736,6 +2355,12 @@ app_gerar_segredos() { # app_gerar_segredos TAG
     } >> "$APP_SEG"
     ok "segredos da nossa Crystal gerados (copie pro cofre: bash $0 app-segredos)"
   fi
+  # Senha do Redis do app (INF-12, 24/10): acrescentada uma vez a segredos antigos. Pode ser
+  # trocada (apagar a linha e app-subir): o Redis só guarda sessões curtas e contadores.
+  if [ -z "$(app_valor "$APP_SEG" APP_REDIS_SENHA)" ]; then
+    echo "APP_REDIS_SENHA=$(openssl rand -hex 24)" >> "$APP_SEG"
+    ok "APP_REDIS_SENHA gerada para o Redis do app (copie pro cofre: bash $0 app-segredos)"
+  fi
   # VAPID (push web): gerado com a própria biblioteca do app, dentro da imagem.
   if [ -z "$(app_valor "$APP_SEG" VAPID_PUBLIC_KEY)" ]; then
     local chaves
@@ -1750,10 +2375,25 @@ app_gerar_segredos() { # app_gerar_segredos TAG
   chmod 600 "$APP_SEG"
 }
 
+# Em quem a API confia para ler o IP do cliente no X-Forwarded-For (limite de tentativas por
+# IP, auditoria). Com as redes separadas (INF-06): a faixa da borda_api, onde só o Traefik
+# está; o Traefik apaga o X-Forwarded-For que vem de fora e escreve o IP real. Antes era "1"
+# (o primeiro salto, fosse quem fosse): um vizinho de rede falando direto com a API (a Crystal,
+# um contêiner comprometido) escolhia o IP registrado. Na volta (rede única), ou sem a rede,
+# fica "1", como era.
+app_trust_proxy() {
+  local sub
+  redes_unica && { echo 1; return 0; }
+  sub=$(docker network inspect borda_api --format '{{range .IPAM.Config}}{{.Subnet}} {{end}}' 2>/dev/null | awk '{print $1}' || true)
+  if printf '%s' "$sub" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}/(1[6-9]|2[0-9])$'; then echo "$sub"; else echo 1; fi
+}
+
 app_gerar_env() {
-  local senha mock=0 k dburl
+  local senha mock=0 k dburl tp redis
   senha=$(app_valor "$APP_SEG" APP_DB_SENHA)
   [ -n "$senha" ] || falha "APP_DB_SENHA ausente em $APP_SEG"
+  redis=$(app_valor "$APP_SEG" APP_REDIS_SENHA)
+  printf '%s' "$redis" | grep -Eq '^[0-9a-f]{48}$' || falha "APP_REDIS_SENHA em $APP_SEG não é hex de 48 caracteres"
   # Papel da API no Postgres (INF-07): crystal_api, sem superusuário, depois do
   # app-db-papel --confirmo; senão o crystal de sempre (superusuário da imagem).
   if [ "$(cat "$APP_DB_PAPEL_ARQ" 2>/dev/null || true)" = crystal_api ]; then
@@ -1787,6 +2427,7 @@ app_gerar_env() {
   for k in $chaves; do
     [ -n "$(app_valor "$APP_EXT" $k)" ] || mock=1
   done
+  tp=$(app_trust_proxy)
   umask 077
   {
     echo "POSTGRES_DB=crystal_web_chat"
@@ -1794,16 +2435,18 @@ app_gerar_env() {
     echo "POSTGRES_PASSWORD=$senha"
     echo "POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256"
   } > "$APP_DIR/postgres.env"
+  echo "REDIS_PASSWORD=$redis" > "$APP_DIR/redis.env"
   {
     echo "# Gerado por bootstrap-vps.sh em $(date -u +%FT%TZ). Não editar: é regravado a cada app-subir."
     echo "NODE_ENV=production"
     echo "HOST=0.0.0.0"
     echo "PORT=3001"
-    # Traefik publica 80/443 em modo host e acrescenta o IP real no X-Forwarded-For.
-    echo "TRUST_PROXY=1"
+    # Traefik publica 80/443 em modo host, apaga o X-Forwarded-For de fora e escreve o IP real.
+    # A API confia nele só vindo da borda_api (app_trust_proxy, INF-06).
+    echo "TRUST_PROXY=$tp"
     echo "WEB_ORIGIN=https://app.$DOMINIO"
     echo "DATABASE_URL=$dburl"
-    echo "REDIS_URL=redis://app_redis:6379"
+    echo "REDIS_URL=redis://:$redis@app_redis:6379"
     echo "UPLOAD_DIR=/app/uploads"
     echo "DEMO_SEED=0"
     echo "ALLOW_MOCK_INTEGRATIONS=$mock"
@@ -1833,8 +2476,10 @@ app_gerar_env() {
     # Públicos (vão no /.well-known do app): impressões do certificado Android e Team ID da Apple.
     grep -E '^(ANDROID_CERT_SHA256|APPLE_TEAM_ID)=' "$APP_EXT" || true
   } > "$APP_DIR/web.env"
-  chmod 600 "$APP_DIR/postgres.env" "$APP_DIR/api.env" "$APP_DIR/crystal.env" "$APP_DIR/web.env"
-  unset senha dburl
+  chmod 600 "$APP_DIR/postgres.env" "$APP_DIR/redis.env" "$APP_DIR/api.env" "$APP_DIR/crystal.env" "$APP_DIR/web.env"
+  unset senha dburl redis
+  if [ "$tp" != 1 ]; then ok "API lê o IP do cliente só do Traefik (TRUST_PROXY=$tp, a borda_api)"
+  elif ! redes_unica; then aviso "não li a faixa da borda_api: TRUST_PROXY=1, como era (bash $0 redes-conferir)"; fi
   if [ "$(cat "$APP_DB_PAPEL_ARQ" 2>/dev/null || true)" = crystal_api ]; then
     ok "API no Postgres como crystal_api (sem superusuário)"
   fi
@@ -1862,17 +2507,19 @@ app_gerar_env() {
 # A API roda sem root desde a etapa 1 do PRD de Otimização (USER node, uid 1000,
 # no Dockerfile de apps/api). O volume app_uploads nasceu com dono root: sem isto a
 # API nova não grava a mídia dos alunos em /app/uploads. Idempotente e calado
-# quando o dono já é 1000:1000; sem a alpine:3.20, avisa e segue.
+# quando o dono já é 1000:1000; sem a imagem alpine, avisa e segue.
+# Versão fixa (24/10, INF-14): era alpine:3.20 (fora de suporte desde 04/2026).
+ALPINE_IMG=alpine:3.24.3
 app_uploads_dono() {
   local vol="${APP_STACK}_app_uploads" dono
   docker volume inspect "$vol" >/dev/null 2>&1 || return 0
-  if ! docker image inspect alpine:3.20 >/dev/null 2>&1 && ! docker pull -q alpine:3.20 >/dev/null 2>&1; then
-    aviso "não baixou alpine:3.20: dono de $vol não conferido (a API, sem root, pode não gravar em /app/uploads)"
+  if ! docker image inspect "$ALPINE_IMG" >/dev/null 2>&1 && ! docker pull -q "$ALPINE_IMG" >/dev/null 2>&1; then
+    aviso "não baixou $ALPINE_IMG: dono de $vol não conferido (a API, sem root, pode não gravar em /app/uploads)"
     return 0
   fi
-  dono=$(docker run --rm -v "$vol:/u" alpine:3.20 stat -c '%u:%g' /u 2>/dev/null) || dono=
+  dono=$(docker run --rm -v "$vol:/u" "$ALPINE_IMG" stat -c '%u:%g' /u 2>/dev/null) || dono=
   [ "$dono" = "1000:1000" ] && return 0
-  if docker run --rm -v "$vol:/u" alpine:3.20 chown -R 1000:1000 /u; then
+  if docker run --rm -v "$vol:/u" "$ALPINE_IMG" chown -R 1000:1000 /u; then
     ok "volume $vol entregue ao uid 1000 (API sem root)"
   else
     aviso "não ajustou o dono de $vol: a API pode não gravar em /app/uploads"
@@ -1943,11 +2590,19 @@ app_subir() {
   [ "$(docker info --format '{{.Swarm.ControlAvailable}}')" = "true" ] || falha "este nó não é manager do Swarm"
   docker network inspect network_swarm_public >/dev/null 2>&1 || falha "rede network_swarm_public não existe"
   docker service ls --format '{{.Name}}' | grep -q '^traefik_traefik$' || aviso "Traefik não encontrado: sem ele app. e api. não respondem"
+  # INF-06: a API e o web vão para borda_api e borda_web; o Traefik tem de estar nelas antes.
+  redes_unica || redes_criar
+  redes_exigir_traefik borda_api borda_web
 
   echo "== imagens $tag"
   local img locais=0
+  local -A dig=([api]="" [web]="" [crystal]="")
   for img in api web crystal; do
     if docker pull -q "$APP_IMG-$img:$tag" >/dev/null 2>&1; then
+      # O digest do que veio do ghcr.io vai junto da tag no yaml (INF-17): o spec diz exatamente
+      # qual imagem roda, e ele aparece aqui para comparar com o resumo do imagens-vps no GitHub.
+      dig[$img]=$(docker image inspect -f '{{range .RepoDigests}}{{println .}}{{end}}' "$APP_IMG-$img:$tag" 2>/dev/null \
+        | grep -m1 -E "^$APP_IMG-$img@sha256:[0-9a-f]{64}\$" | sed 's/.*@/@/' || true)
       continue
     elif [ "$(docker image inspect -f '{{index .Config.Labels "crystal.construida-na-vps"}}' "$APP_IMG-$img:$tag" 2>/dev/null)" = "1" ]; then
       locais=$((locais + 1))   # montada aqui por app-construir: não existe no ghcr.io
@@ -1956,6 +2611,9 @@ app_subir() {
     fi
   done
   if [ "$locais" -gt 0 ]; then ok "imagens $tag: $locais montada(s) nesta VPS (app-construir), o resto baixado"; else ok "$APP_IMG-api, -web e -crystal:$tag baixadas"; fi
+  for img in api web crystal; do
+    [ -n "${dig[$img]}" ] && ok "  $img presa no digest ${dig[$img]#@}"
+  done
 
   echo "== segredos e ambiente"
   app_gerar_segredos "$tag"
@@ -1968,8 +2626,13 @@ app_subir() {
   baixar_conferido "stacks-app/$APP_YAML" "$ORIG/$APP_YAML" || falha "sem $APP_YAML conferido: a stack no ar não foi trocada"
   grep -q '^services:' "$ORIG/$APP_YAML" || falha "$APP_YAML não parece um compose"
   umask 077
-  sed -e "s|APP_TAG|$tag|g" -e "s|APP_ENV_DIR|$APP_DIR|g" "$ORIG/$APP_YAML" > "$STACKS/$APP_YAML"
+  sed -e "s|crystal-web-chat-api:APP_TAG|crystal-web-chat-api:$tag${dig[api]}|" \
+      -e "s|crystal-web-chat-web:APP_TAG|crystal-web-chat-web:$tag${dig[web]}|" \
+      -e "s|crystal-web-chat-crystal:APP_TAG|crystal-web-chat-crystal:$tag${dig[crystal]}|" \
+      -e "s|APP_TAG|$tag|g" -e "s|APP_ENV_DIR|$APP_DIR|g" "$ORIG/$APP_YAML" > "$STACKS/$APP_YAML"
   grep -nE 'APP_TAG|APP_ENV_DIR' "$STACKS/$APP_YAML" | grep -vE '^\s*[0-9]+:\s*#' | grep -q . && falha "marcador sobrando em $APP_YAML"
+  redes_ajustar "$STACKS/$APP_YAML"
+  somente_leitura_ajustar "$STACKS/$APP_YAML"
   app_uploads_dono   # a API sem root (etapa 1) precisa do volume com dono 1000:1000
   local t0; t0=$(date +%s)
   docker stack deploy --with-registry-auth -c "$STACKS/$APP_YAML" "$APP_STACK" --detach=true >/dev/null
@@ -2131,6 +2794,9 @@ app_status() {
   echo "== Serviços do app"
   docker service ls --filter "label=com.docker.stack.namespace=$APP_STACK" --format '{{.Name}} {{.Replicas}} {{.Image}}' \
     | awk '{printf "  %-26s %-5s %s\n",$1,$2,$3}'
+  # A tag sozinha, sem o @sha256 (INF-17): é o que vai no 'app-subir' da volta ou da onda 2.
+  local tag; tag=$(app_tag_atual)
+  [ -n "$tag" ] && echo "  tag no ar: $tag   (volta ou subir de novo: bash $0 app-subir $tag)"
   echo
   echo "== HTTPS (certificado tem que ser válido, sem -k)"
   local u code
@@ -2358,7 +3024,12 @@ crystal_banco() {
     sleep 3; t=$((t+3))
   done
   # A senha vai pela entrada padrão (heredoc), não pela linha de comando.
-  docker exec -i "$pg" psql -v ON_ERROR_STOP=1 -q -U crystal -d crystal_web_chat >/dev/null <<SQL || falha "não criou o banco da Crystal"
+  # Revisão de 24/10 (INF-27): se uma instrução falhar, o Postgres não a grava no log (com a
+  # senha dentro), nem como STATEMENT nem como CONTEXT. crystal é superusuário: pode mudar isso.
+  docker exec -i "$pg" psql -X -v ON_ERROR_STOP=1 -q -U crystal -d crystal_web_chat >/dev/null <<SQL || falha "não criou o banco da Crystal"
+set log_statement = 'none';
+set log_min_error_statement = 'panic';
+set log_error_verbosity = 'terse';
 do \$\$ begin
   if not exists (select from pg_roles where rolname = 'crystal_agente') then
     create role crystal_agente login password '$senha';
@@ -2913,7 +3584,7 @@ app_auditoria_backfill() { # app_auditoria_backfill TAG
     sleep 5; t=$((t+5))
   done
   saida=$(docker service logs --raw "$svc" 2>&1 | grep -vE 'Lifecycle|postinstall|prisma generate|^\s*$' || true)
-  printf '%s\n' "$saida" | tail -25 | sed 's/^/     /'
+  printf '%s\n' "$saida" | tail -25 | redigir | sed 's/^/     /'
   case "$estado" in
     Complete*) docker service rm "$svc" >/dev/null 2>&1 || true ;;
     *) falha "a migração ou o backfill NÃO terminou bem ($estado). A API continua parada e o banco como estava antes do passo que falhou. Mande o log acima para a sessão; para voltar ao ar: bash $0 app-subir $(app_tag_atual)" ;;
@@ -2991,7 +3662,7 @@ painel_diagnostico() {
   echo "== 5. web (Next.js) nas últimas ${horas}h"
   docker service logs --since "${horas}h" --raw ${APP_STACK}_app_web 2>/dev/null | grep -ciE 'error|timeout|ECONNRESET|ECONNREFUSED' | sed 's/^/  linhas com erro: /' || true
   docker service logs --since "${horas}h" --raw ${APP_STACK}_app_web 2>/dev/null | grep -iE 'error|timeout|ECONNRESET|ECONNREFUSED' \
-    | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z.]+/<email>/g' | cut -c1-110 | sort | uniq -c | sort -rn | head -6 | sed 's/^/  /' || true
+    | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z.]+/<email>/g' | redigir | cut -c1-110 | sort | uniq -c | sort -rn | head -6 | sed 's/^/  /' || true
   echo "Cole tudo acima na sessão (não tem segredo nem dado de aluno)."
 }
 
@@ -3138,6 +3809,17 @@ vigia() {
   if [ -s "$FORA_CONF" ] || [ -s "$BACKUPS/.fora-ultimo" ]; then
     h=$(horas_desde "$BACKUPS/.fora-ultimo")
     if [ "$h" = nunca ] || [ "$h" -ge 26 ]; then problemas+=("última cópia no R2: há ${h} h"); fi
+  fi
+  # Chave pública dos backups (INF-18): com a esperada no script, divergir é alerta; e uma vez
+  # por mês (dia 1º, 12:00 UTC) a vigia manda o fim dela para o dono comparar com o Bitwarden,
+  # e a cada 3 meses lembra o teste de restauração.
+  if [ -s "$FORA_DEST" ]; then
+    backup_destinatario_conferir >/dev/null || problemas+=("chave pública dos backups na VPS ($(backup_destinatario_resumo)) diferente da esperada: os backups não sobem")
+    if [ "$(date -u +%d%H)" = 0112 ] && [ $((10#$(date -u +%M))) -lt 5 ]; then
+      local tri=""
+      case "$(date -u +%m)" in 01|04|07|10) tri=$'\n'"Este mês também: teste de restauração (bash bootstrap-vps.sh backup-link crystal_web_chat e abrir no Mac com a chave do Bitwarden; README, Backup fora da VPS)." ;; esac
+      vigia_telegram "🔑 Conferência mensal: a chave pública dos backups na VPS termina em $(backup_destinatario_resumo). Compare com o item 'Crystal backup age' do Bitwarden; se não bater, os backups novos não abrem com a sua chave.$tri" || true
+    fi
   fi
   uso=$(df -P /var/lib/docker 2>/dev/null | awk 'NR==2{gsub("%","",$5); print $5}' || true)
   if printf '%s' "$uso" | grep -Eq '^[0-9]+$' && [ "$uso" -ge 85 ]; then
@@ -3309,6 +3991,9 @@ atendimento_subir() {
   [ "$(docker info --format '{{.Swarm.ControlAvailable}}')" = "true" ] || falha "este nó não é manager do Swarm"
   docker network inspect network_swarm_public >/dev/null 2>&1 || falha "rede network_swarm_public não existe"
   docker service ls --format '{{.Name}}' | grep -q '^traefik_traefik$' || aviso "Traefik não encontrado: sem ele $CW_HOST não responde"
+  # INF-06: o Rails vai para a borda_atendimento; o Traefik tem de estar nela antes.
+  redes_unica || redes_criar
+  redes_exigir_traefik borda_atendimento
   local ip ips
   ip=$(getent ahostsv4 "$CW_HOST" 2>/dev/null | awk 'NR==1{print $1}' || true)
   [ -n "$ip" ] || falha "$CW_HOST ainda não existe no DNS. Crie no Cloudflare: tipo A, nome atendimento, IP desta VPS, nuvem CINZA (Somente DNS)"
@@ -3334,6 +4019,7 @@ atendimento_subir() {
   umask 077
   sed -e "s|CW_VERSAO|$CW_VERSAO|g" -e "s|CW_ENV_DIR|$CW_DIR|g" -e "s|CW_IPS_ADMIN|$ips|g" "$ORIG/$CW_YAML" > "$STACKS/$CW_YAML"
   grep -nE 'CW_VERSAO|CW_ENV_DIR|CW_IPS_ADMIN' "$STACKS/$CW_YAML" | grep -vE '^\s*[0-9]+:\s*#' | grep -q . && falha "marcador sobrando em $CW_YAML"
+  redes_ajustar "$STACKS/$CW_YAML"
   local t0; t0=$(date +%s)
   docker stack deploy -c "$STACKS/$CW_YAML" "$CW_STACK" --detach=true >/dev/null
   sleep 8
@@ -3735,6 +4421,33 @@ crystal_provisoria_desligar() {
   ok "app de volta à Crystal simulada; fluxo desativado"
 }
 
+# Crystal do WhatsApp (stack da agência, stacks-app/30-crystal-ia.yaml), quando o corte para o app
+# terminar (PROXIMOS-PASSOS.md). Revisão de 24/10 (INF-30): enquanto ela ou o .env dela existem, é
+# mais um lugar com a service_role do Supabase, a chave do OpenRouter e o token do LendChat. Tira a
+# stack do ar e apaga o .env e o yaml gerado; as chaves têm de ser REVOGADAS na origem (INF-02).
+ia_encerrar() {
+  [ "${2:-}" = --confirmo ] || falha "isto tira a Crystal do WhatsApp (stack crystal_ia) do ar de vez. Só depois do corte para o app: bash $0 ia-encerrar --confirmo"
+  local f
+  if docker stack ls --format '{{.Name}}' 2>/dev/null | grep -qx crystal_ia; then
+    docker stack rm crystal_ia >/dev/null || falha "não removi a stack crystal_ia"
+    ok "stack crystal_ia removida (os contêineres somem em alguns segundos)"
+  else
+    ok "stack crystal_ia não está no ar"
+  fi
+  for f in "$APP_DIR/crystal-ia.env" "$STACKS/30-crystal-ia.yaml"; do
+    [ -f "$f" ] || continue
+    if command -v shred >/dev/null; then shred -u "$f"; else rm -f "$f"; fi
+    ok "apagado: $f"
+  done
+  echo "Falta, fora da VPS (INF-02 e INF-30), nesta ordem:"
+  echo "  1. Revogar as chaves que ela usava: a service_role do Supabase (depois de o app estar na nova:"
+  echo "     app-definir SUPABASE_SERVICE_ROLE_KEY, app-subir, app-supabase-teste 200), a chave do OpenRouter"
+  echo "     da agência e o token do LendChat."
+  echo "  2. Cloudflare: apagar o registro ia. (cinza)."
+  echo "  3. Quando nada mais usar: docker volume rm crystal_redis_data crystal_dlq_dumps"
+  echo "  4. Anotar a data no CONTINUAR-EM-OUTRA-CONTA.md."
+}
+
 app_segredos() {
   [ -f "$APP_SEG" ] || falha "ainda não há segredos do app: rode 'app-subir'"
   if [ -t 1 ] && command -v less >/dev/null; then
@@ -3771,6 +4484,7 @@ case "$CMD" in
   vigia) vigia ;;
   app-aluno) app_aluno ;;
   app-segredos) app_segredos ;;
+  ia-encerrar) ia_encerrar "$@" ;;
   app-recomecar) app_recomecar "$@" ;;
   crystal-nossa) crystal_nossa "$@" ;;
   app-revisao) app_revisao "$@" ;;
@@ -3789,6 +4503,7 @@ case "$CMD" in
   preparar) preparar "$@" ;;
   recomecar-n8n) recomecar_n8n "$@" ;;
   docker-api) docker_api ;;
+  docker-daemon) docker_daemon "$@" ;;
   arquivos-hash) arquivos_hash ;;
   backup) backup "$@" ;;
   backup-cron) backup_cron ;;
@@ -3798,9 +4513,12 @@ case "$CMD" in
   backup-testar-trava) backup_testar_trava ;;
   backup-link) shift; backup_link "$@" ;;
   firewall) firewall ;;
-  seguranca) seguranca ;;
+  seguranca) seguranca "$@" ;;
   ssh-confirmar) ssh_confirmar ;;
   ssh-voltar) ssh_voltar ;;
+  redes-conferir) redes_conferir ;;
+  redes-voltar) redes_voltar "$@" ;;
+  redes-separar) redes_separar ;;
   painel-restringir) shift; painel_restringir "$@" ;;
   painel-desligar) painel_desligar ;;
   painel-ligar) painel_ligar ;;

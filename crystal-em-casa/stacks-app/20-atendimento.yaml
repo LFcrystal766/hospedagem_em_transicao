@@ -8,6 +8,16 @@
 #   cw_postgres e cw_redis PRÓPRIOS, numa rede interna só deles: não usa o banco
 #   do app nem o do n8n.
 #
+# REDES (revisão de segurança de 24/10, INF-06)
+#   cw_interno         Rails, Sidekiq, Postgres e Redis do Chatwoot. Só esta stack.
+#   borda_atendimento  Traefik e cw_rails. Criada pelo 'bootstrap-vps.sh preparar'; o
+#                      atendimento-subir recusa subir se o Traefik ainda não está nela.
+#   O Sidekiq sai da rede pública: ele só precisa de saída para a internet (webhooks do
+#   robô e do canal para https://api., e-mail pelo Resend), e a cw_interno, overlay comum,
+#   já sai pelo docker_gwbridge do Docker (a nossa Crystal sai assim para o OpenRouter).
+#   Chatwoot e API seguem conversando só pelos endereços públicos (https://api. e
+#   https://atendimento.), passando pelo Traefik: nenhum fala direto com o outro.
+#
 #   A Crystal responde como robô (agent bot) do Chatwoot: o Chatwoot chama
 #   https://api.crystalnowpp.com.br/webhooks/chatwoot-bot, assinado. Webhook pelo
 #   endereço público de propósito: o Chatwoot recusa endereço interno (proteção
@@ -61,7 +71,7 @@ services:
       - bundle exec rails db:chatwoot_prepare && exec bundle exec rails s -p 3000 -b 0.0.0.0
     networks:
       - cw_interno
-      - network_swarm_public
+      - borda_atendimento
     volumes:
       - cw_storage:/app/storage
     healthcheck:
@@ -86,11 +96,16 @@ services:
       restart_policy: {condition: any, delay: 10s}   # sem max_attempts (achado 28)
       labels:
         - traefik.enable=true
-        - traefik.docker.network=network_swarm_public
+        - traefik.docker.network=borda_atendimento
         - traefik.http.routers.crystal_atendimento.rule=Host(`atendimento.crystalnowpp.com.br`)
         - traefik.http.routers.crystal_atendimento.entrypoints=websecure
         - traefik.http.routers.crystal_atendimento.tls.certresolver=letsencryptresolver
         - traefik.http.routers.crystal_atendimento.service=crystal_atendimento
+        # Revisão de 24/10 (INF-21): HSTS e nosniff na borda. Com FORCE_SSL=false (o TLS termina
+        # no Traefik) o Rails não manda HSTS; nas duas rotas, a geral e a de administração.
+        - traefik.http.routers.crystal_atendimento.middlewares=crystal-atendimento-cabecalhos
+        - traefik.http.middlewares.crystal-atendimento-cabecalhos.headers.stsseconds=31536000
+        - traefik.http.middlewares.crystal-atendimento-cabecalhos.headers.contenttypenosniff=true
         # Área de administração do Chatwoot: só dos IPs do painel. (bootstrap-vps.sh
         # painel-restringir). Sem lista, só a própria VPS, ou seja: fechado. A configuração
         # do dia a dia é feita pelo bootstrap (rails runner), não por ali.
@@ -108,14 +123,15 @@ services:
         - traefik.http.routers.crystal_atendimento_admin.entrypoints=websecure
         - traefik.http.routers.crystal_atendimento_admin.tls.certresolver=letsencryptresolver
         - traefik.http.routers.crystal_atendimento_admin.service=crystal_atendimento
-        - traefik.http.routers.crystal_atendimento_admin.middlewares=crystal-atendimento-admin-ips
+        - traefik.http.routers.crystal_atendimento_admin.middlewares=crystal-atendimento-admin-ips,crystal-atendimento-cabecalhos
         - traefik.http.middlewares.crystal-atendimento-admin-ips.ipallowlist.sourcerange=CW_IPS_ADMIN
         - traefik.http.services.crystal_atendimento.loadbalancer.server.port=3000
         - traefik.http.services.crystal_atendimento.loadbalancer.passHostHeader=true
 
   # ---------------------------------------------------------------- Sidekiq
   # Manda os webhooks (para a Crystal e para o app): precisa de saída para a
-  # internet, por isso também está na rede pública. Sem rota no Traefik.
+  # internet, que a cw_interno já dá (overlay comum). Desde 24/10 (INF-06) não está mais
+  # na rede pública: sem rota no Traefik, não precisa de borda.
   cw_sidekiq:
     image: chatwoot/chatwoot:CW_VERSAO
     logging: *logs
@@ -127,7 +143,6 @@ services:
     command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
     networks:
       - cw_interno
-      - network_swarm_public
     volumes:
       - cw_storage:/app/storage
     deploy:
@@ -167,6 +182,8 @@ services:
 
   # ---------------------------------------------------------------- Redis
   # Com senha e persistência; sem despejo de chave (filas do Sidekiq moram aqui).
+  # Desde 24/10 o command passa pelo docker-entrypoint.sh da imagem, que troca para o usuário
+  # redis: antes o "exec redis-server" direto rodava como root.
   cw_redis:
     image: redis:7.4.11-alpine
     logging: *logs
@@ -174,7 +191,7 @@ services:
     command:
       - sh
       - -c
-      - exec redis-server --appendonly yes --maxmemory-policy noeviction --requirepass "$$REDIS_PASSWORD"
+      - exec docker-entrypoint.sh redis-server --appendonly yes --maxmemory-policy noeviction --requirepass "$$REDIS_PASSWORD"
     networks:
       - cw_interno
     volumes:
@@ -196,9 +213,9 @@ networks:
   # Só a stack de atendimento: Postgres e Redis não ficam na rede pública.
   cw_interno:
     driver: overlay
-  network_swarm_public:
+  borda_atendimento:
     external: true
-    name: network_swarm_public
+    name: borda_atendimento
 
 volumes:
   cw_storage:

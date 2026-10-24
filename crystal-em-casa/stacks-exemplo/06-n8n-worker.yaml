@@ -41,6 +41,14 @@ services:
     image: n8nio/n8n:1.123.10
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
 
+    # Revisão de 24/10 (INF-28): log do Docker com rotação, 3 arquivos de 10 MB. Antes, sem
+    # limite (o json-file crescia até encher o disco).
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     # A concorrência é quantos fluxos este worker executa AO MESMO TEMPO.
     #
     # 50 atende com folga fluxos de integração, que são curtos e carregam pouco
@@ -51,8 +59,11 @@ services:
     # Leia também o aviso sobre réplicas, mais abaixo em "replicas".
     command: worker --concurrency=50
 
+    # Revisão de 24/10 (INF-06): só a rede interna do n8n (Postgres e Redis). O worker não
+    # tem rota no Traefik, então não entra na borda. A saída para a internet (Supabase,
+    # Resend, OpenRouter) continua: rede overlay comum sai pelo docker_gwbridge do Docker.
     networks:
-      - network_swarm_public
+      - n8n_interno
 
     environment:
 
@@ -218,6 +229,7 @@ services:
       start_period: 60s
 
 networks:
-  network_swarm_public:
-    name: network_swarm_public
+  # Criada pelo 'bootstrap-vps.sh preparar' (overlay, sem attachable).
+  n8n_interno:
+    name: n8n_interno
     external: true

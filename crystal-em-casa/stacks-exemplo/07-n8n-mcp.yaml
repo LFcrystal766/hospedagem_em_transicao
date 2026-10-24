@@ -46,12 +46,23 @@ services:
     image: n8nio/n8n:1.123.10
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
 
+    # Revisão de 24/10 (INF-28): log do Docker com rotação, 3 arquivos de 10 MB. Antes, sem
+    # limite (o json-file crescia até encher o disco).
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     # Usa o mesmo modo do serviço de webhook. O que separa os dois é a regra de
     # roteamento do Traefik, lá embaixo.
     command: webhook
 
+    # Revisão de 24/10 (INF-06): borda_n8n para o Traefik (só ele e o n8n estão nela) e
+    # n8n_interno para o Postgres e o Redis do n8n, que não estão em mais rede nenhuma.
     networks:
-      - network_swarm_public
+      - borda_n8n
+      - n8n_interno
 
     environment:
 
@@ -172,6 +183,7 @@ services:
 
       labels:
         - traefik.enable=true
+        - traefik.docker.network=borda_n8n
         # TROCAR: o MESMO endereço do serviço de webhook.
         # O "PathPrefix(/mcp)" é o que separa os dois: só o que chegar em
         # /mcp vem para cá, o resto continua indo para o webhook.
@@ -179,6 +191,10 @@ services:
         - traefik.http.routers.n8n_mcp.entrypoints=websecure
         - traefik.http.routers.n8n_mcp.tls.certresolver=letsencryptresolver
         - traefik.http.routers.n8n_mcp.service=n8n_mcp
+        # Revisão de 24/10 (INF-21): HSTS e nosniff na borda (o n8n não manda HSTS).
+        - traefik.http.routers.n8n_mcp.middlewares=n8n-mcp-cabecalhos
+        - traefik.http.middlewares.n8n-mcp-cabecalhos.headers.stsseconds=31536000
+        - traefik.http.middlewares.n8n-mcp-cabecalhos.headers.contenttypenosniff=true
         # Porta interna do n8n. Não mudar.
         - traefik.http.services.n8n_mcp.loadbalancer.server.port=5678
         - traefik.http.services.n8n_mcp.loadbalancer.passHostHeader=true
@@ -209,6 +225,10 @@ services:
       start_period: 60s
 
 networks:
-  network_swarm_public:
-    name: network_swarm_public
+  # As duas criadas pelo 'bootstrap-vps.sh preparar' (overlay, sem attachable).
+  borda_n8n:
+    name: borda_n8n
+    external: true
+  n8n_interno:
+    name: n8n_interno
     external: true

@@ -16,6 +16,8 @@
 #
 # ANTES DE SUBIR, criar o volume (uma vez só, no manager):
 #   docker volume create n8n_postgres_data
+#   e a rede interna do n8n (o 'bootstrap-vps.sh preparar' cria):
+#   docker network create --driver=overlay n8n_interno
 #
 # ANTES DE SUBIR, marcar o nó que vai receber o n8n (uma vez só, no manager):
 #   docker node update --label-add app=n8n NOME_DO_NO
@@ -39,11 +41,26 @@ version: "3.7"
 
 services:
   n8n_postgres:
-    image: postgres:16
+    # Versão fixa (revisão de 24/10, INF-14): era postgres:16, que muda de patch sozinho a cada
+    # deploy. 16.15-trixie é o que postgres:16 dava em 24/10 (mesmo digest no Docker Hub), na
+    # mesma base Debian trixie: nada muda no disco. Atualizar: ler as notas da 16.x, backup,
+    # trocar aqui, preparar e bancos.
+    image: postgres:16.15-trixie
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
 
+    # Revisão de 24/10 (INF-28): log do Docker com rotação, 3 arquivos de 10 MB. Antes, sem
+    # limite (o json-file crescia até encher o disco).
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Revisão de 24/10 (INF-06): só na rede interna do n8n. Antes ficava na rede pública,
+    # junto com o app, o Chatwoot e o Traefik; agora só o editor, o webhook e o worker do
+    # n8n o alcançam (pelo mesmo nome, n8n_postgres).
     networks:
-      - network_swarm_public
+      - n8n_interno
 
     entrypoint: docker-entrypoint.sh
     command:
@@ -72,6 +89,15 @@ services:
       # O banco é criado sozinho na primeira subida, se o volume estiver vazio.
       - POSTGRES_DB=n8n_queue
 
+    # Revisão de 24/10: teste de saúde (antes não havia): o Swarm só conta o banco como de pé
+    # quando ele aceita conexão.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d n8n_queue"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
     deploy:
       mode: replicated
       replicas: 1
@@ -90,6 +116,8 @@ volumes:
     name: n8n_postgres_data
 
 networks:
-  network_swarm_public:
+  # Criada pelo 'bootstrap-vps.sh preparar' (overlay, sem attachable). Externa porque o
+  # n8n está em cinco stacks (postgres, redis, editor, webhook, worker).
+  n8n_interno:
     external: true
-    name: network_swarm_public
+    name: n8n_interno

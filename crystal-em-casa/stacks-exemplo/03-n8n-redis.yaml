@@ -31,21 +31,44 @@ version: "3.7"
 
 services:
   n8n_redis:
-    image: redis:7
+    # Versão fixa (revisão de 24/10, INF-14): era redis:7. 7.4.11-bookworm é o que redis:7 dava
+    # em 24/10 (mesmo digest no Docker Hub). Atualizar: trocar aqui, preparar e bancos.
+    image: redis:7.4.11-bookworm
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+
+    # Revisão de 24/10 (INF-28): log do Docker com rotação, 3 arquivos de 10 MB. Antes, sem
+    # limite (o json-file crescia até encher o disco).
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
     # appendonly yes = grava cada alteração em disco, para que a fila sobreviva
     # a um reinício do contêiner.
     command: redis-server --appendonly yes --port 6379
 
+    # Revisão de 24/10 (INF-06): só na rede interna do n8n. Antes ficava na rede pública,
+    # junto com o app, o Chatwoot e o Traefik; agora só o editor, o webhook e o worker do
+    # n8n o alcançam (pelo mesmo nome, n8n_redis).
     networks:
-      - network_swarm_public
+      - n8n_interno
 
     # A porta NÃO é publicada: o Redis só é alcançável de dentro da rede do
     # Docker. Nunca exponha um Redis à internet.
 
     volumes:
       - n8n_redis_data:/data
+
+    # Revisão de 24/10: teste de saúde (antes não havia). A senha (--requirepass, posta pelo
+    # bootstrap) não fica no ambiente; sem ela o Redis responde NOAUTH, o que já prova que
+    # está de pé e atendendo.
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping 2>&1 | grep -qE 'PONG|NOAUTH'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
     deploy:
       mode: replicated
@@ -64,6 +87,8 @@ volumes:
     name: n8n_redis_data
 
 networks:
-  network_swarm_public:
+  # Criada pelo 'bootstrap-vps.sh preparar' (overlay, sem attachable). Externa porque o
+  # n8n está em cinco stacks (postgres, redis, editor, webhook, worker).
+  n8n_interno:
     external: true
-    name: network_swarm_public
+    name: n8n_interno

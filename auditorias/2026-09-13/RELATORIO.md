@@ -64,7 +64,7 @@ DKIM `default` RSA 2048 igual; DMARC `p=none`; sem CAA; sem DS.
 da tabela Z). `cpanel`, `webmail`, `webdisk`, `autodiscover` e `autoconfig`: NXDOMAIN.
 `leticiafelisberto.com` segue com NS da AZAN e MX do Google Workspace.
 
-**Registro** (`evidencias/rdap.json`) — ativo, registrado em 02/03/2026, expira
+**Registro** (`evidencias/rdap-resumo.json`; o RDAP inteiro, com nome e endereço do titular, saiu do repositório em 24/10, INF-26) — ativo, registrado em 02/03/2026, expira
 **02/03/2028**, `delegationSigned: false` (DNSSEC desligado, dá pra trocar NS direto).
 O RDAP público não mostra o e-mail do contato, então o item `acesso-registro-br`
 continua dependendo do Luiz.

@@ -207,3 +207,44 @@ Vale registrar, porque é o que sustenta a nota geral e não deve ser desfeito e
 4. INF-05, INF-06, INF-07, INF-12: endurecimento do Swarm (segredos, redes, papel do banco, Redis);
    planejar como uma "onda de infra" com `backup` antes e roteiro de volta.
 5. Baixos restantes conforme as sessões tocarem em cada arquivo.
+
+---
+
+## 5. Situação depois das ondas 1 e 2 (24/10)
+
+Onda 1 juntada em `b4d33ed`; onda 2 na branch `seguranca/infra-onda2`. "Feito" diz o commit;
+"não" diz por quê; "app" é do repositório `crystal-web-chat` (não deste). Roteiro na VPS, em
+ordem e com a volta de cada passo: `crystal-em-casa/README.md`, "Revisão de segurança de 24/10".
+
+| id | gravidade | situação | onde |
+|---|---|---|---|
+| INF-01 | alto | feito: Traefik v2.11.60, trava de /super_admin, /monitoring e /platform testada com `/../` e `%2e%2e` | `8679002` |
+| INF-02 | alto | ação do dono, fora do código: trocar a `service_role`, a chave do OpenRouter da agência e o token do LendChat e revogar as antigas. `ia-encerrar` lista a ordem | `ed695ff` (lembrete) |
+| INF-03 | alto | feito (ambiente, Execute Command, arquivos, pacotes de terceiros, `require` só `crypto`), mais HSTS no editor/webhook (`876f2e1`). Não: `N8N_PUBLIC_API_DISABLED`, porque há conexão com o n8n pela conta que pode depender da API pública (decisão do dono), e `ipallowlist` no `editor.` (opcional; trancaria o dono fora de IP novo; 2FA no lugar) | `852a5a2` |
+| INF-04 | médio | feito: yaml por commit fixo e sha256. Proteger a branch que gera imagem é configuração do GitHub do app | `2402af5`; app |
+| INF-05 | médio | não em Docker secrets: as imagens do app e do Chatwoot só leem variável de ambiente (nenhuma lê `NOME_FILE`). Feito: limite escrito, painel restrito avisado no fim de cada subida, só o root no Docker (grupo docker, `docker.sock`, API sem TCP conferidos) e o Traefik sem `docker.sock` | `1013183`, `ed695ff`, `55690e1` |
+| INF-06 | médio | feito: uma borda por stack, `n8n_interno`, Traefik fora das redes de banco, `redes-conferir` e `redes-voltar`; a API só confia no `X-Forwarded-For` da `borda_api` | `165dfd1`, `c186aee` |
+| INF-07 | médio | feito: `app-db-papel` (API sem superusuário) | `23d037d` |
+| INF-08 | médio | app (fast-uri, fastify, `--audit-level=moderate`) | app |
+| INF-09 | médio | feito no `ci/build-image.yml` deste repositório; os workflows do app são do app | `a8d65c0`; app |
+| INF-10 | médio | app (pnpm 10, quarentena, `onlyBuiltDependencies`) | app |
+| INF-11 | médio | feito: SSH só com chave, com volta automática. Não: `MaxAuthTries 3` (com várias chaves no agente do Mac, tranca antes de chegar na certa; o fail2ban já limita) e 22 só para o IP do dono (IP de casa muda) | `f51a7a8` |
+| INF-12 | baixo | feito: Redis do app com senha; Redis do Chatwoot sem root | `ba354e8` |
+| INF-13 | baixo | app (`bodyLimit` do login, prazo da exceção do zod) | app |
+| INF-14 | baixo | feito: Postgres e Redis do n8n e do app em versão fixa (o mesmo digest de 24/10), alpine 3.24.3 no bootstrap. `node:22-alpine` dos Dockerfiles é do app | `ac31c00`; app |
+| INF-15 | baixo | feito: API, web e Crystal sem capabilities; Crystal (e o Traefik) só de leitura. Não: API e web só de leitura, sem ensaio (por quê, na tabela do README) | `1bab7e4`, `55690e1` |
+| INF-16 | baixo | app (imagem de produção sem dependências de desenvolvimento) | app |
+| INF-17 | baixo | feito aqui: o `app-subir` grava a imagem com o digest que baixou e o mostra. Proveniência, SBOM, assinatura e tag `v*` são do workflow do app | `ac31c00`; app |
+| INF-18 | baixo | feito: `FORA_DEST_ESPERADO` (o dono preenche com a pública), fim da chave no `status`/`backup-conferir`, conferência mensal e lembrete trimestral de restauração pela vigia. Token do R2 só do bucket: já é o que o README manda criar | `97c390c` |
+| INF-19 | baixo | feito: backups de rodadas anteriores cifrados com age também na VPS | `97c390c` |
+| INF-20 | baixo | feito: log do Traefik na saída do contêiner, com rotação; acesso só 4xx/5xx; `status` lê com `docker service logs` | `55690e1` |
+| INF-21 | baixo | feito: HSTS e `nosniff` no Chatwoot e no n8n, por rota; TLS 1.2 mínimo já é o padrão da v2.11 (conferido no código). Não: `sniStrict` e `tls.options` (precisam de arquivo montado; pouco ganho) | `876f2e1`, `55690e1` |
+| INF-22 | baixo | feito: proxy só de leitura do `docker.sock` para o Traefik, com volta automática se as rotas sumirem | `55690e1` |
+| INF-23 | baixo | feito: token do Cloudflare pela entrada padrão do curl | `fb8fadd` |
+| INF-24 | baixo | app (`docker-compose.yml` de desenvolvimento) | app |
+| INF-25 | baixo | não: resíduos em `/tmp` da máquina da sessão, fora de qualquer repositório; limpar à mão lá | — |
+| INF-26 | baixo | feito: `diag-vazamento.sh` sem texto livre, `.sql` do repositório; WordPress só id/slug; RDAP só resumo (o inteiro saiu do repositório); `redigir` nas saídas de diagnóstico do bootstrap | `8618e26` |
+| INF-27 | baixo | feito: `crystal_banco` com `log_min_error_statement=panic` (o `app-db-papel` já tinha) | `ed695ff` |
+| INF-28 | baixo | feito: `docker-daemon` (`no-new-privileges`, rotação padrão) e rotação, saúde e limites nas stacks da agência | `83ed819`, `876f2e1` |
+| INF-29 | baixo | feito: `config.json` do Docker em 600, idade do token do ghcr avisada a partir de 80 dias | `ed695ff` |
+| INF-30 | baixo | feito: `ia-encerrar --confirmo` (stack fora, `.env` apagado, o que revogar). O "se continuar" (senha no Redis dela) não, porque ela vai ser encerrada | `ed695ff` |
