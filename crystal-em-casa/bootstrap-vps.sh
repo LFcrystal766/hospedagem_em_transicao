@@ -207,19 +207,19 @@ DOMINIO=crystalnowpp.com.br
 # com o commit atual; 3) colar aqui e commitar o script. REF=<commit de 40 letras> troca o
 # commit (o sha256 continua valendo); branch não é aceita. Rodando de dentro de um clone do
 # repositório, usa a cópia local (o git garante a origem) e só avisa se divergir da tabela.
-STACKS_COMMIT=10131831340c9e74a7c78d4b2773ae28e9a10c79
+STACKS_COMMIT=91e7971058d91929c93b5421791def4b5ba9ba22
 declare -A ARQ_SHA256=(
-  [stacks-exemplo/00-traefik.yaml]=1e394a5780c529cd8ac9c5745573b011c13dadefb6a856a538f9d349fd957ef5
-  [stacks-exemplo/01-portainer.yaml]=956304308fdea7b905c0807ceda69f2380584e3f4f43d303a3c5a69d45118463
-  [stacks-exemplo/02-n8n-postgres.yaml]=2efac56e511214308ec20c71307467b44cbece60cf35e7f2be6b7156582cca78
-  [stacks-exemplo/03-n8n-redis.yaml]=01b3963db27eb03b5fa9736fd77e2a6d0aac164cf51d38388f798c9c98533de1
-  [stacks-exemplo/04-n8n-editor.yaml]=fe00ea4d9276e2e927c1ef4391df2c6fafa8aa121a0dfc329ea7cb2d81ea3e11
-  [stacks-exemplo/05-n8n-webhook.yaml]=89ab11299c1583e9c1a794b630a7ce5f0ca5aaaa1ce221c28eca338531756688
-  [stacks-exemplo/06-n8n-worker.yaml]=d04fa99497375408662d53340a4fc622e768c262ec91a905014311e31d37ed5f
-  [stacks-app/01-portainer-restrito.yaml]=bc035b6d6dd35ac159080dce72e9fa2bea5f21e662d2c035be994e51ac9b23d4
-  [stacks-app/10-crystal-app.yaml]=cf0741a0fca6531620a72c61b0edf1266df76982b5adb7026f05039c3c848330
-  [stacks-app/20-atendimento.yaml]=bffde96b7388352d79ee0faa3baae00d4e7a6ab0afc41ccf737b267c5f23b9cb
   [n8n/crystal-provisoria.json]=6ba9a2183c94c4fcff07207e7fc29b9b510907d013a51cffea6d32d84e0d7387
+  [stacks-app/01-portainer-restrito.yaml]=d646706f7e52b36d7bdd632ab0096e5bcdb597c3f7ecd5dda0925e230b312639
+  [stacks-app/10-crystal-app.yaml]=476867fa6b86b2a36d23258108d4f5b3620f8badb7cf533cb21b0f34569a22e7
+  [stacks-app/20-atendimento.yaml]=edf37f34d97d046b7adaaa34468a8a95137a6ce6874321a01f93ad12b06dd58c
+  [stacks-exemplo/00-traefik.yaml]=b8bbd7ffd93a69976223f7677ad70600d7188c0bc49b7e64671c7a0381de405d
+  [stacks-exemplo/01-portainer.yaml]=a3c3b94eb42cb8f433cf14387cc47cdc060e159baaffa0a9e418fc5f7ee80943
+  [stacks-exemplo/02-n8n-postgres.yaml]=9efd884653d814488eca7eab47416ae5f238433c2316e57218615b76e0a6b6c6
+  [stacks-exemplo/03-n8n-redis.yaml]=d3d53f2773626ac10d160aeae1ff317d49319590232d6f5de0ba71eadc41c6f5
+  [stacks-exemplo/04-n8n-editor.yaml]=215f474cb20515e615772016f7bb8d09114a6d889ac209afcf85acdf611d303e
+  [stacks-exemplo/05-n8n-webhook.yaml]=cfbd56ac26977d4963964acc57fd1a10438a66273bacf35ebc8d9ca32befa769
+  [stacks-exemplo/06-n8n-worker.yaml]=093c8fd28483daf13712f759059777e7ee7aae60e7b87727c55ee0619402927a
 )
 STACKS_REF="${REF:-$STACKS_COMMIT}"
 RAW_BASE="https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/$STACKS_REF/crystal-em-casa"
