@@ -227,6 +227,28 @@ os cabeçalhos; fora da lista → 403, inclusive com `X-Forwarded-For` forjado. 
 Swarm local, o Portainer alcança `tasks.agent:9001` e um vizinho da rede pública
 não resolve o agente.
 
+### Revisão de segurança de 24/10: o que rodar na VPS
+
+Relatório: `auditorias/2026-10-24/seguranca/05-infra.md`. Na VPS, como root, de
+madrugada (o Traefik some por alguns segundos na troca), com o `bootstrap-vps.sh`
+baixado do commit novo e conferido pelo sha256, um comando por vez:
+
+```bash
+bash bootstrap-vps.sh backup                       # bancos, antes de tudo
+# 1. Traefik v2.11.3 -> v2.11.60 (INF-01). O preparar regrava os 7 arquivos de
+#    /root/crystal/stacks (mesmos segredos) e refaz a trava do painel. Ele pede o
+#    e-mail do Let's Encrypt; esta linha reaproveita o que já está no arquivo atual:
+bash bootstrap-vps.sh preparar "$(grep -o 'acme.email=[^"]*' /root/crystal/stacks/00-traefik.yaml | cut -d= -f2)"
+bash bootstrap-vps.sh traefik                      # no fim: "Traefik no ar: traefik:v2.11.60" e
+                                                   # "403 nas 6 variações (inclusive /../ e %2e%2e)"
+bash bootstrap-vps.sh atendimento-subir            # regra nova: /monitoring e /platform também só dos IPs
+```
+
+Volta do Traefik: `docker service rollback traefik_traefik` (o Swarm guarda a versão
+anterior). Conferir de fora, de um IP que não está na lista do painel:
+`curl -s -o /dev/null -w '%{http_code}\n' --path-as-is https://atendimento.crystalnowpp.com.br/x/../super_admin`
+tem de dar `403`.
+
 ## Backup fora da VPS (Cloudflare R2, cifrado)
 
 Um ransomware na VPS apaga o backup que está nela. Por isso cada backup diário

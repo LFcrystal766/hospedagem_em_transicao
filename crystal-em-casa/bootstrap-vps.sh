@@ -8,7 +8,8 @@
 #                                              e grava os arquivos prontos em /root/crystal/stacks
 #   bash bootstrap-vps.sh docker-api           Docker 29 recusa o Traefik v2 (API 1.24): grava
 #                                              min-api-version=1.24 no daemon.json e reinicia o Docker
-#   bash bootstrap-vps.sh traefik              sobe 00 e espera ficar 1/1
+#   bash bootstrap-vps.sh traefik              sobe 00, espera ficar 1/1, mostra a versão no ar e, com o
+#                                              Chatwoot no ar, testa a trava do /super_admin (403 até com /../)
 #   bash bootstrap-vps.sh portainer            sobe 01
 #   bash bootstrap-vps.sh bancos               sobe 02 e 03
 #   bash bootstrap-vps.sh n8n                  sobe 04, 05 e 06
@@ -447,7 +448,20 @@ deploy() { # deploy ARQUIVO STACK
   conferir_atualizacao "$t0" - $svcs || falha "a stack $2 não ficou de pé (log acima)"
 }
 
-traefik()   { conferir_fundacao; deploy 00-traefik.yaml traefik; }
+traefik()   { conferir_fundacao; deploy 00-traefik.yaml traefik; traefik_conferir; }
+# Depois de subir o Traefik: a versão que ficou no ar e, com o Chatwoot no ar, a prova de
+# que a trava da área de administração pega também com /../ e %2e%2e (INF-01, 24/10).
+traefik_conferir() {
+  local img code t=0
+  img=$(docker service inspect traefik_traefik --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}' 2>/dev/null | sed 's/@sha256:.*//' || true)
+  ok "Traefik no ar: ${img:-?}"
+  docker service inspect "${CW_STACK}_cw_rails" >/dev/null 2>&1 || return 0
+  # O Traefik recém-subido leva alguns segundos para ler as rotas das outras stacks.
+  until { code=$(curl -s -o /dev/null -m 10 -w '%{http_code}' "https://$CW_HOST/api" 2>/dev/null) && [ "$code" = 200 ]; } || [ $t -ge 90 ]; do
+    sleep 5; t=$((t+5))
+  done
+  admin_trava_conferir
+}
 portainer() {
   # Com lista de IPs, nunca sobe o painel aberto (achado 34).
   if [ -s "$PAINEL_IPS_ARQ" ] && ! grep -q 'ipallowlist.sourcerange=' "$STACKS/01-portainer.yaml" 2>/dev/null; then
@@ -3005,6 +3019,24 @@ atendimento_subir() {
   fi
 }
 
+# Trava da área de administração do Chatwoot (/super_admin, /monitoring, /platform): daqui
+# da VPS, que não está na lista de IPs do painel, cada variação tem de levar 403 do Traefik.
+# Com o Traefik v2.11.3, /x/../super_admin passava (CVE-2025-32431). Só leitura.
+admin_trava_conferir() {
+  docker service inspect "${CW_STACK}_cw_rails" >/dev/null 2>&1 || return 0
+  local p c falhou=0
+  for p in /super_admin /x/../super_admin /x/%2e%2e/super_admin //super_admin /monitoring/sidekiq /platform/api/v1/users; do
+    c=$(curl -s -o /dev/null -m 15 --path-as-is -w '%{http_code}' "https://$CW_HOST$p" 2>/dev/null) || c=000
+    [ "$c" = 403 ] && continue
+    falhou=1
+    aviso "https://$CW_HOST$p -> $c (esperado 403 do Traefik). Traefik antigo no ar? IP desta VPS na lista do painel?"
+  done
+  if [ "$falhou" = 0 ]; then
+    ok "área de administração do Chatwoot: 403 nas 6 variações (inclusive /../ e %2e%2e)"
+  fi
+  return 0
+}
+
 atendimento_status() {
   echo "== Serviços do atendimento"
   docker service ls --filter "label=com.docker.stack.namespace=$CW_STACK" --format '{{.Name}} {{.Replicas}} {{.Image}}' \
@@ -3020,6 +3052,7 @@ atendimento_status() {
     000) aviso "https://$CW_HOST sem resposta ou certificado inválido (DNS cinza? Traefik ainda emitindo? tente de novo em 2 min)" ;;
     *) aviso "https://$CW_HOST/api -> $code" ;;
   esac
+  if [ "${code:-000}" = 200 ]; then admin_trava_conferir; fi
 }
 
 atendimento_segredos() {
