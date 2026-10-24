@@ -107,6 +107,10 @@
 #   bash bootstrap-vps.sh vigia-config         liga a vigia do app (a cada 5 min, avisa no Telegram;
 #                                              pede o token do bot sem aparecer)
 #   bash bootstrap-vps.sh app-segredos         mostra os segredos do app pra copiar pro cofre
+#   bash bootstrap-vps.sh ia-encerrar --confirmo
+#                                              (24/10, INF-30) depois do corte para o app: tira a Crystal do
+#                                              WhatsApp da agência (stack crystal_ia) do ar e apaga o .env dela;
+#                                              lista o que revogar fora da VPS
 #   bash bootstrap-vps.sh app-telefone EMAIL   grava o WhatsApp de uma conta criada aqui (canal da inbox)
 #   bash bootstrap-vps.sh app-db-papel [--confirmo|--voltar]
 #                                              TESTAR PRIMEIRO. A API deixa de entrar no Postgres como
@@ -1258,7 +1262,7 @@ horas_desde() { # horas_desde ARQUIVO_COM_DATA
 }
 
 backup_cron() {
-  local linha="30 3 * * * root /usr/bin/bash $BASE/bootstrap-vps.sh backup --completo >> $BACKUPS/backup.log 2>&1"
+  local linha="30 3 * * * root PATH=/usr/sbin:/usr/bin:/sbin:/bin /usr/bin/bash $BASE/bootstrap-vps.sh backup --completo >> $BACKUPS/backup.log 2>&1"
   mkdir -p "$BACKUPS"; chmod 700 "$BACKUPS"
   copia_cron_atualizar --criar
   printf '%s\n' "$linha" > /etc/cron.d/crystal-backup-n8n
@@ -1600,6 +1604,8 @@ CFG
 
   echo "== SSH"
   ssh_travar
+  echo "== quem fala com o Docker (lê os segredos do spec dos serviços)"
+  docker_acesso_conferir
   echo "== o que ainda depende de decisão"
   ufw status 2>/dev/null | grep -q "Status: active" && ok "ufw ativo" || aviso "ufw desligado: bash $0 firewall"
   portas_docker_conferir
@@ -1871,6 +1877,69 @@ painel_ligar() {
   [ -s "$PAINEL_IPS_ARQ" ] || aviso "painel. aberto para qualquer IP: bash $0 painel-restringir"
 }
 
+# ------------------------------------------------------------------ quem fala com o Docker
+# Revisão de 24/10 (INF-05, INF-29). Os valores dos env_file do app e do Chatwoot vão para o spec
+# dos serviços no Swarm (docker service inspect, tela do Portainer). Docker secrets não servem
+# aqui: as imagens do app e do Chatwoot leem só variável de ambiente (nenhuma lê NOME_FILE), e um
+# command que exportasse /run/secrets/* mudaria o boot dos quatro serviços sem ensaio. Então a
+# defesa é deixar o spec ao alcance só do root: ninguém no grupo docker, docker.sock só do root e
+# do grupo docker, nada da API do Docker em TCP, o Portainer só para IPs liberados
+# (painel-restringir) e o Traefik pelo proxy só de leitura (INF-22). Também confere a credencial
+# do ghcr.io guardada pelo docker login (/root/.docker/config.json, base64): 600 e com idade.
+GHCR_DESDE="$BASE/.ghcr-desde"
+docker_acesso_conferir() {
+  local membros modo dias
+  membros=$(getent group docker 2>/dev/null | cut -d: -f4 || true)
+  if [ -n "$membros" ]; then
+    aviso "no grupo docker (equivale a root e lê os segredos do spec dos serviços): $membros. Tirar: gpasswd -d USUÁRIO docker"
+  else
+    ok "ninguém no grupo docker: só o root lê o spec dos serviços (docker service inspect)"
+  fi
+  modo=$(stat -c '%a %U:%G' /var/run/docker.sock 2>/dev/null || true)
+  case "$modo" in
+    "660 root:docker"|"660 root:root"|"600 root:root") ok "docker.sock $modo" ;;
+    "") aviso "não achei /var/run/docker.sock" ;;
+    *) aviso "docker.sock com permissão $modo (esperado 660 root:docker): chmod 660 /var/run/docker.sock" ;;
+  esac
+  if ss -Htln 2>/dev/null | awk '{print $4}' | grep -Eq ':(2375|2376)$'; then
+    aviso "a API do Docker escuta em TCP (2375/2376): tirar o -H tcp:// do dockerd (systemctl cat docker)"
+  fi
+  if [ -f /root/.docker/config.json ]; then
+    modo=$(stat -c '%a' /root/.docker/config.json)
+    if [ "$modo" != 600 ]; then
+      chmod 600 /root/.docker/config.json && ok "/root/.docker/config.json estava $modo: agora 600 (token do ghcr.io)"
+    else
+      ok "/root/.docker/config.json 600 (token do ghcr.io)"
+    fi
+    if [ -s "$GHCR_DESDE" ]; then
+      dias=$(( ($(date +%s) - $(date -d "$(cat "$GHCR_DESDE")" +%s 2>/dev/null || date +%s)) / 86400 ))
+      if [ "$dias" -ge 80 ]; then aviso "o token do ghcr.io foi gravado há $dias dias: gere outro (só read:packages, 90 dias) e rode app-ghcr"
+      else ok "token do ghcr.io gravado há $dias dia(s) (trocar antes de 90)"; fi
+    else
+      aviso "não sei a idade do token do ghcr.io: na próxima troca (só read:packages, validade de 90 dias), rode app-ghcr"
+    fi
+  fi
+}
+
+# Cron (achado 24 e revisão de 24/10): o cron roda como root a cópia em $BASE/bootstrap-vps.sh.
+# Se ela, a pasta ou o arquivo do cron ficassem graváveis por outro usuário, quem escrevesse ali
+# viraria root às 03:30. Confere dono e permissão.
+cron_conferir() {
+  local f m
+  for f in /etc/cron.d/crystal-backup-n8n /etc/cron.d/crystal-vigia; do
+    [ -f "$f" ] || continue
+    m=$(stat -c '%a %U' "$f")
+    [ "$m" = "644 root" ] || aviso "$f com $m (esperado 644 root): chown root:root $f && chmod 644 $f"
+    grep -q ' PATH=/usr/sbin:/usr/bin:/sbin:/bin ' "$f" || aviso "$f sem PATH fixo (de antes de 24/10): bash $0 backup-cron (ou vigia-config) regrava"
+  done
+  if [ -f "$BASE/bootstrap-vps.sh" ]; then
+    m=$(stat -c '%a %U' "$BASE/bootstrap-vps.sh")
+    [ "$m" = "700 root" ] || aviso "$BASE/bootstrap-vps.sh com $m (esperado 700 root): chmod 700 e chown root"
+  fi
+  m=$(stat -c '%a %U' "$BASE" 2>/dev/null || true)
+  [ -z "$m" ] || [ "$m" = "700 root" ] || aviso "$BASE com $m (esperado 700 root): chmod 700 $BASE"
+}
+
 # ------------------------------------------------------------------ status
 status() {
   echo "== Serviços"
@@ -1902,8 +1971,10 @@ status() {
     ok "chave pública dos backups: $(backup_destinatario_resumo) (compare com o Bitwarden)"
   fi
   copia_cron_conferir
+  cron_conferir
   painel_trava_conferir || true
   portas_docker_conferir
+  docker_acesso_conferir
   if redes_unica; then aviso "redes: modo de volta, tudo na network_swarm_public (bash $0 redes-separar desfaz)"
   elif svc_na_rede traefik_traefik borda_api; then ok "redes separadas por stack (detalhe e prova: bash $0 redes-conferir)"
   else aviso "redes: ainda a rede única de antes; corte do INF-06 por fazer (README, revisão de 24/10)"; fi
@@ -2030,13 +2101,16 @@ app_valor() { # app_valor ARQUIVO NOME -> valor (sem imprimir nada se não houve
 app_ghcr() {
   local u t
   read -rp "Usuário do GitHub dono das imagens [LFcrystal766]: " u; u=${u:-LFcrystal766}
-  echo "Token do GitHub com read:packages (o write:packages do cofre também serve)."
+  echo "Token do GitHub com read:packages, de preferência um só para a VPS (sem write:packages), com validade de 90 dias."
   read -rsp "Cole e dê Enter (não aparece na tela): " t; echo
   [ -n "$t" ] || falha "token vazio"
   printf '%s' "$t" | docker login ghcr.io -u "$u" --password-stdin >/dev/null || falha "login no ghcr.io recusado"
   unset t
+  chmod 600 /root/.docker/config.json 2>/dev/null || true
+  mkdir -p "$BASE"; umask 077; date -u +%FT%TZ > "$GHCR_DESDE"
   ok "docker login ghcr.io como $u"
-  echo "  O Docker guarda a credencial em /root/.docker/config.json. Se o token vencer, rode de novo."
+  echo "  O Docker guarda a credencial em /root/.docker/config.json (base64, chmod 600). Use um token clássico"
+  echo "  SÓ com read:packages e validade de 90 dias (INF-29); o status avisa a partir de 80 dias. Venceu: rode de novo."
 }
 
 app_definir() {
@@ -2928,7 +3002,12 @@ crystal_banco() {
     sleep 3; t=$((t+3))
   done
   # A senha vai pela entrada padrão (heredoc), não pela linha de comando.
-  docker exec -i "$pg" psql -v ON_ERROR_STOP=1 -q -U crystal -d crystal_web_chat >/dev/null <<SQL || falha "não criou o banco da Crystal"
+  # Revisão de 24/10 (INF-27): se uma instrução falhar, o Postgres não a grava no log (com a
+  # senha dentro), nem como STATEMENT nem como CONTEXT. crystal é superusuário: pode mudar isso.
+  docker exec -i "$pg" psql -X -v ON_ERROR_STOP=1 -q -U crystal -d crystal_web_chat >/dev/null <<SQL || falha "não criou o banco da Crystal"
+set log_statement = 'none';
+set log_min_error_statement = 'panic';
+set log_error_verbosity = 'terse';
 do \$\$ begin
   if not exists (select from pg_roles where rolname = 'crystal_agente') then
     create role crystal_agente login password '$senha';
@@ -4320,6 +4399,33 @@ crystal_provisoria_desligar() {
   ok "app de volta à Crystal simulada; fluxo desativado"
 }
 
+# Crystal do WhatsApp (stack da agência, stacks-app/30-crystal-ia.yaml), quando o corte para o app
+# terminar (PROXIMOS-PASSOS.md). Revisão de 24/10 (INF-30): enquanto ela ou o .env dela existem, é
+# mais um lugar com a service_role do Supabase, a chave do OpenRouter e o token do LendChat. Tira a
+# stack do ar e apaga o .env e o yaml gerado; as chaves têm de ser REVOGADAS na origem (INF-02).
+ia_encerrar() {
+  [ "${2:-}" = --confirmo ] || falha "isto tira a Crystal do WhatsApp (stack crystal_ia) do ar de vez. Só depois do corte para o app: bash $0 ia-encerrar --confirmo"
+  local f
+  if docker stack ls --format '{{.Name}}' 2>/dev/null | grep -qx crystal_ia; then
+    docker stack rm crystal_ia >/dev/null || falha "não removi a stack crystal_ia"
+    ok "stack crystal_ia removida (os contêineres somem em alguns segundos)"
+  else
+    ok "stack crystal_ia não está no ar"
+  fi
+  for f in "$APP_DIR/crystal-ia.env" "$STACKS/30-crystal-ia.yaml"; do
+    [ -f "$f" ] || continue
+    if command -v shred >/dev/null; then shred -u "$f"; else rm -f "$f"; fi
+    ok "apagado: $f"
+  done
+  echo "Falta, fora da VPS (INF-02 e INF-30), nesta ordem:"
+  echo "  1. Revogar as chaves que ela usava: a service_role do Supabase (depois de o app estar na nova:"
+  echo "     app-definir SUPABASE_SERVICE_ROLE_KEY, app-subir, app-supabase-teste 200), a chave do OpenRouter"
+  echo "     da agência e o token do LendChat."
+  echo "  2. Cloudflare: apagar o registro ia. (cinza)."
+  echo "  3. Quando nada mais usar: docker volume rm crystal_redis_data crystal_dlq_dumps"
+  echo "  4. Anotar a data no CONTINUAR-EM-OUTRA-CONTA.md."
+}
+
 app_segredos() {
   [ -f "$APP_SEG" ] || falha "ainda não há segredos do app: rode 'app-subir'"
   if [ -t 1 ] && command -v less >/dev/null; then
@@ -4356,6 +4462,7 @@ case "$CMD" in
   vigia) vigia ;;
   app-aluno) app_aluno ;;
   app-segredos) app_segredos ;;
+  ia-encerrar) ia_encerrar "$@" ;;
   app-recomecar) app_recomecar "$@" ;;
   crystal-nossa) crystal_nossa "$@" ;;
   app-revisao) app_revisao "$@" ;;
