@@ -11,6 +11,10 @@
 #                                              ARQ_SHA256 para colar no topo depois de mudar um yaml
 #   bash bootstrap-vps.sh docker-api           Docker 29 recusa o Traefik v2 (API 1.24): grava
 #                                              min-api-version=1.24 no daemon.json e reinicia o Docker
+#   bash bootstrap-vps.sh docker-daemon [--confirmo]
+#                                              (24/10, INF-28) o piso acima mais no-new-privileges e log
+#                                              json-file 10 MB x 3 por padrão. Sem --confirmo mostra o que
+#                                              mudaria; com ele reinicia o Docker (tudo cai por 1 a 2 min)
 #   bash bootstrap-vps.sh traefik              sobe 00, espera ficar 1/1, mostra a versão no ar e, com o
 #                                              Chatwoot no ar, testa a trava do /super_admin (403 até com /../)
 #   bash bootstrap-vps.sh portainer            sobe 01
@@ -297,31 +301,91 @@ conferir_fundacao() {
   [ "$min" = "1.24" ] || aviso "o daemon exige API $min e o Traefik v2 usa 1.24: rode 'bash $0 docker-api' antes de subir o Traefik"
 }
 
-# ------------------------------------------------------------------ docker-api
+# ------------------------------------------------------------------ docker-api / docker-daemon
 # O Traefik v2.11 da agência fala com o Docker pela API 1.24. O Docker 29 exige
 # 1.44 por padrão e recusa o Traefik ("client version 1.24 is too old"): sem
 # isso o Traefik não descobre serviço nenhum e não pede certificado. A saída
 # documentada é baixar o piso do daemon em /etc/docker/daemon.json.
-docker_api() {
-  local min; min=$(docker version --format '{{.Server.MinAPIVersion}}' 2>/dev/null || echo "?")
-  if [ "$min" = "1.24" ]; then ok "daemon já aceita API 1.24"; return 0; fi
-  echo "  piso atual do daemon: $min. Gravando min-api-version=1.24 em /etc/docker/daemon.json"
-  python3 - <<'PY'
-import json, os
-p = '/etc/docker/daemon.json'
+# docker-daemon (revisão de 24/10, INF-28) grava, além do piso:
+#   "no-new-privileges": true   nenhum processo de contêiner ganha privilégio por binário
+#                               setuid (as imagens oficiais trocam de usuário com gosu/su-exec,
+#                               o que continua valendo; nenhuma das nossas usa sudo/su);
+#   log json-file 10 MB x 3     para todo contêiner novo que não disser outra coisa.
+# Reinicia o Docker: TODOS os serviços caem e voltam em até 1 a 2 minutos. Por isso pede
+# --confirmo e é para a janela da madrugada. Cópia do daemon.json anterior ao lado.
+DAEMON_JSON="${DOCKER_DAEMON_JSON:-/etc/docker/daemon.json}"   # trocável só para teste
+
+# Grava $DAEMON_JSON.novo com o que falta e mostra o que muda. 0 = há mudança, 1 = já estava.
+docker_daemon_novo() { # docker_daemon_novo api|completo
+  python3 - "$DAEMON_JSON" "$1" <<'PY'
+import json, os, sys
+p, modo = sys.argv[1], sys.argv[2]
 d = {}
 if os.path.exists(p) and os.path.getsize(p) > 0:
     d = json.load(open(p))
-d['min-api-version'] = '1.24'
-json.dump(d, open(p, 'w'), indent=2)
+novo = json.loads(json.dumps(d))
+novo["min-api-version"] = "1.24"
+if modo == "completo":
+    novo["no-new-privileges"] = True
+    novo.setdefault("log-driver", "json-file")
+    if novo["log-driver"] == "json-file":
+        lo = dict(novo.get("log-opts") or {})
+        lo.setdefault("max-size", "10m")
+        lo.setdefault("max-file", "3")
+        novo["log-opts"] = lo
+if novo == d:
+    sys.exit(1)
+for k in sorted(set(novo) | set(d)):
+    if novo.get(k) != d.get(k):
+        print(f"  {k}: {json.dumps(d.get(k))} -> {json.dumps(novo.get(k))}")
+json.dump(novo, open(p + ".novo", "w"), indent=2)
 PY
-  dockerd --validate --config-file=/etc/docker/daemon.json >/dev/null || falha "daemon.json inválido; ver /etc/docker/daemon.json"
-  systemctl restart docker
+}
+
+docker_daemon_aplicar() { # valida o .novo, guarda o anterior, troca e reinicia o Docker
   local t=0
+  dockerd --validate --config-file="$DAEMON_JSON.novo" >/dev/null || { rm -f "$DAEMON_JSON.novo"; falha "daemon.json novo inválido: nada mudou"; }
+  if [ -f "$DAEMON_JSON" ]; then cp -p "$DAEMON_JSON" "$DAEMON_JSON.antes-$(date -u +%Y%m%dT%H%M%SZ)"; fi
+  mv -f "$DAEMON_JSON.novo" "$DAEMON_JSON"
+  systemctl restart docker
   until docker info >/dev/null 2>&1 || [ $t -ge 60 ]; do sleep 3; t=$((t+3)); done
+  docker info >/dev/null 2>&1 || falha "o Docker não voltou em 60 s: journalctl -u docker -n 50 (o daemon.json anterior está ao lado, .antes-*)"
+}
+
+docker_api() {
+  local min; min=$(docker version --format '{{.Server.MinAPIVersion}}' 2>/dev/null || echo "?")
+  if [ "$min" = "1.24" ]; then ok "daemon já aceita API 1.24"; return 0; fi
+  echo "  piso atual do daemon: $min. Gravando min-api-version=1.24 em $DAEMON_JSON"
+  rm -f "$DAEMON_JSON.novo"
+  docker_daemon_novo api >/dev/null || true
+  [ -f "$DAEMON_JSON.novo" ] || falha "não montei o daemon.json novo"
+  docker_daemon_aplicar
   min=$(docker version --format '{{.Server.MinAPIVersion}}' 2>/dev/null || echo "?")
   [ "$min" = "1.24" ] && ok "daemon reiniciado, piso da API = 1.24" || falha "piso continua $min"
   echo "  os serviços do Swarm voltam sozinhos em até 1 min. Depois: bash $0 status"
+}
+
+docker_daemon() {
+  local nnp
+  rm -f "$DAEMON_JSON.novo"
+  echo "== $DAEMON_JSON"
+  if ! docker_daemon_novo completo; then
+    ok "já tem o piso da API, no-new-privileges e a rotação de log"
+  else
+    if [ "${2:-}" != --confirmo ]; then
+      rm -f "$DAEMON_JSON.novo"
+      echo "  (acima, o que mudaria) Isto reinicia o Docker: todos os serviços caem e voltam em 1 a 2 min."
+      falha "de madrugada, depois de um backup: bash $0 docker-daemon --confirmo"
+    fi
+    docker_daemon_aplicar
+    ok "Docker reiniciado com o daemon.json novo (o anterior ficou em $DAEMON_JSON.antes-*)"
+    echo "  os serviços voltam sozinhos; a rotação e o no-new-privileges valem para cada contêiner"
+    echo "  recriado (todo deploy recria). Conferir em 2 min: bash $0 status"
+  fi
+  # Prova num contêiner descartável: o kernel marca NoNewPrivs=1.
+  nnp=$(docker run --rm --network none "$ALPINE_IMG" grep -E '^NoNewPrivs:' /proc/self/status 2>/dev/null | awk '{print $2}' || true)
+  if [ "$nnp" = 1 ]; then ok "contêiner novo nasce com no-new-privileges (NoNewPrivs: 1)"
+  else aviso "não confirmei o no-new-privileges num contêiner de teste (NoNewPrivs: ${nnp:-?})"; fi
 }
 
 # ------------------------------------------------------------------ preparar
@@ -4217,6 +4281,7 @@ case "$CMD" in
   preparar) preparar "$@" ;;
   recomecar-n8n) recomecar_n8n "$@" ;;
   docker-api) docker_api ;;
+  docker-daemon) docker_daemon "$@" ;;
   arquivos-hash) arquivos_hash ;;
   backup) backup "$@" ;;
   backup-cron) backup_cron ;;
