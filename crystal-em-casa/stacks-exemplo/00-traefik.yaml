@@ -28,7 +28,53 @@
 
 version: "3.7"
 
+# Logs do Docker com rotação (revisão de 24/10, INF-20 e INF-28): o log de acesso tem o IP de
+# quem acessa; sem limite ele crescia para sempre dentro do contêiner. 3 arquivos de 10 MB.
+x-logs: &logs
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
+  # --------------------------------------------------------- proxy do docker.sock
+  # Revisão de 24/10 (INF-22): o Traefik é o único processo exposto à internet e tinha o
+  # docker.sock montado. O ":ro" do arquivo não limita a API do Docker: uma falha no Traefik
+  # viraria root na VPS (criar contêiner com o disco do host, ler segredo de qualquer stack).
+  # Agora ele fala com este proxy, numa rede interna só dos dois, e o proxy só deixa passar
+  # LEITURA do que o Traefik v2.11 usa em modo Swarm (conferido no código da v2.11.60,
+  # pkg/provider/docker/docker.go): /version e /_ping (padrão do proxy), /services,
+  # /networks, /tasks e /nodes. Criar ou mexer em qualquer coisa (POST), exec, secrets,
+  # configs, imagens, volumes e o próprio Swarm levam 403.
+  # Limite que fica: /services traz o spec dos serviços, com os valores de env_file (INF-05);
+  # quem tomar o Traefik ainda lê isso, mas não manda mais no Docker.
+  # Imagem por versão e digest (o proxy é de terceiros: a tag não muda por baixo).
+  docker_proxy:
+    image: tecnativa/docker-socket-proxy:v0.5.0@sha256:1f5038b54f06c3e18422902cf00ba21803d1c97805aae032e5e6673d532d3459
+    logging: *logs
+    environment:
+      - SERVICES=1
+      - NETWORKS=1
+      - TASKS=1
+      - NODES=1
+      # O Traefik em modo Swarm não usa eventos (consulta a cada 15 s).
+      - EVENTS=0
+      - POST=0
+      # A rede overlay não tem IPv6: sem isto o HAProxy tenta escutar em [::] e não sobe.
+      - DISABLE_IPV6=1
+      - LOG_LEVEL=warning
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - socket_docker
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits: {cpus: "0.25", memory: 64M}
+      restart_policy: {condition: any, delay: 5s}
+
   traefik:
     # Versão fixa (nunca latest). 24/10/2026: v2.11.3 -> v2.11.60, a última da linha 2.11
     # (revisão de segurança, INF-01). Entre as correções: CVE-2024-45410 (cabeçalhos
@@ -51,7 +97,8 @@ services:
       # --- Descoberta de serviços -------------------------------------------
       # Lê o Docker para descobrir quais serviços existem, em modo Swarm.
       - "--providers.docker.swarmMode=true"
-      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      # Pelo proxy só de leitura (INF-22), não pelo docker.sock.
+      - "--providers.docker.endpoint=tcp://docker_proxy:2375"
       # IMPORTANTE: só expõe serviços que pedirem explicitamente, com a
       # etiqueta "traefik.enable=true". Sem isso, tudo ficaria público.
       - "--providers.docker.exposedbydefault=false"
@@ -97,22 +144,53 @@ services:
       # Deixado LIGADO mas SEM rota pública: o painel não fica acessível pela
       # internet. Para consultá-lo, use um túnel SSH até a máquina.
       - "--api.dashboard=true"
+      # /ping na porta interna 8080 (não publicada), para o teste de saúde abaixo.
+      - "--ping=true"
+
+      # TLS: a v2.11 já usa TLS 1.2 como mínimo e só cifras seguras por padrão (conferido em
+      # pkg/tls/tlsmanager.go da v2.11.60; INF-21). Não há tls.options para não depender de
+      # arquivo montado. Cabeçalhos HSTS e nosniff: no Chatwoot e no n8n, pelas etiquetas
+      # de cada stack (o app e a API já mandam os seus).
 
       # --- Registros --------------------------------------------------------
       # Use "DEBUG" apenas para investigar um problema. Em operação normal,
       # "INFO" evita encher o disco.
+      # Revisão de 24/10 (INF-20): os dois logs vão para a saída do contêiner (lidos com
+      # 'docker service logs traefik_traefik'), com a rotação do x-logs, e não mais para
+      # arquivos dentro do contêiner, sem limite nem prazo. O log de acesso guarda só os
+      # pedidos com erro (4xx e 5xx), com IP: é o que serve para investigar ataque; o
+      # resto não fica.
       - "--log.level=INFO"
       - "--log.format=common"
-      - "--log.filePath=/var/log/traefik/traefik.log"
       - "--accesslog=true"
-      - "--accesslog.filepath=/var/log/traefik/access-log"
+      - "--accesslog.filters.statuscodes=400-599"
+
+    logging: *logs
+
+    # Teste de saúde: o Swarm troca a tarefa que parar de responder no /ping.
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 20s
+
+    # Revisão de 24/10 (INF-15/INF-22): sistema de arquivos só de leitura (o Traefik só grava
+    # o acme.json, no volume) e sem nenhuma capability além de abrir as portas 80 e 443.
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
 
     volumes:
-      # Só leitura: o Traefik precisa consultar o Docker, nunca alterá-lo.
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
       # Onde os certificados ficam guardados. Se este volume for perdido, os
       # certificados são emitidos de novo, sem intervenção.
       - "vol_certificates:/etc/traefik/letsencrypt"
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 16777216
 
     # Redes separadas (revisão de segurança de 24/10, INF-06): uma rede de borda por stack,
     # e o Traefik é o único que está em todas. Assim um serviço não alcança o de outra stack
@@ -132,6 +210,7 @@ services:
       - borda_atendimento
       - borda_n8n
       - borda_painel
+      - socket_docker
 
     ports:
       # "mode: host" preserva o IP real de quem acessa, o que importa para
@@ -148,6 +227,16 @@ services:
         constraints:
           # O Traefik precisa rodar em um nó manager, porque lê o estado do Swarm.
           - node.role == manager
+      resources:
+        limits: {cpus: "1", memory: 512M}
+      # stop-first (o padrão): com as portas em modo host, duas tarefas não abrem a 443 juntas.
+      # Se a nova não ficar de pé, o Swarm volta sozinho à anterior.
+      update_config:
+        parallelism: 1
+        order: stop-first
+        failure_action: rollback
+        monitor: 30s
+      restart_policy: {condition: any, delay: 5s}
 
       labels:
         - "traefik.enable=true"
@@ -166,6 +255,10 @@ volumes:
     name: volume_swarm_certificates
 
 networks:
+  # Só o Traefik e o proxy do docker.sock. internal: sem saída e sem mais ninguém.
+  socket_docker:
+    driver: overlay
+    internal: true
   network_swarm_public:
     external: true
     name: network_swarm_public

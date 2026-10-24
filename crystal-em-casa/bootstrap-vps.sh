@@ -825,7 +825,47 @@ redes_separar() {
   echo "  bash $0 redes-conferir"
 }
 
-traefik()   { conferir_fundacao; redes_criar; deploy 00-traefik.yaml traefik; traefik_conferir; }
+traefik() {
+  conferir_fundacao; redes_criar
+  local t0 upd _e _i; t0=$(date +%s)
+  deploy 00-traefik.yaml traefik
+  # O Traefik lê as rotas pelo proxy só de leitura do docker.sock (INF-22). Se o novo não as
+  # lê (permissão do proxy, rede), todo endereço daria 404: volta sozinho ao anterior, mas só
+  # quando este deploy mudou mesmo o serviço (rollback sem mudança voltaria a algo antigo).
+  if ! traefik_rotas_conferir; then
+    aviso "nenhum endereço conhecido respondeu em 2 min: o Traefik novo não está lendo as rotas"
+    docker service logs --since 5m traefik_traefik 2>&1 | grep -iE 'provider|docker|error' | tail -8 | sed 's/^/     /' || true
+    docker service logs --since 5m traefik_docker_proxy 2>&1 | tail -5 | sed 's/^/     /' || true
+    read -r upd _e _i <<<"$(svc_estado traefik_traefik)"
+    if [ "$upd" -ge "$t0" ]; then
+      echo "  voltando o Traefik à versão anterior (docker service rollback traefik_traefik)"
+      docker service rollback --detach=false traefik_traefik >/dev/null 2>&1 || aviso "o rollback não confirmou: docker service ps traefik_traefik"
+      falha "o Traefik novo não leu as rotas e foi desfeito. Mande o log acima para a sessão"
+    fi
+    falha "o Traefik não mudou neste deploy e mesmo assim nada responde: ver DNS, certificado e 'docker service logs traefik_traefik'"
+  fi
+  traefik_conferir
+}
+
+# Depois de subir o Traefik: ele tem de ter lido as rotas das stacks que existem. Basta um
+# endereço conhecido responder (200, 30x, 401 ou 403); sem rota o Traefik dá 404. Até 2 min:
+# o provedor consulta o Swarm a cada 15 s e tenta de novo se o proxy ainda não subiu.
+traefik_rotas_conferir() {
+  local u code t=0 urls=()
+  docker service inspect "${APP_STACK}_app_api" >/dev/null 2>&1 && urls+=("https://api.$DOMINIO/healthz")
+  docker service inspect "${CW_STACK}_cw_rails" >/dev/null 2>&1 && urls+=("https://$CW_HOST/api")
+  docker service inspect n8n_editor_n8n_editor >/dev/null 2>&1 && urls+=("https://editor.$DOMINIO/")
+  docker service inspect portainer_portainer >/dev/null 2>&1 && urls+=("https://painel.$DOMINIO/")
+  [ ${#urls[@]} -gt 0 ] || return 0
+  while :; do
+    for u in "${urls[@]}"; do
+      code=$(curl -s -o /dev/null -m 10 -w '%{http_code}' "$u" 2>/dev/null) || code=000
+      case "$code" in 200|301|302|401|403) ok "Traefik lendo as rotas: $u -> $code"; return 0 ;; esac
+    done
+    [ $t -ge 120 ] && return 1
+    sleep 10; t=$((t+10))
+  done
+}
 # Depois de subir o Traefik: a versão que ficou no ar e, com o Chatwoot no ar, a prova de
 # que a trava da área de administração pega também com /../ e %2e%2e (INF-01, 24/10).
 traefik_conferir() {
@@ -1711,12 +1751,12 @@ status() {
   elif svc_na_rede traefik_traefik borda_api; then ok "redes separadas por stack (detalhe e prova: bash $0 redes-conferir)"
   else aviso "redes: ainda a rede única de antes; corte do INF-06 por fazer (README, revisão de 24/10)"; fi
   echo
-  echo "== Últimas linhas do Traefik sobre certificado (o log vai pra arquivo dentro do contêiner)"
-  local cid; cid=$(docker ps -q -f name=traefik_traefik | head -1)
-  if [ -n "$cid" ]; then
-    docker exec "$cid" tail -200 /var/log/traefik/traefik.log 2>/dev/null | grep -iE 'acme|certif|error' | tail -8 || echo "  (nada sobre certificado no log ainda)"
+  echo "== Últimas linhas do Traefik sobre certificado (desde 24/10 o log vai para a saída do contêiner, INF-20)"
+  if docker service inspect traefik_traefik >/dev/null 2>&1; then
+    docker service logs --since 24h --raw traefik_traefik 2>&1 | grep -iE 'acme|certif|level=error|ERR' | grep -v 'port is missing' | tail -8 \
+      | grep . || echo "  (nada sobre certificado nas últimas 24 h)"
   else
-    aviso "contêiner do Traefik não encontrado"
+    aviso "serviço do Traefik não encontrado"
   fi
 }
 
