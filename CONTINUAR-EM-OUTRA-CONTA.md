@@ -889,3 +889,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     13 abertos de propósito/parciais com motivo, 1 só do dono: INF-02 trocar chaves). Tem os 10 altos um a um, o que
     a equipe de suporte vai sentir, o checklist do dono e os ponteiros. INT-21 (portão de lotes): conferir no painel
     que `op_rollout_gate` está ligado.
+    **TODAS AS ONDAS FECHADAS (24/10 ~14:30 UTC).** Pendências de infra do n8n juntadas: **merge `fcd8955`**
+    (`fcd89559ee3f7775c745523c8a6ee91d87289f16`): retenção do n8n 48 h/5000, `IMAGENS_WEBHOOK_SECRET` no `app-definir`
+    (régua do reembolso + tem de ser diferente dele), `n8n-compras.segredos` em todo backup só cifrado, READMEs.
+    **Bootstrap final: sha256 `5fcf4673c051567c5dac7d289a2efdbd203b828a257c0b63a201d160f0e9dee2`, `STACKS_COMMIT=8d7379f`**
+    (ancestral; `arquivos-hash` "nenhum arquivo mudou"). **App final: `sha-3c343df`** (CI verde; imagem pelo
+    `imagens-vps`). Volta do app: `sha-088d07d` (produção). CLAUDE.md atualizado. Falta só a mensagem única ao dono
+    (tags, sha256, roteiro de uma madrugada, SQL, ações dele) e o CONTINUAR em anexo.
