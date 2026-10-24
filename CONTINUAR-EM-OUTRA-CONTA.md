@@ -817,8 +817,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     webhooks: `IMAGENS_WEBHOOK_SECRET` próprio (opcional; sem ele vale o do reembolso, com aviso), evento com mais de
     24 h = 409, dedup 180 dias, reembolso não re-bloqueia aluno religado pela equipe; JWT só HS256, logout revoga a
     sessão, corpo de 16 KiB nas rotas públicas de auth. **Antes de publicar: toda conta de equipe precisa ter senha**
-    (conferir no banco do app: `select email, role from users where role <> 'aluno' and password_hash is null` ou o
-    equivalente; a porta do aluno não abre mais o painel). CI de `d5126c0` rodando; imagem `sha-d5126c0` disparada
+    (a porta do aluno não abre mais o painel). Conferir na VPS, antes do `app-subir`:
+    `docker exec -i $(docker ps -q -f name=crystal_app_app_postgres) psql -U crystal -d crystal_web_chat -c "select id, role, status from users where role in ('support','tech','admin') and password_hash is null;"`
+    Tem de voltar `(0 rows)`; se listar alguém, definir a senha dessa conta em Operação › Equipe antes de publicar. CI de `d5126c0` rodando; imagem `sha-d5126c0` disparada
     (checkpoint: já pode ser publicada se a onda 2 atrasar). A regra das 7 palavras só barra cópia que seja metade
     ou mais da resposta (7 fixas quebrava "Menu > Suporte" da alma).
     **Infra onda 2 PRONTA, ainda NÃO juntada: branch `seguranca/infra-onda2` em `4feb3cc`** (14 commits: redes separadas
