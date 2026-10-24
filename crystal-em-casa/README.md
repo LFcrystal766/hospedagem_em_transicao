@@ -88,7 +88,7 @@ máquina** (`/root/crystal/.segredos`, uma vez só), grava os arquivos prontos e
 `/root/crystal/stacks/` e sobe as stacks na ordem, esperando cada uma ficar 1/1.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/claude/gracious-shannon-6x9l5j/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh   # commit de 40 letras, nunca branch (INF-04)
 bash bootstrap-vps.sh docker-api                  # Docker 29 x Traefik v2: piso da API em 1.24
 bash bootstrap-vps.sh preparar voce@exemplo.com   # e-mail do Let's Encrypt
 bash bootstrap-vps.sh segredos                    # copiar os dois pro cofre
@@ -120,7 +120,7 @@ Antes, uma vez só:
 Na VPS, pelo Web console, como root:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/claude/gracious-shannon-6x9l5j/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
+curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh   # commit de 40 letras, nunca branch (INF-04)
 bash bootstrap-vps.sh app-ghcr                  # token do GitHub com read:packages
 bash bootstrap-vps.sh app-definir RESEND_API_KEY
 bash bootstrap-vps.sh app-definir EMAIL_FROM    # ex.: Crystal <onboarding@resend.dev>
@@ -310,15 +310,158 @@ rodar `arquivos-hash` de novo depois de juntar. `REF=<commit de 40 letras>` troc
 branch não é aceita.
 
 Segredos do app e do Chatwoot no spec do Swarm (INF-05): continuam em `env_file`, que o
-Swarm copia para o spec do serviço (o Portainer e `docker service inspect` mostram). Trocar
-por Docker secrets mexe no command dos serviços e no roteiro de troca de chave: fica para a
-onda de infra. Até lá a defesa é o painel restrito, e o `app-subir` e o `atendimento-subir`
-avisam no fim se ele não estiver (`painel-restringir`).
+Swarm copia para o spec do serviço (o Portainer e `docker service inspect` mostram). A onda 2
+avaliou Docker secrets e não fez (as imagens só leem variável de ambiente; ver abaixo); a
+defesa é o painel restrito, só o root no Docker e o Traefik pelo proxy só de leitura, e o
+`app-subir` e o `atendimento-subir` avisam no fim se o painel não estiver restrito.
 
 Volta do Traefik: `docker service rollback traefik_traefik` (o Swarm guarda a versão
 anterior). Conferir de fora, de um IP que não está na lista do painel:
 `curl -s -o /dev/null -w '%{http_code}\n' --path-as-is https://atendimento.crystalnowpp.com.br/x/../super_admin`
 tem de dar `403`.
+
+#### Onda 2 (infraestrutura): o que rodar na VPS, em ordem
+
+O que muda, em palavras simples:
+
+- **Cada stack na sua rede.** Antes tudo estava numa rede só: um contêiner invadido (um nó
+  de código do n8n, por exemplo) falava direto com a API, com o Chatwoot, com a tela do
+  Portainer e com o banco do n8n, sem passar pelo Traefik. Agora cada serviço publicado tem
+  uma "borda" onde só ele e o Traefik estão (`borda_api`, `borda_web`, `borda_atendimento`,
+  `borda_n8n`, `borda_painel`), e o banco e a fila do n8n ficam na `n8n_interno`, só do n8n.
+  O Traefik não entra em rede de banco. Os nomes que os apps usam não mudam.
+- **O IP de quem acessa não pode ser inventado.** O Traefik apaga o `X-Forwarded-For` que
+  vem de fora (sempre fez; agora está escrito) e a API só aceita esse cabeçalho vindo da
+  `borda_api`, onde só o Traefik está (`TRUST_PROXY` = a faixa dessa rede). Antes, um vizinho
+  de rede falando direto com a API escolhia o IP que entrava no limite de tentativas.
+- **O Traefik não manda mais no Docker.** Ele lê as rotas por um proxy só de leitura do
+  `docker.sock`; uma falha nele não vira root na VPS. Também ficou só de leitura, sem
+  capabilities, com teste de saúde, limite de memória e log com rotação (o log de acesso
+  guarda só os erros, com IP, e não cresce mais sem limite).
+- **Redis do app com senha**, Postgres e Redis em versão fixa, o app preso no digest da
+  imagem, a Crystal só de leitura e sem capabilities (API e web sem capabilities), HSTS no
+  Chatwoot e no n8n, rotação de log e limites nas stacks da agência.
+- **Docker com `no-new-privileges`** e rotação de log padrão; backups antigos cifrados também
+  na VPS; a vigia manda todo mês o fim da chave pública dos backups para comparar com o
+  Bitwarden.
+
+Quando: na janela 02:00–05:00 BRT, time avisado, vigia ligada. Cada passo tira um pedaço do
+ar por segundos (o passo 1 tira tudo por 1 a 2 minutos; o 5 tira o n8n por 1 a 2 minutos; a
+Assiny reenvia webhook que falhou). Na VPS, como root, com o `bootstrap-vps.sh` baixado do
+commit novo (o do topo da branch depois de juntar) e conferido pelo sha256. Um comando por
+vez; só passe para o próximo com a conferência do anterior limpa.
+
+```bash
+# 0. Antes de tudo: backup dos bancos e anotar a tag do app que está no ar
+bash bootstrap-vps.sh backup
+bash bootstrap-vps.sh app-status                  # anote a tag (sha-XXXXXXX): ela vai no passo 6
+bash bootstrap-vps.sh status                      # tudo 1/1 antes de começar
+
+# 1. Docker com no-new-privileges e rotação de log padrão (INF-28). TUDO cai por 1 a 2 min.
+bash bootstrap-vps.sh docker-daemon               # só mostra o que muda
+bash bootstrap-vps.sh docker-daemon --confirmo
+#    Conferir: "NoNewPrivs: 1" e, em 2 min, 'bash bootstrap-vps.sh status' com tudo 1/1.
+#    Volta: cp "$(ls -t /etc/docker/daemon.json.antes-* | head -1)" /etc/docker/daemon.json && systemctl restart docker
+
+# 2. Arquivos novos e as 6 redes (vazias; nada muda no ar ainda)
+bash bootstrap-vps.sh preparar "$(grep -o 'acme.email=[^"]*' /root/crystal/stacks/00-traefik.yaml | cut -d= -f2)"
+#    Conferir: "rede(s) criada(s): borda_api ... n8n_interno". Volta: não precisa.
+
+# 3. Traefik em todas as bordas, pelo proxy do docker.sock, só de leitura
+bash bootstrap-vps.sh traefik
+#    Conferir: "Traefik lendo as rotas", "Traefik no ar: traefik:v2.11.60" e "403 nas 6 variações".
+#    Depois: bash bootstrap-vps.sh app-status && bash bootstrap-vps.sh atendimento-status
+#    Volta: sozinha se nenhuma rota responder em 2 min; à mão: docker service rollback traefik_traefik
+
+# 4. Painel na borda_painel
+bash bootstrap-vps.sh painel-restringir $(paste -sd' ' /root/crystal/.painel-ips)   # sem lista: bash bootstrap-vps.sh portainer
+#    Conferir: 403 vindo da VPS, "o n8n não alcança a tela do Portainer (9000)" e, de um IP
+#    liberado, o painel abre com o ambiente primary "up".
+#    Volta: docker service rollback portainer_portainer && docker service rollback portainer_agent
+
+# 5. n8n: banco e fila na n8n_interno; o bancos sobe editor, webhook e worker logo em seguida
+bash bootstrap-vps.sh bancos
+#    Conferir: bash bootstrap-vps.sh status (editor. e webhook. respondem) e, no editor,
+#    Executions sem erro na primeira hora (a próxima compra da Assiny passa).
+#    Volta: for s in postgres redis editor webhook worker; do docker service rollback n8n_${s}_n8n_${s}; done
+
+# 6. App: API e web nas bordas, Redis com senha, Crystal só de leitura, imagens no digest
+bash bootstrap-vps.sh app-subir sha-XXXXXXX       # a MESMA tag anotada no passo 0
+#    Conferir: "API lê o IP do cliente só do Traefik (TRUST_PROXY=10.x.x.0/24)", "presa no
+#    digest", app-status com app. e api. em 200 e: bash bootstrap-vps.sh crystal-conferir
+#    Volta: for s in api web crystal redis postgres; do docker service rollback crystal_app_app_$s; done
+#    (o rollback do Swarm volta junto o ambiente antigo, Redis sem senha e TRUST_PROXY=1)
+
+# 7. Chatwoot: Rails na borda_atendimento, Sidekiq só na rede interna, HSTS, Redis sem root
+bash bootstrap-vps.sh atendimento-subir
+#    Conferir: atendimento-status ("403 nas 6 variações") e bash bootstrap-vps.sh atendimento-teste
+#    (a Crystal responde na inbox: prova que Chatwoot -> API -> Crystal continua de pé).
+#    Volta: for s in rails sidekiq redis postgres; do docker service rollback crystal_atendimento_cw_$s; done
+
+# 8. Prova final e arremates
+bash bootstrap-vps.sh redes-conferir              # tudo "ok"; nenhum "!!"
+bash bootstrap-vps.sh seguranca                   # grupo docker vazio, docker.sock 660, token do ghcr
+bash bootstrap-vps.sh backup-cron                 # regrava o cron do backup com PATH fixo
+```
+
+**Volta de tudo de uma vez** (algo parou de conversar e não dá para achar o quê na hora):
+`bash bootstrap-vps.sh redes-voltar --confirmo`. Ele grava a marca `/root/crystal/.redes`
+(daí em diante tudo o que subir vai para a rede única de antes, a `network_swarm_public`) e
+sobe de novo, uma de cada vez, n8n, painel, app (com a tag que está no ar) e Chatwoot. O
+Traefik fica como está, em todas as redes, e é por isso que cada stack volta sozinha.
+Redis com senha, versões fixas, HSTS e o resto ficam. Para separar de novo depois de
+corrigir: `bash bootstrap-vps.sh redes-separar` (mostra os passos 2 a 8 de novo).
+
+Se a Crystal ou o Traefik não subirem por causa do sistema de arquivos só de leitura:
+`touch /root/crystal/.sem-somente-leitura` e o passo de novo (o arquivo sai sem a trava, com
+aviso). Apagar o arquivo assim que a causa for corrigida.
+
+**O que conferir depois** (na manhã seguinte, de um aparelho):
+
+- [ ] `bash bootstrap-vps.sh redes-conferir` sem `!!`: o n8n não alcança a API, o Chatwoot, o
+      painel nem o Postgres do app; a Crystal não alcança o Postgres do n8n; o IP forjado não
+      aparece no log da API, nem o do Traefik.
+- [ ] O app abre, o login com código por e-mail funciona e uma foto sobe (a API sem
+      capabilities continua gravando no volume).
+- [ ] A Crystal responde no app e pela inbox (`crystal-conferir`).
+- [ ] O Chatwoot abre para a equipe; `/super_admin` dá 403 de fora; `curl -sI
+      https://atendimento.crystalnowpp.com.br/api | grep -i strict-transport` mostra
+      `max-age=31536000`.
+- [ ] O n8n abre no editor e a próxima compra da Assiny aparece em Executions sem erro.
+- [ ] O painel abre de um IP liberado, com o ambiente primary "up".
+- [ ] `bash bootstrap-vps.sh status`: sem aviso de certificado, backup e R2 em dia, "redes
+      separadas por stack", cron sem aviso, chave pública dos backups igual à do Bitwarden.
+- [ ] `docker service logs --since 1h traefik_traefik 2>&1 | grep -ci 'permission\|403'` perto de
+      zero (o proxy do docker.sock não está recusando o Traefik).
+- [ ] Na noite seguinte: o backup das 03:30 passou e os arquivos das rodadas anteriores viraram
+      `.age` em `/root/crystal/backups`.
+- [ ] Dia 1º: chegou no Telegram a conferência mensal da chave pública; bate com o Bitwarden.
+      Opcional: pôr a pública em `FORA_DEST_ESPERADO`, no topo do script (é pública), para a VPS
+      se recusar a cifrar para outra.
+
+**Por serviço: o que ficou travado e o que não, e por quê**
+
+| serviço | só leitura | capabilities | outros |
+|---|---|---|---|
+| Traefik | sim (tmpfs em `/tmp`) | nenhuma, só `NET_BIND_SERVICE` | proxy do docker.sock, saúde, 1 CPU/512 MB, log com rotação |
+| proxy do docker.sock | não (o HAProxy grava a config em `/tmp` e o pid em `/run`; só o Traefik o alcança, numa rede interna) | padrão | só GET de `/version`, `/_ping`, `/services`, `/networks`, `/tasks`, `/nodes` |
+| app_crystal | sim (tmpfs em `/tmp`) | nenhuma | processa saída de modelo: é a que mais ganha |
+| app_api | não: o bootstrap grava scripts temporários em `/app/apps/api` e o start pelo pnpm/corepack não foi ensaiado sem escrita | nenhuma | Redis com senha; IP só do Traefik |
+| app_web | não: o Next grava cache em `.next/` | nenhuma | |
+| Postgres e Redis (app, Chatwoot, n8n) | não: a entrada da imagem troca o dono da pasta de dados e o usuário (precisa de CHOWN/SETUID) | padrão | rede interna da stack; versão fixa; Redis do app e do Chatwoot com senha e sem root |
+| n8n (editor, webhook, worker) | não: grava em `/home/node/.n8n` (sem volume nas stacks da agência) | padrão (já roda como `node`) | INF-03 da onda 1; log com rotação |
+| Chatwoot (Rails, Sidekiq) | não: grava `tmp/` e `log/` dentro de `/app` | padrão | Sidekiq fora da borda; HSTS |
+| Portainer e agente | não ensaiado | padrão (o agente precisa do docker.sock) | painel só para IPs liberados; limites; sem teste de saúde (a imagem não tem shell) |
+
+`no-new-privileges` vale para todos, pelo daemon (passo 1): o `docker stack deploy` ignora
+`security_opt` por serviço. Segredos em Docker secrets: não (INF-05). As imagens do app e do
+Chatwoot só leem variável de ambiente; a defesa é quem alcança o spec dos serviços: só o
+root (o `seguranca` confere grupo docker vazio, `docker.sock` 660 e nada da API do Docker em
+TCP), o Portainer só para IPs liberados e o Traefik pelo proxy só de leitura (que ainda lê o
+spec: é o limite que fica).
+
+A situação de cada achado do relatório (feito, de propósito não, ou no repositório do app)
+está no fim de `auditorias/2026-10-24/seguranca/05-infra.md`.
 
 ## Backup fora da VPS (Cloudflare R2, cifrado)
 
