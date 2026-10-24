@@ -782,3 +782,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     **Dono rodou `seguranca-2026-10-24.sql` (24/10):** políticas anon/auth restantes 0, grants 0, funções da agência
     executáveis por anon 0, funções app_* com service_role 31. Falta: `crystal-conferir` na VPS (busca na base continua
     entrando no turno?), trocar a service_role e desligar sign-ups do Auth.
+    Advisors depois do SQL: sumiram os avisos de função executável por anon/authenticated; sobram 13 funções da agência
+    com search_path mutável (não usadas pelo app), extensões em public e a proteção de senha vazada (dono liga no Auth).
+    **INT-06 (compra forjada), parte do Supabase:** `crystal-em-casa/supabase/app_compras_bloqueio_restrito.sql`
+    (substitui `app_compra_evento`): reembolso/cancelamento só bloqueia se a transação ou assinatura do evento bate com
+    compra conhecida do e-mail (nossa tabela ou base da agência: `raw_data` transaction id / subscription id /
+    `external_id`); senão vira `ignorado_sem_compra_conhecida`. Liberação manual não cai por evento. Testado em
+    Postgres local (6 cenários). Dono roda no SQL Editor. Falta ainda a confirmação na API da Assiny (n8n).
+    **Dono pediu (24/10): corrigir TODOS os pontos** (altos, médios e baixos). Onda 1 em andamento: app (A–G) e infra
+    (7 itens). Onda 2 depois: o resto dos médios e baixos dos 5 relatórios, n8n (confirmação na Assiny, dados pessoais
+    nas execuções, credenciais), zod 4, actions do app por SHA, fast-uri.
