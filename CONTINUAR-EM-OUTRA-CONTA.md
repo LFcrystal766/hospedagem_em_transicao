@@ -861,3 +861,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     mudar arquivo (worktrees limpos); relançados às 12:30 UTC com pushes por tema. Supabase conferido (só leitura):
     `app_compra_evento` AINDA é a versão antiga (dono não rodou `app_compras_bloqueio_restrito.sql`).
     Lembrete automático às 14:03 UTC.
+    **CI de `46c471a` VERDE (gate, audit, e2e) às ~12:55 UTC.** Imagem `sha-46c471a` disparada (imagens-vps); é a
+    tag candidata do app para o roteiro final, salvo mudança nova. Volta: `sha-088d07d` (produção de hoje) ou
+    `sha-d5126c0` (só a onda 1; não publicar, e2e vermelho).
