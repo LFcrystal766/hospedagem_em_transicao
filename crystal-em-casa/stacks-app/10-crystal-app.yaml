@@ -28,8 +28,8 @@
 #
 # O QUE NÃO ESTÁ NESTE ARQUIVO
 #   Segredo nenhum. A API lê /root/crystal/app/api.env, a Crystal lê
-#   crystal.env, o web lê web.env (só o público do /.well-known) e o Postgres lê
-#   postgres.env, todos gerados na VPS pelo bootstrap
+#   crystal.env, o web lê web.env (só o público do /.well-known), o Postgres lê
+#   postgres.env e o Redis lê redis.env, todos gerados na VPS pelo bootstrap
 #   (chmod 600). Os marcadores abaixo são trocados pelo bootstrap:
 #     APP_TAG       tag das imagens
 #     APP_ENV_DIR   pasta dos .env (padrão /root/crystal/app)
@@ -92,16 +92,24 @@ services:
   # ---------------------------------------------------------------- Redis
   # Sessões (janela do refresh) e rate limit vivem aqui: sem despejo de chave
   # (noeviction) e com persistência, senão um reinício desloga todo mundo.
+  # Com senha desde 24/10 (INF-12): a Crystal, na mesma rede interna e processando saída de
+  # modelo, não escreve mais nas sessões nem nos contadores de limite. A senha vem do
+  # redis.env (gerado pelo bootstrap, chmod 600) e o REDIS_URL da API a leva. O command passa
+  # pelo docker-entrypoint.sh da imagem, que troca para o usuário redis (sem root).
   app_redis:
     image: redis:7-alpine
     logging: *logs
-    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    env_file: APP_ENV_DIR/redis.env
+    command:
+      - sh
+      - -c
+      - exec docker-entrypoint.sh redis-server --appendonly yes --maxmemory-policy noeviction --requirepass "$$REDIS_PASSWORD"
     networks:
       - app_interno
     volumes:
       - app_redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping | grep -q PONG"]
       interval: 10s
       timeout: 5s
       retries: 10

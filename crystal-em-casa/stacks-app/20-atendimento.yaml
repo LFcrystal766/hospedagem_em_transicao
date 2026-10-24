@@ -182,6 +182,8 @@ services:
 
   # ---------------------------------------------------------------- Redis
   # Com senha e persistência; sem despejo de chave (filas do Sidekiq moram aqui).
+  # Desde 24/10 o command passa pelo docker-entrypoint.sh da imagem, que troca para o usuário
+  # redis: antes o "exec redis-server" direto rodava como root.
   cw_redis:
     image: redis:7.4.11-alpine
     logging: *logs
@@ -189,7 +191,7 @@ services:
     command:
       - sh
       - -c
-      - exec redis-server --appendonly yes --maxmemory-policy noeviction --requirepass "$$REDIS_PASSWORD"
+      - exec docker-entrypoint.sh redis-server --appendonly yes --maxmemory-policy noeviction --requirepass "$$REDIS_PASSWORD"
     networks:
       - cw_interno
     volumes:

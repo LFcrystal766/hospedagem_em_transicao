@@ -2105,6 +2105,12 @@ app_gerar_segredos() { # app_gerar_segredos TAG
     } >> "$APP_SEG"
     ok "segredos da nossa Crystal gerados (copie pro cofre: bash $0 app-segredos)"
   fi
+  # Senha do Redis do app (INF-12, 24/10): acrescentada uma vez a segredos antigos. Pode ser
+  # trocada (apagar a linha e app-subir): o Redis só guarda sessões curtas e contadores.
+  if [ -z "$(app_valor "$APP_SEG" APP_REDIS_SENHA)" ]; then
+    echo "APP_REDIS_SENHA=$(openssl rand -hex 24)" >> "$APP_SEG"
+    ok "APP_REDIS_SENHA gerada para o Redis do app (copie pro cofre: bash $0 app-segredos)"
+  fi
   # VAPID (push web): gerado com a própria biblioteca do app, dentro da imagem.
   if [ -z "$(app_valor "$APP_SEG" VAPID_PUBLIC_KEY)" ]; then
     local chaves
@@ -2133,9 +2139,11 @@ app_trust_proxy() {
 }
 
 app_gerar_env() {
-  local senha mock=0 k dburl tp
+  local senha mock=0 k dburl tp redis
   senha=$(app_valor "$APP_SEG" APP_DB_SENHA)
   [ -n "$senha" ] || falha "APP_DB_SENHA ausente em $APP_SEG"
+  redis=$(app_valor "$APP_SEG" APP_REDIS_SENHA)
+  printf '%s' "$redis" | grep -Eq '^[0-9a-f]{48}$' || falha "APP_REDIS_SENHA em $APP_SEG não é hex de 48 caracteres"
   # Papel da API no Postgres (INF-07): crystal_api, sem superusuário, depois do
   # app-db-papel --confirmo; senão o crystal de sempre (superusuário da imagem).
   if [ "$(cat "$APP_DB_PAPEL_ARQ" 2>/dev/null || true)" = crystal_api ]; then
@@ -2177,6 +2185,7 @@ app_gerar_env() {
     echo "POSTGRES_PASSWORD=$senha"
     echo "POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256"
   } > "$APP_DIR/postgres.env"
+  echo "REDIS_PASSWORD=$redis" > "$APP_DIR/redis.env"
   {
     echo "# Gerado por bootstrap-vps.sh em $(date -u +%FT%TZ). Não editar: é regravado a cada app-subir."
     echo "NODE_ENV=production"
@@ -2187,7 +2196,7 @@ app_gerar_env() {
     echo "TRUST_PROXY=$tp"
     echo "WEB_ORIGIN=https://app.$DOMINIO"
     echo "DATABASE_URL=$dburl"
-    echo "REDIS_URL=redis://app_redis:6379"
+    echo "REDIS_URL=redis://:$redis@app_redis:6379"
     echo "UPLOAD_DIR=/app/uploads"
     echo "DEMO_SEED=0"
     echo "ALLOW_MOCK_INTEGRATIONS=$mock"
@@ -2217,8 +2226,8 @@ app_gerar_env() {
     # Públicos (vão no /.well-known do app): impressões do certificado Android e Team ID da Apple.
     grep -E '^(ANDROID_CERT_SHA256|APPLE_TEAM_ID)=' "$APP_EXT" || true
   } > "$APP_DIR/web.env"
-  chmod 600 "$APP_DIR/postgres.env" "$APP_DIR/api.env" "$APP_DIR/crystal.env" "$APP_DIR/web.env"
-  unset senha dburl
+  chmod 600 "$APP_DIR/postgres.env" "$APP_DIR/redis.env" "$APP_DIR/api.env" "$APP_DIR/crystal.env" "$APP_DIR/web.env"
+  unset senha dburl redis
   if [ "$tp" != 1 ]; then ok "API lê o IP do cliente só do Traefik (TRUST_PROXY=$tp, a borda_api)"
   elif ! redes_unica; then aviso "não li a faixa da borda_api: TRUST_PROXY=1, como era (bash $0 redes-conferir)"; fi
   if [ "$(cat "$APP_DB_PAPEL_ARQ" 2>/dev/null || true)" = crystal_api ]; then
