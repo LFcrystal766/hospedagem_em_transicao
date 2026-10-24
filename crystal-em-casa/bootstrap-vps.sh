@@ -2794,6 +2794,9 @@ app_status() {
   echo "== Serviços do app"
   docker service ls --filter "label=com.docker.stack.namespace=$APP_STACK" --format '{{.Name}} {{.Replicas}} {{.Image}}' \
     | awk '{printf "  %-26s %-5s %s\n",$1,$2,$3}'
+  # A tag sozinha, sem o @sha256 (INF-17): é o que vai no 'app-subir' da volta ou da onda 2.
+  local tag; tag=$(app_tag_atual)
+  [ -n "$tag" ] && echo "  tag no ar: $tag   (volta ou subir de novo: bash $0 app-subir $tag)"
   echo
   echo "== HTTPS (certificado tem que ser válido, sem -k)"
   local u code
