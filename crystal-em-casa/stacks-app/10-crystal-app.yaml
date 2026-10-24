@@ -24,6 +24,18 @@
 #     APP_TAG       tag das imagens
 #     APP_ENV_DIR   pasta dos .env (padrão /root/crystal/app)
 #
+# LIMITE CONHECIDO (INF-05, revisão de 24/10/2026)
+#   No Swarm o env_file é lido na hora do deploy e os valores vão para o spec do
+#   serviço: 'docker service inspect crystal_app_app_api' e a tela do serviço no
+#   Portainer mostram ENCRYPTION_KEY, JWT_SECRET, SUPABASE_SERVICE_ROLE_KEY etc. O
+#   chmod 600 dos .env não alcança o spec. Quem chega ao spec já manda no Docker
+#   (é root na VPS), então a defesa hoje é: painel. só para IPs liberados
+#   (bootstrap-vps.sh painel-restringir; o app-subir avisa se não estiver), agente
+#   do Portainer em rede interna e nenhum outro serviço com o docker.sock além do
+#   Traefik e desse agente. Migrar para Docker secrets (um arquivo por segredo em /run/secrets,
+#   nome com versão, command que exporta antes do exec) fica para a onda de infra:
+#   mexe no command dos três serviços e no roteiro de troca de chave.
+#
 # COMO SUBIR
 #   bash bootstrap-vps.sh app-subir sha-XXXXXXX
 #   (o bootstrap grava /root/crystal/stacks/10-crystal-app.yaml e faz

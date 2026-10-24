@@ -21,6 +21,9 @@
 #   Segredo nenhum. Os serviços leem CW_ENV_DIR/{chatwoot,postgres,redis}.env,
 #   gerados na VPS pelo bootstrap (chmod 600). Os marcadores CW_VERSAO,
 #   CW_ENV_DIR e CW_IPS_ADMIN são trocados pelo bootstrap.
+#   Limite conhecido (INF-05): no Swarm os valores do env_file vão para o spec do
+#   serviço e o Portainer os mostra; a defesa é o painel. restrito. Ver o cabeçalho
+#   de 10-crystal-app.yaml.
 #
 # COMO SUBIR
 #   bash bootstrap-vps.sh atendimento-subir

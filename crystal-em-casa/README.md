@@ -260,6 +260,12 @@ de ponta a ponta (regrava as mesmas credenciais, faz uma compra e um reembolso d
 arquivos; trocar, `preparar` e `n8n` de novo. Falta só uma coisa à mão: 2FA em todas as contas
 do n8n (Settings > Personal > Two-factor).
 
+Segredos do app e do Chatwoot no spec do Swarm (INF-05): continuam em `env_file`, que o
+Swarm copia para o spec do serviço (o Portainer e `docker service inspect` mostram). Trocar
+por Docker secrets mexe no command dos serviços e no roteiro de troca de chave: fica para a
+onda de infra. Até lá a defesa é o painel restrito, e o `app-subir` e o `atendimento-subir`
+avisam no fim se ele não estiver (`painel-restringir`).
+
 Volta do Traefik: `docker service rollback traefik_traefik` (o Swarm guarda a versão
 anterior). Conferir de fora, de um IP que não está na lista do painel:
 `curl -s -o /dev/null -w '%{http_code}\n' --path-as-is https://atendimento.crystalnowpp.com.br/x/../super_admin`

@@ -1145,6 +1145,31 @@ painel_conferir() {
   echo "  Voltar ao aberto (só em emergência): docker stack deploy -c $STACKS/01-portainer.yaml.aberto portainer"
 }
 
+# A lista do arquivo não basta: confere a trava no serviço que está no ar (achado 34).
+# Ela é também a defesa dos segredos do app e do Chatwoot: no Swarm o env_file é lido no
+# deploy e os valores vão para o spec do serviço (ContainerSpec.Env), que o Portainer
+# mostra a quem entrar nele e 'docker service inspect' imprime (INF-05, 24/10). Docker
+# secrets ficam para a onda de infra. Devolve 1 quando o painel não está restrito.
+painel_trava_conferir() {
+  local trava
+  trava=$(docker service inspect portainer_portainer --format '{{index .Spec.Labels "traefik.http.middlewares.portainer-ips.ipallowlist.sourcerange"}}' 2>/dev/null || true)
+  if [ -s "$PAINEL_IPS_ARQ" ] && [ -n "$trava" ] && [ "$trava" != "<no value>" ]; then
+    ok "painel. liberado só para: $trava (conferido no serviço no ar)"
+    return 0
+  elif [ -s "$PAINEL_IPS_ARQ" ]; then
+    aviso "a lista de IPs existe, mas o Portainer no ar está SEM a trava: bash $0 painel-restringir $(paste -sd' ' "$PAINEL_IPS_ARQ")"
+  else
+    aviso "painel. (Portainer) aberto para qualquer IP: bash $0 painel-restringir"
+  fi
+  return 1
+}
+
+# Depois de subir uma stack com segredo em env_file (app, Chatwoot).
+painel_trava_segredos() {
+  painel_trava_conferir \
+    || aviso "com o painel aberto, quem entrar no Portainer lê os segredos desta stack no spec dos serviços (env_file). Restrinja o painel antes de seguir"
+}
+
 painel_desligar() {
   docker service scale portainer_portainer=0 --detach=false >/dev/null || falha "não desligou"
   ok "Portainer fora do ar (o agente segue, na rede interna). Religar: bash $0 painel-ligar"
@@ -1184,16 +1209,7 @@ status() {
     aviso "backup fora da VPS não configurado (backup-chave, backup-fora-config)"
   fi
   copia_cron_conferir
-  # A lista do arquivo não basta: confere a trava no serviço que está no ar (achado 34).
-  local trava
-  trava=$(docker service inspect portainer_portainer --format '{{index .Spec.Labels "traefik.http.middlewares.portainer-ips.ipallowlist.sourcerange"}}' 2>/dev/null || true)
-  if [ -s "$PAINEL_IPS_ARQ" ] && [ -n "$trava" ] && [ "$trava" != "<no value>" ]; then
-    ok "painel. liberado só para: $trava (conferido no serviço no ar)"
-  elif [ -s "$PAINEL_IPS_ARQ" ]; then
-    aviso "a lista de IPs existe, mas o Portainer no ar está SEM a trava: bash $0 painel-restringir $(paste -sd' ' "$PAINEL_IPS_ARQ")"
-  else
-    aviso "painel. (Portainer) aberto para qualquer IP: bash $0 painel-restringir"
-  fi
+  painel_trava_conferir || true
   portas_docker_conferir
   echo
   echo "== Últimas linhas do Traefik sobre certificado (o log vai pra arquivo dentro do contêiner)"
@@ -1787,6 +1803,7 @@ app_subir() {
   copia_cron_atualizar
   echo
   app_status
+  painel_trava_segredos
   if [ -n "$(app_valor "$APP_EXT" SUPABASE_URL)" ] && [ -n "$(app_valor "$APP_EXT" SUPABASE_SERVICE_ROLE_KEY)" ]; then
     echo
     if ! app_supabase_teste; then
@@ -3013,6 +3030,7 @@ atendimento_subir() {
   copia_cron_atualizar
   echo
   atendimento_status
+  painel_trava_segredos
   echo
   if [ -z "$(app_valor "$APP_EXT" CHATWOOT_BOT_TOKEN)" ]; then
     echo "Próximo: bash $0 atendimento-configurar"
