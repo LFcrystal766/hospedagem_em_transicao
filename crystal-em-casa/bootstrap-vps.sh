@@ -34,7 +34,9 @@
 #   bash bootstrap-vps.sh backup [--completo]  pg_dump dos bancos (n8n, app, memória da Crystal, Chatwoot)
 #                                              e tar incremental dos uploads em /root/crystal/backups
 #                                              (14 dias). Parte que falha não para as outras nem o R2;
-#                                              no fim, resumo e saída 1. A chave do n8n NÃO vai junto.
+#                                              no fim, resumo e saída 1. A chave do n8n NÃO vai junto; os
+#                                              segredos de integração do n8n (/root/crystal/n8n-compras.segredos)
+#                                              vão em todo backup, SÓ cifrados (24/10; .age na VPS, nunca em claro)
 #                                              Rodado à mão (no terminal) faz só os bancos, em segundos:
 #                                              as fotos e os anexos ficam para o cron das 03:30 (23/10: o
 #                                              tar de ~3 GB de fotos travava a VPS). --completo inclui agora
@@ -47,7 +49,8 @@
 #   bash bootstrap-vps.sh backup-testar-trava  tenta apagar um arquivo de teste no R2: tem que ser recusado
 #   bash bootstrap-vps.sh backup-link [TIPO]   link de 10 min para baixar o backup mais novo (teste de
 #                                              restauração no Mac). TIPO: n8n_queue (padrão), crystal_web_chat,
-#                                              crystal_agente, crystal_uploads, chatwoot, chatwoot_storage
+#                                              crystal_agente, crystal_uploads, chatwoot, chatwoot_storage,
+#                                              segredos_integracoes
 #   bash bootstrap-vps.sh seguranca [--sem-ssh]
 #                                              atualização de segurança automática, fail2ban no SSH e, com chave
 #                                              de root instalada, SSH só com chave (--sem-ssh pula essa trava)
@@ -1044,6 +1047,14 @@ BACKUPS="$BASE/backups"
 FORA_CONF="$BASE/.backup-fora"            # conta, bucket e chave do R2 (chmod 600)
 FORA_DEST="$BASE/.backup-destinatario"    # chave PÚBLICA do age; a privada fica só no Bitwarden
 FORA_PREFIXO=vps-crystal
+# Revisão de 24/10 (pendência do n8n): segredos de INTEGRAÇÃO que todo backup leva (--bancos
+# também: é pequeno), só cifrados (R2 e .age na VPS). Hoje só o do n8n de compras
+# (n8n/compra-assiny-credenciais.py): JWT do papel n8n_compras, chave publicável, chave do Resend
+# do n8n, token da Assiny e id do produto de teste. São chaves de serviços de fora, trocáveis;
+# NÃO são as que abrem os dumps (N8N_CHAVE, ENCRYPTION_KEY, CPF_SALT, CRYSTAL_CHAVE_CIFRA e as
+# do Chatwoot ficam só no Bitwarden: dump e chave nunca andam juntos), e o .externos do app
+# também não vai. Acrescentar aqui o que mais tiver de ir.
+BACKUP_SEGREDOS_INTEGRACOES=("$BASE/n8n-compras.segredos")
 # Revisão de 24/10 (INF-18): a chave PÚBLICA que cifra os backups mora na VPS, e quem mandar na
 # VPS poderia trocá-la por uma dele: os backups seguiriam subindo, cifrados para o atacante, e o
 # backup-conferir passaria. Defesas: (1) com a pública aqui (é pública, pode ir para o
@@ -1134,7 +1145,7 @@ backup_tar() { # backup_tar PASTA TIPO TS
 }
 
 backup() {
-  local dir="$BACKUPS" cid ts arq novos=() falhas=() up completo=1
+  local dir="$BACKUPS" cid ts arq novos=() falhas=() up completo=1 f existentes=()
   # 23/10: à mão (com terminal) o padrão é só os bancos; o cron (sem terminal) e --completo fazem tudo.
   case "${2:-}" in
     --completo) completo=1 ;;
@@ -1201,12 +1212,32 @@ backup() {
       falhas+=("Chatwoot: tar dos anexos falhou")
     fi
   fi
+  # Segredos de integração (24/10, BACKUP_SEGREDOS_INTEGRACOES): em todo backup e SÓ cifrados. Sem
+  # a chave dos backups não há como cifrar, e um tar em claro ao lado do original não acrescenta
+  # nada: aí pula, com aviso. O tar em claro vive só até o envio ao R2: lá embaixo vira .age na
+  # hora, sem esperar as 20 h dos outros.
+  for f in "${BACKUP_SEGREDOS_INTEGRACOES[@]}"; do
+    if [ -s "$f" ]; then existentes+=("$f"); fi
+  done
+  if [ ${#existentes[@]} -gt 0 ]; then
+    if [ -s "$FORA_DEST" ] && command -v age >/dev/null && backup_destinatario_conferir; then
+      arq="$dir/segredos_integracoes-$ts.tar.gz"
+      if devagar tar -C / -czf "$arq" "${existentes[@]#/}" 2>/dev/null && [ -s "$arq" ]; then
+        novos+=("$arq"); ok "segredos de integração (${existentes[*]#"$BASE/"}) em $arq (só cifrado: vira .age no fim)"
+      else
+        rm -f "$arq"; falhas+=("segredos de integração: tar falhou")
+      fi
+    else
+      aviso "segredos de integração (${existentes[*]#"$BASE/"}) fora do backup: falta a chave dos backups (bash $0 backup-chave)"
+    fi
+  fi
   find "$dir" -maxdepth 1 \( -name 'n8n_queue-*' -o -name 'crystal_web_chat-*' -o -name 'crystal_agente-*' -o -name 'crystal_uploads-*' \
-    -o -name 'chatwoot-*' -o -name 'chatwoot_storage-*' \) -mtime +14 -delete || true   # pega também os .age
+    -o -name 'chatwoot-*' -o -name 'chatwoot_storage-*' -o -name 'segredos_integracoes-*' \) -mtime +14 -delete || true   # pega também os .age
   echo "  $(find "$dir" -maxdepth 1 \( -name '*.gz' -o -name '*.gz.age' \) | wc -l) arquivo(s) na VPS (14 dias; em claro só a última rodada)"
   echo "  Restaurar banco: gunzip -c ARQ | docker exec -i CID psql -U USUÁRIO -d BANCO"
   echo "    (.age: read -rsp 'chave: ' k; printf '%s\\n' \"\$k\" | age -d -i - ARQ.age | gunzip | docker exec -i CID psql ...; k=)"
   echo "  Restaurar pasta: tar -xzf ...-completo.tar.gz --listed-incremental=/dev/null -C DESTINO, depois o -diferencial mais novo"
+  echo "  Restaurar segredos de integração: ... | age -d -i - segredos_integracoes-....tar.gz.age | tar -xz -C /  (volta /root/crystal/n8n-compras.segredos)"
 
   if [ -s "$FORA_CONF" ] && [ -s "$FORA_DEST" ]; then
     if [ ${#novos[@]} -gt 0 ]; then
@@ -1218,6 +1249,16 @@ backup() {
   else
     aviso "cópia fora da VPS não configurada (backup-chave e backup-fora-config)"
   fi
+  # Segredos de integração nunca ficam em claro em $dir: cifra agora (os outros esperam 20 h) ou
+  # apaga; a cópia no R2, se subiu, é a que vale. Pega também um tar que uma rodada interrompida
+  # tenha deixado.
+  while IFS= read -r -d '' f; do
+    if [ -s "$FORA_DEST" ] && devagar age -r "$(cat "$FORA_DEST")" -o "$f.age.tmp" "$f" && mv -f "$f.age.tmp" "$f.age"; then
+      rm -f "$f"
+    else
+      rm -f "$f" "$f.age.tmp"; falhas+=("segredos de integração: cópia local não cifrada (apagada; vale a do R2)")
+    fi
+  done < <(find "$dir" -maxdepth 1 -type f -name 'segredos_integracoes-*.tar.gz' -print0 2>/dev/null)
 
   if [ ${#falhas[@]} -eq 0 ] && [ "$completo" = 0 ]; then
     # Só os bancos: não conta como backup completo para a vigia nem apaga a falha de um completo anterior.
@@ -1437,8 +1478,8 @@ backup_fora_config() {
 # está cifrado; mesmo assim, não colar em chat.
 backup_link() {
   local tipo="${1:-n8n_queue}" xml code
-  echo "$tipo" | grep -Eq '^(n8n_queue|crystal_web_chat|crystal_agente|crystal_uploads|chatwoot|chatwoot_storage)$' \
-    || falha "tipo: n8n_queue, crystal_web_chat, crystal_agente, crystal_uploads, chatwoot ou chatwoot_storage"
+  echo "$tipo" | grep -Eq '^(n8n_queue|crystal_web_chat|crystal_agente|crystal_uploads|chatwoot|chatwoot_storage|segredos_integracoes)$' \
+    || falha "tipo: n8n_queue, crystal_web_chat, crystal_agente, crystal_uploads, chatwoot, chatwoot_storage ou segredos_integracoes"
   fora_ler_conf
   xml=$(mktemp)
   code=$(fora_curl -o "$xml" -w '%{http_code}' "$R2_URL?list-type=2&prefix=$FORA_PREFIXO") || code=000
