@@ -247,6 +247,13 @@ bash bootstrap-vps.sh atendimento-subir            # regra nova: /monitoring e /
 # 2. n8n sem acesso ao ambiente, sem Execute Command / arquivos / pacotes de terceiros
 #    (INF-03). Os arquivos novos já saíram do preparar acima; isto só sobe os três:
 bash bootstrap-vps.sh n8n                          # editor, webhook e worker, um de cada vez
+# 3. SSH só com chave (INF-11): trava sozinho se já houver chave em /root/.ssh/authorized_keys
+bash bootstrap-vps.sh seguranca
+# 4. TESTAR PRIMEIRO, noutra noite: a API deixa de entrar no Postgres como superusuário (INF-07)
+bash bootstrap-vps.sh app-db-papel                 # simulação: transação desfeita, tem de dizer "simulação limpa"
+bash bootstrap-vps.sh app-db-papel --confirmo      # passo 1: papel crystal_api dono do banco do app
+bash bootstrap-vps.sh app-subir sha-XXXXXXX        # passo 2: a MESMA tag que está no ar (app-status mostra)
+# Volta do 4: bash bootstrap-vps.sh app-db-papel --voltar && bash bootstrap-vps.sh app-subir sha-XXXXXXX
 ```
 
 Sobre o n8n (`stacks-exemplo/04`, `05` e `06`): entram `N8N_BLOCK_ENV_ACCESS_IN_NODE=true`,
@@ -261,6 +268,23 @@ de ponta a ponta (regrava as mesmas credenciais, faz uma compra e um reembolso d
 `python3 compra-assiny-credenciais.py`. Volta: as linhas antigas estão no comentário dos
 arquivos; trocar, `preparar` e `n8n` de novo. Falta só uma coisa à mão: 2FA em todas as contas
 do n8n (Settings > Personal > Two-factor).
+
+Papel da API no Postgres (INF-07): hoje a API e a migração do Prisma entram como `crystal`,
+o superusuário com que a imagem do Postgres nasceu; uma falha na API viraria comando no
+contêiner do banco (`COPY ... TO PROGRAM`) e leitura da memória da Crystal. O Postgres 16 não
+deixa tirar o superusuário desse papel (ensaiado: "The bootstrap user must have the SUPERUSER
+attribute"), então o `app-db-papel` cria `crystal_api`, sem superusuário, e o faz dono do banco
+`crystal_web_chat` e de tudo no schema `public` (tabelas, sequências, tipos, funções; o que é
+de extensão fica). É o que o `prisma migrate deploy` precisa. A senha nova
+(`APP_DB_API_SENHA`) vai para o `.segredos` (copiar pro Bitwarden com `app-segredos`) e a marca
+para `/root/crystal/app/.db-papel`; o `app-subir` seguinte monta o `DATABASE_URL` com ela.
+`crystal` continua superusuário para backup e diagnóstico. Ensaiado num Postgres 16 com as 44
+migrações do app: simulação sem efeito; depois, `crystal_api` cria tabela, enum e índice e
+pega trava consultiva, e leva "permission denied" em `COPY ... TO PROGRAM` e `pg_read_file`;
+com uma tabela travada, o comando falha sem mudar nada e sem a senha no log. Depois de uma
+migração feita como `crystal` ou de uma restauração (o backup é `--no-owner`), rodar
+`--confirmo` de novo. Uma migração futura com `CREATE EXTENSION` não confiável falharia como
+`crystal_api`: aí, volta, `app-subir`, e `--confirmo` de novo.
 
 Yaml por commit fixo e sha256 (INF-04): o script não baixa mais nada de branch. Quem mudar
 um arquivo de `stacks-exemplo/`, `stacks-app/01`, `10`, `20` ou `n8n/crystal-provisoria.json`:

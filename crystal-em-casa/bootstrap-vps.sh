@@ -95,6 +95,11 @@
 #                                              pede o token do bot sem aparecer)
 #   bash bootstrap-vps.sh app-segredos         mostra os segredos do app pra copiar pro cofre
 #   bash bootstrap-vps.sh app-telefone EMAIL   grava o WhatsApp de uma conta criada aqui (canal da inbox)
+#   bash bootstrap-vps.sh app-db-papel [--confirmo|--voltar]
+#                                              TESTAR PRIMEIRO. A API deixa de entrar no Postgres como
+#                                              superusuário: papel crystal_api dono do banco do app. Sem
+#                                              nada simula (transação desfeita); --confirmo faz e marca;
+#                                              depois app-subir TAG. --voltar desfaz a marca (e app-subir)
 #   bash bootstrap-vps.sh app-revisao          cria (uma vez) e mostra a conta de revisão das lojas;
 #                                              --nova troca CPF e código
 #   bash bootstrap-vps.sh crystal-nossa TAG    a NOSSA Crystal (serviço app_crystal, sem endereço
@@ -1363,6 +1368,7 @@ recomecar_n8n() {
 APP_DIR="$BASE/app"
 APP_SEG="$APP_DIR/.segredos"
 APP_EXT="$APP_DIR/.externos"
+APP_DB_PAPEL_ARQ="$APP_DIR/.db-papel"   # "crystal_api" depois do app-db-papel --confirmo
 APP_YAML=10-crystal-app.yaml
 APP_IMG=ghcr.io/lfcrystal766/crystal-web-chat
 APP_STACK=crystal_app
@@ -1647,9 +1653,17 @@ app_gerar_segredos() { # app_gerar_segredos TAG
 }
 
 app_gerar_env() {
-  local senha mock=0 k
+  local senha mock=0 k dburl
   senha=$(app_valor "$APP_SEG" APP_DB_SENHA)
   [ -n "$senha" ] || falha "APP_DB_SENHA ausente em $APP_SEG"
+  # Papel da API no Postgres (INF-07): crystal_api, sem superusuário, depois do
+  # app-db-papel --confirmo; senão o crystal de sempre (superusuário da imagem).
+  if [ "$(cat "$APP_DB_PAPEL_ARQ" 2>/dev/null || true)" = crystal_api ]; then
+    [ -n "$(app_valor "$APP_SEG" APP_DB_API_SENHA)" ] || falha "$APP_DB_PAPEL_ARQ pede crystal_api, mas falta APP_DB_API_SENHA em $APP_SEG. Rode: bash $0 app-db-papel --confirmo (ou --voltar)"
+    dburl="postgresql://crystal_api:$(app_valor "$APP_SEG" APP_DB_API_SENHA)@app_postgres:5432/crystal_web_chat"
+  else
+    dburl="postgresql://crystal:$senha@app_postgres:5432/crystal_web_chat"
+  fi
   for k in RESEND_API_KEY EMAIL_FROM; do
     [ -n "$(app_valor "$APP_EXT" $k)" ] || falha "$k não definido. Em produção o app manda o código de login por e-mail (Resend). Rode: bash $0 app-definir $k"
   done
@@ -1690,7 +1704,7 @@ app_gerar_env() {
     # Traefik publica 80/443 em modo host e acrescenta o IP real no X-Forwarded-For.
     echo "TRUST_PROXY=1"
     echo "WEB_ORIGIN=https://app.$DOMINIO"
-    echo "DATABASE_URL=postgresql://crystal:$senha@app_postgres:5432/crystal_web_chat"
+    echo "DATABASE_URL=$dburl"
     echo "REDIS_URL=redis://app_redis:6379"
     echo "UPLOAD_DIR=/app/uploads"
     echo "DEMO_SEED=0"
@@ -1722,7 +1736,10 @@ app_gerar_env() {
     grep -E '^(ANDROID_CERT_SHA256|APPLE_TEAM_ID)=' "$APP_EXT" || true
   } > "$APP_DIR/web.env"
   chmod 600 "$APP_DIR/postgres.env" "$APP_DIR/api.env" "$APP_DIR/crystal.env" "$APP_DIR/web.env"
-  unset senha
+  unset senha dburl
+  if [ "$(cat "$APP_DB_PAPEL_ARQ" 2>/dev/null || true)" = crystal_api ]; then
+    ok "API no Postgres como crystal_api (sem superusuário)"
+  fi
   # Diz qual das duas pontas falta, em vez de um aviso só que confundia.
   if [ "$(app_valor "$APP_EXT" CHAT_TRANSPORT)" = "chatwoot" ]; then
     ok "Crystal: canal da inbox (CHAT_TRANSPORT=chatwoot)"
@@ -2209,7 +2226,7 @@ app_recomecar() {
       docker volume rm "${APP_STACK}_$v" >/dev/null || falha "não apagou o volume ${APP_STACK}_$v (ainda em uso?). Os segredos NÃO foram trocados; rode de novo em 1 min"
     fi
   done
-  rm -f "$APP_SEG" "$APP_DIR/api.env" "$APP_DIR/postgres.env"
+  rm -f "$APP_SEG" "$APP_DIR/api.env" "$APP_DIR/postgres.env" "$APP_DB_PAPEL_ARQ"
   ok "segredos antigos apagados (cópia guardada); $APP_EXT mantido"
   app_subir app-subir "$tag"
 }
@@ -2258,6 +2275,149 @@ revoke connect on database crystal_web_chat from public;
 SQL
   unset senha
   ok "banco crystal_agente pronto (papel próprio, sem acesso ao banco do app)"
+}
+
+# ------------------------------------------------------------------ app-db-papel
+# TESTAR PRIMEIRO (INF-07, 24/10/2026). A API e a migração do Prisma entram no Postgres do
+# app como crystal, o superusuário de bootstrap da imagem (POSTGRES_USER): uma falha na API
+# viraria COPY ... TO PROGRAM no contêiner do Postgres e leitura do banco da Crystal. O
+# Postgres 16 não deixa tirar o superusuário do papel de bootstrap, então o caminho é um
+# papel novo, crystal_api, sem superusuário, dono do banco crystal_web_chat e de tudo no
+# schema public (tabelas, sequências, tipos, funções): é o que o prisma migrate deploy
+# precisa. crystal continua superusuário para backup, crystal_banco e diagnóstico, e deixa
+# de entrar pela API. Senha nova (APP_DB_API_SENHA) no .segredos; marca em .db-papel.
+# Roteiro, um de cada vez:
+#   bash bootstrap-vps.sh backup
+#   bash bootstrap-vps.sh app-db-papel                simulação: faz tudo numa transação e desfaz
+#   bash bootstrap-vps.sh app-db-papel --confirmo     passo 1: papel e donos de verdade (a API segue
+#                                                     no ar como crystal: superusuário passa por cima)
+#   bash bootstrap-vps.sh app-subir TAG_ATUAL         passo 2: api.env com crystal_api; migra e sobe com ele
+# Volta: bash bootstrap-vps.sh app-db-papel --voltar && bash bootstrap-vps.sh app-subir TAG_ATUAL
+#   (a API volta a entrar como crystal; os donos ficam com crystal_api, sem efeito para o superusuário).
+# Idempotente: depois de uma migração feita como crystal ou de uma restauração (o backup é
+# --no-owner), rodar --confirmo de novo devolve os donos ao crystal_api.
+app_db_papel() {
+  local modo="${2:-}" pg senha fim saida n
+  case "$modo" in
+    "") fim=rollback ;;
+    --confirmo) fim=commit ;;
+    --voltar)
+      rm -f "$APP_DB_PAPEL_ARQ"
+      ok "marca apagada: no próximo app-subir a API volta a entrar como crystal"
+      echo "Agora: bash $0 app-subir $(app_tag_atual)"
+      return 0 ;;
+    *) falha "uso: bash $0 app-db-papel [--confirmo | --voltar]   (sem nada: simulação, não muda nada)" ;;
+  esac
+  [ -f "$APP_SEG" ] || falha "o app ainda não subiu: bash $0 app-subir TAG"
+  pg=$(docker ps -q -f name=${APP_STACK}_app_postgres | head -1); [ -n "$pg" ] || falha "Postgres do app não está rodando"
+  docker exec "$pg" pg_isready -U crystal -d crystal_web_chat >/dev/null 2>&1 || falha "Postgres do app não responde"
+  if [ "$fim" = commit ]; then
+    if [ -z "$(app_valor "$APP_SEG" APP_DB_API_SENHA)" ]; then
+      umask 077
+      echo "APP_DB_API_SENHA=$(openssl rand -hex 24)" >> "$APP_SEG"
+      chmod 600 "$APP_SEG"
+      ok "APP_DB_API_SENHA gerada em $APP_SEG. Copie pro cofre: bash $0 app-segredos"
+    fi
+    senha=$(app_valor "$APP_SEG" APP_DB_API_SENHA)
+    echo "== papel crystal_api e donos do banco do app (de verdade)"
+  else
+    senha=$(openssl rand -hex 24)   # só para a simulação: some com o ROLLBACK
+    echo "== simulação: tudo numa transação, desfeita no fim (nada muda)"
+  fi
+  printf '%s' "$senha" | grep -Eq '^[0-9a-f]{48}$' || falha "APP_DB_API_SENHA em $APP_SEG não é hex de 48 caracteres"
+  # A senha vai pela entrada padrão, nunca na linha de comando; com log_min_error_statement
+  # em panic e log_error_verbosity terse, uma instrução que falhe não vai para o log do
+  # Postgres com a senha, nem como STATEMENT nem como CONTEXT (INF-27).
+  # Da saída só passam as linhas nome=valor e a primeira linha de um erro.
+  saida=$(docker exec -i "$pg" psql -X -v ON_ERROR_STOP=1 -q -tA -U crystal -d crystal_web_chat 2>&1 <<SQL
+set log_statement = 'none';
+set log_min_error_statement = 'panic';
+set log_error_verbosity = 'terse';
+set lock_timeout = '5s';
+begin;
+do \$\$ begin
+  if not exists (select from pg_roles where rolname = 'crystal_api') then
+    create role crystal_api login nosuperuser nocreatedb nocreaterole noreplication nobypassrls noinherit password '$senha';
+  else
+    alter role crystal_api login nosuperuser nocreatedb nocreaterole noreplication nobypassrls noinherit password '$senha';
+  end if;
+end \$\$;
+alter database crystal_web_chat owner to crystal_api;
+do \$\$ declare r record; begin
+  if (select nspowner from pg_namespace where nspname = 'public') not in ('pg_database_owner'::regrole, 'crystal_api'::regrole) then
+    alter schema public owner to crystal_api;
+  end if;
+  -- tabelas, visões e sequências soltas (a de coluna serial/identity acompanha a tabela)
+  for r in
+    select c.oid::regclass as nome, c.relkind
+      from pg_class c join pg_namespace s on s.oid = c.relnamespace
+     where s.nspname = 'public' and c.relkind in ('r','p','v','m','f','S')
+       and c.relowner <> 'crystal_api'::regrole
+       and not exists (select 1 from pg_depend d
+                        where d.classid = 'pg_class'::regclass and d.objid = c.oid
+                          and (d.deptype = 'e' or (c.relkind = 'S' and d.deptype in ('a','i'))))
+     order by c.relkind = 'S'
+  loop
+    execute format('alter %s %s owner to crystal_api',
+      case r.relkind when 'v' then 'view' when 'm' then 'materialized view' when 'f' then 'foreign table'
+                     when 'S' then 'sequence' else 'table' end, r.nome);
+  end loop;
+  -- enums, domínios, ranges e tipos compostos avulsos
+  for r in
+    select t.oid::regtype as nome, t.typtype
+      from pg_type t join pg_namespace s on s.oid = t.typnamespace
+     where s.nspname = 'public' and t.typtype in ('e','d','r','c')
+       and (t.typtype <> 'c' or (select c.relkind from pg_class c where c.oid = t.typrelid) = 'c')
+       and t.typowner <> 'crystal_api'::regrole
+       and not exists (select 1 from pg_depend d where d.classid = 'pg_type'::regclass and d.objid = t.oid and d.deptype = 'e')
+  loop
+    execute format('alter %s %s owner to crystal_api', case r.typtype when 'd' then 'domain' else 'type' end, r.nome);
+  end loop;
+  -- funções e procedimentos (os de extensão ficam com quem instalou)
+  for r in
+    select p.oid::regprocedure as nome, p.prokind
+      from pg_proc p join pg_namespace s on s.oid = p.pronamespace
+     where s.nspname = 'public' and p.proowner <> 'crystal_api'::regrole
+       and not exists (select 1 from pg_depend d where d.classid = 'pg_proc'::regclass and d.objid = p.oid and d.deptype = 'e')
+  loop
+    execute format('alter %s %s owner to crystal_api', case r.prokind when 'a' then 'aggregate' else 'routine' end, r.nome);
+  end loop;
+end \$\$;
+revoke connect on database crystal_web_chat from public;
+select 'superusuario=' || rolsuper from pg_roles where rolname = 'crystal_api';
+select 'dono_banco=' || pg_get_userbyid(datdba) from pg_database where datname = 'crystal_web_chat';
+select 'tabelas=' || count(*) from pg_class c join pg_namespace s on s.oid = c.relnamespace
+ where s.nspname = 'public' and c.relkind in ('r','p');
+select 'fora=' || count(*) from pg_class c join pg_namespace s on s.oid = c.relnamespace
+ where s.nspname = 'public' and c.relkind in ('r','p','v','m','f') and c.relowner <> 'crystal_api'::regrole
+   and not exists (select 1 from pg_depend d where d.classid = 'pg_class'::regclass and d.objid = c.oid and d.deptype = 'e');
+$fim;
+SQL
+) || {
+    printf '%s\n' "$saida" | grep -m1 'ERROR' | sed 's/^/     /'
+    senha=""
+    falha "o Postgres recusou (acima). Nada foi mudado: a transação foi desfeita"
+  }
+  printf '%s\n' "$saida" | grep -E '^(superusuario|dono_banco|tabelas|fora)=' | sed 's/^/  /'
+  printf '%s\n' "$saida" | grep -qx 'superusuario=false' || { senha=""; falha "crystal_api ficaria superusuário: nada marcado"; }
+  printf '%s\n' "$saida" | grep -qx 'fora=0' || { senha=""; falha "sobrou objeto do public sem crystal_api de dono (acima): nada marcado"; }
+  if [ "$fim" = rollback ]; then
+    senha=""
+    ok "simulação limpa: crystal_api seria dono de tudo, sem superusuário. Nada mudou"
+    echo "Passo 1 (de verdade): bash $0 app-db-papel --confirmo"
+    return 0
+  fi
+  # Entra como crystal_api pela rede (scram), como a API vai entrar. A senha vai pelo
+  # ambiente do docker exec (-e só com o nome), nunca na linha de comando.
+  n=$(PGPASSWORD="$senha" docker exec -e PGPASSWORD "$pg" psql -X -h 127.0.0.1 -U crystal_api -d crystal_web_chat -tAc \
+      "select count(*) from _prisma_migrations where finished_at is not null" 2>/dev/null | tr -d '[:space:]') || n=""
+  senha=""
+  printf '%s' "$n" | grep -Eq '^[0-9]+$' || falha "crystal_api não entrou pela rede com a senha do $APP_SEG. Nada marcado: a API segue como crystal. Volta dos donos não é necessária"
+  umask 077
+  echo crystal_api > "$APP_DB_PAPEL_ARQ"; chmod 600 "$APP_DB_PAPEL_ARQ"
+  ok "crystal_api entra pela rede e lê as $n migrações do Prisma; marca gravada em $APP_DB_PAPEL_ARQ"
+  echo "Passo 2: bash $0 app-subir $(app_tag_atual)   (a API passa a entrar como crystal_api; a migração roda com ele)"
+  echo "Volta:   bash $0 app-db-papel --voltar && bash $0 app-subir $(app_tag_atual)"
 }
 
 # Telefone de uma conta do app (o canal da inbox identifica a pessoa pelo WhatsApp).
@@ -3517,6 +3677,7 @@ case "$CMD" in
   crystal-nossa) crystal_nossa "$@" ;;
   app-revisao) app_revisao "$@" ;;
   app-telefone) app_telefone "$@" ;;
+  app-db-papel) app_db_papel "$@" ;;
   crystal-nossa-teste) crystal_nossa_teste ;;
   crystal-conferir) crystal_conferir "$@" ;;
   app-api-parar) app_api_parar "$@" ;;
