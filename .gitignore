@@ -1,0 +1,3 @@
+# Revisão de segurança de 24/10 (INF-26): o RDAP inteiro tem nome, endereço e e-mail do
+# titular e do contato técnico. O script de auditoria grava só o rdap-resumo.json.
+auditorias/*/evidencias/rdap.json

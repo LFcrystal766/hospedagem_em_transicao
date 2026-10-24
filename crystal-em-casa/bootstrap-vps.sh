@@ -524,6 +524,34 @@ u = d.get("UpdateStatus") or {}
 print(ep(d.get("UpdatedAt")), u.get("State") or "-", ep(u.get("StartedAt")))' 2>/dev/null || echo "0 ausente 0"
 }
 
+# Tira de um log o que tiver cara de segredo antes de ir para a tela, e daí para o chat
+# (revisão de 24/10, INF-26): senha em URL (postgres://u:SENHA@, redis://:SENHA@), Bearer,
+# chaves com prefixo conhecido, JWT, chave privada do age e hex/base64 longos (as chaves que o
+# bootstrap gera). Caminho de arquivo e texto comum passam.
+redigir() {
+  python3 -c '
+import re, sys
+R = [
+    (re.compile(r"(://[^:/@\s]*:)[^@/\s]+@"), r"\1***@"),
+    (re.compile(r"([Bb]earer\s+)[A-Za-z0-9._~+/=-]+"), r"\1***"),
+    (re.compile(r"\b(sk-or-v1-|sk-or-|sb_secret_|sb_publishable_|re_|gsk_|ghp_|github_pat_)[A-Za-z0-9_-]{8,}"), r"\1***"),
+    (re.compile(r"\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]*"), "eyJ***"),
+    (re.compile(r"AGE-SECRET-KEY-1[0-9A-Z]+"), "AGE-SECRET-KEY-***"),
+    (re.compile(r"\b[0-9a-fA-F]{48,}\b"), "<hex>"),
+]
+B64 = re.compile(r"[A-Za-z0-9+/]{40,}={0,2}")
+def b64(m):
+    t = m.group(0)
+    if ("+" not in t and "=" not in t and t.count("/") > 1) or sum(c.isdigit() for c in t) < 4:
+        return t
+    return "<b64>"
+for linha in sys.stdin:
+    for r, novo in R:
+        linha = r.sub(novo, linha)
+    sys.stdout.write(B64.sub(b64, linha))
+'
+}
+
 # Últimas linhas do contêiner mais novo que morreu num serviço, sem as linhas de
 # requisição, e o erro das últimas tarefas.
 servico_log_morto() { # servico_log_morto SERVIÇO
@@ -532,7 +560,7 @@ servico_log_morto() { # servico_log_morto SERVIÇO
   cid=$(docker ps -a -q --filter "label=com.docker.swarm.service.name=$1" --filter status=exited 2>/dev/null | head -1 || true)
   if [ -n "$cid" ]; then
     echo "  -- últimas linhas do contêiner que morreu ($1):"
-    docker logs --tail 40 "$cid" 2>&1 | grep -vE '"request completed"|"incoming request"' | sed 's/^/     /' | tail -25 || true
+    docker logs --tail 40 "$cid" 2>&1 | grep -vE '"request completed"|"incoming request"' | redigir | sed 's/^/     /' | tail -25 || true
   fi
 }
 
@@ -910,7 +938,7 @@ traefik() {
   if ! traefik_rotas_conferir; then
     aviso "nenhum endereço conhecido respondeu em 2 min: o Traefik novo não está lendo as rotas"
     docker service logs --since 5m traefik_traefik 2>&1 | grep -iE 'provider|docker|error' | tail -8 | sed 's/^/     /' || true
-    docker service logs --since 5m traefik_docker_proxy 2>&1 | tail -5 | sed 's/^/     /' || true
+    docker service logs --since 5m traefik_docker_proxy 2>&1 | tail -5 | redigir | sed 's/^/     /' || true
     read -r upd _e _i <<<"$(svc_estado traefik_traefik)"
     if [ "$upd" -ge "$t0" ]; then
       echo "  voltando o Traefik à versão anterior (docker service rollback traefik_traefik)"
@@ -3455,7 +3483,7 @@ app_auditoria_backfill() { # app_auditoria_backfill TAG
     sleep 5; t=$((t+5))
   done
   saida=$(docker service logs --raw "$svc" 2>&1 | grep -vE 'Lifecycle|postinstall|prisma generate|^\s*$' || true)
-  printf '%s\n' "$saida" | tail -25 | sed 's/^/     /'
+  printf '%s\n' "$saida" | tail -25 | redigir | sed 's/^/     /'
   case "$estado" in
     Complete*) docker service rm "$svc" >/dev/null 2>&1 || true ;;
     *) falha "a migração ou o backfill NÃO terminou bem ($estado). A API continua parada e o banco como estava antes do passo que falhou. Mande o log acima para a sessão; para voltar ao ar: bash $0 app-subir $(app_tag_atual)" ;;
@@ -3533,7 +3561,7 @@ painel_diagnostico() {
   echo "== 5. web (Next.js) nas últimas ${horas}h"
   docker service logs --since "${horas}h" --raw ${APP_STACK}_app_web 2>/dev/null | grep -ciE 'error|timeout|ECONNRESET|ECONNREFUSED' | sed 's/^/  linhas com erro: /' || true
   docker service logs --since "${horas}h" --raw ${APP_STACK}_app_web 2>/dev/null | grep -iE 'error|timeout|ECONNRESET|ECONNREFUSED' \
-    | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z.]+/<email>/g' | cut -c1-110 | sort | uniq -c | sort -rn | head -6 | sed 's/^/  /' || true
+    | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z.]+/<email>/g' | redigir | cut -c1-110 | sort | uniq -c | sort -rn | head -6 | sed 's/^/  /' || true
   echo "Cole tudo acima na sessão (não tem segredo nem dado de aluno)."
 }
 

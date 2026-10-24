@@ -65,7 +65,11 @@ echo "[1/7] DNS (DNS-over-HTTPS)"
 
 # ---------------------------------------------------------------- 2. Registro
 echo "[2/7] registro do domínio (RDAP)"
-get "https://rdap.registro.br/domain/$DOMINIO" -o "$EV/rdap.json"
+# Só o que interessa à migração (situação, datas, NS, DNSSEC): o RDAP inteiro traz nome,
+# endereço e e-mail do titular e do contato técnico, dado pessoal que não vai para o
+# repositório (revisão de 24/10, INF-26).
+get "https://rdap.registro.br/domain/$DOMINIO" | jq '{ldhName, status, events: [.events[]? | {eventAction, eventDate}],
+  nameservers: [.nameservers[]?.ldhName], delegationSigned: .secureDNS.delegationSigned}' > "$EV/rdap-resumo.json"
 
 # ---------------------------------------------------------------- 3. Matriz HTTP
 echo "[3/7] matriz HTTP"
@@ -175,8 +179,10 @@ echo "[7/7] WordPress (REST público, sem autenticação)"
     | jq -r '.[]|"\(.modified_gmt)  \(.status)  \(.slug)"'
   echo "### total de páginas publicadas"
   get -o /dev/null -D - "https://$DOMINIO/wp-json/wp/v2/pages?per_page=1" | tr -d '\r' | grep -i '^x-wp-total:'
-  echo "### usuários expostos"
-  get "https://$DOMINIO/wp-json/wp/v2/users" | jq -c '.[]?|{id,name,slug}'
+  # Só id e slug (INF-26): o nome de exibição é dado pessoal e não muda a conclusão
+  # (a rota de usuários está aberta ou não).
+  echo "### usuários expostos (id e slug)"
+  get "https://$DOMINIO/wp-json/wp/v2/users" | jq -c '.[]?|{id,slug}'
 } > "$EV/wordpress.txt" 2>&1
 sed -n '/páginas editadas/,/total de páginas/p' "$EV/wordpress.txt" | head -6 | sed 's/^/  /'
 
