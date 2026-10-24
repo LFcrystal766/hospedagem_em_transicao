@@ -209,7 +209,7 @@ DOMINIO=crystalnowpp.com.br
 # com o commit atual; 3) colar aqui e commitar o script. REF=<commit de 40 letras> troca o
 # commit (o sha256 continua valendo); branch não é aceita. Rodando de dentro de um clone do
 # repositório, usa a cópia local (o git garante a origem) e só avisa se divergir da tabela.
-STACKS_COMMIT=91e7971058d91929c93b5421791def4b5ba9ba22
+STACKS_COMMIT=8d7379fba78db140afef695aa6a6a9c7adb520ad
 declare -A ARQ_SHA256=(
   [n8n/crystal-provisoria.json]=6ba9a2183c94c4fcff07207e7fc29b9b510907d013a51cffea6d32d84e0d7387
   [stacks-app/01-portainer-restrito.yaml]=d646706f7e52b36d7bdd632ab0096e5bcdb597c3f7ecd5dda0925e230b312639
@@ -219,9 +219,9 @@ declare -A ARQ_SHA256=(
   [stacks-exemplo/01-portainer.yaml]=a3c3b94eb42cb8f433cf14387cc47cdc060e159baaffa0a9e418fc5f7ee80943
   [stacks-exemplo/02-n8n-postgres.yaml]=9efd884653d814488eca7eab47416ae5f238433c2316e57218615b76e0a6b6c6
   [stacks-exemplo/03-n8n-redis.yaml]=d3d53f2773626ac10d160aeae1ff317d49319590232d6f5de0ba71eadc41c6f5
-  [stacks-exemplo/04-n8n-editor.yaml]=215f474cb20515e615772016f7bb8d09114a6d889ac209afcf85acdf611d303e
-  [stacks-exemplo/05-n8n-webhook.yaml]=cfbd56ac26977d4963964acc57fd1a10438a66273bacf35ebc8d9ca32befa769
-  [stacks-exemplo/06-n8n-worker.yaml]=093c8fd28483daf13712f759059777e7ee7aae60e7b87727c55ee0619402927a
+  [stacks-exemplo/04-n8n-editor.yaml]=e8765255f77290be7d2fce19dcecff99d87562c47f6990c409b921474999de51
+  [stacks-exemplo/05-n8n-webhook.yaml]=82125d1798262792d22b9020f3b9c7bbb57297faac989b659a6250b0430bd71e
+  [stacks-exemplo/06-n8n-worker.yaml]=80f68dd8e9f006496e6a303e019a8678d2e636e57a9d48f4675cbfaa1aae22a6
 )
 STACKS_REF="${REF:-$STACKS_COMMIT}"
 RAW_BASE="https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/$STACKS_REF/crystal-em-casa"
