@@ -873,3 +873,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     de 24/10", passos 0–8 (passo 1 `docker-daemon` é OPCIONAL: recomendado adiar; `app-db-papel` e trava do SSH para
     outra noite). O `.gitignore` novo ignora `auditorias/*/evidencias/rdap.json` (dados do titular); `rdap.json`
     antigo apagado do repositório (continua no histórico do git).
+    **n8n PRONTO e JUNTADO: merge `f19ef9f`** (branch `seguranca/n8n-assiny`, 3 commits). A Assiny só tem webhooks
+    (sem API de consulta, sem HMAC, sem IPs): defesa em camadas (caminho secreto + cabeçalho `x-crystal-token`,
+    validação no primeiro nó, bloqueio só com compra conhecida, e-mail de texto fixo, conciliação 06:10/18:10 com
+    alerta). Limite que fica: com os dois segredos ainda dá para forjar uma liberação (nunca um bloqueio). Novo
+    achado: o chargeback real da Assiny é **`charged_back`** e nem o SQL nem a API o reconheciam: SQL novo inclui; app
+    corrigido em **`3c343df`** (`REFUND_EVENTS_PADRAO` e `IMAGENS_EVENTOS_ESTORNO`; CI rodando; imagem depois).
+    Papel Postgres `n8n_compras` só com as 2 funções (sai a service_role do n8n). **SQL único do dono:**
+    `crystal-em-casa/supabase/app_compras_seguranca_n8n.sql` (substitui o `app_compras_bloqueio_restrito.sql`).
+    Roteiro de troca do fluxo (8 passos, sem janela de 403) em `crystal-em-casa/n8n/README.md`. Relatório em
+    `auditorias/2026-10-24/seguranca/07-n8n-assiny.md`. Pendências de infra que o n8n deixou (retenção 48 h das
+    execuções, `IMAGENS_WEBHOOK_SECRET` no `APP_EXTERNOS`, `n8n-compras.segredos` no backup): agente rodando na
+    branch `seguranca/infra-pendencias-n8n` (vai mudar yaml do n8n: `STACKS_COMMIT` e sha256 do bootstrap mudam).
