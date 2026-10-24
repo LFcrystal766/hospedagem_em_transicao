@@ -34,7 +34,9 @@
 #   bash bootstrap-vps.sh backup [--completo]  pg_dump dos bancos (n8n, app, memória da Crystal, Chatwoot)
 #                                              e tar incremental dos uploads em /root/crystal/backups
 #                                              (14 dias). Parte que falha não para as outras nem o R2;
-#                                              no fim, resumo e saída 1. A chave do n8n NÃO vai junto.
+#                                              no fim, resumo e saída 1. A chave do n8n NÃO vai junto; os
+#                                              segredos de integração do n8n (/root/crystal/n8n-compras.segredos)
+#                                              vão em todo backup, SÓ cifrados (24/10; .age na VPS, nunca em claro)
 #                                              Rodado à mão (no terminal) faz só os bancos, em segundos:
 #                                              as fotos e os anexos ficam para o cron das 03:30 (23/10: o
 #                                              tar de ~3 GB de fotos travava a VPS). --completo inclui agora
@@ -47,7 +49,8 @@
 #   bash bootstrap-vps.sh backup-testar-trava  tenta apagar um arquivo de teste no R2: tem que ser recusado
 #   bash bootstrap-vps.sh backup-link [TIPO]   link de 10 min para baixar o backup mais novo (teste de
 #                                              restauração no Mac). TIPO: n8n_queue (padrão), crystal_web_chat,
-#                                              crystal_agente, crystal_uploads, chatwoot, chatwoot_storage
+#                                              crystal_agente, crystal_uploads, chatwoot, chatwoot_storage,
+#                                              segredos_integracoes
 #   bash bootstrap-vps.sh seguranca [--sem-ssh]
 #                                              atualização de segurança automática, fail2ban no SSH e, com chave
 #                                              de root instalada, SSH só com chave (--sem-ssh pula essa trava)
@@ -78,7 +81,7 @@
 #   bash bootstrap-vps.sh app-resend           pergunta a chave do Resend (sem aparecer) e o
 #                                              remetente. Nada vai na linha de comando
 #   bash bootstrap-vps.sh app-definir NOME     grava um valor externo (RESEND_API_KEY, EMAIL_FROM,
-#                                              CRYSTAL_API_URL, REFUND_WEBHOOK_SECRET, TRANSCRIPTION_*,
+#                                              CRYSTAL_API_URL, REFUND_WEBHOOK_SECRET, IMAGENS_WEBHOOK_SECRET, TRANSCRIPTION_*,
 #                                              SUPABASE_*, ROLLOUT_GATE, LOGIN_MODO, LOGIN_CODIGO, EQUIPE_EMAIL, RATE_AUTH_*, ...). Confere o
 #                                              formato antes de gravar. Sem NOME, lista os aceitos
 #                                              ROLLOUT_GATE, LOGIN_CODIGO, REFUND_EVENTS, REFUND_PRODUCT_IDS,
@@ -166,6 +169,11 @@
 # Publicar a etapa 1 do PRD de Otimização (API sem root, mídia e transcrição, reembolso):
 #   curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
 #   bash bootstrap-vps.sh app-definir REFUND_WEBHOOK_SECRET   gerado com: openssl rand -hex 32 (guardar no Bitwarden)
+#   bash bootstrap-vps.sh app-definir IMAGENS_WEBHOOK_SECRET  (24/10, INT-01) outro openssl rand -hex 32, diferente do
+#                                              de cima: o pacote de imagens (/webhooks/imagens) deixa de abrir
+#                                              com o segredo do reembolso. Opcional: sem ele a API usa o do
+#                                              reembolso nas duas rotas. Depois: app-subir e, no n8n,
+#                                              python3 -I crystal-em-casa/n8n/compra-assiny-credenciais.py
 #   REFUND_EVENTS e REFUND_PRODUCT_IDS (opcionais, vírgulas): eventos da Assiny que cortam o acesso
 #                                              (padrão no código) e ids de produto que cortam (vazio = todos)
 #   bash bootstrap-vps.sh app-definir TRANSCRIPTION_API_KEY   chave da Groq; URL e modelo já têm padrão no código
@@ -209,7 +217,7 @@ DOMINIO=crystalnowpp.com.br
 # com o commit atual; 3) colar aqui e commitar o script. REF=<commit de 40 letras> troca o
 # commit (o sha256 continua valendo); branch não é aceita. Rodando de dentro de um clone do
 # repositório, usa a cópia local (o git garante a origem) e só avisa se divergir da tabela.
-STACKS_COMMIT=91e7971058d91929c93b5421791def4b5ba9ba22
+STACKS_COMMIT=8d7379fba78db140afef695aa6a6a9c7adb520ad
 declare -A ARQ_SHA256=(
   [n8n/crystal-provisoria.json]=6ba9a2183c94c4fcff07207e7fc29b9b510907d013a51cffea6d32d84e0d7387
   [stacks-app/01-portainer-restrito.yaml]=d646706f7e52b36d7bdd632ab0096e5bcdb597c3f7ecd5dda0925e230b312639
@@ -219,9 +227,9 @@ declare -A ARQ_SHA256=(
   [stacks-exemplo/01-portainer.yaml]=a3c3b94eb42cb8f433cf14387cc47cdc060e159baaffa0a9e418fc5f7ee80943
   [stacks-exemplo/02-n8n-postgres.yaml]=9efd884653d814488eca7eab47416ae5f238433c2316e57218615b76e0a6b6c6
   [stacks-exemplo/03-n8n-redis.yaml]=d3d53f2773626ac10d160aeae1ff317d49319590232d6f5de0ba71eadc41c6f5
-  [stacks-exemplo/04-n8n-editor.yaml]=215f474cb20515e615772016f7bb8d09114a6d889ac209afcf85acdf611d303e
-  [stacks-exemplo/05-n8n-webhook.yaml]=cfbd56ac26977d4963964acc57fd1a10438a66273bacf35ebc8d9ca32befa769
-  [stacks-exemplo/06-n8n-worker.yaml]=093c8fd28483daf13712f759059777e7ee7aae60e7b87727c55ee0619402927a
+  [stacks-exemplo/04-n8n-editor.yaml]=e8765255f77290be7d2fce19dcecff99d87562c47f6990c409b921474999de51
+  [stacks-exemplo/05-n8n-webhook.yaml]=82125d1798262792d22b9020f3b9c7bbb57297faac989b659a6250b0430bd71e
+  [stacks-exemplo/06-n8n-worker.yaml]=80f68dd8e9f006496e6a303e019a8678d2e636e57a9d48f4675cbfaa1aae22a6
 )
 STACKS_REF="${REF:-$STACKS_COMMIT}"
 RAW_BASE="https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/$STACKS_REF/crystal-em-casa"
@@ -1039,6 +1047,14 @@ BACKUPS="$BASE/backups"
 FORA_CONF="$BASE/.backup-fora"            # conta, bucket e chave do R2 (chmod 600)
 FORA_DEST="$BASE/.backup-destinatario"    # chave PÚBLICA do age; a privada fica só no Bitwarden
 FORA_PREFIXO=vps-crystal
+# Revisão de 24/10 (pendência do n8n): segredos de INTEGRAÇÃO que todo backup leva (--bancos
+# também: é pequeno), só cifrados (R2 e .age na VPS). Hoje só o do n8n de compras
+# (n8n/compra-assiny-credenciais.py): JWT do papel n8n_compras, chave publicável, chave do Resend
+# do n8n, token da Assiny e id do produto de teste. São chaves de serviços de fora, trocáveis;
+# NÃO são as que abrem os dumps (N8N_CHAVE, ENCRYPTION_KEY, CPF_SALT, CRYSTAL_CHAVE_CIFRA e as
+# do Chatwoot ficam só no Bitwarden: dump e chave nunca andam juntos), e o .externos do app
+# também não vai. Acrescentar aqui o que mais tiver de ir.
+BACKUP_SEGREDOS_INTEGRACOES=("$BASE/n8n-compras.segredos")
 # Revisão de 24/10 (INF-18): a chave PÚBLICA que cifra os backups mora na VPS, e quem mandar na
 # VPS poderia trocá-la por uma dele: os backups seguiriam subindo, cifrados para o atacante, e o
 # backup-conferir passaria. Defesas: (1) com a pública aqui (é pública, pode ir para o
@@ -1129,7 +1145,7 @@ backup_tar() { # backup_tar PASTA TIPO TS
 }
 
 backup() {
-  local dir="$BACKUPS" cid ts arq novos=() falhas=() up completo=1
+  local dir="$BACKUPS" cid ts arq novos=() falhas=() up completo=1 f existentes=()
   # 23/10: à mão (com terminal) o padrão é só os bancos; o cron (sem terminal) e --completo fazem tudo.
   case "${2:-}" in
     --completo) completo=1 ;;
@@ -1196,12 +1212,32 @@ backup() {
       falhas+=("Chatwoot: tar dos anexos falhou")
     fi
   fi
+  # Segredos de integração (24/10, BACKUP_SEGREDOS_INTEGRACOES): em todo backup e SÓ cifrados. Sem
+  # a chave dos backups não há como cifrar, e um tar em claro ao lado do original não acrescenta
+  # nada: aí pula, com aviso. O tar em claro vive só até o envio ao R2: lá embaixo vira .age na
+  # hora, sem esperar as 20 h dos outros.
+  for f in "${BACKUP_SEGREDOS_INTEGRACOES[@]}"; do
+    if [ -s "$f" ]; then existentes+=("$f"); fi
+  done
+  if [ ${#existentes[@]} -gt 0 ]; then
+    if [ -s "$FORA_DEST" ] && command -v age >/dev/null && backup_destinatario_conferir; then
+      arq="$dir/segredos_integracoes-$ts.tar.gz"
+      if devagar tar -C / -czf "$arq" "${existentes[@]#/}" 2>/dev/null && [ -s "$arq" ]; then
+        novos+=("$arq"); ok "segredos de integração (${existentes[*]#"$BASE/"}) em $arq (só cifrado: vira .age no fim)"
+      else
+        rm -f "$arq"; falhas+=("segredos de integração: tar falhou")
+      fi
+    else
+      aviso "segredos de integração (${existentes[*]#"$BASE/"}) fora do backup: falta a chave dos backups (bash $0 backup-chave)"
+    fi
+  fi
   find "$dir" -maxdepth 1 \( -name 'n8n_queue-*' -o -name 'crystal_web_chat-*' -o -name 'crystal_agente-*' -o -name 'crystal_uploads-*' \
-    -o -name 'chatwoot-*' -o -name 'chatwoot_storage-*' \) -mtime +14 -delete || true   # pega também os .age
+    -o -name 'chatwoot-*' -o -name 'chatwoot_storage-*' -o -name 'segredos_integracoes-*' \) -mtime +14 -delete || true   # pega também os .age
   echo "  $(find "$dir" -maxdepth 1 \( -name '*.gz' -o -name '*.gz.age' \) | wc -l) arquivo(s) na VPS (14 dias; em claro só a última rodada)"
   echo "  Restaurar banco: gunzip -c ARQ | docker exec -i CID psql -U USUÁRIO -d BANCO"
   echo "    (.age: read -rsp 'chave: ' k; printf '%s\\n' \"\$k\" | age -d -i - ARQ.age | gunzip | docker exec -i CID psql ...; k=)"
   echo "  Restaurar pasta: tar -xzf ...-completo.tar.gz --listed-incremental=/dev/null -C DESTINO, depois o -diferencial mais novo"
+  echo "  Restaurar segredos de integração: ... | age -d -i - segredos_integracoes-....tar.gz.age | tar -xz -C /  (volta /root/crystal/n8n-compras.segredos)"
 
   if [ -s "$FORA_CONF" ] && [ -s "$FORA_DEST" ]; then
     if [ ${#novos[@]} -gt 0 ]; then
@@ -1213,6 +1249,16 @@ backup() {
   else
     aviso "cópia fora da VPS não configurada (backup-chave e backup-fora-config)"
   fi
+  # Segredos de integração nunca ficam em claro em $dir: cifra agora (os outros esperam 20 h) ou
+  # apaga; a cópia no R2, se subiu, é a que vale. Pega também um tar que uma rodada interrompida
+  # tenha deixado.
+  while IFS= read -r -d '' f; do
+    if [ -s "$FORA_DEST" ] && devagar age -r "$(cat "$FORA_DEST")" -o "$f.age.tmp" "$f" && mv -f "$f.age.tmp" "$f.age"; then
+      rm -f "$f"
+    else
+      rm -f "$f" "$f.age.tmp"; falhas+=("segredos de integração: cópia local não cifrada (apagada; vale a do R2)")
+    fi
+  done < <(find "$dir" -maxdepth 1 -type f -name 'segredos_integracoes-*.tar.gz' -print0 2>/dev/null)
 
   if [ ${#falhas[@]} -eq 0 ] && [ "$completo" = 0 ]; then
     # Só os bancos: não conta como backup completo para a vigia nem apaga a falha de um completo anterior.
@@ -1432,8 +1478,8 @@ backup_fora_config() {
 # está cifrado; mesmo assim, não colar em chat.
 backup_link() {
   local tipo="${1:-n8n_queue}" xml code
-  echo "$tipo" | grep -Eq '^(n8n_queue|crystal_web_chat|crystal_agente|crystal_uploads|chatwoot|chatwoot_storage)$' \
-    || falha "tipo: n8n_queue, crystal_web_chat, crystal_agente, crystal_uploads, chatwoot ou chatwoot_storage"
+  echo "$tipo" | grep -Eq '^(n8n_queue|crystal_web_chat|crystal_agente|crystal_uploads|chatwoot|chatwoot_storage|segredos_integracoes)$' \
+    || falha "tipo: n8n_queue, crystal_web_chat, crystal_agente, crystal_uploads, chatwoot, chatwoot_storage ou segredos_integracoes"
   fora_ler_conf
   xml=$(mktemp)
   code=$(fora_curl -o "$xml" -w '%{http_code}' "$R2_URL?list-type=2&prefix=$FORA_PREFIXO") || code=000
@@ -2097,7 +2143,7 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL CRYSTAL_MODEL_RESERVA CRYSTAL_MODEL_RESUMO
   CONHECIMENTO_MATCH_COUNT CONHECIMENTO_TIMEOUT_MS
   ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*
-  REFUND_WEBHOOK_SECRET* REFUND_EVENTS REFUND_PRODUCT_IDS TRANSCRIPTION_API_URL TRANSCRIPTION_API_KEY* TRANSCRIPTION_MODEL
+  REFUND_WEBHOOK_SECRET* IMAGENS_WEBHOOK_SECRET* REFUND_EVENTS REFUND_PRODUCT_IDS TRANSCRIPTION_API_URL TRANSCRIPTION_API_KEY* TRANSCRIPTION_MODEL
   TRANSCRIPTION_TIMEOUT_MS TRANSCRIPTION_PRICE_PER_HOUR_USD CHATWOOT_API_TOKEN* EQUIPE_EMAIL SUPERADMIN_EMAILS
   RATE_AUTH_MAX RATE_AUTH_WINDOW_S OTP_MAX_ATTEMPTS OTP_RESEND_COOLDOWN_S OTP_RESEND_MAX
   RATE_AUTH_IP_MAX UPLOAD_DAILY_MAX CRYSTAL_PRAZO_TOTAL_MS CRYSTAL_TIMEOUT_MS)
@@ -2275,10 +2321,19 @@ assert d.get("type")=="service_account" and d.get("client_email") and "PRIVATE K
       v=$(printf '%s' "$v" | tr 'A-Z' 'a-z' | tr -d ' ')
       printf '%s' "$v" | grep -Eq '^([a-z0-9._%+-]+@[a-z0-9-]+(\.[a-z0-9-]+)+)(,[a-z0-9._%+-]+@[a-z0-9-]+(\.[a-z0-9-]+)+){0,9}$' \
         || falha "lista de e-mails separados por vírgula (até 10), ex.: dono@empresa.com.br. Nada gravado" ;;
-    REFUND_WEBHOOK_SECRET)
-      # Assina o webhook de reembolso: tem que ser longo e variado, nunca uma palavra.
+    REFUND_WEBHOOK_SECRET|IMAGENS_WEBHOOK_SECRET)
+      # Assinam os webhooks de reembolso e de pacote de imagens: têm que ser longos e variados,
+      # nunca uma palavra. É a mesma régua da API (32 bytes, 10 caracteres distintos). Revisão
+      # de 24/10 (INT-01): um segredo por rota, por isso o de imagens não pode ser igual ao do
+      # reembolso (quem tivesse um não abriria a outra rota). Sem IMAGENS_WEBHOOK_SECRET a API
+      # usa o do reembolso nas duas rotas, com aviso no boot: nada quebra sem ele.
       [ "$(printf '%s' "$v" | wc -c)" -ge 32 ] && [ "$(printf '%s' "$v" | fold -w1 | sort -u | wc -l)" -ge 10 ] \
-        || falha "segredo fraco (mínimo 32 bytes e 10 caracteres diferentes). Gere com: openssl rand -hex 32  e cole o resultado. Nada gravado" ;;
+        || falha "segredo fraco (mínimo 32 bytes e 10 caracteres diferentes). Gere com: openssl rand -hex 32  e cole o resultado. Nada gravado"
+      local outro=REFUND_WEBHOOK_SECRET
+      [ "$nome" = REFUND_WEBHOOK_SECRET ] && outro=IMAGENS_WEBHOOK_SECRET
+      if [ -n "$(app_valor "$APP_EXT" "$outro")" ] && [ "$(app_valor "$APP_EXT" "$outro")" = "$v" ]; then
+        v=""; falha "é o mesmo valor de $outro: cada rota tem o seu segredo (INT-01). Gere outro com: openssl rand -hex 32. Nada gravado"
+      fi ;;
     TRANSCRIPTION_API_URL)
       case "$v" in https://?*) ;; *) falha "a URL da transcrição tem que começar com https://. Nada gravado" ;; esac ;;
     TRANSCRIPTION_TIMEOUT_MS)

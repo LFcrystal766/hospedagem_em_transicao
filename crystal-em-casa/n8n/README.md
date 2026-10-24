@@ -70,8 +70,13 @@ a lista de IPs no nó Assiny ("IP(s) Allowlist") ou no Traefik. Continuam valend
 1. **SQL:** `crystal-em-casa/supabase/app_compras_seguranca_n8n.sql` inteiro no SQL Editor (substitui o
    `app_compras_bloqueio_restrito.sql`; não precisa dos dois). Sem ele o fluxo novo não funciona direito: `anterior`
    no repetido, `app_compras_conciliacao` e o papel `n8n_compras` vêm dele. O script de credenciais confere.
-2. **API do app** no ar com `REFUND_WEBHOOK_SECRET` (já tem) e, quando o bootstrap aceitar, `IMAGENS_WEBHOOK_SECRET`
-   (ver "Pendente para a infra"); sem ele o script usa o do reembolso para as duas rotas e avisa.
+2. **API do app** no ar com `REFUND_WEBHOOK_SECRET` (já tem) e, opcional, `IMAGENS_WEBHOOK_SECRET` (INT-01): o
+   `bootstrap-vps.sh app-definir IMAGENS_WEBHOOK_SECRET` aceita desde 24/10 (mesma régua do reembolso: 32 bytes, 10
+   caracteres distintos, e recusa igual ao do reembolso). Gerar com `openssl rand -hex 32`, colar quando ele pedir
+   (nunca na linha de comando), guardar no Bitwarden e rodar `app-subir` com uma imagem que o leia (onda 1 do app,
+   `d5126c0` ou mais nova); com imagem antiga a variável é ignorada e a rota de imagens continua pedindo o do
+   reembolso, e aí a credencial "API imagens" daria 401 (este script pega isso no teste, antes de gravar). Sem ele o
+   script usa o do reembolso para as duas rotas e avisa.
 3. No Supabase, para o papel: **Settings > API Keys**: a chave **publicável** (`sb_publishable_…` ou a `anon`
    legada; é pública) e **Settings > JWT Keys > Legacy JWT secret** (o script pede os dois sem eco e não guarda o
    segredo). Se o projeto já tiver desativado o segredo legado, usar `--supabase-chave` com uma secret key só do n8n.
@@ -150,25 +155,33 @@ a lista de IPs no nó Assiny ("IP(s) Allowlist") ou no Traefik. Continuam valend
 
 ## Pendente para a infra
 
-Coisas que esta pasta precisa e que moram em `bootstrap-vps.sh`, nas stacks ou na VPS (frente de infra):
+Coisas que esta pasta precisava e que moram em `bootstrap-vps.sh`, nas stacks ou na VPS (frente de infra). Situação em
+24/10, depois da branch `seguranca/infra-pendencias-n8n`:
 
-1. **`EXECUTIONS_DATA_MAX_AGE=336` → `48`** (e `EXECUTIONS_DATA_PRUNE_MAX_COUNT` menor, ex.: 2000) em
-   `stacks-exemplo/04`, `05` e `06` (INT-08). O fluxo novo já não guarda execuções com sucesso; as com erro ainda
-   carregam o corpo da Assiny (CPF) e hoje ficam 14 dias.
-2. **`IMAGENS_WEBHOOK_SECRET*`** na lista `APP_EXTERNOS` do `bootstrap-vps.sh`, com a mesma conferência de força do
-   `REFUND_WEBHOOK_SECRET` (32 bytes, 10 caracteres distintos), para `app-definir IMAGENS_WEBHOOK_SECRET` funcionar;
-   depois `app-subir <tag>` e `python3 -I compra-assiny-credenciais.py` (INT-01, lado do n8n).
-3. **`REFUND_EVENTS` / `op_refund_events` com `charged_back`**: a documentação da Assiny chama o chargeback de
-   `charged_back` (status `chargedback`); o padrão da API (`refunded_purchase,chargeback,chargedback_purchase,
-   canceled_subscription,subscription_canceled`) não o inclui. `app-definir REFUND_EVENTS` com a lista acrescida ou
-   a chave em /equipe/operacao. O SQL de 24/10 já o inclui no Supabase.
-4. **Backup:** `/root/crystal/n8n-compras.segredos` passa a guardar também o JWT do papel, a chave publicável, a
-   chave do Resend do n8n e o id do produto de teste; incluir no backup cifrado fora da VPS, como o `.externos`.
-5. **Depois da troca:** apagar no editor a credencial Header Auth antiga do Supabase (ela guarda a `service_role`) e
-   fazer a rotação da `service_role` que o INF-02 já pede; o n8n não precisa mais dela.
-6. **Opcional (INT-06 item 2):** uma semana de log de acesso do Traefik em `webhook.` para ver de quais IPs a
-   Assiny dispara; se forem poucos e estáveis, restringir `/webhook/assiny-compras*` a eles (middleware `ipAllowList`)
-   e/ou preencher "IP(s) Allowlist" no nó Assiny.
+1. **FEITO: `EXECUTIONS_DATA_MAX_AGE=48` e `EXECUTIONS_DATA_PRUNE_MAX_COUNT=5000`** (eram 336 e 10000) em
+   `stacks-exemplo/04`, `05` e `06` (INT-08), linhas antigas comentadas ao lado para a volta; `STACKS_COMMIT` e a tabela
+   sha256 do script atualizados. Vale na VPS no passo 5 do roteiro da madrugada (`bancos`, que sobe o n8n), e aí o n8n
+   apaga em minutos tudo em Executions com mais de 2 dias, inclusive execuções antigas com erro. O
+   `EXECUTIONS_DATA_SAVE_ON_SUCCESS` fica por fluxo (Settings do JSON, já `none` nos três), não no yaml: um `none`
+   global tiraria da equipe a execução de teste de um fluxo feito à mão no editor.
+2. **FEITO: `IMAGENS_WEBHOOK_SECRET*`** em `APP_EXTERNOS`, com a mesma régua do `REFUND_WEBHOOK_SECRET` (32 bytes, 10
+   caracteres distintos) e mais uma: recusa se for igual ao do reembolso (um segredo por rota é o objetivo do INT-01).
+   Caminho igual ao do reembolso: `app-definir IMAGENS_WEBHOOK_SECRET` → `.externos` → `api.env` no `app-subir`.
+   Como usar: pré-requisito 2, acima. Continua opcional: sem ele a API usa o do reembolso nas duas rotas.
+3. **Não é daqui: `REFUND_EVENTS` / `op_refund_events` com `charged_back`.** O `bootstrap-vps.sh` só aceita o nome em
+   `app-definir` (é o valor padrão; o painel /equipe/operacao sobrepõe) e não o define em lugar nenhum, conferido com
+   `grep`; a lista padrão mora no código da API (outro agente). Quando a API trouxer `charged_back` no padrão, nada
+   muda aqui; até lá, `app-definir REFUND_EVENTS` com a lista acrescida ou a chave em /equipe/operacao.
+4. **FEITO: backup.** `/root/crystal/n8n-compras.segredos` entra em todo backup (`--bancos`, o padrão à mão, e
+   `--completo`) como `segredos_integracoes-<data>.tar.gz`, que só existe cifrado: sobe ao R2 e na VPS vira `.age` na
+   mesma rodada; `backup-link segredos_integracoes` baixa o mais novo. Correção do que este item supunha: o
+   `.externos` **não** estava no backup, e os `.segredos` (chaves que abrem os dumps) também não, de propósito; os dois
+   continuam fora (README de `crystal-em-casa`, "Backup fora da VPS", explica e diz como incluir o `.externos`).
+5. **Ação do dono, depois da troca:** apagar no editor a credencial Header Auth antiga do Supabase (ela guarda a
+   `service_role`) e fazer a rotação da `service_role` que o INF-02 já pede; o n8n não precisa mais dela.
+6. **Opcional, ação do dono (INT-06 item 2):** uma semana de log de acesso do Traefik em `webhook.` para ver de quais
+   IPs a Assiny dispara; se forem poucos e estáveis, restringir `/webhook/assiny-compras*` a eles (middleware
+   `ipAllowList`) e/ou preencher "IP(s) Allowlist" no nó Assiny.
 
 ## webhook-crystal-app.json (28/09, dormente)
 

@@ -178,7 +178,8 @@ bash bootstrap-vps.sh crystal-provisoria-desligar   # volta à Crystal simulada
 - **Modelo e prompt:** no nó "Monta a conversa (modelo e prompt aqui)" do fluxo,
   no editor do n8n. O padrão é `openrouter/auto`.
 - **Privacidade:** só o texto e o id da conversa vão ao OpenRouter. O n8n não
-  guarda execução com sucesso (só as com erro, que a limpeza apaga em 14 dias).
+  guarda execução com sucesso (só as com erro, que a limpeza apaga em 48 h desde a
+  revisão de 24/10; antes, 14 dias).
 - **No ar desde 29/09**: fluxo ativo na VPS, app apontando para ele, teste pela
   API do app com status 200.
 - Ensaiado em 29/09 com n8n 1.123.10 e Postgres: import, ativação, 403 sem a
@@ -283,9 +284,13 @@ rodava comando por fora do Execute Command). Risco para o nosso fluxo: nenhum. O
 repositório não usam `require` nem `$env`. Um fluxo feito à mão no editor que use um desses nós
 ou `$env` passa a dar erro na execução: conferir em Executions na primeira hora. Conferência
 de ponta a ponta (regrava as mesmas credenciais, faz uma compra e um reembolso de teste):
-`python3 compra-assiny-credenciais.py`. Volta: as linhas antigas estão no comentário dos
-arquivos; trocar, `preparar` e `n8n` de novo. Falta só uma coisa à mão: 2FA em todas as contas
-do n8n (Settings > Personal > Two-factor).
+`python3 compra-assiny-credenciais.py`. Nos mesmos três arquivos, desde 24/10 (INT-08), o
+histórico de execuções fica 48 h e até 5000 execuções (`EXECUTIONS_DATA_MAX_AGE=48`,
+`EXECUTIONS_DATA_PRUNE_MAX_COUNT=5000`; eram 336 h e 10000): uma execução com erro do fluxo da
+Assiny guarda o corpo do webhook, com CPF, e duas semanas era tempo demais. Na primeira subida
+com eles o n8n apaga, em minutos, tudo o que tiver mais de 2 dias em Executions. Volta: as
+linhas antigas estão no comentário dos arquivos; trocar, `preparar` e `n8n` de novo. Falta só
+uma coisa à mão: 2FA em todas as contas do n8n (Settings > Personal > Two-factor).
 
 Papel da API no Postgres (INF-07): hoje a API e a migração do Prisma entram como `crystal`,
 o superusuário com que a imagem do Postgres nasceu; uma falha na API viraria comando no
@@ -399,9 +404,19 @@ bash bootstrap-vps.sh bancos
 #    O n8n fica sem banco do começo ao fim deste passo (1 a 3 min); o comando de volta aparece
 #    na tela antes de ele mexer. Conferir: bash bootstrap-vps.sh status (editor. e webhook.
 #    respondem) e, no editor, Executions sem erro na primeira hora (a próxima compra passa).
+#    AVISO (INT-08): com os yaml de 24/10 o n8n guarda execução por 48 h e até 5000 (era 14 dias
+#    e 10000). Minutos depois deste passo, tudo em Executions com mais de 2 dias SOME, inclusive
+#    execuções antigas com erro: se precisar de alguma para diagnóstico, olhe ANTES do passo 5.
 #    Volta: for s in postgres redis editor webhook worker; do docker service rollback n8n_${s}_n8n_${s}; done
 
 # 6. App: API e web nas bordas, Redis com senha, Crystal só de leitura, imagens no digest
+#    OPCIONAL (INT-01), só se a tag do passo 0 for da onda 1 do app ou mais nova (d5126c0+, que lê a
+#    variável): segredo próprio do pacote de imagens, antes do app-subir. Com tag mais antiga NÃO
+#    defina: a API ignoraria a variável, a rota /webhooks/imagens seguiria com o segredo do
+#    reembolso e a credencial "API imagens" do n8n ficaria em 401 (o script de credenciais pega
+#    isso no teste, antes de gravar, mas é um passo perdido).
+# bash bootstrap-vps.sh app-definir IMAGENS_WEBHOOK_SECRET   # cole um openssl rand -hex 32, diferente do do
+#                                                            # reembolso (ele recusa igual); guarde no Bitwarden
 bash bootstrap-vps.sh app-subir sha-XXXXXXX       # a MESMA tag anotada no passo 0
 #    Conferir: "API lê o IP do cliente só do Traefik (TRUST_PROXY=10.x.x.0/24)", "presa no
 #    digest", app-status com app. e api. em 200 e: bash bootstrap-vps.sh crystal-conferir
@@ -506,9 +521,22 @@ app e, com o Chatwoot no ar, o banco e os anexos dele. Pastas vão em tar increm
 (completo no domingo, diferencial nos outros dias; o `backup-link` dá os dois). Parte
 que falha não para as outras nem o envio ao R2: o backup termina com o resumo do que
 falhou e saída 1, e a vigia avisa (backup com mais de 26 h, falha registrada, R2
-velho, disco a partir de 85%). Não sobe segredo nenhum: `N8N_CHAVE`,
-`ENCRYPTION_KEY`, `CPF_SALT` e `CRYSTAL_CHAVE_CIFRA` ficam no Bitwarden, e sem eles
-as credenciais do n8n, os campos cifrados do app e a memória da Crystal não abrem.
+velho, disco a partir de 85%). À mão no terminal (`backup`, sem opção) vale `--bancos`:
+os quatro dumps e os segredos de integração, em segundos; `--completo` (o cron das 03:30)
+acrescenta os uploads do app e os anexos do Chatwoot.
+
+Segredos, desde 24/10: só os de **integração** do n8n de compras
+(`/root/crystal/n8n-compras.segredos`: JWT do papel `n8n_compras`, chave publicável, chave do
+Resend do n8n, token da Assiny, id do produto de teste), em
+`segredos_integracoes-<data>.tar.gz`, que só existe cifrado: sobe ao R2 e na VPS vira `.age` na
+mesma rodada (um tar em claro nunca fica; sem a chave dos backups a parte é pulada, com aviso).
+São chaves de serviços de fora, trocáveis. As chaves que **abrem os dumps** não vão:
+`N8N_CHAVE`, `ENCRYPTION_KEY`, `CPF_SALT`, `CRYSTAL_CHAVE_CIFRA` e as do Chatwoot ficam no
+Bitwarden (dump e chave nunca andam juntos), e sem elas as credenciais do n8n, os campos
+cifrados do app e a memória da Crystal não abrem. O `.externos` do app (Resend, OpenRouter,
+Supabase, Chatwoot, webhooks) também não vai: cada valor se recria com `app-definir` a partir
+do painel de origem; para incluí-lo, acrescentar o caminho em `BACKUP_SEGREDOS_INTEGRACOES`,
+no topo da seção de backup do script.
 
 **No Cloudflare (uma vez):**
 1. R2 > ativar (plano gratuito: 10 GB, sem custo de saída).
@@ -544,7 +572,10 @@ brew install age
 pbpaste | grep -o 'AGE-SECRET-KEY-1[0-9A-Z]*' | age -d -i - ~/Downloads/n8n_queue-AAAAMMDDTHHMMSSZ.sql.gz.age | gunzip | head -40
 ```
 Para restaurar de verdade, sem o `head`: `... | gunzip > n8n.sql`, copiar para a
-VPS nova e `docker exec -i CID psql -U postgres -d n8n_queue < n8n.sql`.
+VPS nova e `docker exec -i CID psql -U postgres -d n8n_queue < n8n.sql`. Os segredos de
+integração (`backup-link segredos_integracoes`): `... | age -d -i - segredos_integracoes-....tar.gz.age | tar -xz -C /`
+na VPS nova recria `/root/crystal/n8n-compras.segredos` (0600); depois,
+`python3 -I compra-assiny-credenciais.py` regrava as credenciais no n8n restaurado.
 
 Ensaiado em 29/09 contra um S3 local que confere a assinatura (região `auto`, como
 o R2): envio dos três arquivos, listagem, chave errada recusada (403, backup falha
