@@ -779,3 +779,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     4 moderados do audit (fast-uri) com correção; actions por tag; SSH com senha só avisado.
     **TOTAL dos 5 relatórios: 0 críticos, 10 altos, 27 médios, 45 baixos.** Próximo: correções (app, SQL, infra) e
     ações do dono (trocar service_role, rodar o SQL, desligar sign-ups do Auth, atualizar Traefik e n8n).
+    **Dono rodou `seguranca-2026-10-24.sql` (24/10):** políticas anon/auth restantes 0, grants 0, funções da agência
+    executáveis por anon 0, funções app_* com service_role 31. Falta: `crystal-conferir` na VPS (busca na base continua
+    entrando no turno?), trocar a service_role e desligar sign-ups do Auth.
