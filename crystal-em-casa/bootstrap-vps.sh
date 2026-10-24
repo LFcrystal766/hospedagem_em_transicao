@@ -4,11 +4,15 @@
 # crystalnowpp.com.br e os segredos gerados na própria máquina.
 #
 # Roda NA VPS, como root. Uso:
-#   bash bootstrap-vps.sh preparar SEU_EMAIL   baixa os yaml, gera os segredos (uma vez só)
-#                                              e grava os arquivos prontos em /root/crystal/stacks
+#   bash bootstrap-vps.sh preparar SEU_EMAIL   baixa os yaml (commit fixo STACKS_COMMIT, sha256 conferido),
+#                                              gera os segredos (uma vez só) e grava os arquivos
+#                                              prontos em /root/crystal/stacks
+#   bash bootstrap-vps.sh arquivos-hash        NO REPOSITÓRIO, não na VPS: imprime STACKS_COMMIT e a tabela
+#                                              ARQ_SHA256 para colar no topo depois de mudar um yaml
 #   bash bootstrap-vps.sh docker-api           Docker 29 recusa o Traefik v2 (API 1.24): grava
 #                                              min-api-version=1.24 no daemon.json e reinicia o Docker
-#   bash bootstrap-vps.sh traefik              sobe 00 e espera ficar 1/1
+#   bash bootstrap-vps.sh traefik              sobe 00, espera ficar 1/1, mostra a versão no ar e, com o
+#                                              Chatwoot no ar, testa a trava do /super_admin (403 até com /../)
 #   bash bootstrap-vps.sh portainer            sobe 01
 #   bash bootstrap-vps.sh bancos               sobe 02 e 03
 #   bash bootstrap-vps.sh n8n                  sobe 04, 05 e 06
@@ -36,7 +40,11 @@
 #                                              restauração no Mac). TIPO: n8n_queue (padrão), crystal_web_chat,
 #                                              crystal_agente, crystal_uploads, chatwoot, chatwoot_storage
 #   bash bootstrap-vps.sh seguranca            atualização de segurança automática, fail2ban no SSH
-#                                              e relatório (senha no SSH, root, portas, pendências)
+#                                              e relatório (senha no SSH, root, portas, pendências).
+#                                              Com chave de root instalada, trava o SSH em só chave e root
+#                                              só com chave; volta sozinha em 10 min sem confirmação
+#   bash bootstrap-vps.sh ssh-confirmar        de OUTRA janela, depois de entrar: mantém a trava do SSH
+#   bash bootstrap-vps.sh ssh-voltar           tira a trava do SSH (volta a valer o sshd_config)
 #   bash bootstrap-vps.sh firewall             ufw: só 22, 80 e 443 de fora. As portas do Swarm
 #                                              (2377, 7946, 4789) deixam de ficar públicas
 #   bash bootstrap-vps.sh painel-restringir IP [IP ...]
@@ -91,6 +99,11 @@
 #                                              pede o token do bot sem aparecer)
 #   bash bootstrap-vps.sh app-segredos         mostra os segredos do app pra copiar pro cofre
 #   bash bootstrap-vps.sh app-telefone EMAIL   grava o WhatsApp de uma conta criada aqui (canal da inbox)
+#   bash bootstrap-vps.sh app-db-papel [--confirmo|--voltar]
+#                                              TESTAR PRIMEIRO. A API deixa de entrar no Postgres como
+#                                              superusuário: papel crystal_api dono do banco do app. Sem
+#                                              nada simula (transação desfeita); --confirmo faz e marca;
+#                                              depois app-subir TAG. --voltar desfaz a marca (e app-subir)
 #   bash bootstrap-vps.sh app-revisao          cria (uma vez) e mostra a conta de revisão das lojas;
 #                                              --nova troca CPF e código
 #   bash bootstrap-vps.sh crystal-nossa TAG    a NOSSA Crystal (serviço app_crystal, sem endereço
@@ -172,7 +185,31 @@
 set -euo pipefail
 
 DOMINIO=crystalnowpp.com.br
-REPO_RAW="${REPO_RAW:-https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/${REF:-claude/gracious-shannon-6x9l5j}/crystal-em-casa/stacks-exemplo}"
+# Arquivos que o script sobe (stacks e o fluxo do n8n). Na VPS ele roda sozinho, fora do
+# repositório, e baixa cada um do GitHub por COMMIT FIXO, só aceitando se o sha256 bater com
+# a tabela abaixo (INF-04, 24/10/2026): gravar na branch não muda o que a VPS sobe, e como
+# o próprio script é conferido pelo sha256 ao baixar, a tabela vem junto conferida.
+# Atualize os dois ao mudar os yamls (ou o fluxo): 1) commit e push dos arquivos novos;
+# 2) no repositório, 'bash crystal-em-casa/bootstrap-vps.sh arquivos-hash' imprime o bloco
+# com o commit atual; 3) colar aqui e commitar o script. REF=<commit de 40 letras> troca o
+# commit (o sha256 continua valendo); branch não é aceita. Rodando de dentro de um clone do
+# repositório, usa a cópia local (o git garante a origem) e só avisa se divergir da tabela.
+STACKS_COMMIT=10131831340c9e74a7c78d4b2773ae28e9a10c79
+declare -A ARQ_SHA256=(
+  [stacks-exemplo/00-traefik.yaml]=1e394a5780c529cd8ac9c5745573b011c13dadefb6a856a538f9d349fd957ef5
+  [stacks-exemplo/01-portainer.yaml]=956304308fdea7b905c0807ceda69f2380584e3f4f43d303a3c5a69d45118463
+  [stacks-exemplo/02-n8n-postgres.yaml]=2efac56e511214308ec20c71307467b44cbece60cf35e7f2be6b7156582cca78
+  [stacks-exemplo/03-n8n-redis.yaml]=01b3963db27eb03b5fa9736fd77e2a6d0aac164cf51d38388f798c9c98533de1
+  [stacks-exemplo/04-n8n-editor.yaml]=fe00ea4d9276e2e927c1ef4391df2c6fafa8aa121a0dfc329ea7cb2d81ea3e11
+  [stacks-exemplo/05-n8n-webhook.yaml]=89ab11299c1583e9c1a794b630a7ce5f0ca5aaaa1ce221c28eca338531756688
+  [stacks-exemplo/06-n8n-worker.yaml]=d04fa99497375408662d53340a4fc622e768c262ec91a905014311e31d37ed5f
+  [stacks-app/01-portainer-restrito.yaml]=bc035b6d6dd35ac159080dce72e9fa2bea5f21e662d2c035be994e51ac9b23d4
+  [stacks-app/10-crystal-app.yaml]=cf0741a0fca6531620a72c61b0edf1266df76982b5adb7026f05039c3c848330
+  [stacks-app/20-atendimento.yaml]=bffde96b7388352d79ee0faa3baae00d4e7a6ab0afc41ccf737b267c5f23b9cb
+  [n8n/crystal-provisoria.json]=6ba9a2183c94c4fcff07207e7fc29b9b510907d013a51cffea6d32d84e0d7387
+)
+STACKS_REF="${REF:-$STACKS_COMMIT}"
+RAW_BASE="https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/$STACKS_REF/crystal-em-casa"
 BASE="${CRYSTAL_DIR:-/root/crystal}"
 ORIG="$BASE/originais"
 STACKS="$BASE/stacks"
@@ -185,6 +222,53 @@ CMD="${1:-}"
 falha() { echo "ERRO: $*" >&2; exit 2; }
 ok() { echo "  ok $*"; }
 aviso() { echo "  ! $*"; }
+
+# baixar_conferido CAMINHO DESTINO   (CAMINHO relativo a crystal-em-casa/, chave de ARQ_SHA256)
+# Com o repositório ao lado, copia a versão local; senão baixa do commit fixo e só grava em
+# DESTINO se o sha256 bater. Devolve 1 com o motivo, sem sair: quem chama decide.
+baixar_conferido() {
+  local rel="$1" dest="$2" esperado tmp h
+  esperado="${ARQ_SHA256[$rel]:-}"
+  [ -n "$esperado" ] || { aviso "$rel não está na tabela ARQ_SHA256 do script"; return 1; }
+  if [ -f "$AQUI/$rel" ]; then
+    cp "$AQUI/$rel" "$dest" || return 1
+    h=$(sha256sum "$dest" | cut -d' ' -f1)
+    [ "$h" = "$esperado" ] || aviso "$rel local (sha256 ${h:0:12}) difere da tabela do script (${esperado:0:12}): mudou e falta rodar arquivos-hash?"
+    return 0
+  fi
+  printf '%s' "$STACKS_REF" | grep -Eq '^[0-9a-f]{40}$' \
+    || { aviso "REF tem de ser um commit de 40 letras 0-9a-f (branch não vale)"; return 1; }
+  tmp=$(mktemp "$dest.XXXXXX") || return 1
+  if ! curl -fsSL -m 60 "$RAW_BASE/$rel" -o "$tmp"; then
+    rm -f "$tmp"; aviso "não baixou $rel do commit ${STACKS_REF:0:12}"; return 1
+  fi
+  h=$(sha256sum "$tmp" | cut -d' ' -f1)
+  if [ "$h" != "$esperado" ]; then
+    rm -f "$tmp"
+    aviso "$rel do commit ${STACKS_REF:0:12} veio com sha256 ${h:0:12}, esperado ${esperado:0:12}: NÃO usado"
+    return 1
+  fi
+  mv -f "$tmp" "$dest"
+}
+
+# No repositório, depois de mudar um arquivo da tabela (e do commit com ele): imprime o
+# STACKS_COMMIT e a tabela ARQ_SHA256 para colar no topo. Roda em qualquer máquina, sem docker.
+arquivos_hash() {
+  local c rel h marca mudou=0
+  c=$(git -C "$AQUI" rev-parse HEAD 2>/dev/null) || falha "rode de dentro do repositório (git clone)"
+  if [ -n "$(git -C "$AQUI" status --porcelain -- "${!ARQ_SHA256[@]}" 2>/dev/null)" ]; then
+    aviso "há arquivo da tabela com mudança fora de commit: commit e push antes, senão o hash não existe no GitHub"
+  fi
+  echo "STACKS_COMMIT=$c"
+  echo "declare -A ARQ_SHA256=("
+  while IFS= read -r rel; do
+    h=$(git -C "$AQUI" show "HEAD:crystal-em-casa/$rel" 2>/dev/null | sha256sum | cut -d' ' -f1)
+    [ "$h" = "${ARQ_SHA256[$rel]}" ] && marca="" || { marca="   # MUDOU"; mudou=1; }
+    echo "  [$rel]=$h$marca"
+  done < <(printf '%s\n' "${!ARQ_SHA256[@]}" | sort)
+  echo ")"
+  [ "$mudou" = 1 ] || echo "# nenhum arquivo mudou: basta trocar o STACKS_COMMIT se quiser"
+}
 
 [ -n "$CMD" ] || { awk 'NR==1{next} /^#/{print; next} {exit}' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 
@@ -245,12 +329,9 @@ preparar() {
   chmod 700 "$BASE" "$STACKS"
 
   # 1. Originais: da pasta local se o script estiver dentro do repositório, senão do GitHub
+  # pelo commit fixo, com o sha256 conferido (baixar_conferido)
   for a in "${ARQUIVOS[@]}"; do
-    if [ -f "$AQUI/stacks-exemplo/$a" ]; then
-      cp "$AQUI/stacks-exemplo/$a" "$ORIG/$a"
-    else
-      curl -fsSL -m 60 "$REPO_RAW/$a" -o "$ORIG/$a" || falha "não baixou $a de $REPO_RAW"
-    fi
+    baixar_conferido "stacks-exemplo/$a" "$ORIG/$a" || falha "sem $a conferido: nada foi regravado em $STACKS"
     grep -q '^services:' "$ORIG/$a" || falha "$a não parece um compose (baixou uma página de erro?)"
   done
   ok "${#ARQUIVOS[@]} originais em $ORIG"
@@ -447,7 +528,20 @@ deploy() { # deploy ARQUIVO STACK
   conferir_atualizacao "$t0" - $svcs || falha "a stack $2 não ficou de pé (log acima)"
 }
 
-traefik()   { conferir_fundacao; deploy 00-traefik.yaml traefik; }
+traefik()   { conferir_fundacao; deploy 00-traefik.yaml traefik; traefik_conferir; }
+# Depois de subir o Traefik: a versão que ficou no ar e, com o Chatwoot no ar, a prova de
+# que a trava da área de administração pega também com /../ e %2e%2e (INF-01, 24/10).
+traefik_conferir() {
+  local img code t=0
+  img=$(docker service inspect traefik_traefik --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}' 2>/dev/null | sed 's/@sha256:.*//' || true)
+  ok "Traefik no ar: ${img:-?}"
+  docker service inspect "${CW_STACK}_cw_rails" >/dev/null 2>&1 || return 0
+  # O Traefik recém-subido leva alguns segundos para ler as rotas das outras stacks.
+  until { code=$(curl -s -o /dev/null -m 10 -w '%{http_code}' "https://$CW_HOST/api" 2>/dev/null) && [ "$code" = 200 ]; } || [ $t -ge 90 ]; do
+    sleep 5; t=$((t+5))
+  done
+  admin_trava_conferir
+}
 portainer() {
   # Com lista de IPs, nunca sobe o painel aberto (achado 34).
   if [ -s "$PAINEL_IPS_ARQ" ] && ! grep -q 'ipallowlist.sourcerange=' "$STACKS/01-portainer.yaml" 2>/dev/null; then
@@ -965,7 +1059,8 @@ firewall() {
 # Proteções da máquina contra ataque e malware que não mexem em nenhum serviço:
 #   - atualização de segurança automática do Ubuntu (sem reiniciar sozinho);
 #   - fail2ban no SSH: 5 tentativas erradas em 10 min bloqueiam o IP por 1 hora;
-#   - relatório do que ainda depende de decisão: senha no SSH, root, portas abertas.
+#   - SSH só com chave quando já há chave de root (ssh_travar, com volta automática);
+#   - relatório do que ainda depende de decisão: portas abertas, pendências.
 # O Web console da Hostinger continua funcionando mesmo com um IP bloqueado.
 seguranca() {
   export DEBIAN_FRONTEND=noninteractive
@@ -992,17 +1087,9 @@ CFG
   sleep 2
   fail2ban-client status sshd >/dev/null 2>&1 && ok "fail2ban protegendo o SSH" || aviso "fail2ban no ar, mas a regra do SSH não respondeu: fail2ban-client status sshd"
 
+  echo "== SSH"
+  ssh_travar
   echo "== o que ainda depende de decisão"
-  local pw root
-  pw=$(sshd -T 2>/dev/null | awk '/^passwordauthentication /{print $2}')
-  root=$(sshd -T 2>/dev/null | awk '/^permitrootlogin /{print $2}')
-  if [ "$pw" = "yes" ]; then
-    aviso "SSH aceita senha. Mais seguro: só chave. Antes de desligar a senha, confira que sua chave entra"
-    aviso "(o Web console da Hostinger continua como porta de emergência)."
-  else
-    ok "SSH não aceita senha"
-  fi
-  [ "$root" = "yes" ] && aviso "root entra por SSH com senha; com chave só, use: PermitRootLogin prohibit-password" || ok "root: $root"
   ufw status 2>/dev/null | grep -q "Status: active" && ok "ufw ativo" || aviso "ufw desligado: bash $0 firewall"
   portas_docker_conferir
   echo "  Portas escutando (o ufw deixa 22, 80 e 443; as do Swarm, 2377, 7946 e 4789, ele fecha; porta publicada pelo Docker passa por cima, conferida acima):"
@@ -1010,6 +1097,107 @@ CFG
   local up; up=$(apt list --upgradable 2>/dev/null | grep -c -- '-security' || true)
   [ "${up:-0}" -gt 0 ] && aviso "$up pacote(s) de segurança pendentes; a atualização automática aplica hoje à noite" || ok "sem atualização de segurança pendente"
   [ -f /var/run/reboot-required ] && aviso "o Ubuntu pede reinício para aplicar atualização do kernel: agende na madrugada" || true
+}
+
+# ------------------------------------------------------------------ SSH só com chave
+# Revisão de 24/10 (INF-11): com chave de root já instalada, o seguranca trava o SSH em só
+# chave (PasswordAuthentication no, KbdInteractiveAuthentication no) e root só com chave
+# (PermitRootLogin prohibit-password), num arquivo próprio em sshd_config.d, conferido com
+# sshd -t antes de recarregar. Sem chave, só avisa, como antes. Conta só linha de chave
+# sem opções (uma chave com command= ou from= não garante entrada).
+# Rede de segurança contra ficar trancado do lado de fora: quando a trava é nova, ela se
+# desfaz sozinha em 10 minutos (systemd-run), a menos que o dono entre por OUTRA janela e
+# rode 'bash bootstrap-vps.sh ssh-confirmar'. A sessão aberta não cai com o reload.
+# Volta a qualquer hora: bash bootstrap-vps.sh ssh-voltar
+SSH_TRAVA=/etc/ssh/sshd_config.d/00-crystal.conf
+SSH_VOLTA_UNIT=crystal-ssh-volta
+
+ssh_recarregar() { systemctl reload-or-restart ssh 2>/dev/null || systemctl reload-or-restart sshd; }
+
+ssh_efetivo() { # ssh_efetivo -> "senha root" como o sshd entende agora (ex.: "no without-password")
+  mkdir -p /run/sshd
+  sshd -T 2>/dev/null | awk '/^passwordauthentication /{p=$2} /^permitrootlogin /{r=$2} END{print p" "r}'
+}
+
+ssh_travar() {
+  local chaves novo mudou=0 pw root
+  chaves=$(grep -cE '^[[:space:]]*(ssh-(ed25519|rsa)|ecdsa-sha2-nistp(256|384|521)|sk-(ssh-ed25519|ecdsa-sha2-nistp256)@openssh\.com)[[:space:]]+[A-Za-z0-9+/]{40,}={0,3}([[:space:]]|$)' \
+    /root/.ssh/authorized_keys 2>/dev/null || true)
+  if [ "${chaves:-0}" -eq 0 ]; then
+    read -r pw root <<<"$(ssh_efetivo)"
+    if [ "$pw" = "yes" ]; then
+      aviso "SSH aceita senha e não há chave de root em /root/.ssh/authorized_keys: a trava NÃO foi aplicada."
+      aviso "Ponha a sua chave (hPanel > VPS > Chaves SSH, ou ssh-copy-id root@IP), confira que entra com ela e rode 'seguranca' de novo."
+    else
+      ok "SSH não aceita senha"
+    fi
+    [ "$root" = "yes" ] && aviso "root entra por SSH com senha (sem chave instalada, a trava espera)" || ok "root: $root"
+    return 0
+  fi
+  ok "$chaves chave(s) de root em /root/.ssh/authorized_keys"
+  novo=$(mktemp)
+  cat > "$novo" <<'CFG'
+# Gravado por bootstrap-vps.sh seguranca (revisão de segurança de 24/10, INF-11).
+# Só chave; root só com chave. Volta: bash bootstrap-vps.sh ssh-voltar
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin prohibit-password
+CFG
+  if [ -f "$SSH_TRAVA" ] && cmp -s "$novo" "$SSH_TRAVA"; then
+    rm -f "$novo"
+  else
+    mudou=1
+    # A volta automática é agendada ANTES de a trava existir: nunca há trava nova sem ela.
+    systemctl stop "$SSH_VOLTA_UNIT.timer" >/dev/null 2>&1 || true
+    systemctl reset-failed "$SSH_VOLTA_UNIT.service" "$SSH_VOLTA_UNIT.timer" >/dev/null 2>&1 || true
+    if ! systemd-run --quiet --unit="$SSH_VOLTA_UNIT" --on-active=10min /bin/sh -c \
+         "rm -f $SSH_TRAVA; systemctl reload-or-restart ssh || systemctl reload-or-restart sshd"; then
+      rm -f "$novo"
+      aviso "não consegui agendar a volta automática (systemd-run): trava NÃO aplicada, por segurança"
+      return 0
+    fi
+    install -m 644 "$novo" "$SSH_TRAVA"; rm -f "$novo"
+  fi
+  mkdir -p /run/sshd
+  if ! sshd -t; then
+    rm -f "$SSH_TRAVA"; systemctl stop "$SSH_VOLTA_UNIT.timer" >/dev/null 2>&1 || true
+    aviso "sshd -t recusou a configuração (acima): $SSH_TRAVA tirado e nada recarregado"
+    return 0
+  fi
+  if [ "$mudou" = 1 ] && ! ssh_recarregar; then
+    rm -f "$SSH_TRAVA"; systemctl stop "$SSH_VOLTA_UNIT.timer" >/dev/null 2>&1 || true
+    aviso "o ssh não recarregou: trava tirada, SSH como estava"
+    return 0
+  fi
+  read -r pw root <<<"$(ssh_efetivo)"
+  if [ "$pw" = no ] && { [ "$root" = prohibit-password ] || [ "$root" = without-password ]; }; then
+    ok "SSH só com chave; root só com chave ($SSH_TRAVA)"
+  else
+    aviso "a trava está em $SSH_TRAVA, mas o sshd ainda diz senha=$pw root=$root: outro arquivo vence (ver as linhas antes do Include em /etc/ssh/sshd_config)"
+  fi
+  if [ "$mudou" = 1 ]; then
+    echo "  !! AGORA, sem fechar esta janela: abra OUTRA (terminal do navegador da Hostinger ou ssh com a"
+    echo "  !! chave) e entre como root. Entrou? Nela: bash $0 ssh-confirmar"
+    echo "  !! Não entrou? Não faça nada: em 10 minutos a trava se desfaz sozinha (ou: bash $0 ssh-voltar aqui)."
+  elif systemctl is-active --quiet "$SSH_VOLTA_UNIT.timer" 2>/dev/null; then
+    aviso "a volta automática do SSH ainda está agendada: confirme de outra janela com bash $0 ssh-confirmar"
+  fi
+}
+
+ssh_confirmar() {
+  if systemctl is-active --quiet "$SSH_VOLTA_UNIT.timer" 2>/dev/null; then
+    systemctl stop "$SSH_VOLTA_UNIT.timer" || falha "não cancelei a volta automática: systemctl stop $SSH_VOLTA_UNIT.timer"
+    ok "volta automática cancelada: o SSH fica só com chave"
+  else
+    [ -f "$SSH_TRAVA" ] && ok "nada agendado: a trava do SSH já está firme" || aviso "não há trava do SSH (passou dos 10 minutos? rode seguranca de novo)"
+  fi
+}
+
+ssh_voltar() {
+  systemctl stop "$SSH_VOLTA_UNIT.timer" >/dev/null 2>&1 || true
+  rm -f "$SSH_TRAVA"
+  ssh_recarregar || falha "o ssh não recarregou: systemctl status ssh"
+  ok "trava do SSH tirada: volta a valer o que o /etc/ssh/sshd_config diz"
 }
 
 # ------------------------------------------------------------------ painel (Portainer)
@@ -1055,11 +1243,7 @@ painel_gerar() { # grava $STACKS/01-portainer.yaml restrito, a partir do modelo 
   aimg=$(painel_imagem agent) || { aviso "serviço portainer_agent não encontrado com imagem@digest"; return 1; }
   ips=$(paste -sd, "$PAINEL_IPS_ARQ")
   mkdir -p "$ORIG" "$STACKS"; chmod 700 "$BASE" "$STACKS"
-  if [ -f "$AQUI/stacks-app/$PAINEL_YAML" ]; then
-    cp "$AQUI/stacks-app/$PAINEL_YAML" "$ORIG/$PAINEL_YAML"
-  else
-    curl -fsSL -m 60 "$APP_RAW/$PAINEL_YAML" -o "$ORIG/$PAINEL_YAML" || { aviso "não baixou $PAINEL_YAML de $APP_RAW"; return 1; }
-  fi
+  baixar_conferido "stacks-app/$PAINEL_YAML" "$ORIG/$PAINEL_YAML" || { aviso "sem $PAINEL_YAML conferido"; return 1; }
   grep -q 'ipallowlist.sourcerange=PAINEL_IPS' "$ORIG/$PAINEL_YAML" || { aviso "$PAINEL_YAML não é o modelo esperado"; return 1; }
   umask 077
   # Guarda a versão aberta uma vez, para voltar atrás se precisar.
@@ -1131,6 +1315,31 @@ painel_conferir() {
   echo "  Voltar ao aberto (só em emergência): docker stack deploy -c $STACKS/01-portainer.yaml.aberto portainer"
 }
 
+# A lista do arquivo não basta: confere a trava no serviço que está no ar (achado 34).
+# Ela é também a defesa dos segredos do app e do Chatwoot: no Swarm o env_file é lido no
+# deploy e os valores vão para o spec do serviço (ContainerSpec.Env), que o Portainer
+# mostra a quem entrar nele e 'docker service inspect' imprime (INF-05, 24/10). Docker
+# secrets ficam para a onda de infra. Devolve 1 quando o painel não está restrito.
+painel_trava_conferir() {
+  local trava
+  trava=$(docker service inspect portainer_portainer --format '{{index .Spec.Labels "traefik.http.middlewares.portainer-ips.ipallowlist.sourcerange"}}' 2>/dev/null || true)
+  if [ -s "$PAINEL_IPS_ARQ" ] && [ -n "$trava" ] && [ "$trava" != "<no value>" ]; then
+    ok "painel. liberado só para: $trava (conferido no serviço no ar)"
+    return 0
+  elif [ -s "$PAINEL_IPS_ARQ" ]; then
+    aviso "a lista de IPs existe, mas o Portainer no ar está SEM a trava: bash $0 painel-restringir $(paste -sd' ' "$PAINEL_IPS_ARQ")"
+  else
+    aviso "painel. (Portainer) aberto para qualquer IP: bash $0 painel-restringir"
+  fi
+  return 1
+}
+
+# Depois de subir uma stack com segredo em env_file (app, Chatwoot).
+painel_trava_segredos() {
+  painel_trava_conferir \
+    || aviso "com o painel aberto, quem entrar no Portainer lê os segredos desta stack no spec dos serviços (env_file). Restrinja o painel antes de seguir"
+}
+
 painel_desligar() {
   docker service scale portainer_portainer=0 --detach=false >/dev/null || falha "não desligou"
   ok "Portainer fora do ar (o agente segue, na rede interna). Religar: bash $0 painel-ligar"
@@ -1170,16 +1379,7 @@ status() {
     aviso "backup fora da VPS não configurado (backup-chave, backup-fora-config)"
   fi
   copia_cron_conferir
-  # A lista do arquivo não basta: confere a trava no serviço que está no ar (achado 34).
-  local trava
-  trava=$(docker service inspect portainer_portainer --format '{{index .Spec.Labels "traefik.http.middlewares.portainer-ips.ipallowlist.sourcerange"}}' 2>/dev/null || true)
-  if [ -s "$PAINEL_IPS_ARQ" ] && [ -n "$trava" ] && [ "$trava" != "<no value>" ]; then
-    ok "painel. liberado só para: $trava (conferido no serviço no ar)"
-  elif [ -s "$PAINEL_IPS_ARQ" ]; then
-    aviso "a lista de IPs existe, mas o Portainer no ar está SEM a trava: bash $0 painel-restringir $(paste -sd' ' "$PAINEL_IPS_ARQ")"
-  else
-    aviso "painel. (Portainer) aberto para qualquer IP: bash $0 painel-restringir"
-  fi
+  painel_trava_conferir || true
   portas_docker_conferir
   echo
   echo "== Últimas linhas do Traefik sobre certificado (o log vai pra arquivo dentro do contêiner)"
@@ -1266,8 +1466,8 @@ recomecar_n8n() {
 APP_DIR="$BASE/app"
 APP_SEG="$APP_DIR/.segredos"
 APP_EXT="$APP_DIR/.externos"
+APP_DB_PAPEL_ARQ="$APP_DIR/.db-papel"   # "crystal_api" depois do app-db-papel --confirmo
 APP_YAML=10-crystal-app.yaml
-APP_RAW="${APP_RAW:-${REPO_RAW%/stacks-exemplo}/stacks-app}"
 APP_IMG=ghcr.io/lfcrystal766/crystal-web-chat
 APP_STACK=crystal_app
 # Nomes que o app-definir aceita. Os marcados com * são segredo (não ecoam).
@@ -1551,9 +1751,17 @@ app_gerar_segredos() { # app_gerar_segredos TAG
 }
 
 app_gerar_env() {
-  local senha mock=0 k
+  local senha mock=0 k dburl
   senha=$(app_valor "$APP_SEG" APP_DB_SENHA)
   [ -n "$senha" ] || falha "APP_DB_SENHA ausente em $APP_SEG"
+  # Papel da API no Postgres (INF-07): crystal_api, sem superusuário, depois do
+  # app-db-papel --confirmo; senão o crystal de sempre (superusuário da imagem).
+  if [ "$(cat "$APP_DB_PAPEL_ARQ" 2>/dev/null || true)" = crystal_api ]; then
+    [ -n "$(app_valor "$APP_SEG" APP_DB_API_SENHA)" ] || falha "$APP_DB_PAPEL_ARQ pede crystal_api, mas falta APP_DB_API_SENHA em $APP_SEG. Rode: bash $0 app-db-papel --confirmo (ou --voltar)"
+    dburl="postgresql://crystal_api:$(app_valor "$APP_SEG" APP_DB_API_SENHA)@app_postgres:5432/crystal_web_chat"
+  else
+    dburl="postgresql://crystal:$senha@app_postgres:5432/crystal_web_chat"
+  fi
   for k in RESEND_API_KEY EMAIL_FROM; do
     [ -n "$(app_valor "$APP_EXT" $k)" ] || falha "$k não definido. Em produção o app manda o código de login por e-mail (Resend). Rode: bash $0 app-definir $k"
   done
@@ -1594,7 +1802,7 @@ app_gerar_env() {
     # Traefik publica 80/443 em modo host e acrescenta o IP real no X-Forwarded-For.
     echo "TRUST_PROXY=1"
     echo "WEB_ORIGIN=https://app.$DOMINIO"
-    echo "DATABASE_URL=postgresql://crystal:$senha@app_postgres:5432/crystal_web_chat"
+    echo "DATABASE_URL=$dburl"
     echo "REDIS_URL=redis://app_redis:6379"
     echo "UPLOAD_DIR=/app/uploads"
     echo "DEMO_SEED=0"
@@ -1626,7 +1834,10 @@ app_gerar_env() {
     grep -E '^(ANDROID_CERT_SHA256|APPLE_TEAM_ID)=' "$APP_EXT" || true
   } > "$APP_DIR/web.env"
   chmod 600 "$APP_DIR/postgres.env" "$APP_DIR/api.env" "$APP_DIR/crystal.env" "$APP_DIR/web.env"
-  unset senha
+  unset senha dburl
+  if [ "$(cat "$APP_DB_PAPEL_ARQ" 2>/dev/null || true)" = crystal_api ]; then
+    ok "API no Postgres como crystal_api (sem superusuário)"
+  fi
   # Diz qual das duas pontas falta, em vez de um aviso só que confundia.
   if [ "$(app_valor "$APP_EXT" CHAT_TRANSPORT)" = "chatwoot" ]; then
     ok "Crystal: canal da inbox (CHAT_TRANSPORT=chatwoot)"
@@ -1754,11 +1965,7 @@ app_subir() {
 
   echo "== stack"
   mkdir -p "$ORIG" "$STACKS"; chmod 700 "$BASE" "$STACKS"
-  if [ -f "$AQUI/stacks-app/$APP_YAML" ]; then
-    cp "$AQUI/stacks-app/$APP_YAML" "$ORIG/$APP_YAML"
-  else
-    curl -fsSL -m 60 "$APP_RAW/$APP_YAML" -o "$ORIG/$APP_YAML" || falha "não baixou $APP_YAML de $APP_RAW"
-  fi
+  baixar_conferido "stacks-app/$APP_YAML" "$ORIG/$APP_YAML" || falha "sem $APP_YAML conferido: a stack no ar não foi trocada"
   grep -q '^services:' "$ORIG/$APP_YAML" || falha "$APP_YAML não parece um compose"
   umask 077
   sed -e "s|APP_TAG|$tag|g" -e "s|APP_ENV_DIR|$APP_DIR|g" "$ORIG/$APP_YAML" > "$STACKS/$APP_YAML"
@@ -1773,6 +1980,7 @@ app_subir() {
   copia_cron_atualizar
   echo
   app_status
+  painel_trava_segredos
   if [ -n "$(app_valor "$APP_EXT" SUPABASE_URL)" ] && [ -n "$(app_valor "$APP_EXT" SUPABASE_SERVICE_ROLE_KEY)" ]; then
     echo
     if ! app_supabase_teste; then
@@ -2116,7 +2324,7 @@ app_recomecar() {
       docker volume rm "${APP_STACK}_$v" >/dev/null || falha "não apagou o volume ${APP_STACK}_$v (ainda em uso?). Os segredos NÃO foram trocados; rode de novo em 1 min"
     fi
   done
-  rm -f "$APP_SEG" "$APP_DIR/api.env" "$APP_DIR/postgres.env"
+  rm -f "$APP_SEG" "$APP_DIR/api.env" "$APP_DIR/postgres.env" "$APP_DB_PAPEL_ARQ"
   ok "segredos antigos apagados (cópia guardada); $APP_EXT mantido"
   app_subir app-subir "$tag"
 }
@@ -2165,6 +2373,149 @@ revoke connect on database crystal_web_chat from public;
 SQL
   unset senha
   ok "banco crystal_agente pronto (papel próprio, sem acesso ao banco do app)"
+}
+
+# ------------------------------------------------------------------ app-db-papel
+# TESTAR PRIMEIRO (INF-07, 24/10/2026). A API e a migração do Prisma entram no Postgres do
+# app como crystal, o superusuário de bootstrap da imagem (POSTGRES_USER): uma falha na API
+# viraria COPY ... TO PROGRAM no contêiner do Postgres e leitura do banco da Crystal. O
+# Postgres 16 não deixa tirar o superusuário do papel de bootstrap, então o caminho é um
+# papel novo, crystal_api, sem superusuário, dono do banco crystal_web_chat e de tudo no
+# schema public (tabelas, sequências, tipos, funções): é o que o prisma migrate deploy
+# precisa. crystal continua superusuário para backup, crystal_banco e diagnóstico, e deixa
+# de entrar pela API. Senha nova (APP_DB_API_SENHA) no .segredos; marca em .db-papel.
+# Roteiro, um de cada vez:
+#   bash bootstrap-vps.sh backup
+#   bash bootstrap-vps.sh app-db-papel                simulação: faz tudo numa transação e desfaz
+#   bash bootstrap-vps.sh app-db-papel --confirmo     passo 1: papel e donos de verdade (a API segue
+#                                                     no ar como crystal: superusuário passa por cima)
+#   bash bootstrap-vps.sh app-subir TAG_ATUAL         passo 2: api.env com crystal_api; migra e sobe com ele
+# Volta: bash bootstrap-vps.sh app-db-papel --voltar && bash bootstrap-vps.sh app-subir TAG_ATUAL
+#   (a API volta a entrar como crystal; os donos ficam com crystal_api, sem efeito para o superusuário).
+# Idempotente: depois de uma migração feita como crystal ou de uma restauração (o backup é
+# --no-owner), rodar --confirmo de novo devolve os donos ao crystal_api.
+app_db_papel() {
+  local modo="${2:-}" pg senha fim saida n
+  case "$modo" in
+    "") fim=rollback ;;
+    --confirmo) fim=commit ;;
+    --voltar)
+      rm -f "$APP_DB_PAPEL_ARQ"
+      ok "marca apagada: no próximo app-subir a API volta a entrar como crystal"
+      echo "Agora: bash $0 app-subir $(app_tag_atual)"
+      return 0 ;;
+    *) falha "uso: bash $0 app-db-papel [--confirmo | --voltar]   (sem nada: simulação, não muda nada)" ;;
+  esac
+  [ -f "$APP_SEG" ] || falha "o app ainda não subiu: bash $0 app-subir TAG"
+  pg=$(docker ps -q -f name=${APP_STACK}_app_postgres | head -1); [ -n "$pg" ] || falha "Postgres do app não está rodando"
+  docker exec "$pg" pg_isready -U crystal -d crystal_web_chat >/dev/null 2>&1 || falha "Postgres do app não responde"
+  if [ "$fim" = commit ]; then
+    if [ -z "$(app_valor "$APP_SEG" APP_DB_API_SENHA)" ]; then
+      umask 077
+      echo "APP_DB_API_SENHA=$(openssl rand -hex 24)" >> "$APP_SEG"
+      chmod 600 "$APP_SEG"
+      ok "APP_DB_API_SENHA gerada em $APP_SEG. Copie pro cofre: bash $0 app-segredos"
+    fi
+    senha=$(app_valor "$APP_SEG" APP_DB_API_SENHA)
+    echo "== papel crystal_api e donos do banco do app (de verdade)"
+  else
+    senha=$(openssl rand -hex 24)   # só para a simulação: some com o ROLLBACK
+    echo "== simulação: tudo numa transação, desfeita no fim (nada muda)"
+  fi
+  printf '%s' "$senha" | grep -Eq '^[0-9a-f]{48}$' || falha "APP_DB_API_SENHA em $APP_SEG não é hex de 48 caracteres"
+  # A senha vai pela entrada padrão, nunca na linha de comando; com log_min_error_statement
+  # em panic e log_error_verbosity terse, uma instrução que falhe não vai para o log do
+  # Postgres com a senha, nem como STATEMENT nem como CONTEXT (INF-27).
+  # Da saída só passam as linhas nome=valor e a primeira linha de um erro.
+  saida=$(docker exec -i "$pg" psql -X -v ON_ERROR_STOP=1 -q -tA -U crystal -d crystal_web_chat 2>&1 <<SQL
+set log_statement = 'none';
+set log_min_error_statement = 'panic';
+set log_error_verbosity = 'terse';
+set lock_timeout = '5s';
+begin;
+do \$\$ begin
+  if not exists (select from pg_roles where rolname = 'crystal_api') then
+    create role crystal_api login nosuperuser nocreatedb nocreaterole noreplication nobypassrls noinherit password '$senha';
+  else
+    alter role crystal_api login nosuperuser nocreatedb nocreaterole noreplication nobypassrls noinherit password '$senha';
+  end if;
+end \$\$;
+alter database crystal_web_chat owner to crystal_api;
+do \$\$ declare r record; begin
+  if (select nspowner from pg_namespace where nspname = 'public') not in ('pg_database_owner'::regrole, 'crystal_api'::regrole) then
+    alter schema public owner to crystal_api;
+  end if;
+  -- tabelas, visões e sequências soltas (a de coluna serial/identity acompanha a tabela)
+  for r in
+    select c.oid::regclass as nome, c.relkind
+      from pg_class c join pg_namespace s on s.oid = c.relnamespace
+     where s.nspname = 'public' and c.relkind in ('r','p','v','m','f','S')
+       and c.relowner <> 'crystal_api'::regrole
+       and not exists (select 1 from pg_depend d
+                        where d.classid = 'pg_class'::regclass and d.objid = c.oid
+                          and (d.deptype = 'e' or (c.relkind = 'S' and d.deptype in ('a','i'))))
+     order by c.relkind = 'S'
+  loop
+    execute format('alter %s %s owner to crystal_api',
+      case r.relkind when 'v' then 'view' when 'm' then 'materialized view' when 'f' then 'foreign table'
+                     when 'S' then 'sequence' else 'table' end, r.nome);
+  end loop;
+  -- enums, domínios, ranges e tipos compostos avulsos
+  for r in
+    select t.oid::regtype as nome, t.typtype
+      from pg_type t join pg_namespace s on s.oid = t.typnamespace
+     where s.nspname = 'public' and t.typtype in ('e','d','r','c')
+       and (t.typtype <> 'c' or (select c.relkind from pg_class c where c.oid = t.typrelid) = 'c')
+       and t.typowner <> 'crystal_api'::regrole
+       and not exists (select 1 from pg_depend d where d.classid = 'pg_type'::regclass and d.objid = t.oid and d.deptype = 'e')
+  loop
+    execute format('alter %s %s owner to crystal_api', case r.typtype when 'd' then 'domain' else 'type' end, r.nome);
+  end loop;
+  -- funções e procedimentos (os de extensão ficam com quem instalou)
+  for r in
+    select p.oid::regprocedure as nome, p.prokind
+      from pg_proc p join pg_namespace s on s.oid = p.pronamespace
+     where s.nspname = 'public' and p.proowner <> 'crystal_api'::regrole
+       and not exists (select 1 from pg_depend d where d.classid = 'pg_proc'::regclass and d.objid = p.oid and d.deptype = 'e')
+  loop
+    execute format('alter %s %s owner to crystal_api', case r.prokind when 'a' then 'aggregate' else 'routine' end, r.nome);
+  end loop;
+end \$\$;
+revoke connect on database crystal_web_chat from public;
+select 'superusuario=' || rolsuper from pg_roles where rolname = 'crystal_api';
+select 'dono_banco=' || pg_get_userbyid(datdba) from pg_database where datname = 'crystal_web_chat';
+select 'tabelas=' || count(*) from pg_class c join pg_namespace s on s.oid = c.relnamespace
+ where s.nspname = 'public' and c.relkind in ('r','p');
+select 'fora=' || count(*) from pg_class c join pg_namespace s on s.oid = c.relnamespace
+ where s.nspname = 'public' and c.relkind in ('r','p','v','m','f') and c.relowner <> 'crystal_api'::regrole
+   and not exists (select 1 from pg_depend d where d.classid = 'pg_class'::regclass and d.objid = c.oid and d.deptype = 'e');
+$fim;
+SQL
+) || {
+    printf '%s\n' "$saida" | grep -m1 'ERROR' | sed 's/^/     /'
+    senha=""
+    falha "o Postgres recusou (acima). Nada foi mudado: a transação foi desfeita"
+  }
+  printf '%s\n' "$saida" | grep -E '^(superusuario|dono_banco|tabelas|fora)=' | sed 's/^/  /'
+  printf '%s\n' "$saida" | grep -qx 'superusuario=false' || { senha=""; falha "crystal_api ficaria superusuário: nada marcado"; }
+  printf '%s\n' "$saida" | grep -qx 'fora=0' || { senha=""; falha "sobrou objeto do public sem crystal_api de dono (acima): nada marcado"; }
+  if [ "$fim" = rollback ]; then
+    senha=""
+    ok "simulação limpa: crystal_api seria dono de tudo, sem superusuário. Nada mudou"
+    echo "Passo 1 (de verdade): bash $0 app-db-papel --confirmo"
+    return 0
+  fi
+  # Entra como crystal_api pela rede (scram), como a API vai entrar. A senha vai pelo
+  # ambiente do docker exec (-e só com o nome), nunca na linha de comando.
+  n=$(PGPASSWORD="$senha" docker exec -e PGPASSWORD "$pg" psql -X -h 127.0.0.1 -U crystal_api -d crystal_web_chat -tAc \
+      "select count(*) from _prisma_migrations where finished_at is not null" 2>/dev/null | tr -d '[:space:]') || n=""
+  senha=""
+  printf '%s' "$n" | grep -Eq '^[0-9]+$' || falha "crystal_api não entrou pela rede com a senha do $APP_SEG. Nada marcado: a API segue como crystal. Volta dos donos não é necessária"
+  umask 077
+  echo crystal_api > "$APP_DB_PAPEL_ARQ"; chmod 600 "$APP_DB_PAPEL_ARQ"
+  ok "crystal_api entra pela rede e lê as $n migrações do Prisma; marca gravada em $APP_DB_PAPEL_ARQ"
+  echo "Passo 2: bash $0 app-subir $(app_tag_atual)   (a API passa a entrar como crystal_api; a migração roda com ele)"
+  echo "Volta:   bash $0 app-db-papel --voltar && bash $0 app-subir $(app_tag_atual)"
 }
 
 # Telefone de uma conta do app (o canal da inbox identifica a pessoa pelo WhatsApp).
@@ -2975,11 +3326,7 @@ atendimento_subir() {
 
   echo "== stack"
   mkdir -p "$ORIG" "$STACKS"; chmod 700 "$BASE" "$STACKS"
-  if [ -f "$AQUI/stacks-app/$CW_YAML" ]; then
-    cp "$AQUI/stacks-app/$CW_YAML" "$ORIG/$CW_YAML"
-  else
-    curl -fsSL -m 60 "$APP_RAW/$CW_YAML" -o "$ORIG/$CW_YAML" || falha "não baixou $CW_YAML de $APP_RAW"
-  fi
+  baixar_conferido "stacks-app/$CW_YAML" "$ORIG/$CW_YAML" || falha "sem $CW_YAML conferido: a stack no ar não foi trocada"
   grep -q '^services:' "$ORIG/$CW_YAML" || falha "$CW_YAML não parece um compose"
   # Console de super admin: só os IPs do painel. Sem lista, só a própria VPS (fechado).
   ips=127.0.0.1/32
@@ -2999,10 +3346,29 @@ atendimento_subir() {
   copia_cron_atualizar
   echo
   atendimento_status
+  painel_trava_segredos
   echo
   if [ -z "$(app_valor "$APP_EXT" CHATWOOT_BOT_TOKEN)" ]; then
     echo "Próximo: bash $0 atendimento-configurar"
   fi
+}
+
+# Trava da área de administração do Chatwoot (/super_admin, /monitoring, /platform): daqui
+# da VPS, que não está na lista de IPs do painel, cada variação tem de levar 403 do Traefik.
+# Com o Traefik v2.11.3, /x/../super_admin passava (CVE-2025-32431). Só leitura.
+admin_trava_conferir() {
+  docker service inspect "${CW_STACK}_cw_rails" >/dev/null 2>&1 || return 0
+  local p c falhou=0
+  for p in /super_admin /x/../super_admin /x/%2e%2e/super_admin //super_admin /monitoring/sidekiq /platform/api/v1/users; do
+    c=$(curl -s -o /dev/null -m 15 --path-as-is -w '%{http_code}' "https://$CW_HOST$p" 2>/dev/null) || c=000
+    [ "$c" = 403 ] && continue
+    falhou=1
+    aviso "https://$CW_HOST$p -> $c (esperado 403 do Traefik). Traefik antigo no ar? IP desta VPS na lista do painel?"
+  done
+  if [ "$falhou" = 0 ]; then
+    ok "área de administração do Chatwoot: 403 nas 6 variações (inclusive /../ e %2e%2e)"
+  fi
+  return 0
 }
 
 atendimento_status() {
@@ -3020,6 +3386,7 @@ atendimento_status() {
     000) aviso "https://$CW_HOST sem resposta ou certificado inválido (DNS cinza? Traefik ainda emitindo? tente de novo em 2 min)" ;;
     *) aviso "https://$CW_HOST/api -> $code" ;;
   esac
+  if [ "${code:-000}" = 200 ]; then admin_trava_conferir; fi
 }
 
 atendimento_segredos() {
@@ -3260,11 +3627,7 @@ crystal_provisoria() {
   tag=$(app_tag_atual); [ -n "$tag" ] || falha "o app não está no ar: rode 'app-subir TAG' antes"
 
   mkdir -p "$ORIG"; wf="$ORIG/crystal-provisoria.json"
-  if [ -f "$AQUI/n8n/crystal-provisoria.json" ]; then
-    cp "$AQUI/n8n/crystal-provisoria.json" "$wf"
-  else
-    curl -fsSL -m 60 "${REPO_RAW%/stacks-exemplo}/n8n/crystal-provisoria.json" -o "$wf" || falha "não baixou o fluxo crystal-provisoria.json"
-  fi
+  baixar_conferido "n8n/crystal-provisoria.json" "$wf" || falha "sem o fluxo crystal-provisoria.json conferido"
   grep -q "\"$N8N_WF_ID\"" "$wf" || falha "o fluxo baixado não é o esperado"
 
   echo "Use uma chave NOVA do OpenRouter, só pra isto: Keys > Create Key, nome 'Crystal provisória',"
@@ -3412,6 +3775,7 @@ case "$CMD" in
   crystal-nossa) crystal_nossa "$@" ;;
   app-revisao) app_revisao "$@" ;;
   app-telefone) app_telefone "$@" ;;
+  app-db-papel) app_db_papel "$@" ;;
   crystal-nossa-teste) crystal_nossa_teste ;;
   crystal-conferir) crystal_conferir "$@" ;;
   app-api-parar) app_api_parar "$@" ;;
@@ -3425,6 +3789,7 @@ case "$CMD" in
   preparar) preparar "$@" ;;
   recomecar-n8n) recomecar_n8n "$@" ;;
   docker-api) docker_api ;;
+  arquivos-hash) arquivos_hash ;;
   backup) backup "$@" ;;
   backup-cron) backup_cron ;;
   backup-chave) shift; backup_chave "$@" ;;
@@ -3434,6 +3799,8 @@ case "$CMD" in
   backup-link) shift; backup_link "$@" ;;
   firewall) firewall ;;
   seguranca) seguranca ;;
+  ssh-confirmar) ssh_confirmar ;;
+  ssh-voltar) ssh_voltar ;;
   painel-restringir) shift; painel_restringir "$@" ;;
   painel-desligar) painel_desligar ;;
   painel-ligar) painel_ligar ;;

@@ -80,7 +80,9 @@ que a VPS.
 ## Subir a fundação na VPS
 
 `bootstrap-vps.sh` roda **na VPS**, como root. Baixa os yaml deste repositório
-(público, sem segredo), gera a senha do banco e a chave do n8n **na própria
+(público, sem segredo) do commit fixo `STACKS_COMMIT` gravado no próprio script e só
+aceita cada um se o sha256 bater com a tabela `ARQ_SHA256` dele (revisão de 24/10,
+INF-04: gravar na branch não muda o que a VPS sobe), gera a senha do banco e a chave do n8n **na própria
 máquina** (`/root/crystal/.segredos`, uma vez só), grava os arquivos prontos em
 `/root/crystal/stacks/` e sobe as stacks na ordem, esperando cada uma ficar 1/1.
 
@@ -190,8 +192,20 @@ bash bootstrap-vps.sh seguranca
 
 Liga a atualização de segurança automática do Ubuntu e o fail2ban no SSH (5 erros
 em 10 minutos bloqueiam o IP por 1 hora), e mostra o que ainda depende de decisão:
-SSH aceitando senha, root, portas escutando e atualização pendente. Não mexe em
-nenhum serviço. Regras completas em "Segurança sempre" no CLAUDE.md.
+portas escutando e atualização pendente. Não mexe em nenhum serviço do Docker. Regras
+completas em "Segurança sempre" no CLAUDE.md.
+
+SSH (desde 24/10, INF-11): se já existe chave de root em `/root/.ssh/authorized_keys`
+(linha de chave sem opções), ele grava `/etc/ssh/sshd_config.d/00-crystal.conf` com
+`PasswordAuthentication no`, `KbdInteractiveAuthentication no` e
+`PermitRootLogin prohibit-password`, confere com `sshd -t` e recarrega o SSH (a sessão aberta
+não cai). Sem chave, não trava: só avisa, como antes. Para não ficar trancado do lado de
+fora, a trava nova se desfaz sozinha em 10 minutos, a menos que você entre por **outra**
+janela (terminal do navegador da Hostinger ou ssh com a chave) e rode
+`bash bootstrap-vps.sh ssh-confirmar`. Se a outra janela não entrar, não faça nada (ou rode
+`ssh-voltar` na janela que ficou aberta). Atenção: se o terminal do navegador da Hostinger
+entra com a senha do root, ele para de entrar com a trava; nesse caso, `ssh-voltar` e manter
+só o aviso até ter uma chave num aparelho seu.
 
 ### Portainer só para IPs liberados
 
@@ -226,6 +240,84 @@ Ensaiado em 29/09 com o Traefik v2.11.3 e os mesmos rótulos: IP da lista → 20
 os cabeçalhos; fora da lista → 403, inclusive com `X-Forwarded-For` forjado. Num
 Swarm local, o Portainer alcança `tasks.agent:9001` e um vizinho da rede pública
 não resolve o agente.
+
+### Revisão de segurança de 24/10: o que rodar na VPS
+
+Relatório: `auditorias/2026-10-24/seguranca/05-infra.md`. Na VPS, como root, de
+madrugada (o Traefik some por alguns segundos na troca), com o `bootstrap-vps.sh`
+baixado do commit novo e conferido pelo sha256, um comando por vez:
+
+```bash
+bash bootstrap-vps.sh backup                       # bancos, antes de tudo
+# 1. Traefik v2.11.3 -> v2.11.60 (INF-01). O preparar regrava os 7 arquivos de
+#    /root/crystal/stacks (mesmos segredos) e refaz a trava do painel. Ele pede o
+#    e-mail do Let's Encrypt; esta linha reaproveita o que já está no arquivo atual:
+bash bootstrap-vps.sh preparar "$(grep -o 'acme.email=[^"]*' /root/crystal/stacks/00-traefik.yaml | cut -d= -f2)"
+bash bootstrap-vps.sh traefik                      # no fim: "Traefik no ar: traefik:v2.11.60" e
+                                                   # "403 nas 6 variações (inclusive /../ e %2e%2e)"
+bash bootstrap-vps.sh atendimento-subir            # regra nova: /monitoring e /platform também só dos IPs
+# 2. n8n sem acesso ao ambiente, sem Execute Command / arquivos / pacotes de terceiros
+#    (INF-03). Os arquivos novos já saíram do preparar acima; isto só sobe os três:
+bash bootstrap-vps.sh n8n                          # editor, webhook e worker, um de cada vez
+# 3. SSH só com chave (INF-11): trava sozinho se já houver chave em /root/.ssh/authorized_keys;
+#    depois, de OUTRA janela que entrou: bash bootstrap-vps.sh ssh-confirmar (sem isso, volta em 10 min)
+bash bootstrap-vps.sh seguranca
+# 4. TESTAR PRIMEIRO, noutra noite: a API deixa de entrar no Postgres como superusuário (INF-07)
+bash bootstrap-vps.sh app-db-papel                 # simulação: transação desfeita, tem de dizer "simulação limpa"
+bash bootstrap-vps.sh app-db-papel --confirmo      # passo 1: papel crystal_api dono do banco do app
+bash bootstrap-vps.sh app-subir sha-XXXXXXX        # passo 2: a MESMA tag que está no ar (app-status mostra)
+# Volta do 4: bash bootstrap-vps.sh app-db-papel --voltar && bash bootstrap-vps.sh app-subir sha-XXXXXXX
+```
+
+Sobre o n8n (`stacks-exemplo/04`, `05` e `06`): entram `N8N_BLOCK_ENV_ACCESS_IN_NODE=true`,
+`NODES_EXCLUDE` com `executeCommand`, `readWriteFile` e `localFileTrigger`,
+`N8N_COMMUNITY_PACKAGES_ENABLED=false` (e `N8N_REINSTALL_MISSING_PACKAGES=false`) e os nós de
+código passam a importar só o `crypto` (`NODE_FUNCTION_ALLOW_BUILTIN`; com `*`, um nó de código
+rodava comando por fora do Execute Command). Risco para o nosso fluxo: nenhum. O
+`compra-assiny` só usa Webhook, HTTP Request, If e Respond to Webhook; os outros dois fluxos do
+repositório não usam `require` nem `$env`. Um fluxo feito à mão no editor que use um desses nós
+ou `$env` passa a dar erro na execução: conferir em Executions na primeira hora. Conferência
+de ponta a ponta (regrava as mesmas credenciais, faz uma compra e um reembolso de teste):
+`python3 compra-assiny-credenciais.py`. Volta: as linhas antigas estão no comentário dos
+arquivos; trocar, `preparar` e `n8n` de novo. Falta só uma coisa à mão: 2FA em todas as contas
+do n8n (Settings > Personal > Two-factor).
+
+Papel da API no Postgres (INF-07): hoje a API e a migração do Prisma entram como `crystal`,
+o superusuário com que a imagem do Postgres nasceu; uma falha na API viraria comando no
+contêiner do banco (`COPY ... TO PROGRAM`) e leitura da memória da Crystal. O Postgres 16 não
+deixa tirar o superusuário desse papel (ensaiado: "The bootstrap user must have the SUPERUSER
+attribute"), então o `app-db-papel` cria `crystal_api`, sem superusuário, e o faz dono do banco
+`crystal_web_chat` e de tudo no schema `public` (tabelas, sequências, tipos, funções; o que é
+de extensão fica). É o que o `prisma migrate deploy` precisa. A senha nova
+(`APP_DB_API_SENHA`) vai para o `.segredos` (copiar pro Bitwarden com `app-segredos`) e a marca
+para `/root/crystal/app/.db-papel`; o `app-subir` seguinte monta o `DATABASE_URL` com ela.
+`crystal` continua superusuário para backup e diagnóstico. Ensaiado num Postgres 16 com as 44
+migrações do app: simulação sem efeito; depois, `crystal_api` cria tabela, enum e índice e
+pega trava consultiva, e leva "permission denied" em `COPY ... TO PROGRAM` e `pg_read_file`;
+com uma tabela travada, o comando falha sem mudar nada e sem a senha no log. Depois de uma
+migração feita como `crystal` ou de uma restauração (o backup é `--no-owner`), rodar
+`--confirmo` de novo. Uma migração futura com `CREATE EXTENSION` não confiável falharia como
+`crystal_api`: aí, volta, `app-subir`, e `--confirmo` de novo.
+
+Yaml por commit fixo e sha256 (INF-04): o script não baixa mais nada de branch. Quem mudar
+um arquivo de `stacks-exemplo/`, `stacks-app/01`, `10`, `20` ou `n8n/crystal-provisoria.json`:
+commit e push do arquivo; no repositório, `bash crystal-em-casa/bootstrap-vps.sh arquivos-hash`
+(imprime o `STACKS_COMMIT` atual e a tabela, marcando o que mudou); colar no topo do script e
+commitar. Sem isso a VPS recusa o arquivo novo ("NÃO usado") e nada é trocado. O commit
+gravado tem de continuar no GitHub: juntar esta branch por merge (não por squash/rebase), ou
+rodar `arquivos-hash` de novo depois de juntar. `REF=<commit de 40 letras>` troca o commit;
+branch não é aceita.
+
+Segredos do app e do Chatwoot no spec do Swarm (INF-05): continuam em `env_file`, que o
+Swarm copia para o spec do serviço (o Portainer e `docker service inspect` mostram). Trocar
+por Docker secrets mexe no command dos serviços e no roteiro de troca de chave: fica para a
+onda de infra. Até lá a defesa é o painel restrito, e o `app-subir` e o `atendimento-subir`
+avisam no fim se ele não estiver (`painel-restringir`).
+
+Volta do Traefik: `docker service rollback traefik_traefik` (o Swarm guarda a versão
+anterior). Conferir de fora, de um IP que não está na lista do painel:
+`curl -s -o /dev/null -w '%{http_code}\n' --path-as-is https://atendimento.crystalnowpp.com.br/x/../super_admin`
+tem de dar `403`.
 
 ## Backup fora da VPS (Cloudflare R2, cifrado)
 
@@ -334,13 +426,14 @@ robô do Chatwoot.
 1. No Cloudflare, zona crystalnowpp.com.br: registro **A**, nome `atendimento`,
    IP `177.7.61.136`, **Somente DNS (nuvem cinza)**. Ou, com token:
    `scripts/cloudflare-crystal-vps-dns.sh criar --aplicar`.
-2. Na VPS, um comando de cada vez (REF = commit deste repositório):
+2. Na VPS, um comando de cada vez (desde 24/10 o script já sabe de qual commit baixar o
+   yaml, sem `REF=`):
 
 ```bash
-REF=<commit> bash bootstrap-vps.sh atendimento-subir              # até 10 min na 1ª vez
+bash bootstrap-vps.sh atendimento-subir                           # até 10 min na 1ª vez
 bash bootstrap-vps.sh atendimento-segredos                        # copiar pro Bitwarden
-REF=<commit> bash bootstrap-vps.sh atendimento-configurar sha-XXXXXXX   # admin, inbox, robô; testa
-REF=<commit> bash bootstrap-vps.sh app-canal chatwoot              # o app passa a usar o Chatwoot
+bash bootstrap-vps.sh atendimento-configurar sha-XXXXXXX          # admin, inbox, robô; testa
+bash bootstrap-vps.sh app-canal chatwoot                          # o app passa a usar o Chatwoot
 ```
 
 3. Entrar em `https://atendimento.crystalnowpp.com.br` com o login do Bitwarden e

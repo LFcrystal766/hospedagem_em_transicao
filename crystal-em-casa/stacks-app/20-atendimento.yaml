@@ -21,6 +21,9 @@
 #   Segredo nenhum. Os serviços leem CW_ENV_DIR/{chatwoot,postgres,redis}.env,
 #   gerados na VPS pelo bootstrap (chmod 600). Os marcadores CW_VERSAO,
 #   CW_ENV_DIR e CW_IPS_ADMIN são trocados pelo bootstrap.
+#   Limite conhecido (INF-05): no Swarm os valores do env_file vão para o spec do
+#   serviço e o Portainer os mostra; a defesa é o painel. restrito. Ver o cabeçalho
+#   de 10-crystal-app.yaml.
 #
 # COMO SUBIR
 #   bash bootstrap-vps.sh atendimento-subir
@@ -88,10 +91,19 @@ services:
         - traefik.http.routers.crystal_atendimento.entrypoints=websecure
         - traefik.http.routers.crystal_atendimento.tls.certresolver=letsencryptresolver
         - traefik.http.routers.crystal_atendimento.service=crystal_atendimento
-        # Console de super admin (/super_admin): só dos IPs do painel. (bootstrap-vps.sh
+        # Área de administração do Chatwoot: só dos IPs do painel. (bootstrap-vps.sh
         # painel-restringir). Sem lista, só a própria VPS, ou seja: fechado. A configuração
         # do dia a dia é feita pelo bootstrap (rails runner), não por ali.
-        - traefik.http.routers.crystal_atendimento_admin.rule=Host(`atendimento.crystalnowpp.com.br`) && PathPrefix(`/super_admin`)
+        #   /super_admin  console de super admin (e o login dele)
+        #   /monitoring   Sidekiq web (só com sessão de super admin)
+        #   /platform     Platform API (tokens criados no console; não usamos)
+        # Nenhum deles é usado pela equipe nem pelo app no dia a dia.
+        # Esta trava é uma regra por caminho: ela só vale com o Traefik v2.11.25 ou mais novo
+        # (caminho sanitizado e normalizado antes de casar a regra; com a v2.11.3,
+        # /x/../super_admin escapava dela: CVE-2025-32431, INF-01 de 24/10/2026). O
+        # 'bash bootstrap-vps.sh traefik' testa as variações com /../ e %2e%2e e espera 403.
+        # Por trás dela ainda há o login do próprio console de super admin.
+        - traefik.http.routers.crystal_atendimento_admin.rule=Host(`atendimento.crystalnowpp.com.br`) && (PathPrefix(`/super_admin`) || PathPrefix(`/monitoring`) || PathPrefix(`/platform`))
         - traefik.http.routers.crystal_atendimento_admin.priority=100
         - traefik.http.routers.crystal_atendimento_admin.entrypoints=websecure
         - traefik.http.routers.crystal_atendimento_admin.tls.certresolver=letsencryptresolver

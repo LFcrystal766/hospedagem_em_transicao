@@ -17,6 +17,14 @@
 #      Portainer precisa da credencial do ghcr.io (Registries > Add) pra puxar.
 #
 # Ajustar: o caminho do Dockerfile (context) se a agência entregar em outra pasta.
+#
+# Actions presas pelo commit (SHA de 40 letras), com a versão no comentário (revisão de
+# segurança de 24/10/2026, INF-09): uma tag como @v4 pode ser movida por quem tomar a
+# organização dona da action, e este job publica imagem (packages: write). SHAs lidos das
+# tags em 24/10 (git ls-remote), mesma versão maior de antes. Para atualizar, ligar o
+# Dependabot no repositório que usar este arquivo (.github/dependabot.yml com
+# package-ecosystem: github-actions, interval: weekly) e, onde houver, Settings > Actions >
+# "Require actions to be pinned to a full-length commit SHA".
 
 name: build-image
 
@@ -39,7 +47,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       # Achado 72 da revisão de 05/10:
       # - o ghcr.io só aceita nome em minúsculas, e o repositório é LFcrystal766/...;
@@ -60,16 +68,16 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "imagem=$(printf '%s' "$REPO" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build e push (linux/amd64, sem latest)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           context: .
           platforms: linux/amd64

@@ -27,7 +27,21 @@ version: "3.7"
 
 services:
   traefik:
-    image: traefik:v2.11.3
+    # Versão fixa (nunca latest). 24/10/2026: v2.11.3 -> v2.11.60, a última da linha 2.11
+    # (revisão de segurança, INF-01). Entre as correções: CVE-2024-45410 (cabeçalhos
+    # X-Forwarded-* vindos do cliente) e CVE-2025-32431 (/../ no caminho contornava regras
+    # PathPrefix/Path: é o que protege o /super_admin do Chatwoot). Desde a 2.11.24 o caminho
+    # é sanitizado e desde a 2.11.25 normalizado (%2E%2E), antes de casar as regras.
+    # Notas lidas (docs/content/migration/v2.md, 2.11.4 a 2.11.60): nada que mude esta VPS.
+    # Desde a 2.11.45 o provedor Docker usa a API 1.40 ou mais nova; o min-api-version=1.24
+    # gravado pelo 'docker-api' continua aceitando e pode ficar como está.
+    # Atualizar: ler as notas, trocar aqui e, na VPS:
+    #   bash bootstrap-vps.sh preparar EMAIL && bash bootstrap-vps.sh traefik
+    # (o 'traefik' confere a versão no ar e testa o /super_admin com /../ ao final).
+    # Volta: docker service rollback traefik_traefik
+    # A linha 2 está no fim da vida: planejar a v3 (providers.swarm no lugar de
+    # providers.docker.swarmMode).
+    image: traefik:v2.11.60
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
 
     command:
@@ -50,6 +64,10 @@ services:
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
       - "--entrypoints.websecure.address=:443"
+      # Limpa /../, /./ e // do caminho antes de casar as regras (padrão desde a v2.11.24;
+      # escrito aqui para não depender do padrão). Exige v2.11.24 ou mais nova: numa versão
+      # anterior o Traefik não sobe com esta opção.
+      - "--entrypoints.websecure.http.sanitizePath=true"
 
       # --- Certificados HTTPS -----------------------------------------------
       # O nome "letsencryptresolver" é referenciado pelas outras stacks.
