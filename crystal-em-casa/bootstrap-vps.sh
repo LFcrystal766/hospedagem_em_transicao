@@ -999,6 +999,11 @@ portainer() {
 n8n_rede_banco() { if redes_unica; then echo network_swarm_public; else echo n8n_interno; fi; }
 bancos() {
   local rede; rede=$(n8n_rede_banco)
+  # Se o n8n vai ter de subir junto (banco mudando de rede), confere ANTES de mexer no banco que
+  # o Traefik já está na borda_n8n: senão o banco mudava e o n8n ficava parado sem ele.
+  if docker service inspect n8n_editor_n8n_editor >/dev/null 2>&1 && ! svc_na_rede n8n_editor_n8n_editor "$rede"; then
+    redes_exigir_traefik borda_n8n
+  fi
   deploy 02-n8n-postgres.yaml n8n_postgres; deploy 03-n8n-redis.yaml n8n_redis
   # Banco e fila acabaram de mudar de rede (corte do INF-06 ou volta): o editor, o webhook e o
   # worker ficam sem banco até subirem na mesma rede. Sobe os três já: a parada do n8n dura só
@@ -1981,8 +1986,9 @@ status() {
   echo
   echo "== Últimas linhas do Traefik sobre certificado (desde 24/10 o log vai para a saída do contêiner, INF-20)"
   if docker service inspect traefik_traefik >/dev/null 2>&1; then
-    docker service logs --since 24h --raw traefik_traefik 2>&1 | grep -iE 'acme|certif|level=error|ERR' | grep -v 'port is missing' | tail -8 \
-      | grep . || echo "  (nada sobre certificado nas últimas 24 h)"
+    # Sem as linhas do log de acesso (começam pelo IP de quem acessou): só as do próprio Traefik.
+    docker service logs --since 24h --raw traefik_traefik 2>&1 | grep -vE '^[0-9a-fA-F.:]+ - ' | grep -iE 'acme|certif|level=error' \
+      | grep -v 'port is missing' | tail -8 | grep . || echo "  (nada sobre certificado nas últimas 24 h)"
   else
     aviso "serviço do Traefik não encontrado"
   fi
