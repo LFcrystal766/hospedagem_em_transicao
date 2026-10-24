@@ -48,7 +48,9 @@
 #   bash bootstrap-vps.sh backup-link [TIPO]   link de 10 min para baixar o backup mais novo (teste de
 #                                              restauração no Mac). TIPO: n8n_queue (padrão), crystal_web_chat,
 #                                              crystal_agente, crystal_uploads, chatwoot, chatwoot_storage
-#   bash bootstrap-vps.sh seguranca            atualização de segurança automática, fail2ban no SSH
+#   bash bootstrap-vps.sh seguranca [--sem-ssh]
+#                                              atualização de segurança automática, fail2ban no SSH e, com chave
+#                                              de root instalada, SSH só com chave (--sem-ssh pula essa trava)
 #                                              e relatório (senha no SSH, root, portas, pendências).
 #                                              Com chave de root instalada, trava o SSH em só chave e root
 #                                              só com chave; volta sozinha em 10 min sem confirmação
@@ -1608,7 +1610,13 @@ CFG
   fail2ban-client status sshd >/dev/null 2>&1 && ok "fail2ban protegendo o SSH" || aviso "fail2ban no ar, mas a regra do SSH não respondeu: fail2ban-client status sshd"
 
   echo "== SSH"
-  ssh_travar
+  # --sem-ssh (revisão de 24/10): quem entra pelo terminal do navegador da Hostinger, sem chave
+  # própria, não troca o SSH no meio do roteiro da madrugada; a trava fica para quando houver chave.
+  if [ "${2:-}" = --sem-ssh ]; then
+    aviso "trava do SSH pulada (--sem-ssh): o SSH fica como está. Com a sua chave num aparelho seu: bash $0 seguranca"
+  else
+    ssh_travar
+  fi
   echo "== quem fala com o Docker (lê os segredos do spec dos serviços)"
   docker_acesso_conferir
   echo "== o que ainda depende de decisão"
@@ -4497,7 +4505,7 @@ case "$CMD" in
   backup-testar-trava) backup_testar_trava ;;
   backup-link) shift; backup_link "$@" ;;
   firewall) firewall ;;
-  seguranca) seguranca ;;
+  seguranca) seguranca "$@" ;;
   ssh-confirmar) ssh_confirmar ;;
   ssh-voltar) ssh_voltar ;;
   redes-conferir) redes_conferir ;;
