@@ -242,7 +242,23 @@ bash bootstrap-vps.sh preparar "$(grep -o 'acme.email=[^"]*' /root/crystal/stack
 bash bootstrap-vps.sh traefik                      # no fim: "Traefik no ar: traefik:v2.11.60" e
                                                    # "403 nas 6 variações (inclusive /../ e %2e%2e)"
 bash bootstrap-vps.sh atendimento-subir            # regra nova: /monitoring e /platform também só dos IPs
+# 2. n8n sem acesso ao ambiente, sem Execute Command / arquivos / pacotes de terceiros
+#    (INF-03). Os arquivos novos já saíram do preparar acima; isto só sobe os três:
+bash bootstrap-vps.sh n8n                          # editor, webhook e worker, um de cada vez
 ```
+
+Sobre o n8n (`stacks-exemplo/04`, `05` e `06`): entram `N8N_BLOCK_ENV_ACCESS_IN_NODE=true`,
+`NODES_EXCLUDE` com `executeCommand`, `readWriteFile` e `localFileTrigger`,
+`N8N_COMMUNITY_PACKAGES_ENABLED=false` (e `N8N_REINSTALL_MISSING_PACKAGES=false`) e os nós de
+código passam a importar só o `crypto` (`NODE_FUNCTION_ALLOW_BUILTIN`; com `*`, um nó de código
+rodava comando por fora do Execute Command). Risco para o nosso fluxo: nenhum. O
+`compra-assiny` só usa Webhook, HTTP Request, If e Respond to Webhook; os outros dois fluxos do
+repositório não usam `require` nem `$env`. Um fluxo feito à mão no editor que use um desses nós
+ou `$env` passa a dar erro na execução: conferir em Executions na primeira hora. Conferência
+de ponta a ponta (regrava as mesmas credenciais, faz uma compra e um reembolso de teste):
+`python3 compra-assiny-credenciais.py`. Volta: as linhas antigas estão no comentário dos
+arquivos; trocar, `preparar` e `n8n` de novo. Falta só uma coisa à mão: 2FA em todas as contas
+do n8n (Settings > Personal > Two-factor).
 
 Volta do Traefik: `docker service rollback traefik_traefik` (o Swarm guarda a versão
 anterior). Conferir de fora, de um IP que não está na lista do painel:

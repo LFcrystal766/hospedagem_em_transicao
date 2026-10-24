@@ -128,10 +128,20 @@ services:
       - EXECUTIONS_DATA_PRUNE_MAX_COUNT=10000
 
       # --- Bibliotecas nos nós de código ------------------------------------
-      - NODE_FUNCTION_ALLOW_BUILTIN=*
+      # Revisão de segurança de 24/10 (INF-03): o editor é público (com senha), então
+      # uma conta do n8n, ou uma sessão roubada, não pode ler o ambiente (chave de cifra,
+      # senha do banco e do Redis), rodar comando no contêiner, mexer em arquivo nem
+      # instalar pacote de terceiros. Os fluxos deste repositório (compra-assiny,
+      # crystal-provisoria, webhook-crystal-app) só usam nós de base e nenhum require.
+      # Só o crypto nos nós de código: com "*", require('child_process') rodava comando
+      # por fora do Execute Command e lia o ambiente do processo principal.
+      # Para voltar o que era: =* / tirar as três linhas novas / =true / =true.
+      - NODE_FUNCTION_ALLOW_BUILTIN=crypto
       - NODE_FUNCTION_ALLOW_EXTERNAL=lodash
-      - N8N_COMMUNITY_PACKAGES_ENABLED=true
-      - N8N_REINSTALL_MISSING_PACKAGES=true
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=true
+      - NODES_EXCLUDE=["n8n-nodes-base.executeCommand","n8n-nodes-base.readWriteFile","n8n-nodes-base.localFileTrigger"]
+      - N8N_COMMUNITY_PACKAGES_ENABLED=false
+      - N8N_REINSTALL_MISSING_PACKAGES=false
       - N8N_NODE_PATH=/home/node/.n8n/nodes
 
       # --- Envio de e-mail (convite de usuários e recuperação de senha) ------
