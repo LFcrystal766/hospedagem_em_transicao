@@ -78,7 +78,7 @@
 #   bash bootstrap-vps.sh app-resend           pergunta a chave do Resend (sem aparecer) e o
 #                                              remetente. Nada vai na linha de comando
 #   bash bootstrap-vps.sh app-definir NOME     grava um valor externo (RESEND_API_KEY, EMAIL_FROM,
-#                                              CRYSTAL_API_URL, REFUND_WEBHOOK_SECRET, TRANSCRIPTION_*,
+#                                              CRYSTAL_API_URL, REFUND_WEBHOOK_SECRET, IMAGENS_WEBHOOK_SECRET, TRANSCRIPTION_*,
 #                                              SUPABASE_*, ROLLOUT_GATE, LOGIN_MODO, LOGIN_CODIGO, EQUIPE_EMAIL, RATE_AUTH_*, ...). Confere o
 #                                              formato antes de gravar. Sem NOME, lista os aceitos
 #                                              ROLLOUT_GATE, LOGIN_CODIGO, REFUND_EVENTS, REFUND_PRODUCT_IDS,
@@ -166,6 +166,11 @@
 # Publicar a etapa 1 do PRD de Otimização (API sem root, mídia e transcrição, reembolso):
 #   curl -fsSL https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/<commit>/crystal-em-casa/bootstrap-vps.sh -o bootstrap-vps.sh
 #   bash bootstrap-vps.sh app-definir REFUND_WEBHOOK_SECRET   gerado com: openssl rand -hex 32 (guardar no Bitwarden)
+#   bash bootstrap-vps.sh app-definir IMAGENS_WEBHOOK_SECRET  (24/10, INT-01) outro openssl rand -hex 32, diferente do
+#                                              de cima: o pacote de imagens (/webhooks/imagens) deixa de abrir
+#                                              com o segredo do reembolso. Opcional: sem ele a API usa o do
+#                                              reembolso nas duas rotas. Depois: app-subir e, no n8n,
+#                                              python3 -I crystal-em-casa/n8n/compra-assiny-credenciais.py
 #   REFUND_EVENTS e REFUND_PRODUCT_IDS (opcionais, vírgulas): eventos da Assiny que cortam o acesso
 #                                              (padrão no código) e ids de produto que cortam (vazio = todos)
 #   bash bootstrap-vps.sh app-definir TRANSCRIPTION_API_KEY   chave da Groq; URL e modelo já têm padrão no código
@@ -2097,7 +2102,7 @@ APP_EXTERNOS=(RESEND_API_KEY* EMAIL_FROM CRYSTAL_API_URL CRYSTAL_API_KEY* CRYSTA
   REVIEW_ACCOUNTS* OPENROUTER_API_KEY* CRYSTAL_MODEL CRYSTAL_MODEL_RESERVA CRYSTAL_MODEL_RESUMO
   CONHECIMENTO_MATCH_COUNT CONHECIMENTO_TIMEOUT_MS
   ANDROID_CERT_SHA256 APPLE_TEAM_ID FCM_PROJECT_ID FCM_SERVICE_ACCOUNT_JSON*
-  REFUND_WEBHOOK_SECRET* REFUND_EVENTS REFUND_PRODUCT_IDS TRANSCRIPTION_API_URL TRANSCRIPTION_API_KEY* TRANSCRIPTION_MODEL
+  REFUND_WEBHOOK_SECRET* IMAGENS_WEBHOOK_SECRET* REFUND_EVENTS REFUND_PRODUCT_IDS TRANSCRIPTION_API_URL TRANSCRIPTION_API_KEY* TRANSCRIPTION_MODEL
   TRANSCRIPTION_TIMEOUT_MS TRANSCRIPTION_PRICE_PER_HOUR_USD CHATWOOT_API_TOKEN* EQUIPE_EMAIL SUPERADMIN_EMAILS
   RATE_AUTH_MAX RATE_AUTH_WINDOW_S OTP_MAX_ATTEMPTS OTP_RESEND_COOLDOWN_S OTP_RESEND_MAX
   RATE_AUTH_IP_MAX UPLOAD_DAILY_MAX CRYSTAL_PRAZO_TOTAL_MS CRYSTAL_TIMEOUT_MS)
@@ -2275,10 +2280,19 @@ assert d.get("type")=="service_account" and d.get("client_email") and "PRIVATE K
       v=$(printf '%s' "$v" | tr 'A-Z' 'a-z' | tr -d ' ')
       printf '%s' "$v" | grep -Eq '^([a-z0-9._%+-]+@[a-z0-9-]+(\.[a-z0-9-]+)+)(,[a-z0-9._%+-]+@[a-z0-9-]+(\.[a-z0-9-]+)+){0,9}$' \
         || falha "lista de e-mails separados por vírgula (até 10), ex.: dono@empresa.com.br. Nada gravado" ;;
-    REFUND_WEBHOOK_SECRET)
-      # Assina o webhook de reembolso: tem que ser longo e variado, nunca uma palavra.
+    REFUND_WEBHOOK_SECRET|IMAGENS_WEBHOOK_SECRET)
+      # Assinam os webhooks de reembolso e de pacote de imagens: têm que ser longos e variados,
+      # nunca uma palavra. É a mesma régua da API (32 bytes, 10 caracteres distintos). Revisão
+      # de 24/10 (INT-01): um segredo por rota, por isso o de imagens não pode ser igual ao do
+      # reembolso (quem tivesse um não abriria a outra rota). Sem IMAGENS_WEBHOOK_SECRET a API
+      # usa o do reembolso nas duas rotas, com aviso no boot: nada quebra sem ele.
       [ "$(printf '%s' "$v" | wc -c)" -ge 32 ] && [ "$(printf '%s' "$v" | fold -w1 | sort -u | wc -l)" -ge 10 ] \
-        || falha "segredo fraco (mínimo 32 bytes e 10 caracteres diferentes). Gere com: openssl rand -hex 32  e cole o resultado. Nada gravado" ;;
+        || falha "segredo fraco (mínimo 32 bytes e 10 caracteres diferentes). Gere com: openssl rand -hex 32  e cole o resultado. Nada gravado"
+      local outro=REFUND_WEBHOOK_SECRET
+      [ "$nome" = REFUND_WEBHOOK_SECRET ] && outro=IMAGENS_WEBHOOK_SECRET
+      if [ -n "$(app_valor "$APP_EXT" "$outro")" ] && [ "$(app_valor "$APP_EXT" "$outro")" = "$v" ]; then
+        v=""; falha "é o mesmo valor de $outro: cada rota tem o seu segredo (INT-01). Gere outro com: openssl rand -hex 32. Nada gravado"
+      fi ;;
     TRANSCRIPTION_API_URL)
       case "$v" in https://?*) ;; *) falha "a URL da transcrição tem que começar com https://. Nada gravado" ;; esac ;;
     TRANSCRIPTION_TIMEOUT_MS)
