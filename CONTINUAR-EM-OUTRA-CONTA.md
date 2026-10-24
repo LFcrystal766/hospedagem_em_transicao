@@ -764,3 +764,18 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `anon` não tem política de leitura (bloqueado), só `anon_insert` em `leticia_crystal_webhooks_assiny` (lixo possível).
     Correção: dropar as políticas `authenticated_select` (o app usa só service_role) e revogar os grants de anon/
     authenticated nessas tabelas; desligar sign-ups no Auth. Precisa do dono rodar no SQL Editor (DDL).
+    **Advisors do Supabase (24/10):** 9 funções SECURITY DEFINER da agência (`get_crystal_*`, `leticia_crystal_get_user_stats`,
+    `rls_auto_enable`) executáveis por anon/authenticated via /rest/v1/rpc; 20 funções com search_path mutável; extensões
+    no schema public; proteção de senha vazada do Auth desligada. **SQL de correção pronto e testado em Postgres local:**
+    `crystal-em-casa/supabase/seguranca-2026-10-24.sql` (dropa políticas e grants de anon/authenticated nas tabelas
+    `leticia_crystal_*`/`crystal_*`, revoga execute das funções da agência, fixa search_path nas que o app usa, confere no
+    fim). Dono roda no SQL Editor. Efeito: painel antigo da agência (Supabase Auth, 2 usuários, último login 03/10) para
+    de ler as tabelas.
+    **05 infra (pronto):** 0 críticos, **3 altos**, 8 médios, 19 baixos. Altos: Traefik v2.11.3 (jun/2024, fim de vida;
+    CVE de contorno de PathPrefix e o `/super_admin` do Chatwoot só protegido por PathPrefix + ipallowlist); chave
+    service_role do Supabase marcada como vazada em 06/10 e ainda não trocada (PROXIMOS-PASSOS.md); n8n sem
+    `N8N_BLOCK_ENV_ACCESS_IN_NODE`/`NODES_EXCLUDE`, pacotes da comunidade ligados, na rede plana. Médios: YAMLs baixados
+    de branch sem hash; segredos do env_file visíveis no spec do Swarm; rede única; API como superusuário do Postgres;
+    4 moderados do audit (fast-uri) com correção; actions por tag; SSH com senha só avisado.
+    **TOTAL dos 5 relatórios: 0 críticos, 10 altos, 27 médios, 45 baixos.** Próximo: correções (app, SQL, infra) e
+    ações do dono (trocar service_role, rodar o SQL, desligar sign-ups do Auth, atualizar Traefik e n8n).
