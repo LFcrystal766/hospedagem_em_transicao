@@ -68,11 +68,17 @@ precisa_token() {
 api() {
   local m=$1 p=$2 b=${3:-}
   if [ -n "$b" ]; then
-    curl -sS -m 40 -X "$m" "$API$p" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-      -H 'Content-Type: application/json' --data "$b"
+    cf_curl -sS -m 40 -X "$m" "$API$p" -H 'Content-Type: application/json' --data "$b"
   else
-    curl -sS -m 40 -X "$m" "$API$p" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"
+    cf_curl -sS -m 40 -X "$m" "$API$p"
   fi
+}
+
+# Cabeçalho do token para o curl pela entrada padrão (-K -), nunca na linha de comando: assim
+# ele não aparece no ps nem em /proc/<pid>/cmdline da máquina onde o script roda (revisão de
+# segurança de 24/10, INF-23; o bootstrap-vps.sh já fazia assim).
+cf_curl() { # cf_curl ARGS... (o token vai pelo stdin)
+  printf 'header = "Authorization: Bearer %s"\n' "$CLOUDFLARE_API_TOKEN" | curl -K - "$@"
 }
 
 # ler CAMINHO -> .result, ou falha com a mensagem da API
@@ -464,8 +470,7 @@ cmd_saude() {
   q=$(jq -nc --arg z "$ZONA_ID" --arg i "$ini" --arg f "$fim" '{query:
     "query($z:String!,$i:Time!,$f:Time!){viewer{zones(filter:{zoneTag:$z}){httpRequestsAdaptiveGroups(filter:{datetime_geq:$i,datetime_leq:$f,requestSource:\"eyeball\"},limit:50,orderBy:[count_DESC]){count dimensions{edgeResponseStatus originResponseStatus}}}}}",
     variables:{z:$z,i:$i,f:$f}}')
-  local r; r=$(curl -sS -m 40 -X POST "$API/graphql" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-    -H 'Content-Type: application/json' --data "$q")
+  local r; r=$(cf_curl -sS -m 40 -X POST "$API/graphql" -H 'Content-Type: application/json' --data "$q")
   if [ "$(echo "$r" | jq -r '.errors // [] | length')" != "0" ]; then
     aviso "métricas indisponíveis: $(echo "$r" | jq -c '.errors')"
     return 3
