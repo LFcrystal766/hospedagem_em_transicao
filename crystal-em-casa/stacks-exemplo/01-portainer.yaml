@@ -32,13 +32,15 @@ version: "3.7"
 services:
 
   # Agente que roda em TODOS os nós e reporta o estado deles ao painel.
+  # Revisão de 24/10 (INF-06): o agente fala com o docker.sock, então fica numa rede interna
+  # só da stack (como no 01-portainer-restrito.yaml), e não na rede de borda.
   agent:
     image: portainer/agent:sts
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/volumes:/var/lib/docker/volumes
     networks:
-      - network_swarm_public
+      - portainer_agentes
     deploy:
       # "global" = uma cópia em cada nó do cluster, automaticamente.
       mode: global
@@ -53,7 +55,8 @@ services:
     volumes:
       - portainer_data:/data
     networks:
-      - network_swarm_public
+      - portainer_agentes
+      - borda_painel
     deploy:
       mode: replicated
       replicas: 1
@@ -62,7 +65,7 @@ services:
           - node.role == manager
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=network_swarm_public"
+        - "traefik.docker.network=borda_painel"
         # TROCAR: o endereço do painel.
         - "traefik.http.routers.portainer.rule=Host(`painel.seudominio.com.br`)"
         - "traefik.http.routers.portainer.entrypoints=websecure"
@@ -73,10 +76,16 @@ services:
         - "traefik.http.services.portainer.loadbalancer.server.port=9000"
 
 networks:
-  network_swarm_public:
+  # Rede de borda do painel: só o Traefik e o Portainer (INF-06). Criada pelo
+  # 'bootstrap-vps.sh preparar'. Sem attachable: contêiner avulso (docker run) não entra.
+  borda_painel:
     external: true
-    attachable: true
-    name: network_swarm_public
+    name: borda_painel
+  # Só o Portainer e o agente. internal: sem saída para a internet e sem
+  # ninguém de fora da stack.
+  portainer_agentes:
+    driver: overlay
+    internal: true
 
 volumes:
   portainer_data:

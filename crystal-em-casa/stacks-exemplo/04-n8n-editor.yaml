@@ -43,8 +43,11 @@ services:
     # "start" sobe a interface web.
     command: start
 
+    # Revisão de 24/10 (INF-06): borda_n8n para o Traefik (só ele e o n8n estão nela) e
+    # n8n_interno para o Postgres e o Redis do n8n, que não estão em mais rede nenhuma.
     networks:
-      - network_swarm_public
+      - borda_n8n
+      - n8n_interno
 
     environment:
 
@@ -184,6 +187,7 @@ services:
 
       labels:
         - traefik.enable=true
+        - traefik.docker.network=borda_n8n
         # TROCAR: endereço do editor.
         - traefik.http.routers.n8n_editor.rule=Host(`editor.seudominio.com.br`)
         - traefik.http.routers.n8n_editor.entrypoints=websecure
@@ -219,6 +223,10 @@ services:
       start_period: 60s
 
 networks:
-  network_swarm_public:
-    name: network_swarm_public
+  # As duas criadas pelo 'bootstrap-vps.sh preparar' (overlay, sem attachable).
+  borda_n8n:
+    name: borda_n8n
+    external: true
+  n8n_interno:
+    name: n8n_interno
     external: true

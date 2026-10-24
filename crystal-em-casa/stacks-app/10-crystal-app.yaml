@@ -10,6 +10,16 @@
 #   com Postgres e Redis PRÓPRIOS do app, numa rede interna só dele. Não usa o
 #   Postgres nem o Redis do n8n, e não toca no Supabase da agência.
 #
+# REDES (revisão de segurança de 24/10, INF-06)
+#   app_interno  API, Crystal, Postgres e Redis do app. Só esta stack.
+#   borda_api    Traefik e app_api. Mais ninguém: é a faixa em que a API confia para
+#                ler o X-Forwarded-For (TRUST_PROXY, gravado pelo bootstrap).
+#   borda_web    Traefik e app_web.
+#   O Traefik não está na app_interno: não alcança o Postgres, o Redis nem a Crystal.
+#   Os nomes de sempre continuam valendo (app_postgres, app_redis, app_crystal), porque
+#   quem os usa está na mesma app_interno. borda_api e borda_web são criadas pelo
+#   'bootstrap-vps.sh preparar'; o app-subir recusa subir se o Traefik ainda não está nelas.
+#
 # DE ONDE VÊM AS IMAGENS
 #   GitHub Actions do repositório LFcrystal766/crystal-web-chat
 #   (.github/workflows/imagens-vps.yml), em ghcr.io, com tag sha-XXXXXXX ou vX.
@@ -122,7 +132,7 @@ services:
     env_file: APP_ENV_DIR/api.env
     networks:
       - app_interno
-      - network_swarm_public
+      - borda_api
     volumes:
       - app_uploads:/app/uploads
     healthcheck:
@@ -149,7 +159,7 @@ services:
       restart_policy: {condition: any, delay: 10s}
       labels:
         - traefik.enable=true
-        - traefik.docker.network=network_swarm_public
+        - traefik.docker.network=borda_api
         - traefik.http.routers.crystal_app_api.rule=Host(`api.crystalnowpp.com.br`)
         - traefik.http.routers.crystal_app_api.entrypoints=websecure
         - traefik.http.routers.crystal_app_api.tls.certresolver=letsencryptresolver
@@ -197,7 +207,7 @@ services:
       - HOSTNAME=0.0.0.0
       - PORT=3000
     networks:
-      - network_swarm_public
+      - borda_web
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
       interval: 15s
@@ -218,7 +228,7 @@ services:
       restart_policy: {condition: any, delay: 5s}
       labels:
         - traefik.enable=true
-        - traefik.docker.network=network_swarm_public
+        - traefik.docker.network=borda_web
         - traefik.http.routers.crystal_app_web.rule=Host(`app.crystalnowpp.com.br`)
         - traefik.http.routers.crystal_app_web.entrypoints=websecure
         - traefik.http.routers.crystal_app_web.tls.certresolver=letsencryptresolver
@@ -227,11 +237,15 @@ services:
         - traefik.http.services.crystal_app_web.loadbalancer.passHostHeader=true
 
 networks:
+  # Overlay comum (não internal): a Crystal sai para o OpenRouter e o Supabase por ela.
   app_interno:
     driver: overlay
-  network_swarm_public:
+  borda_api:
     external: true
-    name: network_swarm_public
+    name: borda_api
+  borda_web:
+    external: true
+    name: borda_web
 
 volumes:
   app_postgres_data:

@@ -36,13 +36,26 @@ Com o Docker instalado, iniciar o modo Swarm:
 docker swarm init
 ```
 
-### 2. Criar a rede
+### 2. Criar as redes
 
-Uma única rede compartilhada, em que o Traefik enxerga todos os serviços:
+A rede original da agência, em que o Traefik enxerga todos os serviços:
 
 ```
 docker network create --driver=overlay network_swarm_public
 ```
+
+Desde a revisão de segurança de 24/10 (INF-06), cada stack tem a sua rede de borda (só o
+Traefik e o serviço publicado) e o banco e a fila do n8n ficam numa rede interna própria.
+O `bootstrap-vps.sh preparar` cria todas, uma vez só; na mão seria:
+
+```
+for r in borda_api borda_web borda_atendimento borda_n8n borda_painel n8n_interno; do
+  docker network create --driver=overlay "$r"
+done
+```
+
+A `network_swarm_public` continua existindo: o Traefik fica nela também, para a volta
+(`bootstrap-vps.sh redes-voltar --confirmo`) e para stacks antigas que ainda a usem.
 
 ### 3. Criar os volumes
 

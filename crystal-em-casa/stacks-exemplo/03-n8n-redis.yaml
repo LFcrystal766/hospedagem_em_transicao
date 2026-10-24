@@ -38,8 +38,11 @@ services:
     # a um reinício do contêiner.
     command: redis-server --appendonly yes --port 6379
 
+    # Revisão de 24/10 (INF-06): só na rede interna do n8n. Antes ficava na rede pública,
+    # junto com o app, o Chatwoot e o Traefik; agora só o editor, o webhook e o worker do
+    # n8n o alcançam (pelo mesmo nome, n8n_redis).
     networks:
-      - network_swarm_public
+      - n8n_interno
 
     # A porta NÃO é publicada: o Redis só é alcançável de dentro da rede do
     # Docker. Nunca exponha um Redis à internet.
@@ -64,6 +67,8 @@ volumes:
     name: n8n_redis_data
 
 networks:
-  network_swarm_public:
+  # Criada pelo 'bootstrap-vps.sh preparar' (overlay, sem attachable). Externa porque o
+  # n8n está em cinco stacks (postgres, redis, editor, webhook, worker).
+  n8n_interno:
     external: true
-    name: network_swarm_public
+    name: n8n_interno

@@ -16,7 +16,8 @@
 #      X-Forwarded-For.
 #   2. O agente sai da rede pública para uma rede interna só do Portainer. Um
 #      contêiner comprometido (um nó Code do n8n, por exemplo) não alcança mais a
-#      porta 9001 dele.
+#      porta 9001 dele. Desde 24/10 (INF-06) a tela também sai da rede pública para a
+#      borda_painel, onde só está o Traefik: nem a porta 9000 fica ao alcance do n8n.
 #   3. Imagens presas no digest que já estava rodando (nada de :sts flutuante:
 #      um redeploy não atualiza o Portainer sem querer, e o banco dele não
 #      aceita voltar de versão).
@@ -55,7 +56,7 @@ services:
       - portainer_data:/data
     networks:
       - portainer_agentes
-      - network_swarm_public
+      - borda_painel
     deploy:
       mode: replicated
       replicas: 1
@@ -64,7 +65,7 @@ services:
           - node.role == manager
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=network_swarm_public"
+        - "traefik.docker.network=borda_painel"
         - "traefik.http.routers.portainer.rule=Host(`painel.crystalnowpp.com.br`)"
         - "traefik.http.routers.portainer.entrypoints=websecure"
         - "traefik.http.routers.portainer.tls.certresolver=letsencryptresolver"
@@ -79,9 +80,12 @@ services:
         - "traefik.http.services.portainer.loadbalancer.server.port=9000"
 
 networks:
-  network_swarm_public:
+  # Revisão de 24/10 (INF-06): borda só do painel (Traefik e Portainer). Na rede pública de
+  # antes, um contêiner comprometido (o n8n, por exemplo) chegava à tela de login pela porta
+  # 9000, por fora do Traefik e da lista de IPs. Criada pelo 'bootstrap-vps.sh preparar'.
+  borda_painel:
     external: true
-    name: network_swarm_public
+    name: borda_painel
   # Só o Portainer e o agente. internal: sem saída para a internet e sem
   # ninguém de fora da stack.
   portainer_agentes:

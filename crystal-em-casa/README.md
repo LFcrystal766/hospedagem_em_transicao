@@ -36,7 +36,8 @@ arquivos, guardadas em cofre. A chave nunca muda depois de o n8n estar em uso.
 - GitHub: repositório privado, imagem no `ghcr.io`, token `write:packages`,
   build com `--platform linux/amd64` (Mac gera ARM), tag por versão, nunca `latest`.
 - Traefik **v2** (não v3). Nomes que precisam bater: rede `network_swarm_public`,
-  entrada `websecure`, emissor `letsencryptresolver`.
+  entrada `websecure`, emissor `letsencryptresolver`. (Desde 24/10 cada stack nossa usa a
+  sua rede de borda, `borda_*`; o Traefik continua também na `network_swarm_public`.)
 - n8n 1.123.10+, modo fila, limpeza automática de execuções, heap do Node em
   ~75% do limite do contêiner.
 - Fase 1 termina com os 16 pontos de "Base pronta" verdadeiros; aí avisa a

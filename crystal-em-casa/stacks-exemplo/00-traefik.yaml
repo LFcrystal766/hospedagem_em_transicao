@@ -11,9 +11,12 @@
 # ORDEM DE INSTALAÇÃO
 #   Este é o PRIMEIRO serviço a subir. Nada mais funciona sem ele.
 #
-# ANTES DE SUBIR, criar a rede e os volumes (uma vez só, no manager):
+# ANTES DE SUBIR, criar as redes e os volumes (uma vez só, no manager):
 #   docker network create --driver=overlay network_swarm_public
 #   docker volume create volume_swarm_certificates
+#   As redes de borda (borda_api, borda_web, borda_atendimento, borda_n8n, borda_painel)
+#   e a n8n_interno são criadas pelo 'bash bootstrap-vps.sh preparar' (revisão de
+#   segurança de 24/10, INF-06). Na mão: docker network create --driver=overlay NOME
 #
 # O QUE VOCÊ PRECISA TROCAR NESTE ARQUIVO
 #   1. SEU_EMAIL_AQUI  ->  um e-mail seu, válido. O Let's Encrypt usa esse
@@ -52,8 +55,9 @@ services:
       # IMPORTANTE: só expõe serviços que pedirem explicitamente, com a
       # etiqueta "traefik.enable=true". Sem isso, tudo ficaria público.
       - "--providers.docker.exposedbydefault=false"
-      # Rede em que o Traefik procura os serviços. Precisa ser a mesma que as
-      # outras stacks usam.
+      # Rede padrão em que o Traefik procura os serviços. Cada serviço publicado diz a
+      # sua com a etiqueta traefik.docker.network=borda_... (INF-06); esta só vale para
+      # quem não disser (a stack da agência em ia.).
       - "--providers.docker.network=network_swarm_public"
 
       # --- Portas de entrada ------------------------------------------------
@@ -98,8 +102,24 @@ services:
       # certificados são emitidos de novo, sem intervenção.
       - "vol_certificates:/etc/traefik/letsencrypt"
 
+    # Redes separadas (revisão de segurança de 24/10, INF-06): uma rede de borda por stack,
+    # e o Traefik é o único que está em todas. Assim um serviço não alcança o de outra stack
+    # pulando o Traefik (o n8n não fala direto com a API nem com o Chatwoot), e o Traefik
+    # nunca está numa rede de banco (n8n_interno, app_interno, cw_interno ficam fora daqui).
+    #   borda_api          app_api              (api.)
+    #   borda_web          app_web              (app.)
+    #   borda_atendimento  cw_rails             (atendimento.)
+    #   borda_n8n          n8n editor e webhook (editor., webhook.)
+    #   borda_painel       Portainer            (painel.)
+    #   network_swarm_public  a rede de antes: fica para a volta (redes-voltar) e para a
+    #                      Crystal do WhatsApp da agência (ia.), enquanto ela existir.
     networks:
       - network_swarm_public
+      - borda_api
+      - borda_web
+      - borda_atendimento
+      - borda_n8n
+      - borda_painel
 
     ports:
       # "mode: host" preserva o IP real de quem acessa, o que importa para
@@ -137,3 +157,18 @@ networks:
   network_swarm_public:
     external: true
     name: network_swarm_public
+  borda_api:
+    external: true
+    name: borda_api
+  borda_web:
+    external: true
+    name: borda_web
+  borda_atendimento:
+    external: true
+    name: borda_atendimento
+  borda_n8n:
+    external: true
+    name: borda_n8n
+  borda_painel:
+    external: true
+    name: borda_painel

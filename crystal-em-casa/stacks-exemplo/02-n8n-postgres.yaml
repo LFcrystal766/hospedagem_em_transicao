@@ -16,6 +16,8 @@
 #
 # ANTES DE SUBIR, criar o volume (uma vez só, no manager):
 #   docker volume create n8n_postgres_data
+#   e a rede interna do n8n (o 'bootstrap-vps.sh preparar' cria):
+#   docker network create --driver=overlay n8n_interno
 #
 # ANTES DE SUBIR, marcar o nó que vai receber o n8n (uma vez só, no manager):
 #   docker node update --label-add app=n8n NOME_DO_NO
@@ -42,8 +44,11 @@ services:
     image: postgres:16
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
 
+    # Revisão de 24/10 (INF-06): só na rede interna do n8n. Antes ficava na rede pública,
+    # junto com o app, o Chatwoot e o Traefik; agora só o editor, o webhook e o worker do
+    # n8n o alcançam (pelo mesmo nome, n8n_postgres).
     networks:
-      - network_swarm_public
+      - n8n_interno
 
     entrypoint: docker-entrypoint.sh
     command:
@@ -90,6 +95,8 @@ volumes:
     name: n8n_postgres_data
 
 networks:
-  network_swarm_public:
+  # Criada pelo 'bootstrap-vps.sh preparar' (overlay, sem attachable). Externa porque o
+  # n8n está em cinco stacks (postgres, redis, editor, webhook, worker).
+  n8n_interno:
     external: true
-    name: network_swarm_public
+    name: n8n_interno

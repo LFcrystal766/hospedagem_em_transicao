@@ -14,10 +14,15 @@
 #   bash bootstrap-vps.sh traefik              sobe 00, espera ficar 1/1, mostra a versão no ar e, com o
 #                                              Chatwoot no ar, testa a trava do /super_admin (403 até com /../)
 #   bash bootstrap-vps.sh portainer            sobe 01
-#   bash bootstrap-vps.sh bancos               sobe 02 e 03
+#   bash bootstrap-vps.sh bancos               sobe 02 e 03 (se o n8n estiver na rede antiga, sobe 04 a 06 junto)
 #   bash bootstrap-vps.sh n8n                  sobe 04, 05 e 06
 #   bash bootstrap-vps.sh tudo                 os quatro acima, na ordem
 #   bash bootstrap-vps.sh status               serviços + HTTPS dos três nomes
+#   bash bootstrap-vps.sh redes-conferir       só leitura (24/10, INF-06): em que rede está cada serviço e a prova,
+#                                              de dentro dos contêineres, de que um vizinho não alcança o outro
+#   bash bootstrap-vps.sh redes-voltar --confirmo
+#                                              volta de uma vez: n8n, painel, app e Chatwoot de novo na rede única
+#                                              network_swarm_public (o Traefik fica em todas). redes-separar desfaz
 #   bash bootstrap-vps.sh segredos             mostra a senha do banco, a chave do n8n e a senha do
 #                                              Redis, pra copiar pro cofre (Bitwarden). Não colar em chat
 #   O Redis do n8n sobe COM senha (N8N_REDIS_SENHA, gerada no preparar; o original da agência não tem).
@@ -325,6 +330,7 @@ preparar() {
   [ -n "$email" ] || falha "informe o e-mail do Let's Encrypt: bash bootstrap-vps.sh preparar voce@exemplo.com"
   echo "$email" | grep -Eq '^[^@ ]+@[^@ ]+\.[^@ ]+$' || falha "e-mail inválido: $email"
   conferir_fundacao
+  redes_criar
   mkdir -p "$ORIG" "$STACKS"
   chmod 700 "$BASE" "$STACKS"
 
@@ -380,6 +386,7 @@ preparar() {
     if grep -nE 'SUBSTITUA|SEU_EMAIL|seudominio' "$STACKS/$a" | grep -vE '^\s*[0-9]+:\s*#' | grep -q .; then
       falha "$a ainda tem placeholder fora de comentário"
     fi
+    redes_ajustar "$STACKS/$a"   # só depois do redes-voltar: rede única
   done
   ok "${#ARQUIVOS[@]} arquivos prontos em $STACKS (chmod 600)"
   # O 01 acima saiu do original, aberto. Se o painel já estava restrito, refaz a trava.
@@ -528,7 +535,263 @@ deploy() { # deploy ARQUIVO STACK
   conferir_atualizacao "$t0" - $svcs || falha "a stack $2 não ficou de pé (log acima)"
 }
 
-traefik()   { conferir_fundacao; deploy 00-traefik.yaml traefik; traefik_conferir; }
+# ------------------------------------------------------------------ redes (INF-06)
+# Revisão de segurança de 24/10 (INF-06). Antes, tudo numa rede só, a network_swarm_public:
+# Traefik, Portainer, n8n (com o Postgres e o Redis dele), API, web e Chatwoot. Um contêiner
+# comprometido falava direto com qualquer outro, por fora do Traefik, e o banco do n8n (com as
+# credenciais cifradas) ficava ao alcance de todos. Agora:
+#   borda_api, borda_web, borda_atendimento, borda_n8n, borda_painel   uma borda por stack: só
+#       o Traefik e o que ele publica (no n8n, o editor e o webhook);
+#   n8n_interno   Postgres, Redis, editor, webhook e worker do n8n (externa: o n8n são 5 stacks);
+#   app_interno, cw_interno, portainer_agentes   internas de cada stack, como já eram.
+# O Traefik fica em todas as bordas e também na network_swarm_public (a da volta e a da
+# Crystal do WhatsApp da agência), e em nenhuma rede de banco. Os nomes que os apps usam
+# (app_postgres, app_redis, app_crystal, cw_postgres, cw_redis, n8n_postgres, n8n_redis) não
+# mudam: quem os usa está na mesma rede interna. API, Chatwoot e n8n só se falam pelos
+# endereços públicos (https://api., https://atendimento., https://webhook.), pelo Traefik.
+# Corte, uma stack por vez e conferindo cada uma: preparar, traefik, painel, bancos (que já
+# sobe o n8n), app-subir, atendimento-subir e redes-conferir. Volta: redes-voltar --confirmo.
+REDES_MODO_ARQ="$BASE/.redes"   # "unica" depois de redes-voltar: o que subir vai para a network_swarm_public
+REDES_EXTERNAS=(borda_api borda_web borda_atendimento borda_n8n borda_painel n8n_interno)
+
+redes_unica() { [ "$(cat "$REDES_MODO_ARQ" 2>/dev/null || true)" = unica ]; }
+
+# Cria as redes que faltam, uma vez só (idempotente). Sem --attachable: só serviço do Swarm
+# entra; um 'docker run --network' avulso não.
+redes_criar() {
+  local r d novas=()
+  for r in "${REDES_EXTERNAS[@]}"; do
+    if d=$(docker network inspect "$r" --format '{{.Driver}}/{{.Scope}}' 2>/dev/null); then
+      [ "$d" = "overlay/swarm" ] || falha "já existe uma rede $r que não é overlay do Swarm ($d): renomeie ou apague antes"
+      continue
+    fi
+    docker network create --driver overlay --label crystal.revisao=2026-10-24 "$r" >/dev/null || falha "não criou a rede $r"
+    novas+=("$r")
+  done
+  if [ ${#novas[@]} -eq 0 ]; then ok "redes separadas já existem (${REDES_EXTERNAS[*]})"
+  else ok "rede(s) criada(s): ${novas[*]}"; fi
+}
+
+# Redes de um serviço, pelo nome (o spec guarda o id), uma por linha. Nada se não existe.
+svc_redes() { # svc_redes SERVIÇO
+  local ids id
+  ids=$(docker service inspect "$1" --format '{{range .Spec.TaskTemplate.Networks}}{{.Target}} {{end}}' 2>/dev/null) || return 0
+  for id in $ids; do docker network inspect "$id" --format '{{.Name}}' 2>/dev/null || echo "$id"; done
+}
+svc_na_rede() { svc_redes "$1" | grep -qx "$2"; }   # svc_na_rede SERVIÇO REDE
+
+# Antes de pôr uma stack na borda nova, o Traefik tem de estar nela: senão o endereço sai do
+# ar (o Traefik não alcança o serviço). Depois do redes-voltar não confere (rede única).
+redes_exigir_traefik() { # redes_exigir_traefik REDE...
+  redes_unica && return 0
+  docker service inspect traefik_traefik >/dev/null 2>&1 || { aviso "Traefik não encontrado: sem ele nada responde"; return 0; }
+  local r faltam=()
+  for r in "$@"; do svc_na_rede traefik_traefik "$r" || faltam+=("$r"); done
+  [ ${#faltam[@]} -eq 0 ] && return 0
+  falha "o Traefik no ar ainda não está em ${faltam[*]}: subir agora tiraria esta stack do ar. Antes: bash $0 preparar EMAIL && bash $0 traefik"
+}
+
+# Depois do redes-voltar, cada arquivo gerado passa por aqui: as redes novas viram a
+# network_swarm_public de antes, sem item repetido (no n8n, borda_n8n e n8n_interno viram
+# uma só). Sem a marca não muda nada. O 00 (Traefik) não passa: ele fica em todas as redes,
+# e é isso que deixa cada stack voltar sozinha, sem tocar no Traefik.
+redes_ajustar() { # redes_ajustar ARQUIVO
+  redes_unica || return 0
+  case "$(basename "$1")" in 00-*) return 0 ;; esac
+  python3 - "$1" <<'PY' || falha "não ajustei as redes de $1 para a rede única"
+import re, sys
+NOVAS = re.compile(r"\b(borda_api|borda_web|borda_atendimento|borda_n8n|borda_painel|n8n_interno)\b")
+p = sys.argv[1]
+txt = open(p, encoding="utf-8").read()
+fim = "\n" if txt.endswith("\n") else ""
+saida, lista, vistos, topo, chaves, pular = [], None, set(), False, set(), False
+def recuo(l):
+    return len(l) - len(l.lstrip(" "))
+for l in txt[: len(txt) - len(fim)].split("\n"):
+    vazia = l.strip() == "" or l.lstrip().startswith("#")
+    if not vazia:
+        l = NOVAS.sub("network_swarm_public", l)
+    if topo and not vazia and recuo(l) == 0:
+        topo = False
+    if lista is not None and not vazia and recuo(l) <= lista:
+        lista = None
+    if re.match(r"^networks:\s*$", l):
+        topo, chaves, pular = True, set(), False
+        saida.append(l); continue
+    if topo:   # bloco networks: do fim do arquivo: chave repetida sai com as linhas dela
+        m = re.match(r"^  ([A-Za-z0-9_.-]+):\s*$", l)
+        if m:
+            pular = m.group(1) in chaves
+            chaves.add(m.group(1))
+        if pular and (m or (not vazia and recuo(l) > 2)):
+            continue
+        saida.append(l); continue
+    m = re.match(r"^( +)networks:\s*$", l)
+    if m:      # lista de redes de um serviço: item repetido sai
+        lista, vistos = len(m.group(1)), set()
+        saida.append(l); continue
+    if lista is not None:
+        m = re.match(r"^ +- *([A-Za-z0-9_.-]+)\s*$", l)
+        if m:
+            if m.group(1) in vistos:
+                continue
+            vistos.add(m.group(1))
+    saida.append(l)
+open(p, "w", encoding="utf-8").write("\n".join(saida) + fim)
+PY
+}
+
+# Conexão TCP de dentro de um contêiner com node (n8n, API, web, Crystal). 0 se conectou.
+tcp_de() { # tcp_de CID HOST PORTA
+  docker exec "$1" node -e 'const s=require("net").connect(Number(process.argv[2]),process.argv[1]);s.on("connect",()=>process.exit(0));s.on("error",()=>process.exit(1));setTimeout(()=>process.exit(1),4000)' "$2" "$3" >/dev/null 2>&1
+}
+# IP de um contêiner numa rede (pelo nome da rede). Vazio se não está nela.
+ip_na_rede() { # ip_na_rede CID REDE
+  docker inspect "$1" --format '{{range $n, $v := .NetworkSettings.Networks}}{{$n}}={{$v.IPAddress}} {{end}}' 2>/dev/null \
+    | tr ' ' '\n' | sed -n "s/^$2=//p" | head -1
+}
+cid_de() { docker ps -q -f "name=$1" 2>/dev/null | head -1; }   # cid_de SERVIÇO
+
+# Só leitura: em que rede está cada serviço, comparado com o desenho, e a prova de que um
+# vizinho não alcança o outro (tentativas de conexão de 4 s, por IP, de dentro dos contêineres).
+redes_conferir() {
+  local modo=separadas s linhas="" falhou=0
+  redes_unica && modo=unica
+  echo "== redes dos serviços (INF-06; modo: $modo)"
+  [ "$modo" = unica ] && aviso "modo de volta ($REDES_MODO_ARQ): tudo na network_swarm_public. Para separar de novo: bash $0 redes-separar"
+  while read -r s; do
+    [ -n "$s" ] && linhas+="$s $(svc_redes "$s" | paste -sd, -)"$'\n'
+  done < <(docker service ls --format '{{.Name}}' 2>/dev/null)
+  printf '%s' "$linhas" | python3 -c '
+import sys
+modo = sys.argv[1]
+BORDAS = {"borda_api", "borda_web", "borda_atendimento", "borda_n8n", "borda_painel"}
+INTERNAS = {"n8n_interno", "crystal_app_app_interno", "crystal_atendimento_cw_interno", "portainer_portainer_agentes"}
+E = {
+  "portainer_portainer": {"borda_painel", "portainer_portainer_agentes"},
+  "portainer_agent": {"portainer_portainer_agentes"},
+  "n8n_postgres_n8n_postgres": {"n8n_interno"}, "n8n_redis_n8n_redis": {"n8n_interno"},
+  "n8n_editor_n8n_editor": {"borda_n8n", "n8n_interno"}, "n8n_webhook_n8n_webhook": {"borda_n8n", "n8n_interno"},
+  "n8n_worker_n8n_worker": {"n8n_interno"}, "n8n_mcp_n8n_mcp": {"borda_n8n", "n8n_interno"},
+  "crystal_app_app_api": {"crystal_app_app_interno", "borda_api"}, "crystal_app_app_web": {"borda_web"},
+  "crystal_app_app_crystal": {"crystal_app_app_interno"}, "crystal_app_app_postgres": {"crystal_app_app_interno"},
+  "crystal_app_app_redis": {"crystal_app_app_interno"},
+  "crystal_atendimento_cw_rails": {"crystal_atendimento_cw_interno", "borda_atendimento"},
+  "crystal_atendimento_cw_sidekiq": {"crystal_atendimento_cw_interno"},
+  "crystal_atendimento_cw_postgres": {"crystal_atendimento_cw_interno"},
+  "crystal_atendimento_cw_redis": {"crystal_atendimento_cw_interno"},
+}
+def unica(c):
+    return {"network_swarm_public" if r in BORDAS or r == "n8n_interno" else r for r in c}
+ruim = 0
+for linha in sys.stdin:
+    if not linha.strip():
+        continue
+    nome, _, r = linha.strip().partition(" ")
+    tem = {x for x in r.split(",") if x}
+    msg = ""
+    if nome == "traefik_traefik":
+        precisa = {"network_swarm_public"} | (set() if modo == "unica" else BORDAS)
+        if not precisa <= tem:
+            msg = "faltam " + ", ".join(sorted(precisa - tem))
+        if tem & INTERNAS:
+            msg += (" e " if msg else "") + "está em rede de banco: " + ", ".join(sorted(tem & INTERNAS))
+    elif nome in E:
+        quer = unica(E[nome]) if modo == "unica" else E[nome]
+        if tem != quer:
+            msg = "esperado " + ", ".join(sorted(quer))
+    elif "network_swarm_public" in tem and modo != "unica":
+        print(f"  ! {nome}: {r} (fora do desenho, na rede pública com o Traefik; a Crystal do WhatsApp da agência, enquanto existir)")
+        continue
+    if msg:
+        ruim = 1
+        print(f"  !! {nome}: {r} ({msg})")
+    else:
+        print(f"  ok {nome}: {r}")
+sys.exit(ruim)
+' "$modo" || falhou=1
+  [ "$modo" = unica ] && { [ "$falhou" = 0 ] || aviso "algum serviço fora do desenho (acima)"; return 0; }
+
+  echo "== vizinhos que NÃO podem se alcançar (por IP, de dentro dos contêineres)"
+  local -A C=()
+  local de alvo rede porta ip
+  C[n8n]=$(cid_de n8n_editor_n8n_editor); C[crystal]=$(cid_de "${APP_STACK}_app_crystal")
+  C[web]=$(cid_de "${APP_STACK}_app_web"); C[api]=$(cid_de "${APP_STACK}_app_api")
+  C[chatwoot]=$(cid_de "${CW_STACK}_cw_rails"); C[portainer]=$(cid_de portainer_portainer)
+  C[pg_n8n]=$(cid_de n8n_postgres_n8n_postgres); C[pg_app]=$(cid_de "${APP_STACK}_app_postgres")
+  # "origem destino rede porta": a origem tenta o IP que o destino tem naquela rede.
+  while read -r de alvo rede porta; do
+    [ -n "${C[$de]}" ] && [ -n "${C[$alvo]}" ] || continue
+    ip=$(ip_na_rede "${C[$alvo]}" "$rede"); [ -n "$ip" ] || continue
+    if tcp_de "${C[$de]}" "$ip" "$porta"; then
+      falhou=1; echo "  !! $de alcança $alvo ($rede, porta $porta)"
+    else
+      ok "$de não alcança $alvo ($rede, porta $porta)"
+    fi
+  done <<'PARES'
+n8n api borda_api 3001
+n8n api crystal_app_app_interno 3001
+n8n pg_app crystal_app_app_interno 5432
+n8n chatwoot borda_atendimento 3000
+n8n portainer borda_painel 9000
+crystal pg_n8n n8n_interno 5432
+crystal chatwoot borda_atendimento 3000
+web api borda_api 3001
+web pg_app crystal_app_app_interno 5432
+PARES
+  echo "== vizinhos que PRECISAM se alcançar (pelos nomes de sempre)"
+  while read -r de alvo porta; do
+    [ -n "${C[$de]}" ] || continue
+    if tcp_de "${C[$de]}" "$alvo" "$porta"; then ok "$de -> $alvo:$porta"
+    else falhou=1; echo "  !! $de NÃO alcança $alvo:$porta (o serviço caiu? a rede interna mudou?)"; fi
+  done <<'PARES'
+n8n n8n_postgres 5432
+n8n n8n_redis 6379
+api app_postgres 5432
+api app_redis 6379
+api app_crystal 8080
+PARES
+  if [ "$falhou" = 0 ]; then ok "redes como o desenho"
+  else aviso "há diferença (acima). No meio do corte é o esperado: siga o roteiro. Algo quebrou depois dele? Volta de tudo: bash $0 redes-voltar --confirmo"; fi
+  return 0
+}
+
+# Volta de tudo de uma vez: grava a marca e sobe n8n, painel, app e Chatwoot de novo na
+# network_swarm_public (com a mesma tag do app). O Traefik fica como está, em todas as redes.
+redes_voltar() {
+  [ "${2:-}" = --confirmo ] || falha "isto devolve n8n, painel, app e Chatwoot à rede única de antes (network_swarm_public), uma stack por vez; o Traefik fica como está. Se for isso: bash $0 redes-voltar --confirmo"
+  docker network inspect network_swarm_public >/dev/null 2>&1 || falha "a rede network_swarm_public não existe: a volta precisa dela"
+  svc_na_rede traefik_traefik network_swarm_public || falha "o Traefik não está na network_swarm_public: nada foi mudado"
+  mkdir -p "$BASE"; umask 077; echo unica > "$REDES_MODO_ARQ"; chmod 600 "$REDES_MODO_ARQ"
+  ok "marca gravada em $REDES_MODO_ARQ: o que subir daqui em diante vai para a network_swarm_public"
+  local a
+  for a in 01-portainer.yaml 02-n8n-postgres.yaml 03-n8n-redis.yaml 04-n8n-editor.yaml 05-n8n-webhook.yaml 06-n8n-worker.yaml; do
+    if [ -f "$STACKS/$a" ]; then redes_ajustar "$STACKS/$a"; fi
+  done
+  if docker service inspect n8n_postgres_n8n_postgres >/dev/null 2>&1; then bancos; fi   # bancos já sobe o n8n junto
+  if docker service inspect portainer_portainer >/dev/null 2>&1; then
+    if [ -s "$PAINEL_IPS_ARQ" ]; then painel_gerar || falha "não regravei o painel restrito (acima)"; fi
+    portainer
+  fi
+  if docker service inspect "${APP_STACK}_app_api" >/dev/null 2>&1; then app_subir app-subir "$(app_tag_atual)"; fi
+  if docker service inspect "${CW_STACK}_cw_rails" >/dev/null 2>&1; then atendimento_subir; fi
+  echo
+  redes_conferir
+}
+
+redes_separar() {
+  if ! redes_unica; then ok "as redes já estão separadas (não há $REDES_MODO_ARQ)"; return 0; fi
+  rm -f "$REDES_MODO_ARQ"
+  ok "marca da volta apagada. Para separar de novo, um passo por vez, conferindo cada um:"
+  echo "  bash $0 preparar EMAIL      (regrava os arquivos com as redes separadas)"
+  echo "  bash $0 painel-restringir IP...   (ou: bash $0 portainer)"
+  echo "  bash $0 bancos              (já sobe o n8n junto)"
+  echo "  bash $0 app-subir $(app_tag_atual)"
+  echo "  bash $0 atendimento-subir"
+  echo "  bash $0 redes-conferir"
+}
+
+traefik()   { conferir_fundacao; redes_criar; deploy 00-traefik.yaml traefik; traefik_conferir; }
 # Depois de subir o Traefik: a versão que ficou no ar e, com o Chatwoot no ar, a prova de
 # que a trava da área de administração pega também com /../ e %2e%2e (INF-01, 24/10).
 traefik_conferir() {
@@ -543,6 +806,7 @@ traefik_conferir() {
   admin_trava_conferir
 }
 portainer() {
+  redes_exigir_traefik borda_painel
   # Com lista de IPs, nunca sobe o painel aberto (achado 34).
   if [ -s "$PAINEL_IPS_ARQ" ] && ! grep -q 'ipallowlist.sourcerange=' "$STACKS/01-portainer.yaml" 2>/dev/null; then
     falha "o painel. é restrito ($PAINEL_IPS_ARQ) e $STACKS/01-portainer.yaml está sem a lista. Rode: bash $0 painel-restringir $(paste -sd' ' "$PAINEL_IPS_ARQ")"
@@ -550,8 +814,27 @@ portainer() {
   deploy 01-portainer.yaml portainer
   [ -s "$PAINEL_IPS_ARQ" ] || echo "  Abra https://painel.$DOMINIO AGORA e crie o admin: o Portainer tranca a criação se demorar"
 }
-bancos()    { deploy 02-n8n-postgres.yaml n8n_postgres; deploy 03-n8n-redis.yaml n8n_redis; }
-n8n()       { deploy 04-n8n-editor.yaml n8n_editor; deploy 05-n8n-webhook.yaml n8n_webhook; deploy 06-n8n-worker.yaml n8n_worker; }
+# Rede do banco e da fila do n8n: n8n_interno; na volta (redes-voltar), a network_swarm_public.
+n8n_rede_banco() { if redes_unica; then echo network_swarm_public; else echo n8n_interno; fi; }
+bancos() {
+  local rede; rede=$(n8n_rede_banco)
+  deploy 02-n8n-postgres.yaml n8n_postgres; deploy 03-n8n-redis.yaml n8n_redis
+  # Banco e fila acabaram de mudar de rede (corte do INF-06 ou volta): o editor, o webhook e o
+  # worker ficam sem banco até subirem na mesma rede. Sobe os três já: a parada do n8n dura só
+  # a troca (1 a 2 minutos; a Assiny reenvia webhook que falhou).
+  if docker service inspect n8n_editor_n8n_editor >/dev/null 2>&1 && ! svc_na_rede n8n_editor_n8n_editor "$rede"; then
+    echo "  o n8n ainda está na rede antiga e acabou de perder o banco: subindo editor, webhook e worker agora"
+    n8n
+  fi
+}
+n8n() {
+  local rede; rede=$(n8n_rede_banco)
+  redes_exigir_traefik borda_n8n
+  if docker service inspect n8n_postgres_n8n_postgres >/dev/null 2>&1 && ! svc_na_rede n8n_postgres_n8n_postgres "$rede"; then
+    falha "o Postgres do n8n ainda não está na $rede: o n8n subiria sem banco. Rode: bash $0 bancos (ele já sobe o n8n junto)"
+  fi
+  deploy 04-n8n-editor.yaml n8n_editor; deploy 05-n8n-webhook.yaml n8n_webhook; deploy 06-n8n-worker.yaml n8n_worker
+}
 tudo()      { traefik; portainer; bancos; n8n; echo; status; }
 
 # ------------------------------------------------------------------ backup
@@ -1253,6 +1536,7 @@ painel_gerar() { # grava $STACKS/01-portainer.yaml restrito, a partir do modelo 
   sed -e "s|PAINEL_IPS|$ips|g" -e "s|PORTAINER_IMG|$pimg|g" -e "s|AGENT_IMG|$aimg|g" \
     "$ORIG/$PAINEL_YAML" > "$STACKS/01-portainer.yaml"
   chmod 600 "$STACKS/01-portainer.yaml"
+  redes_ajustar "$STACKS/01-portainer.yaml"
   if grep -nE 'PAINEL_IPS|PORTAINER_IMG|AGENT_IMG' "$STACKS/01-portainer.yaml" | grep -vE '^\s*[0-9]+:\s*#' | grep -q .; then
     aviso "marcador sobrando em $STACKS/01-portainer.yaml"; return 1
   fi
@@ -1279,6 +1563,7 @@ painel_restringir() {
   printf '%s\n' "$lista" > "$PAINEL_IPS_ARQ.novo"
   mv "$PAINEL_IPS_ARQ.novo" "$PAINEL_IPS_ARQ"
   painel_gerar || exit 2
+  redes_exigir_traefik borda_painel
   echo "== portainer (o painel fica fora do ar por uns segundos)"
   local t0; t0=$(date +%s)
   docker stack deploy -c "$STACKS/01-portainer.yaml" portainer --detach=true >/dev/null
@@ -1308,6 +1593,13 @@ painel_conferir() {
       aviso "o n8n ainda alcança o agente do Portainer (porta 9001)"
     else
       ok "o n8n não alcança mais o agente do Portainer"
+    fi
+    # Desde 24/10 (INF-06) a tela do Portainer está na borda_painel: o n8n também não chega à
+    # porta 9000 (por fora do Traefik e da lista de IPs).
+    if ! redes_unica && tcp_de "$cid" portainer 9000; then
+      aviso "o n8n alcança a tela do Portainer (porta 9000) por fora do Traefik: bash $0 redes-conferir"
+    elif ! redes_unica; then
+      ok "o n8n não alcança a tela do Portainer (9000)"
     fi
   fi
   echo "  Agora, de um IP liberado: abra https://painel.$DOMINIO, entre, e confira que o ambiente"
@@ -1381,6 +1673,9 @@ status() {
   copia_cron_conferir
   painel_trava_conferir || true
   portas_docker_conferir
+  if redes_unica; then aviso "redes: modo de volta, tudo na network_swarm_public (bash $0 redes-separar desfaz)"
+  elif svc_na_rede traefik_traefik borda_api; then ok "redes separadas por stack (detalhe e prova: bash $0 redes-conferir)"
+  else aviso "redes: ainda a rede única de antes; corte do INF-06 por fazer (README, revisão de 24/10)"; fi
   echo
   echo "== Últimas linhas do Traefik sobre certificado (o log vai pra arquivo dentro do contêiner)"
   local cid; cid=$(docker ps -q -f name=traefik_traefik | head -1)
@@ -1943,6 +2238,9 @@ app_subir() {
   [ "$(docker info --format '{{.Swarm.ControlAvailable}}')" = "true" ] || falha "este nó não é manager do Swarm"
   docker network inspect network_swarm_public >/dev/null 2>&1 || falha "rede network_swarm_public não existe"
   docker service ls --format '{{.Name}}' | grep -q '^traefik_traefik$' || aviso "Traefik não encontrado: sem ele app. e api. não respondem"
+  # INF-06: a API e o web vão para borda_api e borda_web; o Traefik tem de estar nelas antes.
+  redes_unica || redes_criar
+  redes_exigir_traefik borda_api borda_web
 
   echo "== imagens $tag"
   local img locais=0
@@ -1970,6 +2268,7 @@ app_subir() {
   umask 077
   sed -e "s|APP_TAG|$tag|g" -e "s|APP_ENV_DIR|$APP_DIR|g" "$ORIG/$APP_YAML" > "$STACKS/$APP_YAML"
   grep -nE 'APP_TAG|APP_ENV_DIR' "$STACKS/$APP_YAML" | grep -vE '^\s*[0-9]+:\s*#' | grep -q . && falha "marcador sobrando em $APP_YAML"
+  redes_ajustar "$STACKS/$APP_YAML"
   app_uploads_dono   # a API sem root (etapa 1) precisa do volume com dono 1000:1000
   local t0; t0=$(date +%s)
   docker stack deploy --with-registry-auth -c "$STACKS/$APP_YAML" "$APP_STACK" --detach=true >/dev/null
@@ -3309,6 +3608,9 @@ atendimento_subir() {
   [ "$(docker info --format '{{.Swarm.ControlAvailable}}')" = "true" ] || falha "este nó não é manager do Swarm"
   docker network inspect network_swarm_public >/dev/null 2>&1 || falha "rede network_swarm_public não existe"
   docker service ls --format '{{.Name}}' | grep -q '^traefik_traefik$' || aviso "Traefik não encontrado: sem ele $CW_HOST não responde"
+  # INF-06: o Rails vai para a borda_atendimento; o Traefik tem de estar nela antes.
+  redes_unica || redes_criar
+  redes_exigir_traefik borda_atendimento
   local ip ips
   ip=$(getent ahostsv4 "$CW_HOST" 2>/dev/null | awk 'NR==1{print $1}' || true)
   [ -n "$ip" ] || falha "$CW_HOST ainda não existe no DNS. Crie no Cloudflare: tipo A, nome atendimento, IP desta VPS, nuvem CINZA (Somente DNS)"
@@ -3334,6 +3636,7 @@ atendimento_subir() {
   umask 077
   sed -e "s|CW_VERSAO|$CW_VERSAO|g" -e "s|CW_ENV_DIR|$CW_DIR|g" -e "s|CW_IPS_ADMIN|$ips|g" "$ORIG/$CW_YAML" > "$STACKS/$CW_YAML"
   grep -nE 'CW_VERSAO|CW_ENV_DIR|CW_IPS_ADMIN' "$STACKS/$CW_YAML" | grep -vE '^\s*[0-9]+:\s*#' | grep -q . && falha "marcador sobrando em $CW_YAML"
+  redes_ajustar "$STACKS/$CW_YAML"
   local t0; t0=$(date +%s)
   docker stack deploy -c "$STACKS/$CW_YAML" "$CW_STACK" --detach=true >/dev/null
   sleep 8
@@ -3801,6 +4104,9 @@ case "$CMD" in
   seguranca) seguranca ;;
   ssh-confirmar) ssh_confirmar ;;
   ssh-voltar) ssh_voltar ;;
+  redes-conferir) redes_conferir ;;
+  redes-voltar) redes_voltar "$@" ;;
+  redes-separar) redes_separar ;;
   painel-restringir) shift; painel_restringir "$@" ;;
   painel-desligar) painel_desligar ;;
   painel-ligar) painel_ligar ;;
