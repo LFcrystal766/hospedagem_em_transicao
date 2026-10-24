@@ -893,6 +893,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     (`fcd89559ee3f7775c745523c8a6ee91d87289f16`): retenção do n8n 48 h/5000, `IMAGENS_WEBHOOK_SECRET` no `app-definir`
     (régua do reembolso + tem de ser diferente dele), `n8n-compras.segredos` em todo backup só cifrado, READMEs.
     **Bootstrap final: sha256 `5fcf4673c051567c5dac7d289a2efdbd203b828a257c0b63a201d160f0e9dee2`, `STACKS_COMMIT=8d7379f`**
-    (ancestral; `arquivos-hash` "nenhum arquivo mudou"). **App final: `sha-3c343df`** (CI verde; imagem pelo
-    `imagens-vps`). Volta do app: `sha-088d07d` (produção). CLAUDE.md atualizado. Falta só a mensagem única ao dono
-    (tags, sha256, roteiro de uma madrugada, SQL, ações dele) e o CONTINUAR em anexo.
+    (ancestral; `arquivos-hash` "nenhum arquivo mudou"). **App final: `sha-3c343df`** (CI verde; **imagem PRONTA** ~13:40 UTC). Volta do app: `sha-088d07d` (produção). CLAUDE.md atualizado. Mensagem única ao dono enviada em 24/10 ~13:45 UTC
+    (tags, sha256, roteiro de uma madrugada, SQL, ações dele). **Daqui em diante é o dono quem age**; próxima sessão:
+    acompanhar a publicação (`app-subir sha-3c343df`), a madrugada da VPS e a troca do fluxo do n8n, e responder ao que
+    o suporte perguntar (seção 5 do `00-resumo.md`).
