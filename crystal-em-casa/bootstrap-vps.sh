@@ -995,6 +995,46 @@ BACKUPS="$BASE/backups"
 FORA_CONF="$BASE/.backup-fora"            # conta, bucket e chave do R2 (chmod 600)
 FORA_DEST="$BASE/.backup-destinatario"    # chave PÚBLICA do age; a privada fica só no Bitwarden
 FORA_PREFIXO=vps-crystal
+# Revisão de 24/10 (INF-18): a chave PÚBLICA que cifra os backups mora na VPS, e quem mandar na
+# VPS poderia trocá-la por uma dele: os backups seguiriam subindo, cifrados para o atacante, e o
+# backup-conferir passaria. Defesas: (1) com a pública aqui (é pública, pode ir para o
+# repositório: o 'age1...' que o status mostra e que está no Bitwarden), o backup se recusa a
+# cifrar para outra; (2) o status, o backup-conferir e a vigia (todo dia 1º, ao meio-dia UTC)
+# mostram o fim da chave para comparar com o Bitwarden; (3) a cada 3 meses a vigia lembra o
+# teste de restauração (backup-link e abrir no Mac). Vazio: só (2) e (3).
+FORA_DEST_ESPERADO=""
+
+# "age1...XXXXXXXX" (os 8 últimos), para comparar com o Bitwarden sem copiar a chave inteira.
+backup_destinatario_resumo() {
+  local d; d=$(cat "$FORA_DEST" 2>/dev/null || true)
+  [ -n "$d" ] && printf 'age1...%s' "${d: -8}"
+}
+# 0 se a chave pública da VPS é a esperada (ou não há esperada); 1, com aviso, se divergir.
+backup_destinatario_conferir() {
+  [ -n "$FORA_DEST_ESPERADO" ] || return 0
+  [ "$(cat "$FORA_DEST" 2>/dev/null || true)" = "$FORA_DEST_ESPERADO" ] && return 0
+  aviso "a chave pública dos backups na VPS ($(backup_destinatario_resumo)) NÃO é a esperada (age1...${FORA_DEST_ESPERADO: -8}): alguém trocou $FORA_DEST? Nada é cifrado para ela"
+  return 1
+}
+
+# Revisão de 24/10 (INF-19): os dumps (.sql.gz) e as cópias de pastas (.tar.gz) ficavam 14 dias
+# em claro na VPS. Agora cada backup cifra, com a chave pública, os das rodadas anteriores (mais
+# de 20 h): em claro fica só o da última rodada, para uma volta rápida. Abrir um .age pede a
+# chave privada do Bitwarden, que nunca fica na VPS (README, "Backup fora da VPS").
+backup_cifrar_locais() { # backup_cifrar_locais PASTA
+  local f n=0 falhou=0 dest
+  if [ ! -s "$FORA_DEST" ] || ! command -v age >/dev/null; then
+    aviso "backups antigos seguem em claro na VPS: falta a chave dos backups (bash $0 backup-chave)"; return 0
+  fi
+  backup_destinatario_conferir || return 1
+  dest=$(cat "$FORA_DEST")
+  while IFS= read -r -d '' f; do
+    if devagar age -r "$dest" -o "$f.age.tmp" "$f" && mv -f "$f.age.tmp" "$f.age" && rm -f "$f"; then n=$((n+1))
+    else rm -f "$f.age.tmp"; falhou=1; fi
+  done < <(find "$1" -maxdepth 1 -type f \( -name '*.sql.gz' -o -name '*.tar.gz' \) -mmin +1200 -print0 2>/dev/null)
+  [ "$n" = 0 ] || ok "$n backup(s) de rodadas anteriores cifrados na VPS (.age)"
+  [ "$falhou" = 0 ] || { aviso "algum backup antigo não foi cifrado (fica em claro até a próxima rodada)"; return 1; }
+}
 VOLUMES="${DOCKER_VOLUMES:-/var/lib/docker/volumes}"   # trocável só para teste
 
 # pg_dump de um banco para ARQ.gz. Falha (e apaga o arquivo) se o pg_dump falhar ou
@@ -1056,6 +1096,7 @@ backup() {
   mkdir -p "$dir"; chmod 700 "$dir"
   umask 077
   ts=$(date -u +%Y%m%dT%H%M%SZ)
+  backup_cifrar_locais "$dir" || falhas+=("VPS: backup antigo não cifrado (ou chave pública trocada)")
   if [ "$completo" = 1 ]; then echo "== backup $ts (completo: bancos, fotos e anexos)"
   else echo "== backup $ts (só os bancos; fotos e anexos vão no cron das 03:30. Para incluir agora: bash $0 backup --completo)"; fi
   # Cada parte é independente (achado 22): a que falha fica registrada e as outras
@@ -1112,9 +1153,10 @@ backup() {
     fi
   fi
   find "$dir" -maxdepth 1 \( -name 'n8n_queue-*' -o -name 'crystal_web_chat-*' -o -name 'crystal_agente-*' -o -name 'crystal_uploads-*' \
-    -o -name 'chatwoot-*' -o -name 'chatwoot_storage-*' \) -mtime +14 -delete || true
-  echo "  $(find "$dir" -maxdepth 1 -name '*.gz' | wc -l) arquivo(s) na VPS (14 dias)"
+    -o -name 'chatwoot-*' -o -name 'chatwoot_storage-*' \) -mtime +14 -delete || true   # pega também os .age
+  echo "  $(find "$dir" -maxdepth 1 \( -name '*.gz' -o -name '*.gz.age' \) | wc -l) arquivo(s) na VPS (14 dias; em claro só a última rodada)"
   echo "  Restaurar banco: gunzip -c ARQ | docker exec -i CID psql -U USUÁRIO -d BANCO"
+  echo "    (.age: read -rsp 'chave: ' k; printf '%s\\n' \"\$k\" | age -d -i - ARQ.age | gunzip | docker exec -i CID psql ...; k=)"
   echo "  Restaurar pasta: tar -xzf ...-completo.tar.gz --listed-incremental=/dev/null -C DESTINO, depois o -diferencial mais novo"
 
   if [ -s "$FORA_CONF" ] && [ -s "$FORA_DEST" ]; then
@@ -1182,7 +1224,7 @@ horas_desde() { # horas_desde ARQUIVO_COM_DATA
   local t=""
   [ -s "$1" ] && t=$(date -d "$(cat "$1")" +%s 2>/dev/null || true)
   if [ -z "$t" ] && [ "$1" = "$BACKUPS/.backup-ultimo" ]; then
-    t=$(find "$BACKUPS" -maxdepth 1 -name '*.gz' -printf '%T@\n' 2>/dev/null | sort -n | tail -1 | cut -d. -f1 || true)
+    t=$(find "$BACKUPS" -maxdepth 1 \( -name '*.gz' -o -name '*.gz.age' \) -printf '%T@\n' 2>/dev/null | sort -n | tail -1 | cut -d. -f1 || true)
   fi
   if [ -n "$t" ]; then echo $(( ($(date +%s) - t) / 3600 )); else echo nunca; fi
 }
@@ -1239,6 +1281,7 @@ backup_fora() { # backup_fora ARQUIVO... cifra e envia; volta 1 se algum não su
   command -v age >/dev/null || { aviso "age não instalado: bash $0 backup-chave"; return 1; }
   fora_ler_conf
   local dest a obj tmp erros=0
+  backup_destinatario_conferir || return 1
   dest=$(cat "$FORA_DEST")
   echo "== fora da VPS (R2, bucket $R2_BUCKET)"
   for a in "$@"; do
@@ -1288,6 +1331,9 @@ backup_chave() {
       umask 077; echo "$pub" > "$FORA_DEST"; chmod 600 "$FORA_DEST"
       priv=""
       ok "chave pública gravada em $FORA_DEST; a privada só no Bitwarden"
+      echo "  Guarde também a PÚBLICA no mesmo item do Bitwarden (é ela que o status mostra, $(backup_destinatario_resumo)):"
+      echo "  $pub"
+      echo "  Para a VPS se recusar a cifrar para outra (INF-18): FORA_DEST_ESPERADO=\"$pub\" no topo do script (é pública)."
       echo "Próximo: bash $0 backup-fora-config"
       return 0
     fi
@@ -1426,6 +1472,11 @@ backup_testar_trava() {
 backup_conferir() {
   fora_ler_conf
   local xml code
+  if [ -s "$FORA_DEST" ]; then
+    if backup_destinatario_conferir; then
+      ok "chave pública dos backups: $(backup_destinatario_resumo) (compare com o Bitwarden$([ -n "$FORA_DEST_ESPERADO" ] && echo '; igual à esperada do script'))"
+    fi
+  fi
   xml=$(mktemp)
   code=$(fora_curl -o "$xml" -w '%{http_code}' "$R2_URL?list-type=2&prefix=$FORA_PREFIXO") || code=000
   if [ "$code" != 200 ]; then aviso "listagem do R2 respondeu $code: $(head -c 300 "$xml")"; rm -f "$xml"; exit 1; fi
@@ -1818,6 +1869,9 @@ status() {
     if [ "$h" -lt 26 ]; then ok "último backup no R2 há ${h} h"; else aviso "último backup no R2 há ${h} h: ver $BACKUPS/backup.log"; fi
   else
     aviso "backup fora da VPS não configurado (backup-chave, backup-fora-config)"
+  fi
+  if [ -s "$FORA_DEST" ] && backup_destinatario_conferir; then
+    ok "chave pública dos backups: $(backup_destinatario_resumo) (compare com o Bitwarden)"
   fi
   copia_cron_conferir
   painel_trava_conferir || true
@@ -3626,6 +3680,17 @@ vigia() {
   if [ -s "$FORA_CONF" ] || [ -s "$BACKUPS/.fora-ultimo" ]; then
     h=$(horas_desde "$BACKUPS/.fora-ultimo")
     if [ "$h" = nunca ] || [ "$h" -ge 26 ]; then problemas+=("última cópia no R2: há ${h} h"); fi
+  fi
+  # Chave pública dos backups (INF-18): com a esperada no script, divergir é alerta; e uma vez
+  # por mês (dia 1º, 12:00 UTC) a vigia manda o fim dela para o dono comparar com o Bitwarden,
+  # e a cada 3 meses lembra o teste de restauração.
+  if [ -s "$FORA_DEST" ]; then
+    backup_destinatario_conferir >/dev/null || problemas+=("chave pública dos backups na VPS ($(backup_destinatario_resumo)) diferente da esperada: os backups não sobem")
+    if [ "$(date -u +%d%H)" = 0112 ] && [ $((10#$(date -u +%M))) -lt 5 ]; then
+      local tri=""
+      case "$(date -u +%m)" in 01|04|07|10) tri=$'\n'"Este mês também: teste de restauração (bash bootstrap-vps.sh backup-link crystal_web_chat e abrir no Mac com a chave do Bitwarden; README, Backup fora da VPS)." ;; esac
+      vigia_telegram "🔑 Conferência mensal: a chave pública dos backups na VPS termina em $(backup_destinatario_resumo). Compare com o item 'Crystal backup age' do Bitwarden; se não bater, os backups novos não abrem com a sua chave.$tri" || true
+    fi
   fi
   uso=$(df -P /var/lib/docker 2>/dev/null | awk 'NR==2{gsub("%","",$5); print $5}' || true)
   if printf '%s' "$uso" | grep -Eq '^[0-9]+$' && [ "$uso" -ge 85 ]; then
