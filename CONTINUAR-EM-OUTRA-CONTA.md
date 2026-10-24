@@ -721,3 +721,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Etiqueta para publicar: **`sha-fe6dbd7`** (= 0c47d56 + exceção do audit). CI 40030743969 e imagens-vps 40030742909
     **CI verde (gate, audit, e2e) e imagem pronta.** Publicar: `backup` + `app-subir sha-fe6dbd7` + `crystal-conferir` + `app-painel-conferir`; volta
     `app-subir sha-088d07d` (mas essa deixa o Laboratório vazar) ou `sha-2c6e864`.
+
+48. **24/10: dono confirmou que o superadmin funcionou.** Pediu **revisão geral de segurança** com agentes tentando
+    invadir a Crystal e achar vulnerabilidades, para barrar tudo. Em andamento: 5 revisores (Fable 5.1) só de leitura
+    sobre `fe6dbd7`, cada um com um teste local (vitest, modelo simulado; nunca contra produção) e um relatório em
+    `auditorias/2026-10-24/seguranca/`: 01 autenticação/sessões, 02 autorização/dados/LGPD, 03 serviço da Crystal
+    (trava, injeção, imagens, memória, custo), 04 webhooks/integrações/n8n/Supabase, 05 infra/deploy/supply chain.
+    Depois: consolidar, corrigir críticos e altos, CI, imagem, publicar.
