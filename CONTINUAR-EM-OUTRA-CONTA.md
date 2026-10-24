@@ -792,3 +792,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     **Dono pediu (24/10): corrigir TODOS os pontos** (altos, médios e baixos). Onda 1 em andamento: app (A–G) e infra
     (7 itens). Onda 2 depois: o resto dos médios e baixos dos 5 relatórios, n8n (confirmação na Assiny, dados pessoais
     nas execuções, credenciais), zod 4, actions do app por SHA, fast-uri.
+    **Infra (onda 1) pronta e juntada: merge `b4d33ed`** (branch `seguranca/infra-2026-10-24`, 7 commits): Traefik
+    v2.11.60 + `sanitizePath` + `/monitoring` e `/platform` do Chatwoot só dos IPs (teste de 6 variações de caminho no
+    `traefik`); n8n com `N8N_BLOCK_ENV_ACCESS_IN_NODE`, `NODES_EXCLUDE`, pacotes da comunidade off, `NODE_FUNCTION_ALLOW_BUILTIN=crypto`;
+    stacks e fluxo do n8n baixados por commit fixo (`STACKS_COMMIT=1013183…`) + tabela sha256 (comando `arquivos-hash`;
+    **merge sempre com merge commit, nunca squash**); actions de `ci/build-image.yml` por SHA; `app-db-papel` (papel
+    `crystal_api` dono do banco; simula sem flag, `--confirmo`, `--voltar`; TESTAR PRIMEIRO); `seguranca` trava SSH só
+    por chave quando há chave de root, com desfazer automático em 10 min sem `ssh-confirmar` (`ssh-voltar` desfaz).
+    Docker secrets no lugar de env_file: adiado (sem docker aqui para testar), documentado. Bootstrap no merge:
+    sha256 `53eb057f840cd018b2a8f0ed52a911d9d80f6ee5c2f542c29913c3130927a1ea`. Roteiro em README › "Revisão de
+    segurança de 24/10". **Atenção:** o dono usa o terminal do navegador da Hostinger (login de 169.254.0.1): não rodar a
+    trava de SSH sem chave própria testada.
