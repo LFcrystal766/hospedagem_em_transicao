@@ -751,9 +751,43 @@ api app_postgres 5432
 api app_redis 6379
 api app_crystal 8080
 PARES
+  app_ip_conferir || falhou=1
   if [ "$falhou" = 0 ]; then ok "redes como o desenho"
   else aviso "há diferença (acima). No meio do corte é o esperado: siga o roteiro. Algo quebrou depois dele? Volta de tudo: bash $0 redes-voltar --confirmo"; fi
   return 0
+}
+
+# O IP que a API registra (e usa no limite de tentativas) não pode ser escolhido por quem
+# chama: um X-Forwarded-For forjado, de fora (pelo Traefik) ou de um vizinho de rede (direto
+# na API), não pode aparecer no log. Usa rotas que não existem (404) para não mexer em nada.
+app_ip_conferir() {
+  local api cid_crystal n linha visto falhou=0 tp
+  api=$(cid_de "${APP_STACK}_app_api"); [ -n "$api" ] || return 0
+  tp=$(docker exec "$api" sh -c 'printf %s "$TRUST_PROXY"' 2>/dev/null || true)
+  echo "== IP do cliente que a API registra (TRUST_PROXY=${tp:-?})"
+  n="$(date +%s)$$"
+  curl -s -o /dev/null -m 15 -H 'X-Forwarded-For: 198.51.100.77' "https://api.$DOMINIO/xff-teste-$n" || true
+  cid_crystal=$(cid_de "${APP_STACK}_app_crystal")
+  if [ -n "$cid_crystal" ]; then
+    docker exec "$cid_crystal" node -e 'fetch("http://app_api:3001/xff-direto-"+process.argv[1],{headers:{"x-forwarded-for":"198.51.100.88"},signal:AbortSignal.timeout(8000)}).then(()=>{},()=>{})' "$n" >/dev/null 2>&1 || true
+  fi
+  sleep 3
+  for linha in "xff-teste-$n de fora, pelo Traefik" "xff-direto-$n da Crystal, direto na API"; do
+    visto=$(docker service logs --since 3m --raw "${APP_STACK}_app_api" 2>/dev/null | grep -F "/${linha%% *}" | grep -oE '"remoteAddress":"[^"]*"' | head -1 | cut -d'"' -f4 || true)
+    if [ -z "$visto" ]; then
+      [ -n "$cid_crystal" ] || [ "${linha#*direto}" = "$linha" ] || continue
+      aviso "não achei no log da API o pedido ${linha#* } (log em outro nível?)"; continue
+    fi
+    case "$visto" in
+      198.51.100.*) falhou=1; echo "  !! ${linha#* }: a API registrou o IP FORJADO ($visto)" ;;
+      *) if python3 -c 'import ipaddress,sys; sys.exit(0 if ipaddress.ip_address(sys.argv[1]) in ipaddress.ip_network(sys.argv[2], strict=False) else 1)' "$visto" "$tp" 2>/dev/null; then
+           falhou=1; echo "  !! ${linha#* }: a API registrou o IP do próprio Traefik ($visto): todo mundo dividiria o mesmo limite"
+         else
+           ok "${linha#* }: a API registrou $visto, não o forjado"
+         fi ;;
+    esac
+  done
+  return "$falhou"
 }
 
 # Volta de tudo de uma vez: grava a marca e sobe n8n, painel, app e Chatwoot de novo na
@@ -2045,8 +2079,21 @@ app_gerar_segredos() { # app_gerar_segredos TAG
   chmod 600 "$APP_SEG"
 }
 
+# Em quem a API confia para ler o IP do cliente no X-Forwarded-For (limite de tentativas por
+# IP, auditoria). Com as redes separadas (INF-06): a faixa da borda_api, onde só o Traefik
+# está; o Traefik apaga o X-Forwarded-For que vem de fora e escreve o IP real. Antes era "1"
+# (o primeiro salto, fosse quem fosse): um vizinho de rede falando direto com a API (a Crystal,
+# um contêiner comprometido) escolhia o IP registrado. Na volta (rede única), ou sem a rede,
+# fica "1", como era.
+app_trust_proxy() {
+  local sub
+  redes_unica && { echo 1; return 0; }
+  sub=$(docker network inspect borda_api --format '{{range .IPAM.Config}}{{.Subnet}} {{end}}' 2>/dev/null | awk '{print $1}' || true)
+  if printf '%s' "$sub" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}/(1[6-9]|2[0-9])$'; then echo "$sub"; else echo 1; fi
+}
+
 app_gerar_env() {
-  local senha mock=0 k dburl
+  local senha mock=0 k dburl tp
   senha=$(app_valor "$APP_SEG" APP_DB_SENHA)
   [ -n "$senha" ] || falha "APP_DB_SENHA ausente em $APP_SEG"
   # Papel da API no Postgres (INF-07): crystal_api, sem superusuário, depois do
@@ -2082,6 +2129,7 @@ app_gerar_env() {
   for k in $chaves; do
     [ -n "$(app_valor "$APP_EXT" $k)" ] || mock=1
   done
+  tp=$(app_trust_proxy)
   umask 077
   {
     echo "POSTGRES_DB=crystal_web_chat"
@@ -2094,8 +2142,9 @@ app_gerar_env() {
     echo "NODE_ENV=production"
     echo "HOST=0.0.0.0"
     echo "PORT=3001"
-    # Traefik publica 80/443 em modo host e acrescenta o IP real no X-Forwarded-For.
-    echo "TRUST_PROXY=1"
+    # Traefik publica 80/443 em modo host, apaga o X-Forwarded-For de fora e escreve o IP real.
+    # A API confia nele só vindo da borda_api (app_trust_proxy, INF-06).
+    echo "TRUST_PROXY=$tp"
     echo "WEB_ORIGIN=https://app.$DOMINIO"
     echo "DATABASE_URL=$dburl"
     echo "REDIS_URL=redis://app_redis:6379"
@@ -2130,6 +2179,8 @@ app_gerar_env() {
   } > "$APP_DIR/web.env"
   chmod 600 "$APP_DIR/postgres.env" "$APP_DIR/api.env" "$APP_DIR/crystal.env" "$APP_DIR/web.env"
   unset senha dburl
+  if [ "$tp" != 1 ]; then ok "API lê o IP do cliente só do Traefik (TRUST_PROXY=$tp, a borda_api)"
+  elif ! redes_unica; then aviso "não li a faixa da borda_api: TRUST_PROXY=1, como era (bash $0 redes-conferir)"; fi
   if [ "$(cat "$APP_DB_PAPEL_ARQ" 2>/dev/null || true)" = crystal_api ]; then
     ok "API no Postgres como crystal_api (sem superusuário)"
   fi

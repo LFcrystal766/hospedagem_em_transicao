@@ -72,6 +72,18 @@ services:
       # escrito aqui para não depender do padrão). Exige v2.11.24 ou mais nova: numa versão
       # anterior o Traefik não sobe com esta opção.
       - "--entrypoints.websecure.http.sanitizePath=true"
+      # IP de quem acessa (revisão de 24/10, INF-06; CVE-2024-45410 já corrigida na v2.11.60).
+      # O Traefik recebe a internet direto (portas em modo host, sem balanceador na frente; app.,
+      # api., atendimento., editor., webhook. e painel. ficam com a nuvem CINZA). Então não
+      # confia em X-Forwarded-* de ninguém: apaga o que vier do cliente e escreve o IP real da
+      # conexão. É o padrão; fica escrito para ninguém trocar sem pensar. Sem proxyProtocol pelo
+      # mesmo motivo. A API, do outro lado, só confia no X-Forwarded-For que vem da borda_api,
+      # onde só o Traefik está (TRUST_PROXY, gravado pelo bootstrap-vps.sh no api.env).
+      # Se um dia esses nomes ficarem LARANJA no Cloudflare: aqui entram só as faixas dele
+      # (https://www.cloudflare.com/ips/) em forwardedHeaders.trustedIPs, nos dois entrypoints,
+      # e o TRUST_PROXY passa a incluí-las. Nunca forwardedHeaders.insecure=true.
+      - "--entrypoints.web.forwardedHeaders.insecure=false"
+      - "--entrypoints.websecure.forwardedHeaders.insecure=false"
 
       # --- Certificados HTTPS -----------------------------------------------
       # O nome "letsencryptresolver" é referenciado pelas outras stacks.
