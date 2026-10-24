@@ -145,6 +145,13 @@ services:
         do n=$$((n+1)); [ $$n -ge 12 ] && exit 1; echo "migração: app_postgres ainda não aceita ($$n/12), de novo em 5 s"; sleep 5; done;
         exec pnpm --filter @crystal/api start
     env_file: APP_ENV_DIR/api.env
+    # Revisão de 24/10 (INF-15): nenhuma capability (roda como node, porta 3001; o
+    # 'docker exec -u 0' do bootstrap grava em /app/apps/api, que é do root, sem precisar
+    # delas). Sistema de arquivos só de leitura AINDA NÃO: o bootstrap grava scripts
+    # temporários em /app/apps/api (app-admin, app-aluno...) e o pnpm/corepack do start não
+    # foi ensaiado sem escrita. Fica para quando o app tiver um 'dist' e um comando próprio.
+    cap_drop:
+      - ALL
     networks:
       - app_interno
       - borda_api
@@ -191,6 +198,18 @@ services:
     image: ghcr.io/lfcrystal766/crystal-web-chat-crystal:APP_TAG
     logging: *logs
     env_file: APP_ENV_DIR/crystal.env
+    # Revisão de 24/10 (INF-15): a Crystal processa saída de modelo, então é a que mais ganha
+    # com isto. Sistema de arquivos só de leitura (ela só lê o código, o prompt e a base; o
+    # tsx guarda o que compila em /tmp, que é tmpfs) e nenhuma capability (roda como node,
+    # porta 8080). Se não subir assim: touch /root/crystal/.sem-somente-leitura e app-subir.
+    read_only: true
+    cap_drop:
+      - ALL
+    volumes:
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 67108864
     networks:
       - app_interno
     healthcheck:
@@ -217,6 +236,11 @@ services:
     logging: *logs
     # Só ANDROID_CERT_SHA256 e APPLE_TEAM_ID (públicos, para o /.well-known).
     env_file: APP_ENV_DIR/web.env
+    # Revisão de 24/10 (INF-15): nenhuma capability (roda como nextjs, porta 3000). Só
+    # leitura ainda não: o Next grava cache de imagem e de página em .next/ (e talvez em
+    # .next/server); falta ensaiar com um tmpfs no lugar certo antes de travar.
+    cap_drop:
+      - ALL
     environment:
       - NODE_ENV=production
       - HOSTNAME=0.0.0.0

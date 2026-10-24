@@ -387,6 +387,7 @@ preparar() {
       falha "$a ainda tem placeholder fora de comentário"
     fi
     redes_ajustar "$STACKS/$a"   # só depois do redes-voltar: rede única
+    somente_leitura_ajustar "$STACKS/$a"
   done
   ok "${#ARQUIVOS[@]} arquivos prontos em $STACKS (chmod 600)"
   # O 01 acima saiu do original, aberto. Se o painel já estava restrito, refaz a trava.
@@ -639,6 +640,16 @@ for l in txt[: len(txt) - len(fim)].split("\n"):
     saida.append(l)
 open(p, "w", encoding="utf-8").write("\n".join(saida) + fim)
 PY
+}
+
+# Escape do sistema de arquivos só de leitura (INF-15, 24/10): o Traefik e a Crystal sobem com
+# read_only: true. Se um deles não subir assim numa versão nova, 'touch $BASE/.sem-somente-leitura'
+# e preparar/traefik ou app-subir de novo: o arquivo gerado sai sem a trava, com aviso.
+somente_leitura_ajustar() { # somente_leitura_ajustar ARQUIVO
+  [ -f "$BASE/.sem-somente-leitura" ] || return 0
+  grep -qE '^ *read_only: true *$' "$1" || return 0
+  sed -i -E '/^ *read_only: true *$/d' "$1"
+  aviso "$(basename "$1") sem read_only ($BASE/.sem-somente-leitura existe): apague o arquivo assim que der"
 }
 
 # Conexão TCP de dentro de um contêiner com node (n8n, API, web, Crystal). 0 se conectou.
@@ -2382,6 +2393,7 @@ app_subir() {
       -e "s|APP_TAG|$tag|g" -e "s|APP_ENV_DIR|$APP_DIR|g" "$ORIG/$APP_YAML" > "$STACKS/$APP_YAML"
   grep -nE 'APP_TAG|APP_ENV_DIR' "$STACKS/$APP_YAML" | grep -vE '^\s*[0-9]+:\s*#' | grep -q . && falha "marcador sobrando em $APP_YAML"
   redes_ajustar "$STACKS/$APP_YAML"
+  somente_leitura_ajustar "$STACKS/$APP_YAML"
   app_uploads_dono   # a API sem root (etapa 1) precisa do volume com dono 1000:1000
   local t0; t0=$(date +%s)
   docker stack deploy --with-registry-auth -c "$STACKS/$APP_YAML" "$APP_STACK" --detach=true >/dev/null
