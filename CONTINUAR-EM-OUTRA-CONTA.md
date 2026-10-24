@@ -750,3 +750,17 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     resposta emendada com as 2–3 últimas falas da Crystal e barrar cópia curta (7+ palavras); tratar descrição da
     imagem, importado e resumo como dado (detector de ataque + marcadores antes de usar/guardar, escapar "Crystal:/Aluno:",
     rótulo com sufixo aleatório); semântica falha-fechada ou pelo menos registrar. Aguardando 04 e 05.
+    **04 integrações (pronto):** 1 alta (+1 "alta se confirmado"), 6 médias, 7 baixas, 4 info; 10 testes em
+    `seguranca-webhooks.test.ts`. Alta INT-06: o n8n confia no corpo da Assiny protegido só por token fixo no cabeçalho:
+    com o token, `approved_purchase` forjado libera qualquer e-mail e `refunded_purchase` forjado bloqueia qualquer aluno;
+    correção: confirmar a transação na API da Assiny antes de liberar/bloquear. Médias: um segredo só para reembolso e
+    crédito de imagens, sem data (replay eterno, dedup 30 dias: aluno religado é desligado de novo pelo reenvio); n8n
+    responde 200 antes de chamar a API, sem reconciliação; crédito de imagens em ordem invertida; service_role e chave do
+    Resend no n8n; CPF/e-mail 14 dias nas execuções do n8n.
+    **INT-14 CONFIRMADO por mim no Supabase (24/10):** todas as `leticia_crystal_*` têm RLS, mas com política
+    `authenticated_select USING (true)` em customers (nome, e-mail, CPF, telefone), chat_histories (conversas do WhatsApp),
+    subscriptions, purchases, lead_memories etc.: **qualquer usuário autenticado do Supabase Auth lê tudo**. Hoje há só
+    2 usuários no Auth (último login 03/10, provedor e-mail). Risco depende de "sign-ups" estar ligado em Authentication.
+    `anon` não tem política de leitura (bloqueado), só `anon_insert` em `leticia_crystal_webhooks_assiny` (lixo possível).
+    Correção: dropar as políticas `authenticated_select` (o app usa só service_role) e revogar os grants de anon/
+    authenticated nessas tabelas; desligar sign-ups no Auth. Precisa do dono rodar no SQL Editor (DDL).
