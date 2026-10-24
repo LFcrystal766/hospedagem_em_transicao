@@ -739,3 +739,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     e-mail pelo suporte sem reauth). Médios: enumeração de alunos pelas respostas do login; refresh sem rotação e 90 dias
     deslizantes; 20 e-mails de código por vítima/15 min; `LOGIN_CODIGO=nenhum` ligável no painel. B5/B11 da consultoria
     já corrigidos em `fe6dbd7`. Aguardando 03, 04, 05.
+    **03 Crystal (pronto):** 0 críticos, **3 altos**, 5 médios, 7 baixos; 29 testes em `seguranca-crystal.test.ts`.
+    Pega hoje: cópia em qualquer formatação, letra a letra, invisíveis, base64/hex/ROT13, invertido, leet, paráfrase PT,
+    títulos/tags, marcadores, rótulos; entrada PT/EN/ES. Passa (altos): letras parecidas (cirílico/fullwidth/matemáticas,
+    NFD não desfaz); regra fatiada em ≤8 palavras por resposta (trava sem memória entre turnos); instrução escondida na
+    imagem vai ao modelo como texto do aluno e fica 20 msgs na memória. Médios: WhatsApp importado/resumo envenenado sem
+    conferência; codificações raras (hex com separador, base32, entidades HTML, URL-encoding, decimal, Morse, ordem de
+    palavras invertida); tradução só pela camada semântica, que é falha-aberta (timeout/erro = passa); base/memória
+    podem fingir o rótulo "Contexto interno: fim". Correções: NFKD + mapa de confusáveis (saída e entrada); conferir a
+    resposta emendada com as 2–3 últimas falas da Crystal e barrar cópia curta (7+ palavras); tratar descrição da
+    imagem, importado e resumo como dado (detector de ataque + marcadores antes de usar/guardar, escapar "Crystal:/Aluno:",
+    rótulo com sufixo aleatório); semântica falha-fechada ou pelo menos registrar. Aguardando 04 e 05.
