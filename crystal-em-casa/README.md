@@ -244,9 +244,13 @@ não resolve o agente.
 
 ### Revisão de segurança de 24/10: o que rodar na VPS
 
-Relatório: `auditorias/2026-10-24/seguranca/05-infra.md`. Na VPS, como root, de
-madrugada (o Traefik some por alguns segundos na troca), com o `bootstrap-vps.sh`
-baixado do commit novo e conferido pelo sha256, um comando por vez:
+Relatório: `auditorias/2026-10-24/seguranca/05-infra.md`. **Se a onda 1 ainda não foi rodada
+na VPS, não rode este bloco: vá direto ao roteiro da onda 2, logo abaixo**, que já inclui os
+itens 1 e 2 daqui (Traefik v2.11.60 no passo 3, Chatwoot no 7, n8n no 5) e evita derrubar
+cada serviço duas vezes na mesma noite. Só o item 4 (`app-db-papel`) fica para outra noite,
+como já estava. Na VPS, como root, de madrugada (o Traefik some por alguns segundos na
+troca), com o `bootstrap-vps.sh` baixado do commit novo e conferido pelo sha256, um comando
+por vez:
 
 ```bash
 bash bootstrap-vps.sh backup                       # bancos, antes de tudo
@@ -345,11 +349,15 @@ O que muda, em palavras simples:
   na VPS; a vigia manda todo mês o fim da chave pública dos backups para comparar com o
   Bitwarden.
 
-Quando: na janela 02:00–05:00 BRT, time avisado, vigia ligada. Cada passo tira um pedaço do
-ar por segundos (o passo 1 tira tudo por 1 a 2 minutos; o 5 tira o n8n por 1 a 2 minutos; a
-Assiny reenvia webhook que falhou). Na VPS, como root, com o `bootstrap-vps.sh` baixado do
-commit novo (o do topo da branch depois de juntar) e conferido pelo sha256. Um comando por
-vez; só passe para o próximo com a conferência do anterior limpa.
+Quando: na janela 02:00–05:00 BRT, time avisado, vigia ligada. Este roteiro já inclui a
+onda 1 (Traefik v2.11.60, trava do Chatwoot, n8n sem Execute Command): não rode o bloco
+anterior antes dele. Cada passo tira um pedaço do ar por segundos (o passo 1, opcional, tira
+tudo por 1 a 2 minutos; o 5 tira o n8n por 1 a 3 minutos; o 6 tira a API por 1 a 2 minutos;
+o 7 tira o Chatwoot por 1 a 2 minutos; a Assiny reenvia webhook que falhou). Obrigatórios
+para o corte das redes: 2, 3, 5, 6 e 7 (o 4 também, se o painel estiver no ar). Sem queda
+nenhuma: 0, 2 e 8. Na VPS, como root, com o `bootstrap-vps.sh` baixado do commit novo (o do
+topo da branch depois de juntar) e conferido pelo sha256. Um comando por vez; só passe para
+o próximo com a conferência do anterior limpa. Volta de cada passo logo abaixo dele.
 
 ```bash
 # 0. Antes de tudo: backup dos bancos e anotar a tag do app que está no ar
@@ -357,8 +365,10 @@ bash bootstrap-vps.sh backup
 bash bootstrap-vps.sh app-status                  # anote a tag (sha-XXXXXXX): ela vai no passo 6
 bash bootstrap-vps.sh status                      # tudo 1/1 antes de começar
 
-# 1. Docker com no-new-privileges e rotação de log padrão (INF-28). TUDO cai por 1 a 2 min.
-bash bootstrap-vps.sh docker-daemon               # só mostra o que muda
+# 1. OPCIONAL (pode ficar para outra noite): Docker com no-new-privileges e rotação de log
+#    padrão (INF-28). É o único passo que reinicia o Docker: TUDO cai por 1 a 2 min. As stacks
+#    já têm rotação própria; o ganho aqui é o no-new-privileges. Se fizer, faça primeiro.
+bash bootstrap-vps.sh docker-daemon               # só mostra o que muda (termina com "ERRO: de madrugada...": é só o aviso)
 bash bootstrap-vps.sh docker-daemon --confirmo
 #    Conferir: "NoNewPrivs: 1" e, em 2 min, 'bash bootstrap-vps.sh status' com tudo 1/1.
 #    Volta: cp "$(ls -t /etc/docker/daemon.json.antes-* | head -1)" /etc/docker/daemon.json && systemctl restart docker
@@ -369,20 +379,26 @@ bash bootstrap-vps.sh preparar "$(grep -o 'acme.email=[^"]*' /root/crystal/stack
 
 # 3. Traefik em todas as bordas, pelo proxy do docker.sock, só de leitura
 bash bootstrap-vps.sh traefik
-#    Conferir: "Traefik lendo as rotas", "Traefik no ar: traefik:v2.11.60" e "403 nas 6 variações".
+#    Conferir: "Traefik lendo as rotas" e "Traefik no ar: traefik:v2.11.60". Ainda NÃO espere
+#    "403 nas 6 variações": o Chatwoot no ar tem a regra antiga (só /super_admin), então aqui
+#    aparecem 2 avisos, de /monitoring/sidekiq e /platform/api/v1/users; eles somem no passo 7.
+#    O que importa agora: /super_admin, /x/../super_admin e /x/%2e%2e/super_admin em 403.
 #    Depois: bash bootstrap-vps.sh app-status && bash bootstrap-vps.sh atendimento-status
 #    Volta: sozinha se nenhuma rota responder em 2 min; à mão: docker service rollback traefik_traefik
 
 # 4. Painel na borda_painel
-bash bootstrap-vps.sh painel-restringir $(paste -sd' ' /root/crystal/.painel-ips)   # sem lista: bash bootstrap-vps.sh portainer
+bash bootstrap-vps.sh painel-restringir $(paste -sd' ' /root/crystal/.painel-ips)
+#    Se a resposta for só a lista (ou "painel. está aberto para qualquer IP"), nada subiu:
+#    rode então 'bash bootstrap-vps.sh portainer' (painel aberto, mas já na borda_painel).
 #    Conferir: 403 vindo da VPS, "o n8n não alcança a tela do Portainer (9000)" e, de um IP
 #    liberado, o painel abre com o ambiente primary "up".
 #    Volta: docker service rollback portainer_portainer && docker service rollback portainer_agent
 
 # 5. n8n: banco e fila na n8n_interno; o bancos sobe editor, webhook e worker logo em seguida
 bash bootstrap-vps.sh bancos
-#    Conferir: bash bootstrap-vps.sh status (editor. e webhook. respondem) e, no editor,
-#    Executions sem erro na primeira hora (a próxima compra da Assiny passa).
+#    O n8n fica sem banco do começo ao fim deste passo (1 a 3 min); o comando de volta aparece
+#    na tela antes de ele mexer. Conferir: bash bootstrap-vps.sh status (editor. e webhook.
+#    respondem) e, no editor, Executions sem erro na primeira hora (a próxima compra passa).
 #    Volta: for s in postgres redis editor webhook worker; do docker service rollback n8n_${s}_n8n_${s}; done
 
 # 6. App: API e web nas bordas, Redis com senha, Crystal só de leitura, imagens no digest
@@ -400,8 +416,14 @@ bash bootstrap-vps.sh atendimento-subir
 
 # 8. Prova final e arremates
 bash bootstrap-vps.sh redes-conferir              # tudo "ok"; nenhum "!!"
-bash bootstrap-vps.sh seguranca                   # grupo docker vazio, docker.sock 660, token do ghcr
+bash bootstrap-vps.sh seguranca --sem-ssh         # grupo docker vazio, docker.sock 660, token do ghcr; o SSH fica como está
 bash bootstrap-vps.sh backup-cron                 # regrava o cron do backup com PATH fixo
+#    O --sem-ssh é de propósito: quem entra pelo terminal do navegador da Hostinger, sem chave
+#    própria, não troca o SSH para "só chave" no meio da madrugada (se já houver uma chave de
+#    root de outra pessoa em /root/.ssh/authorized_keys, o 'seguranca' sem a opção trava e
+#    espera 10 min por uma confirmação de outra janela). A trava do SSH (INF-11) fica para
+#    quando a sua chave estiver num aparelho seu: aí 'bash bootstrap-vps.sh seguranca' e, de
+#    OUTRA janela que entrou, 'ssh-confirmar' (como descrito em "Proteção da VPS").
 ```
 
 **Volta de tudo de uma vez** (algo parou de conversar e não dá para achar o quê na hora):
@@ -412,9 +434,12 @@ Traefik fica como está, em todas as redes, e é por isso que cada stack volta s
 Redis com senha, versões fixas, HSTS e o resto ficam. Para separar de novo depois de
 corrigir: `bash bootstrap-vps.sh redes-separar` (mostra os passos 2 a 8 de novo).
 
-Se a Crystal ou o Traefik não subirem por causa do sistema de arquivos só de leitura:
-`touch /root/crystal/.sem-somente-leitura` e o passo de novo (o arquivo sai sem a trava, com
-aviso). Apagar o arquivo assim que a causa for corrigida.
+Se a Crystal ou o Traefik não subirem por causa do sistema de arquivos só de leitura (o
+Swarm desfaz a troca sozinho e o passo termina com ERRO): `touch
+/root/crystal/.sem-somente-leitura` e, para a Crystal, `app-subir` com a mesma tag de novo;
+para o Traefik, `preparar` (a mesma linha do passo 2, que regrava o arquivo sem a trava) e
+depois `traefik`. O arquivo sai sem o `read_only`, com aviso. Apagar
+`.sem-somente-leitura` assim que a causa for corrigida.
 
 **O que conferir depois** (na manhã seguinte, de um aparelho):
 
