@@ -832,3 +832,32 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     actions por SHA, pnpm), n8n (INT-06 confirmação na Assiny, 200 só depois da API, dados pessoais, credenciais;
     branch `seguranca/n8n-assiny`, worktree `/home/user/hosp-n8n`), revisão da infra onda 2. Vigia do CI/imagem de
     `d5126c0` em segundo plano. Lembrete automático às 05:59 UTC.
+    **CI de `d5126c0` VERMELHO só no e2e** (33 testes: `loginAs` da equipe ainda entrava pela porta do aluno, fechada na
+    onda 1). Imagem `sha-d5126c0` construída, mas NÃO publicar: usar a tag final da onda 2. Gate e audit verdes.
+    **App onda 2 PRONTA (24/10 ~08:00 UTC): `27c89c8`** (6 commits sobre d5126c0; relatório completo em
+    `scratchpad/onda2-app-handback.md` desta sessão). Fechou: A1 (login do aluno sem oráculo: resposta igual para
+    desconhecido/equipe/desligada/fora do lote, motivo real vai por e-mail à própria caixa; consentimento depois do
+    código), A5 (rotação do refresh com tolerância 60 s, equipe 14 d deslizantes, teto 180 d; migração aditiva
+    `pa23_01_sessoes_rotacao_refresh`; ninguém derrubado), A7 (teto de códigos por e-mail 6/h, 10/dia), A8
+    (`op_login_codigo` só "email"; "nenhum" só por variável), A10, A11 (scrypt 2^17), A12/02-A7 (papel, status e senha de
+    outro só com código; superadmin só por superadmin), 02-A3 (técnico não vê e-mail na ficha nem nos tickets; busca de
+    Mensagens só por nome), A4 (cópia LGPD sem notas do financeiro), A5, A6, A8, A9 (link de fora só admin + código),
+    A10 (`STUDENT_LIST_PAGES_PER_DAY`), C-06 (decodifica hex/base32/entidades/URL/decimal/Morse e ordem invertida),
+    C-09 a C-15, INT-04, INT-09 (refresh reconsulta a base 1×/dia), INT-11, INT-12 (parcial), INF-08 (fastify 5.12.7,
+    fast-uri, audit moderado no CI e no imagens-vps), INF-09 (actions por SHA + Dependabot), INF-10 (pnpm 10.34.7,
+    quarentena 7 d, só prisma/esbuild/sharp rodam install script), INF-14 (node:22.22.2-alpine), INF-24, INF-16 (**zod 4**
+    em shared/api/crystal; `ignoreGhsas` vazio; tarefa #59 feita). e2e consertado (equipe entra por `/login/equipe`).
+    Não feitos (com motivo no relatório): A13 (operação), C-04 (histórico do ensaio sem detector), C-07 (calibração
+    precisa de dados reais), INT-01 (HMAC + timestamp exige mudar o n8n junto), INT-13, INT-18 (externo), INF-16
+    (Dockerfile em estágios), INF-17 (atestado). Variáveis novas, todas opcionais com padrão: `REFRESH_TTL_EQUIPE_S`,
+    `REFRESH_MAX_S`, `REFRESH_TOLERANCIA_S`, `OTP_ENVIOS_EMAIL_HORA/_DIA`, `WEBHOOK_CRYSTAL_ENABLED`,
+    `REFUND_PREBLOCK_DIA`, `REFUND_WEBHOOK_IP_MAX_MIN`, `STUDENT_LIST_PAGES_PER_DAY`, `NOTICE_LINK_HOSTS`. Testes: shared
+    340, api 1742, web 1096, crystal 701; e2e 86 passed; audit sem vulnerabilidades. **Volta de código: `sha-d5126c0`**
+    (a migração é aditiva: 2 colunas nulas + índice em `sessions`).
+    **CI de `27c89c8` VERMELHO por 1 teste intermitente** (`staff-alunos-cadastro.test.ts`: conferia que o JSON da conversa
+    não contém "c-1"; um UUID aleatório continha). Corrigido por mim em **`46c471a`** (confere os campos
+    `channelSourceId`/`channelConversationId`); 38 testes do arquivo verdes; CI rodando. Imagem só depois do CI verde.
+    **Contêiner desta sessão reiniciou (~06:00–12:30 UTC):** o agente do n8n e o revisor da infra morreram antes de
+    mudar arquivo (worktrees limpos); relançados às 12:30 UTC com pushes por tema. Supabase conferido (só leitura):
+    `app_compra_evento` AINDA é a versão antiga (dono não rodou `app_compras_bloqueio_restrito.sql`).
+    Lembrete automático às 14:03 UTC.
