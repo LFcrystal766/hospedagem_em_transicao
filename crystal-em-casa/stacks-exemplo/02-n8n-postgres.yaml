@@ -44,6 +44,14 @@ services:
     image: postgres:16
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
 
+    # Revisão de 24/10 (INF-28): log do Docker com rotação, 3 arquivos de 10 MB. Antes, sem
+    # limite (o json-file crescia até encher o disco).
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     # Revisão de 24/10 (INF-06): só na rede interna do n8n. Antes ficava na rede pública,
     # junto com o app, o Chatwoot e o Traefik; agora só o editor, o webhook e o worker do
     # n8n o alcançam (pelo mesmo nome, n8n_postgres).
@@ -76,6 +84,15 @@ services:
       - POSTGRES_INITDB_ARGS="--auth-host=scram-sha-256"
       # O banco é criado sozinho na primeira subida, se o volume estiver vazio.
       - POSTGRES_DB=n8n_queue
+
+    # Revisão de 24/10: teste de saúde (antes não havia): o Swarm só conta o banco como de pé
+    # quando ele aceita conexão.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d n8n_queue"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
     deploy:
       mode: replicated

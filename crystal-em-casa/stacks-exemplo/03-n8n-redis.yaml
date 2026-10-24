@@ -34,6 +34,14 @@ services:
     image: redis:7
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
 
+    # Revisão de 24/10 (INF-28): log do Docker com rotação, 3 arquivos de 10 MB. Antes, sem
+    # limite (o json-file crescia até encher o disco).
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     # appendonly yes = grava cada alteração em disco, para que a fila sobreviva
     # a um reinício do contêiner.
     command: redis-server --appendonly yes --port 6379
@@ -49,6 +57,16 @@ services:
 
     volumes:
       - n8n_redis_data:/data
+
+    # Revisão de 24/10: teste de saúde (antes não havia). A senha (--requirepass, posta pelo
+    # bootstrap) não fica no ambiente; sem ela o Redis responde NOAUTH, o que já prova que
+    # está de pé e atendendo.
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping 2>&1 | grep -qE 'PONG|NOAUTH'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
     deploy:
       mode: replicated

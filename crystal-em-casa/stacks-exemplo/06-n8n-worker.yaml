@@ -41,6 +41,14 @@ services:
     image: n8nio/n8n:1.123.10
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
 
+    # Revisão de 24/10 (INF-28): log do Docker com rotação, 3 arquivos de 10 MB. Antes, sem
+    # limite (o json-file crescia até encher o disco).
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     # A concorrência é quantos fluxos este worker executa AO MESMO TEMPO.
     #
     # 50 atende com folga fluxos de integração, que são curtos e carregam pouco

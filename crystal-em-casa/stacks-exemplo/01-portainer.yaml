@@ -29,6 +29,13 @@
 
 version: "3.7"
 
+# Log do Docker com rotação (revisão de 24/10, INF-28): 3 arquivos de 10 MB por contêiner.
+x-logs: &logs
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
 
   # Agente que roda em TODOS os nós e reporta o estado deles ao painel.
@@ -41,12 +48,16 @@ services:
       - /var/lib/docker/volumes:/var/lib/docker/volumes
     networks:
       - portainer_agentes
+    logging: *logs
     deploy:
       # "global" = uma cópia em cada nó do cluster, automaticamente.
       mode: global
       placement:
         constraints:
           - node.platform.os == linux
+      # Limite (24/10): o agente usa pouco; sem limite, um vazamento dele tomava a VPS.
+      resources:
+        limits: {cpus: "0.25", memory: 256M}
 
   # A interface web em si.
   portainer:
@@ -57,12 +68,16 @@ services:
     networks:
       - portainer_agentes
       - borda_painel
+    logging: *logs
+    # Sem teste de saúde: a imagem do Portainer não tem shell nem wget para isso.
     deploy:
       mode: replicated
       replicas: 1
       placement:
         constraints:
           - node.role == manager
+      resources:
+        limits: {cpus: "0.5", memory: 512M}
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=borda_painel"

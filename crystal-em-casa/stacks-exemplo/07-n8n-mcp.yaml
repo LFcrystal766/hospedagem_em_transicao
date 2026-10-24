@@ -46,6 +46,14 @@ services:
     image: n8nio/n8n:1.123.10
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
 
+    # Revisão de 24/10 (INF-28): log do Docker com rotação, 3 arquivos de 10 MB. Antes, sem
+    # limite (o json-file crescia até encher o disco).
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     # Usa o mesmo modo do serviço de webhook. O que separa os dois é a regra de
     # roteamento do Traefik, lá embaixo.
     command: webhook
@@ -183,6 +191,10 @@ services:
         - traefik.http.routers.n8n_mcp.entrypoints=websecure
         - traefik.http.routers.n8n_mcp.tls.certresolver=letsencryptresolver
         - traefik.http.routers.n8n_mcp.service=n8n_mcp
+        # Revisão de 24/10 (INF-21): HSTS e nosniff na borda (o n8n não manda HSTS).
+        - traefik.http.routers.n8n_mcp.middlewares=n8n-mcp-cabecalhos
+        - traefik.http.middlewares.n8n-mcp-cabecalhos.headers.stsseconds=31536000
+        - traefik.http.middlewares.n8n-mcp-cabecalhos.headers.contenttypenosniff=true
         # Porta interna do n8n. Não mudar.
         - traefik.http.services.n8n_mcp.loadbalancer.server.port=5678
         - traefik.http.services.n8n_mcp.loadbalancer.passHostHeader=true
