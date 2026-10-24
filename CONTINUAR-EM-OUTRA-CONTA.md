@@ -806,3 +806,28 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     **Dono (24/10): "quando terminar todas as ondas me avise".** Entregar uma só mensagem no fim, com: tags do app para
     publicar (e volta), sha256 do bootstrap, roteiro da VPS numa madrugada só, SQL pendente e ações dele. Até lá, só
     o CONTINUAR em anexo a cada passo; nenhuma pergunta.
+    **App onda 1 PRONTA (24/10 ~05:00 UTC): `painel/onda6-custo-aluno-2` em `d5126c0`** (4 commits sobre fe6dbd7; lint,
+    typecheck e testes verdes: shared 340, crystal 701, api 1734, web 1096; audit só com o zod já ignorado). Fechou os
+    altos: equipe não entra mais pela porta do aluno (`POST /auth/login` com e-mail de equipe = 404 como desconhecido);
+    troca de e-mail (3 rotas), liberação manual e conta local sem prazo exigem código de reautenticação + motivo, com
+    auditoria por HMAC, sessões derrubadas e aviso ao e-mail antigo; código mandado ao e-mail antigo não abre a conta;
+    Crystal: NFKD + mapa de letras parecidas (`confusaveis.ts`), últimas 3 respostas por contato (10 min, só memória)
+    conferidas junto com a nova contra regra fatiada, descrição da imagem/importado/resumo tratados como dado, rótulos
+    com sufixo aleatório, camada semântica sem falha aberta (`CRYSTAL_TRAVA_ESTRITA_SEM_SEMANTICA`, padrão ligada);
+    webhooks: `IMAGENS_WEBHOOK_SECRET` próprio (opcional; sem ele vale o do reembolso, com aviso), evento com mais de
+    24 h = 409, dedup 180 dias, reembolso não re-bloqueia aluno religado pela equipe; JWT só HS256, logout revoga a
+    sessão, corpo de 16 KiB nas rotas públicas de auth. **Antes de publicar: toda conta de equipe precisa ter senha**
+    (conferir no banco do app: `select email, role from users where role <> 'aluno' and password_hash is null` ou o
+    equivalente; a porta do aluno não abre mais o painel). CI de `d5126c0` rodando; imagem `sha-d5126c0` disparada
+    (checkpoint: já pode ser publicada se a onda 2 atrasar). A regra das 7 palavras só barra cópia que seja metade
+    ou mais da resposta (7 fixas quebrava "Menu > Suporte" da alma).
+    **Infra onda 2 PRONTA, ainda NÃO juntada: branch `seguranca/infra-onda2` em `4feb3cc`** (14 commits: redes separadas
+    por serviço + `redes-voltar --confirmo`; IP do cliente só do Traefik; Traefik com socket proxy, read-only,
+    healthcheck; rotação de logs, healthchecks, limites, HSTS; senha no Redis do app; imagens por digest; `cap_drop`;
+    comando `docker-daemon`; backups; token do Cloudflare; `STACKS_COMMIT=91e7971`). Testado só com docker falso.
+    **Em revisão adversarial por outro agente antes do merge** (o que quebra no Swarm real; corrige bugs claros na
+    própria branch). Fora, de propósito: INF-02 (trocar chaves vazadas: dono), INF-05 (sem Docker secrets), INF-25.
+    **Rodando agora:** app onda 2 (todos os médios e baixos restantes de 01–04 + itens do app do 05, zod 4, fast-uri,
+    actions por SHA, pnpm), n8n (INT-06 confirmação na Assiny, 200 só depois da API, dados pessoais, credenciais;
+    branch `seguranca/n8n-assiny`, worktree `/home/user/hosp-n8n`), revisão da infra onda 2. Vigia do CI/imagem de
+    `d5126c0` em segundo plano. Lembrete automático às 05:59 UTC.
