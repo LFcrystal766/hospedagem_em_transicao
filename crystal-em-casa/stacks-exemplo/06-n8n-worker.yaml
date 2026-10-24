@@ -136,13 +136,19 @@ services:
       # Sem isso o histórico de execução cresce sem parar e enche o disco.
       # Mantenha ligado.
       - EXECUTIONS_DATA_PRUNE=true
-      # Idade máxima do histórico, em horas. 336 = 2 semanas.
-      - EXECUTIONS_DATA_MAX_AGE=336
+      # Idade máxima do histórico, em horas. Revisão de segurança de 24/10 (INT-08): 48 h
+      # (2 dias) em vez de 336 (2 semanas). Uma execução com erro do fluxo da Assiny guarda
+      # o corpo do webhook (nome, e-mail, CPF): dado pessoal não fica duas semanas parado no
+      # banco do n8n. As com sucesso o fluxo já não guarda (Settings do próprio fluxo).
+      # Para voltar o que era: a linha comentada no lugar da de baixo.
+      # - EXECUTIONS_DATA_MAX_AGE=336
+      - EXECUTIONS_DATA_MAX_AGE=48
       - EXECUTIONS_DATA_PRUNE_HARD_DELETE_INTERVAL=15
       - EXECUTIONS_DATA_PRUNE_SOFT_DELETE_INTERVAL=60
       # Quantidade máxima de execuções guardadas. O que vier primeiro, este
-      # limite ou a idade acima, dispara a limpeza.
-      - EXECUTIONS_DATA_PRUNE_MAX_COUNT=10000
+      # limite ou a idade acima, dispara a limpeza. 24/10 (INT-08): 5000, era 10000.
+      # - EXECUTIONS_DATA_PRUNE_MAX_COUNT=10000
+      - EXECUTIONS_DATA_PRUNE_MAX_COUNT=5000
 
       # --- Bibliotecas nos nós de código ------------------------------------
       # Revisão de segurança de 24/10 (INF-03): o editor é público (com senha), então
