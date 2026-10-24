@@ -1005,6 +1005,11 @@ bancos() {
   # o Traefik já está na borda_n8n: senão o banco mudava e o n8n ficava parado sem ele.
   if docker service inspect n8n_editor_n8n_editor >/dev/null 2>&1 && ! svc_na_rede n8n_editor_n8n_editor "$rede"; then
     redes_exigir_traefik borda_n8n
+    # Dito ANTES de mexer: se este passo parar no meio (uma falha sai do script), o n8n fica
+    # sem banco até alguém agir, e a volta tem de estar na tela.
+    echo "  o n8n vai ficar sem banco e sem fila até o fim deste passo (1 a 3 min; a Assiny reenvia webhook que falhou)."
+    echo "  Se parar no meio com ERRO, volta tudo do n8n à rede de antes:"
+    echo "    for s in postgres redis editor webhook worker; do docker service rollback n8n_\${s}_n8n_\${s}; done"
   fi
   deploy 02-n8n-postgres.yaml n8n_postgres; deploy 03-n8n-redis.yaml n8n_redis
   # Banco e fila acabaram de mudar de rede (corte do INF-06 ou volta): o editor, o webhook e o
