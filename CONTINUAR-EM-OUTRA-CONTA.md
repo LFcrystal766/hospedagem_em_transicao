@@ -864,3 +864,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     **CI de `46c471a` VERDE (gate, audit, e2e) às ~12:55 UTC.** Imagem `sha-46c471a` disparada (imagens-vps); é a
     tag candidata do app para o roteiro final, salvo mudança nova. **Imagem `sha-46c471a` PRONTA (~13:20 UTC).** Volta: `sha-088d07d` (produção de hoje) ou
     `sha-d5126c0` (só a onda 1; não publicar, e2e vermelho).
+    **Infra onda 2 REVISADA e JUNTADA: merge `e62034e`** (branch `seguranca/infra-onda2` até `caf8e71`; revisor
+    adversarial: nenhum erro que derrube serviço sem volta; 4 correções na branch: `seguranca --sem-ssh` para o dono
+    não se trancar, `bancos` imprime a volta antes de mexer, README com um roteiro só e avisos esperados, `app-status`
+    com a tag limpa). Relatório em `auditorias/2026-10-24/seguranca/06-revisao-infra-onda2.md`. **Bootstrap do
+    merge: sha256 `e7393b318fda59bfe91e6dc84f0aabb301cff7de044ca6f869ad907ac6665225`**; `STACKS_COMMIT=91e7971`
+    (ancestral do merge; `arquivos-hash` diz "nenhum arquivo mudou"). Roteiro da VPS: README › "Revisão de segurança
+    de 24/10", passos 0–8 (passo 1 `docker-daemon` é OPCIONAL: recomendado adiar; `app-db-papel` e trava do SSH para
+    outra noite). O `.gitignore` novo ignora `auditorias/*/evidencias/rdap.json` (dados do titular); `rdap.json`
+    antigo apagado do repositório (continua no histórico do git).
