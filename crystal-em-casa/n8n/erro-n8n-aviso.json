@@ -1,0 +1,134 @@
+{
+  "name": "Crystal · aviso de erro do n8n",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "6897a8e8-49ef-51ea-b5c6-f8a324f0ca50",
+      "name": "Erro em um fluxo",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ],
+      "notes": "Dispara quando um fluxo que aponta para este em Settings > Error workflow termina com erro (execuções automáticas)."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3aadf367-c289-5208-8ad6-a7a5865a899b",
+              "name": "equipe_email",
+              "value": "TROCAR@exemplo.com.br",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "c49a970d-fc2e-5d15-934f-2ce5f75670f9",
+      "name": "Configuração",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        300
+      ],
+      "notes": "Edite aqui o e-mail da equipe (quem recebe o resumo). Nada mais do fluxo precisa de edição."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aviso por e-mail quando um fluxo falha. Só nome do fluxo, id/link da execução, nó e mensagem de erro (cortada).\nconst e = $('Erro em um fluxo').first().json;\nconst cfg = $input.first().json;\nconst ex = e.execution || {};\nconst wf = e.workflow || {};\nconst err = ex.error || (e.trigger && e.trigger.error) || {};\nconst linhas = [\n  'Um fluxo do n8n da Crystal falhou.',\n  '',\n  'Fluxo: ' + (wf.name || '?') + ' (' + (wf.id || '?') + ')',\n  'Execução: ' + (ex.id || 'não guardada') + (ex.url ? ' · ' + ex.url : ''),\n  'Último nó: ' + (ex.lastNodeExecuted || (err.node && err.node.name) || '?'),\n  'Erro: ' + String(err.message || '').slice(0, 300),\n  '',\n  'O que fazer: abrir Executions no editor e ver o nó em vermelho. Se foi a API do app ou o Supabase, conferir se',\n  'estão de pé (api./healthz). A conciliação das 06:10 e 18:10 reenvia à API os bloqueios que não chegaram.',\n];\nreturn [{ json: { para: cfg.equipe_email, assunto: '[n8n] Falha em ' + (wf.name || 'um fluxo'), texto: linhas.join('\\n') } }];\n"
+      },
+      "id": "8f5bdd60-9f14-5633-a398-d20759faa258",
+      "name": "Montar aviso",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ from: 'Crystal <acesso@crystalnowpp.com.br>', to: [$json.para], subject: $json.assunto, text: $json.texto }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "d2e1aa8e-6ce0-56c3-9384-7b78ec6b6848",
+      "name": "E-mail à equipe (Resend)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Resend · n8n"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    }
+  ],
+  "connections": {
+    "Erro em um fluxo": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuração": {
+      "main": [
+        [
+          {
+            "node": "Montar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar aviso": {
+      "main": [
+        [
+          {
+            "node": "E-mail à equipe (Resend)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false,
+    "executionTimeout": 60,
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "active": false,
+  "pinData": {},
+  "versionId": "bf0333d8-72db-5101-abb4-d3700240f87c"
+}

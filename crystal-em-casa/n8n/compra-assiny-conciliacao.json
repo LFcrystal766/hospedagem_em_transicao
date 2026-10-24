@@ -1,0 +1,344 @@
+{
+  "name": "Crystal · conciliação de compras",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "10 6,18 * * *"
+            }
+          ]
+        }
+      },
+      "id": "0961c36f-7d61-57c5-b97c-d3c0e471adf9",
+      "name": "Duas vezes por dia",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ],
+      "notes": "06:10 e 18:10 (fuso do fluxo: America/Sao_Paulo). Janela de 23 h: todo bloqueio é reenviado à API dentro das 24 h que ela aceita."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "493b8d3a-c047-51b4-baac-60bbf3fdbe6d",
+              "name": "equipe_email",
+              "value": "TROCAR@exemplo.com.br",
+              "type": "string"
+            },
+            {
+              "id": "54624b68-a5b2-582a-9c0e-596dd9afea51",
+              "name": "janela_horas",
+              "value": 23,
+              "type": "number"
+            },
+            {
+              "id": "66c7043a-cfa9-5724-b75f-9338415d4afe",
+              "name": "max_liberados",
+              "value": 100,
+              "type": "number"
+            },
+            {
+              "id": "9a40e0b8-fb8b-55b2-97fe-170ef9675649",
+              "name": "max_bloqueados",
+              "value": 20,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "8084a37f-e966-5b9a-b729-7892e2705d18",
+      "name": "Configuração",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        300
+      ],
+      "notes": "Edite aqui o e-mail da equipe (quem recebe o resumo). Nada mais do fluxo precisa de edição."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hwbllqepvhddakszqdbk.supabase.co/rest/v1/rpc/app_compras_conciliacao",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ p_horas: $json.janela_horas, p_max_liberados: $json.max_liberados, p_max_bloqueados: $json.max_bloqueados }) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "119b91a0-eb5f-5a9f-8290-a927b0616a29",
+      "name": "Ler resumo e bloqueios (Supabase)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        300
+      ],
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "",
+          "name": "Supabase · n8n compras"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "// Monta, para cada bloqueio da janela, o corpo que a API do app espera em /webhooks/reembolso (a mesma validação do\n// evento da Assiny). A API dispensa o que já processou (duplicate) e corta o que ficou para trás (disabled); quem a\n// equipe religou DEPOIS da data do bloqueio não é desligada de novo (ela compara com transaction.updated_at).\nconst r = $input.first().json;\nconst EVENTO_POR_STATUS = { refunded: 'refunded_purchase', chargeback: 'charged_back', canceled: 'canceled_subscription' };\nconst itens = (Array.isArray(r.bloqueios) ? r.bloqueios : [])\n  .filter((b) => b && b.email && b.transacao && b.bloqueado_em)\n  .map((b) => ({ json: {\n    event: b.evento || EVENTO_POR_STATUS[b.status] || 'refunded_purchase',\n    data: {\n      client: { email: b.email },\n      transaction: { id: b.transacao, status: b.status, updated_at: b.bloqueado_em },\n      ...(b.assinatura ? { offer: { subscription: { id: b.assinatura } } } : {}),\n    },\n  } }));\nreturn itens.length ? itens : [{ json: { vazio: true } }];\n"
+      },
+      "id": "019108d0-dfb9-50e7-b693-1e4182d6380f",
+      "name": "Separar bloqueios",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cba9bfe7-c96b-5b36-8323-8a6888873ccc",
+              "leftValue": "={{ $json.vazio !== true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "87823123-9dcf-550c-988e-7599d6385803",
+      "name": "Há bloqueio?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.crystalnowpp.com.br/webhooks/reembolso",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 1000
+            }
+          }
+        }
+      },
+      "id": "d12231ad-4ba0-5509-8c44-c77b6043532f",
+      "name": "Reenviar bloqueio ao app",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        180
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "API reembolso"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Resumo para a equipe: só contagens e nomes de evento. Nenhum e-mail, nome ou CPF de aluna.\nconst r = $('Ler resumo e bloqueios (Supabase)').first().json;\nconst cfg = $('Configuração').first().json;\nconst respostas = $input.all().map((i) => i.json).filter((j) => j.vazio !== true);\nconst porResultado = {};\nfor (const e of respostas) {\n  const ok = e.statusCode >= 200 && e.statusCode < 300;\n  const b = e.body || {};\n  const chave = ok ? (b.result || (b.duplicate ? 'duplicate' : b.ignored ? 'ignored' : 'ok')) : 'http_' + (e.statusCode || 'sem_resposta');\n  porResultado[chave] = (porResultado[chave] || 0) + 1;\n}\nconst linhas = [];\nlinhas.push('Conciliação Assiny → Supabase → app. Janela: ' + r.janela_horas + ' h (desde ' + r.desde + ').');\nlinhas.push('');\nlinhas.push('Eventos registrados no Supabase (ação / evento: quantidade):');\nfor (const s of r.resumo || []) linhas.push('  ' + s.acao + ' / ' + s.evento + ': ' + s.quantidade);\nif (!(r.resumo || []).length) linhas.push('  nenhum');\nlinhas.push('');\nlinhas.push('Bloqueios da janela reenviados à API do app: ' + respostas.length);\nfor (const [k, v] of Object.entries(porResultado)) linhas.push('  ' + k + ': ' + v);\nlinhas.push('  (duplicate = a API já tinha feito; disabled = a API só cortou agora, o aviso original não chegou;');\nlinhas.push('   reenabled_by_staff = a equipe religou depois do evento, mantida; not_found = sem conta no app)');\nif ((r.eventos_desconhecidos || []).length) {\n  linhas.push('');\n  linhas.push('Eventos com nome desconhecido (não liberam nem bloqueiam; conferir na Assiny): ' + r.eventos_desconhecidos.join(', '));\n}\nif (r.alerta) {\n  linhas.push('');\n  linhas.push('ALERTA de volume: ' + (r.motivos_alerta || []).join(', ') + '. Conferir Executions do fluxo de compras e Webhooks > Logs na Assiny.');\n}\nconst atencao = r.alerta || Object.keys(porResultado).some((k) => k.startsWith('http_') || k === 'disabled');\nconst hoje = new Date().toISOString();\nreturn [{ json: {\n  para: cfg.equipe_email,\n  assunto: (atencao ? '[ATENÇÃO] ' : '') + 'Crystal · conciliação de compras ' + hoje.slice(0, 10),\n  texto: linhas.join('\\n'),\n  chave: 'conciliacao-' + hoje.slice(0, 13),\n} }];\n"
+      },
+      "id": "1bdf1d7a-ada0-5300-b466-85aabfee9267",
+      "name": "Montar resumo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ from: 'Crystal <acesso@crystalnowpp.com.br>', to: [$json.para], subject: $json.assunto, text: $json.texto }) }}",
+        "options": {
+          "timeout": 15000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.chave }}"
+            }
+          ]
+        }
+      },
+      "id": "a80e8ec1-e028-5485-97d3-c457e65ede8f",
+      "name": "E-mail à equipe (Resend)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1680,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Resend · n8n"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    }
+  ],
+  "connections": {
+    "Duas vezes por dia": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuração": {
+      "main": [
+        [
+          {
+            "node": "Ler resumo e bloqueios (Supabase)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler resumo e bloqueios (Supabase)": {
+      "main": [
+        [
+          {
+            "node": "Separar bloqueios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separar bloqueios": {
+      "main": [
+        [
+          {
+            "node": "Há bloqueio?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Há bloqueio?": {
+      "main": [
+        [
+          {
+            "node": "Reenviar bloqueio ao app",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Montar resumo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reenviar bloqueio ao app": {
+      "main": [
+        [
+          {
+            "node": "Montar resumo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar resumo": {
+      "main": [
+        [
+          {
+            "node": "E-mail à equipe (Resend)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "all",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false,
+    "executionTimeout": 90,
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "active": false,
+  "pinData": {},
+  "versionId": "32404982-d257-5f49-ae34-dc6fca06edf4"
+}
