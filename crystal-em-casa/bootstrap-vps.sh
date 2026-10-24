@@ -40,7 +40,11 @@
 #                                              restauração no Mac). TIPO: n8n_queue (padrão), crystal_web_chat,
 #                                              crystal_agente, crystal_uploads, chatwoot, chatwoot_storage
 #   bash bootstrap-vps.sh seguranca            atualização de segurança automática, fail2ban no SSH
-#                                              e relatório (senha no SSH, root, portas, pendências)
+#                                              e relatório (senha no SSH, root, portas, pendências).
+#                                              Com chave de root instalada, trava o SSH em só chave e root
+#                                              só com chave; volta sozinha em 10 min sem confirmação
+#   bash bootstrap-vps.sh ssh-confirmar        de OUTRA janela, depois de entrar: mantém a trava do SSH
+#   bash bootstrap-vps.sh ssh-voltar           tira a trava do SSH (volta a valer o sshd_config)
 #   bash bootstrap-vps.sh firewall             ufw: só 22, 80 e 443 de fora. As portas do Swarm
 #                                              (2377, 7946, 4789) deixam de ficar públicas
 #   bash bootstrap-vps.sh painel-restringir IP [IP ...]
@@ -1055,7 +1059,8 @@ firewall() {
 # Proteções da máquina contra ataque e malware que não mexem em nenhum serviço:
 #   - atualização de segurança automática do Ubuntu (sem reiniciar sozinho);
 #   - fail2ban no SSH: 5 tentativas erradas em 10 min bloqueiam o IP por 1 hora;
-#   - relatório do que ainda depende de decisão: senha no SSH, root, portas abertas.
+#   - SSH só com chave quando já há chave de root (ssh_travar, com volta automática);
+#   - relatório do que ainda depende de decisão: portas abertas, pendências.
 # O Web console da Hostinger continua funcionando mesmo com um IP bloqueado.
 seguranca() {
   export DEBIAN_FRONTEND=noninteractive
@@ -1082,17 +1087,9 @@ CFG
   sleep 2
   fail2ban-client status sshd >/dev/null 2>&1 && ok "fail2ban protegendo o SSH" || aviso "fail2ban no ar, mas a regra do SSH não respondeu: fail2ban-client status sshd"
 
+  echo "== SSH"
+  ssh_travar
   echo "== o que ainda depende de decisão"
-  local pw root
-  pw=$(sshd -T 2>/dev/null | awk '/^passwordauthentication /{print $2}')
-  root=$(sshd -T 2>/dev/null | awk '/^permitrootlogin /{print $2}')
-  if [ "$pw" = "yes" ]; then
-    aviso "SSH aceita senha. Mais seguro: só chave. Antes de desligar a senha, confira que sua chave entra"
-    aviso "(o Web console da Hostinger continua como porta de emergência)."
-  else
-    ok "SSH não aceita senha"
-  fi
-  [ "$root" = "yes" ] && aviso "root entra por SSH com senha; com chave só, use: PermitRootLogin prohibit-password" || ok "root: $root"
   ufw status 2>/dev/null | grep -q "Status: active" && ok "ufw ativo" || aviso "ufw desligado: bash $0 firewall"
   portas_docker_conferir
   echo "  Portas escutando (o ufw deixa 22, 80 e 443; as do Swarm, 2377, 7946 e 4789, ele fecha; porta publicada pelo Docker passa por cima, conferida acima):"
@@ -1100,6 +1097,107 @@ CFG
   local up; up=$(apt list --upgradable 2>/dev/null | grep -c -- '-security' || true)
   [ "${up:-0}" -gt 0 ] && aviso "$up pacote(s) de segurança pendentes; a atualização automática aplica hoje à noite" || ok "sem atualização de segurança pendente"
   [ -f /var/run/reboot-required ] && aviso "o Ubuntu pede reinício para aplicar atualização do kernel: agende na madrugada" || true
+}
+
+# ------------------------------------------------------------------ SSH só com chave
+# Revisão de 24/10 (INF-11): com chave de root já instalada, o seguranca trava o SSH em só
+# chave (PasswordAuthentication no, KbdInteractiveAuthentication no) e root só com chave
+# (PermitRootLogin prohibit-password), num arquivo próprio em sshd_config.d, conferido com
+# sshd -t antes de recarregar. Sem chave, só avisa, como antes. Conta só linha de chave
+# sem opções (uma chave com command= ou from= não garante entrada).
+# Rede de segurança contra ficar trancado do lado de fora: quando a trava é nova, ela se
+# desfaz sozinha em 10 minutos (systemd-run), a menos que o dono entre por OUTRA janela e
+# rode 'bash bootstrap-vps.sh ssh-confirmar'. A sessão aberta não cai com o reload.
+# Volta a qualquer hora: bash bootstrap-vps.sh ssh-voltar
+SSH_TRAVA=/etc/ssh/sshd_config.d/00-crystal.conf
+SSH_VOLTA_UNIT=crystal-ssh-volta
+
+ssh_recarregar() { systemctl reload-or-restart ssh 2>/dev/null || systemctl reload-or-restart sshd; }
+
+ssh_efetivo() { # ssh_efetivo -> "senha root" como o sshd entende agora (ex.: "no without-password")
+  mkdir -p /run/sshd
+  sshd -T 2>/dev/null | awk '/^passwordauthentication /{p=$2} /^permitrootlogin /{r=$2} END{print p" "r}'
+}
+
+ssh_travar() {
+  local chaves novo mudou=0 pw root
+  chaves=$(grep -cE '^[[:space:]]*(ssh-(ed25519|rsa)|ecdsa-sha2-nistp(256|384|521)|sk-(ssh-ed25519|ecdsa-sha2-nistp256)@openssh\.com)[[:space:]]+[A-Za-z0-9+/]{40,}={0,3}([[:space:]]|$)' \
+    /root/.ssh/authorized_keys 2>/dev/null || true)
+  if [ "${chaves:-0}" -eq 0 ]; then
+    read -r pw root <<<"$(ssh_efetivo)"
+    if [ "$pw" = "yes" ]; then
+      aviso "SSH aceita senha e não há chave de root em /root/.ssh/authorized_keys: a trava NÃO foi aplicada."
+      aviso "Ponha a sua chave (hPanel > VPS > Chaves SSH, ou ssh-copy-id root@IP), confira que entra com ela e rode 'seguranca' de novo."
+    else
+      ok "SSH não aceita senha"
+    fi
+    [ "$root" = "yes" ] && aviso "root entra por SSH com senha (sem chave instalada, a trava espera)" || ok "root: $root"
+    return 0
+  fi
+  ok "$chaves chave(s) de root em /root/.ssh/authorized_keys"
+  novo=$(mktemp)
+  cat > "$novo" <<'CFG'
+# Gravado por bootstrap-vps.sh seguranca (revisão de segurança de 24/10, INF-11).
+# Só chave; root só com chave. Volta: bash bootstrap-vps.sh ssh-voltar
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin prohibit-password
+CFG
+  if [ -f "$SSH_TRAVA" ] && cmp -s "$novo" "$SSH_TRAVA"; then
+    rm -f "$novo"
+  else
+    mudou=1
+    # A volta automática é agendada ANTES de a trava existir: nunca há trava nova sem ela.
+    systemctl stop "$SSH_VOLTA_UNIT.timer" >/dev/null 2>&1 || true
+    systemctl reset-failed "$SSH_VOLTA_UNIT.service" "$SSH_VOLTA_UNIT.timer" >/dev/null 2>&1 || true
+    if ! systemd-run --quiet --unit="$SSH_VOLTA_UNIT" --on-active=10min /bin/sh -c \
+         "rm -f $SSH_TRAVA; systemctl reload-or-restart ssh || systemctl reload-or-restart sshd"; then
+      rm -f "$novo"
+      aviso "não consegui agendar a volta automática (systemd-run): trava NÃO aplicada, por segurança"
+      return 0
+    fi
+    install -m 644 "$novo" "$SSH_TRAVA"; rm -f "$novo"
+  fi
+  mkdir -p /run/sshd
+  if ! sshd -t; then
+    rm -f "$SSH_TRAVA"; systemctl stop "$SSH_VOLTA_UNIT.timer" >/dev/null 2>&1 || true
+    aviso "sshd -t recusou a configuração (acima): $SSH_TRAVA tirado e nada recarregado"
+    return 0
+  fi
+  if [ "$mudou" = 1 ] && ! ssh_recarregar; then
+    rm -f "$SSH_TRAVA"; systemctl stop "$SSH_VOLTA_UNIT.timer" >/dev/null 2>&1 || true
+    aviso "o ssh não recarregou: trava tirada, SSH como estava"
+    return 0
+  fi
+  read -r pw root <<<"$(ssh_efetivo)"
+  if [ "$pw" = no ] && { [ "$root" = prohibit-password ] || [ "$root" = without-password ]; }; then
+    ok "SSH só com chave; root só com chave ($SSH_TRAVA)"
+  else
+    aviso "a trava está em $SSH_TRAVA, mas o sshd ainda diz senha=$pw root=$root: outro arquivo vence (ver as linhas antes do Include em /etc/ssh/sshd_config)"
+  fi
+  if [ "$mudou" = 1 ]; then
+    echo "  !! AGORA, sem fechar esta janela: abra OUTRA (terminal do navegador da Hostinger ou ssh com a"
+    echo "  !! chave) e entre como root. Entrou? Nela: bash $0 ssh-confirmar"
+    echo "  !! Não entrou? Não faça nada: em 10 minutos a trava se desfaz sozinha (ou: bash $0 ssh-voltar aqui)."
+  elif systemctl is-active --quiet "$SSH_VOLTA_UNIT.timer" 2>/dev/null; then
+    aviso "a volta automática do SSH ainda está agendada: confirme de outra janela com bash $0 ssh-confirmar"
+  fi
+}
+
+ssh_confirmar() {
+  if systemctl is-active --quiet "$SSH_VOLTA_UNIT.timer" 2>/dev/null; then
+    systemctl stop "$SSH_VOLTA_UNIT.timer" || falha "não cancelei a volta automática: systemctl stop $SSH_VOLTA_UNIT.timer"
+    ok "volta automática cancelada: o SSH fica só com chave"
+  else
+    [ -f "$SSH_TRAVA" ] && ok "nada agendado: a trava do SSH já está firme" || aviso "não há trava do SSH (passou dos 10 minutos? rode seguranca de novo)"
+  fi
+}
+
+ssh_voltar() {
+  systemctl stop "$SSH_VOLTA_UNIT.timer" >/dev/null 2>&1 || true
+  rm -f "$SSH_TRAVA"
+  ssh_recarregar || falha "o ssh não recarregou: systemctl status ssh"
+  ok "trava do SSH tirada: volta a valer o que o /etc/ssh/sshd_config diz"
 }
 
 # ------------------------------------------------------------------ painel (Portainer)
@@ -3701,6 +3799,8 @@ case "$CMD" in
   backup-link) shift; backup_link "$@" ;;
   firewall) firewall ;;
   seguranca) seguranca ;;
+  ssh-confirmar) ssh_confirmar ;;
+  ssh-voltar) ssh_voltar ;;
   painel-restringir) shift; painel_restringir "$@" ;;
   painel-desligar) painel_desligar ;;
   painel-ligar) painel_ligar ;;

@@ -192,8 +192,20 @@ bash bootstrap-vps.sh seguranca
 
 Liga a atualização de segurança automática do Ubuntu e o fail2ban no SSH (5 erros
 em 10 minutos bloqueiam o IP por 1 hora), e mostra o que ainda depende de decisão:
-SSH aceitando senha, root, portas escutando e atualização pendente. Não mexe em
-nenhum serviço. Regras completas em "Segurança sempre" no CLAUDE.md.
+portas escutando e atualização pendente. Não mexe em nenhum serviço do Docker. Regras
+completas em "Segurança sempre" no CLAUDE.md.
+
+SSH (desde 24/10, INF-11): se já existe chave de root em `/root/.ssh/authorized_keys`
+(linha de chave sem opções), ele grava `/etc/ssh/sshd_config.d/00-crystal.conf` com
+`PasswordAuthentication no`, `KbdInteractiveAuthentication no` e
+`PermitRootLogin prohibit-password`, confere com `sshd -t` e recarrega o SSH (a sessão aberta
+não cai). Sem chave, não trava: só avisa, como antes. Para não ficar trancado do lado de
+fora, a trava nova se desfaz sozinha em 10 minutos, a menos que você entre por **outra**
+janela (terminal do navegador da Hostinger ou ssh com a chave) e rode
+`bash bootstrap-vps.sh ssh-confirmar`. Se a outra janela não entrar, não faça nada (ou rode
+`ssh-voltar` na janela que ficou aberta). Atenção: se o terminal do navegador da Hostinger
+entra com a senha do root, ele para de entrar com a trava; nesse caso, `ssh-voltar` e manter
+só o aviso até ter uma chave num aparelho seu.
 
 ### Portainer só para IPs liberados
 
@@ -247,7 +259,8 @@ bash bootstrap-vps.sh atendimento-subir            # regra nova: /monitoring e /
 # 2. n8n sem acesso ao ambiente, sem Execute Command / arquivos / pacotes de terceiros
 #    (INF-03). Os arquivos novos já saíram do preparar acima; isto só sobe os três:
 bash bootstrap-vps.sh n8n                          # editor, webhook e worker, um de cada vez
-# 3. SSH só com chave (INF-11): trava sozinho se já houver chave em /root/.ssh/authorized_keys
+# 3. SSH só com chave (INF-11): trava sozinho se já houver chave em /root/.ssh/authorized_keys;
+#    depois, de OUTRA janela que entrou: bash bootstrap-vps.sh ssh-confirmar (sem isso, volta em 10 min)
 bash bootstrap-vps.sh seguranca
 # 4. TESTAR PRIMEIRO, noutra noite: a API deixa de entrar no Postgres como superusuário (INF-07)
 bash bootstrap-vps.sh app-db-papel                 # simulação: transação desfeita, tem de dizer "simulação limpa"
