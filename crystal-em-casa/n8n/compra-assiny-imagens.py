@@ -27,6 +27,10 @@ Passos:
 
 Durante a reinicialização (1 a 2 min) o webhook pode responder 404/502: a Assiny reenvia. Rodar em
 hora calma. Nunca lê nem imprime segredo. Só biblioteca padrão.
+
+SÓ PARA A VERSÃO DE 13/10 DO FLUXO. O compra-assiny.json de 24/10 (revisão de segurança) já traz o repasse de
+imagens e tem outra forma (13 nós, nó "Conferir e enxugar"); este script recusa mexer nele. Para o fluxo novo:
+conferir-fluxos.py (estático) e compra-assiny-credenciais.py (credenciais e teste de ponta a ponta).
 """
 
 import argparse
@@ -414,6 +418,9 @@ def main():
     print("== fluxo")
     wid = achar_fluxo(pg)
     ok(f"fluxo {wid} (webhook '{CAMINHO}')")
+    if "Conferir e enxugar" in por_nome(estado(pg, wid)["nos"]):
+        raise Falha("este é o fluxo de 24/10 (nó 'Conferir e enxugar'): este script é só para a versão de 13/10. "
+                    "Use conferir-fluxos.py e compra-assiny-credenciais.py")
 
     if a.testar:
         print("== conferência (só leitura)")

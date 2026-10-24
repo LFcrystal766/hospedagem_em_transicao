@@ -9,7 +9,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "c1d4c8da-5857-4859-92d7-3d5fab77abc1",
+      "id": "bf57f047-db48-5477-a9fe-bcf6d45a552d",
       "name": "Assiny",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
@@ -17,62 +17,26 @@
         0,
         300
       ],
-      "webhookId": "af9bff8d-2cfa-4fb1-b9c0-d3fffd715114"
+      "webhookId": "af9bff8d-2cfa-4fb1-b9c0-d3fffd715114",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Assiny · x-crystal-token"
+        }
+      },
+      "notes": "Produção: o caminho tem um sufixo secreto (assiny-compras-<aleatório>), copiado do fluxo antigo na hora de importar; nunca fica no repositório. Autenticação: Header Auth x-crystal-token (a Assiny manda em Integrações > Webhooks > Avançado > Headers personalizados). Sem o cabeçalho certo o n8n responde 403 antes de executar."
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://hwbllqepvhddakszqdbk.supabase.co/rest/v1/rpc/app_compra_evento",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ p_evento: $json.body }) }}",
-        "options": {}
+        "jsCode": "// Segurança 24/10 (INT-06, INT-08, INT-17): confere o corpo da Assiny e deixa passar só o que os próximos nós usam.\n// Sem módulo externo e sem variável de ambiente (os dois estão travados na VPS). Um item entra, um item sai.\n// - evento:   o que vai ao Supabase (e-mail, nome, telefone, transação, oferta); sem CPF, endereço, metadata, comissões.\n// - para_api: o que vai à API do app no reembolso e no pacote de imagens (e-mail, CPF só com 11 dígitos, transação com\n//             as datas, oferta): é o formato que a API valida (assinyRefundEventSchema), com a data do evento incluída.\n// - saudacao: só o primeiro nome, só letras, até 60 caracteres; o e-mail nunca entra no texto do e-mail.\nconst corpo = $input.first().json.body;\nconst campos = [];\nconst obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : null);\nconst texto = (v, max) => (typeof v === 'string' && v.trim() !== '' ? v.trim().slice(0, max) : null);\nconst id = (v) => (typeof v === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,79}$/.test(v.trim()) ? v.trim() : null);\nconst data = (v) => (typeof v === 'string' && v.length <= 64 && !Number.isNaN(Date.parse(v)) ? v : null);\nconst limpar = (o) => {\n  if (!o || typeof o !== 'object') return o;\n  const r = {};\n  for (const [k, v] of Object.entries(o)) {\n    if (v === null || v === undefined) continue;\n    const l = typeof v === 'object' ? limpar(v) : v;\n    if (l !== null && l !== undefined && !(typeof l === 'object' && Object.keys(l).length === 0)) r[k] = l;\n  }\n  return r;\n};\n\nconst raiz = obj(corpo);\nif (!raiz) campos.push('(raiz)');\nconst event = raiz && typeof raiz.event === 'string' && /^[a-z][a-z0-9_.:-]{1,63}$/.test(raiz.event) ? raiz.event : null;\nif (!event) campos.push('event');\nconst d = raiz ? obj(raiz.data) : null;\nconst cliente = d ? obj(d.client) : null;\nconst tx = d ? obj(d.transaction) : null;\nconst oferta = d ? obj(d.offer) : null;\nconst produto = oferta ? obj(oferta.product) : null;\nconst assinatura = oferta ? obj(oferta.subscription) : null;\n\nconst LIBERAM = ['approved_purchase', 'purchase_approved', 'subscription_renewed', 'renewed_subscription'];\nconst BLOQUEIAM = ['refunded_purchase', 'chargeback', 'charged_back', 'chargedback_purchase', 'canceled_subscription', 'subscription_canceled'];\nconst conhecido = LIBERAM.includes(event) || BLOQUEIAM.includes(event);\n\nconst email = cliente && typeof cliente.email === 'string' && cliente.email.trim().length <= 200\n  && /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(cliente.email.trim()) ? cliente.email.trim().toLowerCase() : null;\nconst txId = tx ? id(tx.id) : null;\nconst txStatus = tx ? texto(tx.status, 64) : null;\nif (conhecido) {\n  // Compra ou reembolso: o mínimo coerente é obrigatório. Outros eventos (pix gerado, carrinho) só precisam do nome.\n  if (!d) campos.push('data');\n  if (!email) campos.push('data.client.email');\n  if (!txId) campos.push('data.transaction.id');\n  if (!txStatus) campos.push('data.transaction.status');\n  if (produto && !id(produto.id)) campos.push('data.offer.product.id');\n  if (assinatura && assinatura.id != null && !id(assinatura.id)) campos.push('data.offer.subscription.id');\n}\nif (campos.length) {\n  return [{ json: { ok: false, motivo: 'corpo_invalido', campos }, pairedItem: { item: 0 } }];\n}\n\nconst documento = cliente && typeof cliente.document === 'string' ? cliente.document.replace(/\\D/g, '') : '';\nconst primeiro = cliente && typeof cliente.first_name === 'string' ? cliente.first_name.trim() : '';\nconst saudacao = /^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ' -]{0,59}$/.test(primeiro) ? 'Olá, ' + primeiro + '!' : 'Olá!';\nconst transacao = tx ? { id: txId, status: txStatus, created_at: data(tx.created_at), updated_at: data(tx.updated_at) } : null;\nconst ofertaEnxuta = oferta ? {\n  id: id(oferta.id), name: texto(oferta.name, 120),\n  product: produto ? { id: id(produto.id), name: texto(produto.name, 120) } : null,\n  subscription: assinatura ? { id: id(assinatura.id) } : null,\n} : null;\nconst evento = limpar({ event, data: { client: { email, full_name: cliente ? texto(cliente.full_name, 120) : null, phone: cliente ? texto(cliente.phone, 32) : null }, transaction: transacao, offer: ofertaEnxuta } });\nconst paraApi = limpar({ event, data: { client: { id: cliente ? id(cliente.id) : null, email, document: documento.length === 11 ? documento : null }, transaction: transacao, offer: ofertaEnxuta } });\nreturn [{ json: { ok: true, event, email, transacao: txId, saudacao, evento, para_api: paraApi }, pairedItem: { item: 0 } }];\n"
       },
-      "id": "d367530d-1d5c-4cd4-a783-0407adeddcf2",
-      "name": "Registrar no Supabase",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "id": "321fd2ae-640d-5e8f-bf3e-83ff58560ff3",
+      "name": "Conferir e enxugar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         240,
         300
-      ],
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 2000,
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ JSON.stringify($json) }}",
-        "options": {}
-      },
-      "id": "da2f4221-26e2-4736-821a-1e7c3d0ce208",
-      "name": "Responder à Assiny",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.1,
-      "position": [
-        480,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ ok: false }) }}",
-        "options": {
-          "responseCode": 500
-        }
-      },
-      "id": "20e838ac-ec46-4270-8cc0-4f163ee16088",
-      "name": "Responder erro à Assiny",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.1,
-      "position": [
-        480,
-        520
       ]
     },
     {
@@ -86,17 +50,8 @@
           },
           "conditions": [
             {
-              "id": "408672b1-41bb-4fd8-a6e7-45a838aa5be8",
-              "leftValue": "={{ $json.acao }}",
-              "rightValue": "liberado",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
-              }
-            },
-            {
-              "id": "fd9bf443-914c-485f-b9e3-8a63ee3f9ed1",
-              "leftValue": "={{ $json.novo }}",
+              "id": "809314ed-b528-5e56-9a97-0d307f969ce9",
+              "leftValue": "={{ $json.ok }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -110,48 +65,210 @@
         "looseTypeValidation": true,
         "options": {}
       },
-      "id": "80ce14b4-5351-441e-825a-6a6de8d813ad",
-      "name": "Liberou agora?",
+      "id": "faffce04-96bf-57bc-9c54-1b5eefb82452",
+      "name": "Corpo válido?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        720,
-        200
+        480,
+        300
       ]
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "56483476-7a46-4a97-ab9c-613d797c178b",
-              "leftValue": "={{ $json.acao }}",
-              "rightValue": "bloqueado",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "looseTypeValidation": true,
-        "options": {}
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, erro: $json.motivo, campos: $json.campos }) }}",
+        "options": {
+          "responseCode": 400
+        }
       },
-      "id": "33f7b7b8-c841-4822-ade6-2cfd87220ae6",
-      "name": "Bloqueou?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
+      "id": "e11e66aa-4c6a-5bf7-92f0-4a4112345719",
+      "name": "Responder 400 à Assiny",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
       "position": [
         720,
-        420
+        560
       ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hwbllqepvhddakszqdbk.supabase.co/rest/v1/rpc/app_compra_evento",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ p_evento: $json.evento }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "858a2640-279a-58fc-8e4a-ffd742f07747",
+      "name": "Registrar no Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        300
+      ],
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "",
+          "name": "Supabase · n8n compras"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1624a5e5-97cc-5f84-a64c-6dac52414f2b",
+                    "leftValue": "={{ $json.acao }}",
+                    "rightValue": "liberado",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "ba702a30-c429-554a-b102-312276ae476e",
+                    "leftValue": "={{ $json.novo }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "boas_vindas"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "453f068f-1a1e-5657-ae6a-f4b1e4f84721",
+                    "leftValue": "={{ $json.acao }}",
+                    "rightValue": "bloqueado",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "reembolso"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2a304077-8929-53eb-80b8-30461fa37f7c",
+                    "leftValue": "={{ $json.acao }}",
+                    "rightValue": "repetido",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "a25b7c7a-874c-518f-bb7f-743164fa9ae3",
+                    "leftValue": "={{ $json.anterior }}",
+                    "rightValue": "bloquear",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "reembolso_repetido"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "57193e3b-e923-52c6-97b7-8d865a30dcc0",
+                    "leftValue": "={{ $json.acao }}",
+                    "rightValue": "ignorado",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "0c9b53c4-8319-5f36-b616-e5e415e7433d",
+                    "leftValue": "={{ $json.motivo }}",
+                    "rightValue": "produto",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "imagens"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "nada",
+          "allMatchingOutputs": false
+        }
+      },
+      "id": "4faa7f72-521d-5c80-a145-739bc187562a",
+      "name": "Destino",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        960,
+        300
+      ],
+      "notes": "boas_vindas: compra que acabou de liberar. reembolso: bloqueou agora. reembolso_repetido: a Assiny reenviou um bloqueio que já estava no Supabase (a API do app pode não ter recebido da primeira vez; ela ignora o que já fez). imagens: produto fora da lista da Crystal, a API decide se é pacote. nada: repetido, ignorado por outro motivo."
     },
     {
       "parameters": {
@@ -159,31 +276,40 @@
         "url": "https://api.resend.com/emails",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ from: 'Crystal <acesso@crystalnowpp.com.br>', to: [$('Conferir e enxugar').first().json.email], subject: 'Seu acesso à Crystal está liberado', text: $('Conferir e enxugar').first().json.saudacao + '\\n\\n' + 'Sua compra foi confirmada e o seu acesso à Crystal já está liberado.\\n\\n' + 'Entre em: https://app.crystalnowpp.com.br\\n' + 'Use o mesmo e-mail da compra: na entrada, você recebe um código nele para confirmar.\\n\\n' + 'Dúvidas: fale com a nossa equipe pelo próprio app.\\n\\nCrystal' }) }}",
+        "options": {
+          "timeout": 15000
+        },
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "Idempotency-Key",
-              "value": "={{ 'boas-vindas-' + ($('Assiny').item.json.body.data.transaction.id || $('Assiny').item.json.body.data.client.email) }}"
+              "value": "={{ 'boas-vindas-' + $('Conferir e enxugar').first().json.transacao }}"
             }
           ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ from: 'Crystal <acesso@crystalnowpp.com.br>', to: [$('Assiny').item.json.body.data.client.email], subject: 'Seu acesso à Crystal está liberado', text: 'Olá' + ($('Assiny').item.json.body.data.client.first_name ? ', ' + $('Assiny').item.json.body.data.client.first_name : '') + '!\\n\\n' + 'Sua compra foi confirmada e o seu acesso à Crystal já está liberado.\\n\\n' + 'Entre em: https://app.crystalnowpp.com.br\\n' + 'Use este e-mail: ' + $('Assiny').item.json.body.data.client.email + '\\n' + 'Na entrada, você recebe um código neste mesmo e-mail para confirmar.\\n\\n' + 'Dúvidas: fale com a nossa equipe pelo próprio app.\\n\\nCrystal' }) }}",
-        "options": {}
+        }
       },
-      "id": "553e3942-9325-43e6-9a5e-d1ba886f4fda",
+      "id": "0f8eb1a3-e9e0-536a-9072-daf3a23e9ba3",
       "name": "E-mail de boas-vindas (Resend)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        960,
-        180
+        1240,
+        60
       ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Resend · n8n"
+        }
+      },
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 2000
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -193,20 +319,73 @@
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($('Assiny').item.json.body) }}",
-        "options": {}
+        "jsonBody": "={{ JSON.stringify($('Conferir e enxugar').first().json.para_api) }}",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
       },
-      "id": "98385a41-9416-40b1-90a2-2137fd97b6d8",
+      "id": "75bdf8ea-122c-5020-ba13-3b5bcd02fe86",
       "name": "Desligar no app (reembolso)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        960,
-        400
+        1240,
+        300
       ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "API reembolso"
+        }
+      },
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 2000
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.crystalnowpp.com.br/webhooks/imagens",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Conferir e enxugar').first().json.para_api) }}",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "4137ab73-2648-518d-9c75-bda9876bcef5",
+      "name": "Repassar ao app (pacote de imagens)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1240,
+        540
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "API imagens"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -219,21 +398,13 @@
           },
           "conditions": [
             {
-              "id": "5b0f3c1e-8d2a-4e6b-9f47-2c1a7d3e9b10",
-              "leftValue": "={{ $json.acao }}",
-              "rightValue": "ignorado",
+              "id": "0fe9e9a3-bc77-55d2-a3fe-84bbbee6a73b",
+              "leftValue": "={{ ($json.statusCode >= 200 && $json.statusCode < 300) || $json.statusCode === 409 }}",
+              "rightValue": "",
               "operator": {
-                "type": "string",
-                "operation": "equals"
-              }
-            },
-            {
-              "id": "a7c94e02-3f5d-4b8e-8e21-6d0b4f9c2a37",
-              "leftValue": "={{ $json.motivo }}",
-              "rightValue": "produto",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
               }
             }
           ],
@@ -242,37 +413,61 @@
         "looseTypeValidation": true,
         "options": {}
       },
-      "id": "e4b2a9d1-6c3f-4f0a-b8d5-1e7c2a9f4b63",
-      "name": "Produto fora da lista?",
+      "id": "e85242b2-a21e-5f01-b842-151b55b1c1b0",
+      "name": "API aceitou?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        720,
-        640
+        1520,
+        420
+      ],
+      "notes": "2xx: feito (ou duplicado, a API já tinha). 409 EVENT_TOO_OLD: evento com mais de 24 h, a API recusa de propósito; não é falha nossa. Qualquer outro código ou erro de rede: 500 para a Assiny e execução marcada com erro."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($('Registrar no Supabase').first().json) }}",
+        "options": {}
+      },
+      "id": "940bfcd7-3c94-54f0-b0f5-5ac01e82b700",
+      "name": "Responder à Assiny",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1800,
+        300
       ]
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://api.crystalnowpp.com.br/webhooks/imagens",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($('Assiny').item.json.body) }}",
-        "options": {}
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false }) }}",
+        "options": {
+          "responseCode": 500
+        }
       },
-      "id": "f1d8c3b7-2a6e-4d9c-a4f0-8b3e5c7d1a92",
-      "name": "Repassar ao app (pacote de imagens)",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "id": "b6dd0e61-fd2f-516d-ad78-4c85020162c1",
+      "name": "Responder erro à Assiny",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
       "position": [
-        960,
+        1800,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "={{ $json.error ? 'Supabase: ' + String($json.error.message || $json.error.description || 'erro').slice(0, 200) : 'API do app: HTTP ' + $json.statusCode + ' ' + String($json.body && $json.body.error ? $json.body.error.code : '').slice(0, 80) }}"
+      },
+      "id": "3e066818-2948-5dc3-912a-8bfb0155ffc0",
+      "name": "Registrar falha",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2040,
         620
       ],
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 2000
+      "notes": "Depois de responder 500 à Assiny, marca a execução com erro: ela fica guardada em Executions (as com sucesso não ficam) e dispara o Error Workflow (Crystal · aviso de erro do n8n)."
     }
   ],
   "connections": {
@@ -280,7 +475,36 @@
       "main": [
         [
           {
+            "node": "Conferir e enxugar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conferir e enxugar": {
+      "main": [
+        [
+          {
+            "node": "Corpo válido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Corpo válido?": {
+      "main": [
+        [
+          {
             "node": "Registrar no Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 400 à Assiny",
             "type": "main",
             "index": 0
           }
@@ -288,6 +512,110 @@
       ]
     },
     "Registrar no Supabase": {
+      "main": [
+        [
+          {
+            "node": "Destino",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder erro à Assiny",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Destino": {
+      "main": [
+        [
+          {
+            "node": "E-mail de boas-vindas (Resend)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Desligar no app (reembolso)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Desligar no app (reembolso)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Repassar ao app (pacote de imagens)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder à Assiny",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "E-mail de boas-vindas (Resend)": {
+      "main": [
+        [
+          {
+            "node": "Responder à Assiny",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Desligar no app (reembolso)": {
+      "main": [
+        [
+          {
+            "node": "API aceitou?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder erro à Assiny",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Repassar ao app (pacote de imagens)": {
+      "main": [
+        [
+          {
+            "node": "API aceitou?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder erro à Assiny",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API aceitou?": {
       "main": [
         [
           {
@@ -305,68 +633,29 @@
         ]
       ]
     },
-    "Responder à Assiny": {
+    "Responder erro à Assiny": {
       "main": [
         [
           {
-            "node": "Liberou agora?",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Bloqueou?",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Produto fora da lista?",
+            "node": "Registrar falha",
             "type": "main",
             "index": 0
           }
         ]
       ]
-    },
-    "Liberou agora?": {
-      "main": [
-        [
-          {
-            "node": "E-mail de boas-vindas (Resend)",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        []
-      ]
-    },
-    "Bloqueou?": {
-      "main": [
-        [
-          {
-            "node": "Desligar no app (reembolso)",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        []
-      ]
-    },
-    "Produto fora da lista?": {
-      "main": [
-        [
-          {
-            "node": "Repassar ao app (pacote de imagens)",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        []
-      ]
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "all",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false,
+    "executionTimeout": 90,
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner"
   },
   "active": false,
   "pinData": {},
-  "versionId": "c677df25-51d2-482d-93cd-bf8d3d761a1f"
+  "versionId": "81e68143-c01b-54f4-a8ef-e035ec48ae11"
 }
