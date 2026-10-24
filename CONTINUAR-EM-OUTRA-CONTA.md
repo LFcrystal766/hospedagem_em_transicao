@@ -733,3 +733,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     e-mail de login para o dele (3 rotas, sem reauth/motivo). Médios: liberação manual sem prazo/reauth; técnico vê e-mails
     de todos (extração em lote) e busca de alunos como oráculo; cópia LGPD leva notas internas do financeiro; apagar memória
     única no Supabase sem auditoria. Aguardando 01, 03, 04, 05.
+    **01 autenticação (pronto):** 0 críticos, **2 altos**, 4 médios, 7 baixos; 10 testes em `seguranca-auth.test.ts`.
+    Altos: A2 a porta do aluno (`POST /auth/login` + `/auth/verify`) aceita e-mail de suporte/técnico/admin e abre sessão
+    com o papel da equipe, só com o código do e-mail (contorna a senha da equipe); A3 = o A1 do relatório 02 (troca de
+    e-mail pelo suporte sem reauth). Médios: enumeração de alunos pelas respostas do login; refresh sem rotação e 90 dias
+    deslizantes; 20 e-mails de código por vítima/15 min; `LOGIN_CODIGO=nenhum` ligável no painel. B5/B11 da consultoria
+    já corrigidos em `fe6dbd7`. Aguardando 03, 04, 05.
