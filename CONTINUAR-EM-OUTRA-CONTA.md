@@ -885,3 +885,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `auditorias/2026-10-24/seguranca/07-n8n-assiny.md`. Pendências de infra que o n8n deixou (retenção 48 h das
     execuções, `IMAGENS_WEBHOOK_SECRET` no `APP_EXTERNOS`, `n8n-compras.segredos` no backup): agente rodando na
     branch `seguranca/infra-pendencias-n8n` (vai mudar yaml do n8n: `STACKS_COMMIT` e sha256 do bootstrap mudam).
+    **Resumo consolidado escrito:** `auditorias/2026-10-24/seguranca/00-resumo.md` (86 achados distintos: 72 fechados,
+    13 abertos de propósito/parciais com motivo, 1 só do dono: INF-02 trocar chaves). Tem os 10 altos um a um, o que
+    a equipe de suporte vai sentir, o checklist do dono e os ponteiros. INT-21 (portão de lotes): conferir no painel
+    que `op_rollout_gate` está ligado.
