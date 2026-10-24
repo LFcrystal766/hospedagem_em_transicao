@@ -80,7 +80,9 @@ que a VPS.
 ## Subir a fundação na VPS
 
 `bootstrap-vps.sh` roda **na VPS**, como root. Baixa os yaml deste repositório
-(público, sem segredo), gera a senha do banco e a chave do n8n **na própria
+(público, sem segredo) do commit fixo `STACKS_COMMIT` gravado no próprio script e só
+aceita cada um se o sha256 bater com a tabela `ARQ_SHA256` dele (revisão de 24/10,
+INF-04: gravar na branch não muda o que a VPS sobe), gera a senha do banco e a chave do n8n **na própria
 máquina** (`/root/crystal/.segredos`, uma vez só), grava os arquivos prontos em
 `/root/crystal/stacks/` e sobe as stacks na ordem, esperando cada uma ficar 1/1.
 
@@ -260,6 +262,15 @@ de ponta a ponta (regrava as mesmas credenciais, faz uma compra e um reembolso d
 arquivos; trocar, `preparar` e `n8n` de novo. Falta só uma coisa à mão: 2FA em todas as contas
 do n8n (Settings > Personal > Two-factor).
 
+Yaml por commit fixo e sha256 (INF-04): o script não baixa mais nada de branch. Quem mudar
+um arquivo de `stacks-exemplo/`, `stacks-app/01`, `10`, `20` ou `n8n/crystal-provisoria.json`:
+commit e push do arquivo; no repositório, `bash crystal-em-casa/bootstrap-vps.sh arquivos-hash`
+(imprime o `STACKS_COMMIT` atual e a tabela, marcando o que mudou); colar no topo do script e
+commitar. Sem isso a VPS recusa o arquivo novo ("NÃO usado") e nada é trocado. O commit
+gravado tem de continuar no GitHub: juntar esta branch por merge (não por squash/rebase), ou
+rodar `arquivos-hash` de novo depois de juntar. `REF=<commit de 40 letras>` troca o commit;
+branch não é aceita.
+
 Segredos do app e do Chatwoot no spec do Swarm (INF-05): continuam em `env_file`, que o
 Swarm copia para o spec do serviço (o Portainer e `docker service inspect` mostram). Trocar
 por Docker secrets mexe no command dos serviços e no roteiro de troca de chave: fica para a
@@ -378,13 +389,14 @@ robô do Chatwoot.
 1. No Cloudflare, zona crystalnowpp.com.br: registro **A**, nome `atendimento`,
    IP `177.7.61.136`, **Somente DNS (nuvem cinza)**. Ou, com token:
    `scripts/cloudflare-crystal-vps-dns.sh criar --aplicar`.
-2. Na VPS, um comando de cada vez (REF = commit deste repositório):
+2. Na VPS, um comando de cada vez (desde 24/10 o script já sabe de qual commit baixar o
+   yaml, sem `REF=`):
 
 ```bash
-REF=<commit> bash bootstrap-vps.sh atendimento-subir              # até 10 min na 1ª vez
+bash bootstrap-vps.sh atendimento-subir                           # até 10 min na 1ª vez
 bash bootstrap-vps.sh atendimento-segredos                        # copiar pro Bitwarden
-REF=<commit> bash bootstrap-vps.sh atendimento-configurar sha-XXXXXXX   # admin, inbox, robô; testa
-REF=<commit> bash bootstrap-vps.sh app-canal chatwoot              # o app passa a usar o Chatwoot
+bash bootstrap-vps.sh atendimento-configurar sha-XXXXXXX          # admin, inbox, robô; testa
+bash bootstrap-vps.sh app-canal chatwoot                          # o app passa a usar o Chatwoot
 ```
 
 3. Entrar em `https://atendimento.crystalnowpp.com.br` com o login do Bitwarden e

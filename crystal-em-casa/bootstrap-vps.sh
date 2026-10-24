@@ -4,8 +4,11 @@
 # crystalnowpp.com.br e os segredos gerados na própria máquina.
 #
 # Roda NA VPS, como root. Uso:
-#   bash bootstrap-vps.sh preparar SEU_EMAIL   baixa os yaml, gera os segredos (uma vez só)
-#                                              e grava os arquivos prontos em /root/crystal/stacks
+#   bash bootstrap-vps.sh preparar SEU_EMAIL   baixa os yaml (commit fixo STACKS_COMMIT, sha256 conferido),
+#                                              gera os segredos (uma vez só) e grava os arquivos
+#                                              prontos em /root/crystal/stacks
+#   bash bootstrap-vps.sh arquivos-hash        NO REPOSITÓRIO, não na VPS: imprime STACKS_COMMIT e a tabela
+#                                              ARQ_SHA256 para colar no topo depois de mudar um yaml
 #   bash bootstrap-vps.sh docker-api           Docker 29 recusa o Traefik v2 (API 1.24): grava
 #                                              min-api-version=1.24 no daemon.json e reinicia o Docker
 #   bash bootstrap-vps.sh traefik              sobe 00, espera ficar 1/1, mostra a versão no ar e, com o
@@ -173,7 +176,31 @@
 set -euo pipefail
 
 DOMINIO=crystalnowpp.com.br
-REPO_RAW="${REPO_RAW:-https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/${REF:-claude/gracious-shannon-6x9l5j}/crystal-em-casa/stacks-exemplo}"
+# Arquivos que o script sobe (stacks e o fluxo do n8n). Na VPS ele roda sozinho, fora do
+# repositório, e baixa cada um do GitHub por COMMIT FIXO, só aceitando se o sha256 bater com
+# a tabela abaixo (INF-04, 24/10/2026): gravar na branch não muda o que a VPS sobe, e como
+# o próprio script é conferido pelo sha256 ao baixar, a tabela vem junto conferida.
+# Atualize os dois ao mudar os yamls (ou o fluxo): 1) commit e push dos arquivos novos;
+# 2) no repositório, 'bash crystal-em-casa/bootstrap-vps.sh arquivos-hash' imprime o bloco
+# com o commit atual; 3) colar aqui e commitar o script. REF=<commit de 40 letras> troca o
+# commit (o sha256 continua valendo); branch não é aceita. Rodando de dentro de um clone do
+# repositório, usa a cópia local (o git garante a origem) e só avisa se divergir da tabela.
+STACKS_COMMIT=10131831340c9e74a7c78d4b2773ae28e9a10c79
+declare -A ARQ_SHA256=(
+  [stacks-exemplo/00-traefik.yaml]=1e394a5780c529cd8ac9c5745573b011c13dadefb6a856a538f9d349fd957ef5
+  [stacks-exemplo/01-portainer.yaml]=956304308fdea7b905c0807ceda69f2380584e3f4f43d303a3c5a69d45118463
+  [stacks-exemplo/02-n8n-postgres.yaml]=2efac56e511214308ec20c71307467b44cbece60cf35e7f2be6b7156582cca78
+  [stacks-exemplo/03-n8n-redis.yaml]=01b3963db27eb03b5fa9736fd77e2a6d0aac164cf51d38388f798c9c98533de1
+  [stacks-exemplo/04-n8n-editor.yaml]=fe00ea4d9276e2e927c1ef4391df2c6fafa8aa121a0dfc329ea7cb2d81ea3e11
+  [stacks-exemplo/05-n8n-webhook.yaml]=89ab11299c1583e9c1a794b630a7ce5f0ca5aaaa1ce221c28eca338531756688
+  [stacks-exemplo/06-n8n-worker.yaml]=d04fa99497375408662d53340a4fc622e768c262ec91a905014311e31d37ed5f
+  [stacks-app/01-portainer-restrito.yaml]=bc035b6d6dd35ac159080dce72e9fa2bea5f21e662d2c035be994e51ac9b23d4
+  [stacks-app/10-crystal-app.yaml]=cf0741a0fca6531620a72c61b0edf1266df76982b5adb7026f05039c3c848330
+  [stacks-app/20-atendimento.yaml]=bffde96b7388352d79ee0faa3baae00d4e7a6ab0afc41ccf737b267c5f23b9cb
+  [n8n/crystal-provisoria.json]=6ba9a2183c94c4fcff07207e7fc29b9b510907d013a51cffea6d32d84e0d7387
+)
+STACKS_REF="${REF:-$STACKS_COMMIT}"
+RAW_BASE="https://raw.githubusercontent.com/LFcrystal766/hospedagem_em_transicao/$STACKS_REF/crystal-em-casa"
 BASE="${CRYSTAL_DIR:-/root/crystal}"
 ORIG="$BASE/originais"
 STACKS="$BASE/stacks"
@@ -186,6 +213,53 @@ CMD="${1:-}"
 falha() { echo "ERRO: $*" >&2; exit 2; }
 ok() { echo "  ok $*"; }
 aviso() { echo "  ! $*"; }
+
+# baixar_conferido CAMINHO DESTINO   (CAMINHO relativo a crystal-em-casa/, chave de ARQ_SHA256)
+# Com o repositório ao lado, copia a versão local; senão baixa do commit fixo e só grava em
+# DESTINO se o sha256 bater. Devolve 1 com o motivo, sem sair: quem chama decide.
+baixar_conferido() {
+  local rel="$1" dest="$2" esperado tmp h
+  esperado="${ARQ_SHA256[$rel]:-}"
+  [ -n "$esperado" ] || { aviso "$rel não está na tabela ARQ_SHA256 do script"; return 1; }
+  if [ -f "$AQUI/$rel" ]; then
+    cp "$AQUI/$rel" "$dest" || return 1
+    h=$(sha256sum "$dest" | cut -d' ' -f1)
+    [ "$h" = "$esperado" ] || aviso "$rel local (sha256 ${h:0:12}) difere da tabela do script (${esperado:0:12}): mudou e falta rodar arquivos-hash?"
+    return 0
+  fi
+  printf '%s' "$STACKS_REF" | grep -Eq '^[0-9a-f]{40}$' \
+    || { aviso "REF tem de ser um commit de 40 letras 0-9a-f (branch não vale)"; return 1; }
+  tmp=$(mktemp "$dest.XXXXXX") || return 1
+  if ! curl -fsSL -m 60 "$RAW_BASE/$rel" -o "$tmp"; then
+    rm -f "$tmp"; aviso "não baixou $rel do commit ${STACKS_REF:0:12}"; return 1
+  fi
+  h=$(sha256sum "$tmp" | cut -d' ' -f1)
+  if [ "$h" != "$esperado" ]; then
+    rm -f "$tmp"
+    aviso "$rel do commit ${STACKS_REF:0:12} veio com sha256 ${h:0:12}, esperado ${esperado:0:12}: NÃO usado"
+    return 1
+  fi
+  mv -f "$tmp" "$dest"
+}
+
+# No repositório, depois de mudar um arquivo da tabela (e do commit com ele): imprime o
+# STACKS_COMMIT e a tabela ARQ_SHA256 para colar no topo. Roda em qualquer máquina, sem docker.
+arquivos_hash() {
+  local c rel h marca mudou=0
+  c=$(git -C "$AQUI" rev-parse HEAD 2>/dev/null) || falha "rode de dentro do repositório (git clone)"
+  if [ -n "$(git -C "$AQUI" status --porcelain -- "${!ARQ_SHA256[@]}" 2>/dev/null)" ]; then
+    aviso "há arquivo da tabela com mudança fora de commit: commit e push antes, senão o hash não existe no GitHub"
+  fi
+  echo "STACKS_COMMIT=$c"
+  echo "declare -A ARQ_SHA256=("
+  while IFS= read -r rel; do
+    h=$(git -C "$AQUI" show "HEAD:crystal-em-casa/$rel" 2>/dev/null | sha256sum | cut -d' ' -f1)
+    [ "$h" = "${ARQ_SHA256[$rel]}" ] && marca="" || { marca="   # MUDOU"; mudou=1; }
+    echo "  [$rel]=$h$marca"
+  done < <(printf '%s\n' "${!ARQ_SHA256[@]}" | sort)
+  echo ")"
+  [ "$mudou" = 1 ] || echo "# nenhum arquivo mudou: basta trocar o STACKS_COMMIT se quiser"
+}
 
 [ -n "$CMD" ] || { awk 'NR==1{next} /^#/{print; next} {exit}' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 
@@ -246,12 +320,9 @@ preparar() {
   chmod 700 "$BASE" "$STACKS"
 
   # 1. Originais: da pasta local se o script estiver dentro do repositório, senão do GitHub
+  # pelo commit fixo, com o sha256 conferido (baixar_conferido)
   for a in "${ARQUIVOS[@]}"; do
-    if [ -f "$AQUI/stacks-exemplo/$a" ]; then
-      cp "$AQUI/stacks-exemplo/$a" "$ORIG/$a"
-    else
-      curl -fsSL -m 60 "$REPO_RAW/$a" -o "$ORIG/$a" || falha "não baixou $a de $REPO_RAW"
-    fi
+    baixar_conferido "stacks-exemplo/$a" "$ORIG/$a" || falha "sem $a conferido: nada foi regravado em $STACKS"
     grep -q '^services:' "$ORIG/$a" || falha "$a não parece um compose (baixou uma página de erro?)"
   done
   ok "${#ARQUIVOS[@]} originais em $ORIG"
@@ -1069,11 +1140,7 @@ painel_gerar() { # grava $STACKS/01-portainer.yaml restrito, a partir do modelo 
   aimg=$(painel_imagem agent) || { aviso "serviço portainer_agent não encontrado com imagem@digest"; return 1; }
   ips=$(paste -sd, "$PAINEL_IPS_ARQ")
   mkdir -p "$ORIG" "$STACKS"; chmod 700 "$BASE" "$STACKS"
-  if [ -f "$AQUI/stacks-app/$PAINEL_YAML" ]; then
-    cp "$AQUI/stacks-app/$PAINEL_YAML" "$ORIG/$PAINEL_YAML"
-  else
-    curl -fsSL -m 60 "$APP_RAW/$PAINEL_YAML" -o "$ORIG/$PAINEL_YAML" || { aviso "não baixou $PAINEL_YAML de $APP_RAW"; return 1; }
-  fi
+  baixar_conferido "stacks-app/$PAINEL_YAML" "$ORIG/$PAINEL_YAML" || { aviso "sem $PAINEL_YAML conferido"; return 1; }
   grep -q 'ipallowlist.sourcerange=PAINEL_IPS' "$ORIG/$PAINEL_YAML" || { aviso "$PAINEL_YAML não é o modelo esperado"; return 1; }
   umask 077
   # Guarda a versão aberta uma vez, para voltar atrás se precisar.
@@ -1297,7 +1364,6 @@ APP_DIR="$BASE/app"
 APP_SEG="$APP_DIR/.segredos"
 APP_EXT="$APP_DIR/.externos"
 APP_YAML=10-crystal-app.yaml
-APP_RAW="${APP_RAW:-${REPO_RAW%/stacks-exemplo}/stacks-app}"
 APP_IMG=ghcr.io/lfcrystal766/crystal-web-chat
 APP_STACK=crystal_app
 # Nomes que o app-definir aceita. Os marcados com * são segredo (não ecoam).
@@ -1784,11 +1850,7 @@ app_subir() {
 
   echo "== stack"
   mkdir -p "$ORIG" "$STACKS"; chmod 700 "$BASE" "$STACKS"
-  if [ -f "$AQUI/stacks-app/$APP_YAML" ]; then
-    cp "$AQUI/stacks-app/$APP_YAML" "$ORIG/$APP_YAML"
-  else
-    curl -fsSL -m 60 "$APP_RAW/$APP_YAML" -o "$ORIG/$APP_YAML" || falha "não baixou $APP_YAML de $APP_RAW"
-  fi
+  baixar_conferido "stacks-app/$APP_YAML" "$ORIG/$APP_YAML" || falha "sem $APP_YAML conferido: a stack no ar não foi trocada"
   grep -q '^services:' "$ORIG/$APP_YAML" || falha "$APP_YAML não parece um compose"
   umask 077
   sed -e "s|APP_TAG|$tag|g" -e "s|APP_ENV_DIR|$APP_DIR|g" "$ORIG/$APP_YAML" > "$STACKS/$APP_YAML"
@@ -3006,11 +3068,7 @@ atendimento_subir() {
 
   echo "== stack"
   mkdir -p "$ORIG" "$STACKS"; chmod 700 "$BASE" "$STACKS"
-  if [ -f "$AQUI/stacks-app/$CW_YAML" ]; then
-    cp "$AQUI/stacks-app/$CW_YAML" "$ORIG/$CW_YAML"
-  else
-    curl -fsSL -m 60 "$APP_RAW/$CW_YAML" -o "$ORIG/$CW_YAML" || falha "não baixou $CW_YAML de $APP_RAW"
-  fi
+  baixar_conferido "stacks-app/$CW_YAML" "$ORIG/$CW_YAML" || falha "sem $CW_YAML conferido: a stack no ar não foi trocada"
   grep -q '^services:' "$ORIG/$CW_YAML" || falha "$CW_YAML não parece um compose"
   # Console de super admin: só os IPs do painel. Sem lista, só a própria VPS (fechado).
   ips=127.0.0.1/32
@@ -3311,11 +3369,7 @@ crystal_provisoria() {
   tag=$(app_tag_atual); [ -n "$tag" ] || falha "o app não está no ar: rode 'app-subir TAG' antes"
 
   mkdir -p "$ORIG"; wf="$ORIG/crystal-provisoria.json"
-  if [ -f "$AQUI/n8n/crystal-provisoria.json" ]; then
-    cp "$AQUI/n8n/crystal-provisoria.json" "$wf"
-  else
-    curl -fsSL -m 60 "${REPO_RAW%/stacks-exemplo}/n8n/crystal-provisoria.json" -o "$wf" || falha "não baixou o fluxo crystal-provisoria.json"
-  fi
+  baixar_conferido "n8n/crystal-provisoria.json" "$wf" || falha "sem o fluxo crystal-provisoria.json conferido"
   grep -q "\"$N8N_WF_ID\"" "$wf" || falha "o fluxo baixado não é o esperado"
 
   echo "Use uma chave NOVA do OpenRouter, só pra isto: Keys > Create Key, nome 'Crystal provisória',"
@@ -3476,6 +3530,7 @@ case "$CMD" in
   preparar) preparar "$@" ;;
   recomecar-n8n) recomecar_n8n "$@" ;;
   docker-api) docker_api ;;
+  arquivos-hash) arquivos_hash ;;
   backup) backup "$@" ;;
   backup-cron) backup_cron ;;
   backup-chave) shift; backup_chave "$@" ;;
