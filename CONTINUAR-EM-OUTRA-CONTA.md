@@ -728,3 +728,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `auditorias/2026-10-24/seguranca/`: 01 autenticação/sessões, 02 autorização/dados/LGPD, 03 serviço da Crystal
     (trava, injeção, imagens, memória, custo), 04 webhooks/integrações/n8n/Supabase, 05 infra/deploy/supply chain.
     Depois: consolidar, corrigir críticos e altos, CI, imagem, publicar.
+    **02 autorização/dados (pronto):** 0 críticos, 1 alto, 4 médios, 5 baixos; 22 testes de prova em
+    `apps/api/src/seguranca-autorizacao.test.ts` (não rastreado). Alto A1: suporte toma a conta de qualquer aluno trocando o
+    e-mail de login para o dele (3 rotas, sem reauth/motivo). Médios: liberação manual sem prazo/reauth; técnico vê e-mails
+    de todos (extração em lote) e busca de alunos como oráculo; cópia LGPD leva notas internas do financeiro; apagar memória
+    única no Supabase sem auditoria. Aguardando 01, 03, 04, 05.
