@@ -41,7 +41,11 @@ version: "3.7"
 
 services:
   n8n_postgres:
-    image: postgres:16
+    # Versão fixa (revisão de 24/10, INF-14): era postgres:16, que muda de patch sozinho a cada
+    # deploy. 16.15-trixie é o que postgres:16 dava em 24/10 (mesmo digest no Docker Hub), na
+    # mesma base Debian trixie: nada muda no disco. Atualizar: ler as notas da 16.x, backup,
+    # trocar aqui, preparar e bancos.
+    image: postgres:16.15-trixie
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
 
     # Revisão de 24/10 (INF-28): log do Docker com rotação, 3 arquivos de 10 MB. Antes, sem

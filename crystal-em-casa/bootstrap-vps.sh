@@ -2257,17 +2257,19 @@ app_gerar_env() {
 # A API roda sem root desde a etapa 1 do PRD de Otimização (USER node, uid 1000,
 # no Dockerfile de apps/api). O volume app_uploads nasceu com dono root: sem isto a
 # API nova não grava a mídia dos alunos em /app/uploads. Idempotente e calado
-# quando o dono já é 1000:1000; sem a alpine:3.20, avisa e segue.
+# quando o dono já é 1000:1000; sem a imagem alpine, avisa e segue.
+# Versão fixa (24/10, INF-14): era alpine:3.20 (fora de suporte desde 04/2026).
+ALPINE_IMG=alpine:3.24.3
 app_uploads_dono() {
   local vol="${APP_STACK}_app_uploads" dono
   docker volume inspect "$vol" >/dev/null 2>&1 || return 0
-  if ! docker image inspect alpine:3.20 >/dev/null 2>&1 && ! docker pull -q alpine:3.20 >/dev/null 2>&1; then
-    aviso "não baixou alpine:3.20: dono de $vol não conferido (a API, sem root, pode não gravar em /app/uploads)"
+  if ! docker image inspect "$ALPINE_IMG" >/dev/null 2>&1 && ! docker pull -q "$ALPINE_IMG" >/dev/null 2>&1; then
+    aviso "não baixou $ALPINE_IMG: dono de $vol não conferido (a API, sem root, pode não gravar em /app/uploads)"
     return 0
   fi
-  dono=$(docker run --rm -v "$vol:/u" alpine:3.20 stat -c '%u:%g' /u 2>/dev/null) || dono=
+  dono=$(docker run --rm -v "$vol:/u" "$ALPINE_IMG" stat -c '%u:%g' /u 2>/dev/null) || dono=
   [ "$dono" = "1000:1000" ] && return 0
-  if docker run --rm -v "$vol:/u" alpine:3.20 chown -R 1000:1000 /u; then
+  if docker run --rm -v "$vol:/u" "$ALPINE_IMG" chown -R 1000:1000 /u; then
     ok "volume $vol entregue ao uid 1000 (API sem root)"
   else
     aviso "não ajustou o dono de $vol: a API pode não gravar em /app/uploads"
@@ -2344,8 +2346,13 @@ app_subir() {
 
   echo "== imagens $tag"
   local img locais=0
+  local -A dig=([api]="" [web]="" [crystal]="")
   for img in api web crystal; do
     if docker pull -q "$APP_IMG-$img:$tag" >/dev/null 2>&1; then
+      # O digest do que veio do ghcr.io vai junto da tag no yaml (INF-17): o spec diz exatamente
+      # qual imagem roda, e ele aparece aqui para comparar com o resumo do imagens-vps no GitHub.
+      dig[$img]=$(docker image inspect -f '{{range .RepoDigests}}{{println .}}{{end}}' "$APP_IMG-$img:$tag" 2>/dev/null \
+        | grep -m1 -E "^$APP_IMG-$img@sha256:[0-9a-f]{64}\$" | sed 's/.*@/@/' || true)
       continue
     elif [ "$(docker image inspect -f '{{index .Config.Labels "crystal.construida-na-vps"}}' "$APP_IMG-$img:$tag" 2>/dev/null)" = "1" ]; then
       locais=$((locais + 1))   # montada aqui por app-construir: não existe no ghcr.io
@@ -2354,6 +2361,9 @@ app_subir() {
     fi
   done
   if [ "$locais" -gt 0 ]; then ok "imagens $tag: $locais montada(s) nesta VPS (app-construir), o resto baixado"; else ok "$APP_IMG-api, -web e -crystal:$tag baixadas"; fi
+  for img in api web crystal; do
+    [ -n "${dig[$img]}" ] && ok "  $img presa no digest ${dig[$img]#@}"
+  done
 
   echo "== segredos e ambiente"
   app_gerar_segredos "$tag"
@@ -2366,7 +2376,10 @@ app_subir() {
   baixar_conferido "stacks-app/$APP_YAML" "$ORIG/$APP_YAML" || falha "sem $APP_YAML conferido: a stack no ar não foi trocada"
   grep -q '^services:' "$ORIG/$APP_YAML" || falha "$APP_YAML não parece um compose"
   umask 077
-  sed -e "s|APP_TAG|$tag|g" -e "s|APP_ENV_DIR|$APP_DIR|g" "$ORIG/$APP_YAML" > "$STACKS/$APP_YAML"
+  sed -e "s|crystal-web-chat-api:APP_TAG|crystal-web-chat-api:$tag${dig[api]}|" \
+      -e "s|crystal-web-chat-web:APP_TAG|crystal-web-chat-web:$tag${dig[web]}|" \
+      -e "s|crystal-web-chat-crystal:APP_TAG|crystal-web-chat-crystal:$tag${dig[crystal]}|" \
+      -e "s|APP_TAG|$tag|g" -e "s|APP_ENV_DIR|$APP_DIR|g" "$ORIG/$APP_YAML" > "$STACKS/$APP_YAML"
   grep -nE 'APP_TAG|APP_ENV_DIR' "$STACKS/$APP_YAML" | grep -vE '^\s*[0-9]+:\s*#' | grep -q . && falha "marcador sobrando em $APP_YAML"
   redes_ajustar "$STACKS/$APP_YAML"
   app_uploads_dono   # a API sem root (etapa 1) precisa do volume com dono 1000:1000

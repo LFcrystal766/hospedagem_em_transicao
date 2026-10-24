@@ -69,7 +69,10 @@ services:
 
   # ---------------------------------------------------------------- Postgres
   app_postgres:
-    image: postgres:16-alpine
+    # Versão fixa (revisão de 24/10, INF-14): era 16-alpine, que mudava de patch sozinho no
+    # próximo app-subir. 16.15-alpine3.24 é o que 16-alpine dava em 24/10 (mesmo digest).
+    # Atualizar: ler as notas da 16.x, backup, trocar aqui e app-subir com a tag atual.
+    image: postgres:16.15-alpine3.24
     logging: *logs
     env_file: APP_ENV_DIR/postgres.env
     networks:
@@ -97,7 +100,9 @@ services:
   # redis.env (gerado pelo bootstrap, chmod 600) e o REDIS_URL da API a leva. O command passa
   # pelo docker-entrypoint.sh da imagem, que troca para o usuário redis (sem root).
   app_redis:
-    image: redis:7-alpine
+    # Versão fixa (24/10, INF-14): era 7-alpine; 7.4.11-alpine é o mesmo digest em 24/10 e a
+    # mesma versão do Redis do Chatwoot.
+    image: redis:7.4.11-alpine
     logging: *logs
     env_file: APP_ENV_DIR/redis.env
     command:
@@ -127,6 +132,8 @@ services:
   # Postgres lento na subida (achado 28): a migração tenta de novo por até 1 min
   # antes de desistir, e o restart_policy sem max_attempts nunca deixa a API em 0/1.
   app_api:
+    # APP_TAG vira sha-XXXXXXX@sha256:... (o digest que o app-subir baixou do ghcr.io, INF-17);
+    # imagem montada na VPS (app-construir) fica só com a tag.
     image: ghcr.io/lfcrystal766/crystal-web-chat-api:APP_TAG
     logging: *logs
     command:

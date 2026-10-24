@@ -31,7 +31,9 @@ version: "3.7"
 
 services:
   n8n_redis:
-    image: redis:7
+    # Versão fixa (revisão de 24/10, INF-14): era redis:7. 7.4.11-bookworm é o que redis:7 dava
+    # em 24/10 (mesmo digest no Docker Hub). Atualizar: trocar aqui, preparar e bancos.
+    image: redis:7.4.11-bookworm
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
 
     # Revisão de 24/10 (INF-28): log do Docker com rotação, 3 arquivos de 10 MB. Antes, sem
