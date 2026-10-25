@@ -897,3 +897,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     (tags, sha256, roteiro de uma madrugada, SQL, ações dele). **Daqui em diante é o dono quem age**; próxima sessão:
     acompanhar a publicação (`app-subir sha-3c343df`), a madrugada da VPS e a troca do fluxo do n8n, e responder ao que
     o suporte perguntar (seção 5 do `00-resumo.md`).
+
+49. **25/10, pedido do dono: "check geral de toda a plataforma pensando em UX e UI" + relatório + mockups + PRD final de
+    execução.** Em andamento: workflow com agentes (mapa das telas da aluna e do painel, sistema visual, contexto do
+    produto e capturas reais de tela via Playwright em modo e2e; 10 lentes de revisão; verificação adversarial por
+    lote; síntese: relatório em `auditorias/2026-10-25/ux/relatorio-ux-ui.md`, PRD em
+    `docs/ux/PRD-ux-ui-2026-10-25.md` no repositório do app (worktree `/home/user/cw-ux`, branch
+    `docs/prd-ux-2026-10-25`), mockups antes→depois em HTML; crítico de completude). Depois: publicar os mockups como
+    artefato (tipo Design) para o grupo e commitar relatório e PRD. Restrições fixas: alma intocada, cara de WhatsApp,
+    itens recusados do `docs/otimizacao/04-fora-do-escopo.md` não voltam, nada de dado pessoal.
