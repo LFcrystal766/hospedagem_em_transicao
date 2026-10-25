@@ -906,3 +906,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `docs/prd-ux-2026-10-25`), mockups antes→depois em HTML; crítico de completude). Depois: publicar os mockups como
     artefato (tipo Design) para o grupo e commitar relatório e PRD. Restrições fixas: alma intocada, cara de WhatsApp,
     itens recusados do `docs/otimizacao/04-fora-do-escopo.md` não voltam, nada de dado pessoal.
+    **25/10 ~18:00 UTC:** mapa, revisão e verificação PRONTOS: 104 capturas reais (`scratchpad/ux/capturas/`), 4 mapas,
+    10 lentes → **143 achados confirmados (14 altos, 87 médios, 42 baixos; 56 da aluna, 63 do painel, 24 ambos)**,
+    gravados em `auditorias/2026-10-25/ux/achados.json`. Há duplicatas entre lentes (ex.: "Menu > Suporte não existe no
+    menu" = UX-15/28/73): relatório e PRD agrupam. A síntese do workflow caiu no limite de uso da sessão (reset 18:20
+    UTC); relançada à mão às 18:05 UTC com 6 agentes em paralelo: relatório (`auditorias/2026-10-25/ux/relatorio-ux-ui.md`),
+    PRD (`/home/user/cw-ux/docs/ux/PRD-ux-ui-2026-10-25.md`), 4 grupos de mockups (`scratchpad/ux/mockups/*.html`,
+    fragmentos antes→depois com estilos inline). Canvas Design dos mockups já criado:
+    https://claude.ai/artifact/Mdq9zQnWcUR8SCYtdH3UDz (25 capturas "antes" já enviadas como assets; artboards entram
+    quando os mockups saírem). Depois: crítico de completude, copiar capturas citadas para o repositório, commitar os dois
+    repositórios, entregar ao dono.
