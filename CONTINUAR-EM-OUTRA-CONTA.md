@@ -950,3 +950,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Montada por `scratchpad/ux/visual/galeria-modelo.html` + `_resultados.json` (lista das telas tirada do journal do
     workflow). Quando o workflow terminar (p3, p4, ds, 9 revisões e coerência), republicar NO MESMO arquivo
     (`scratchpad/ux/visual/galeria/index.html`) para manter o link, tirando o aviso de prévia.
+    **26/10: TELAS FINAIS ENTREGUES.** Workflow terminou (20 agentes: kit, 9 grupos desenhados e revisados, coerência com
+    14 correções entre grupos). Galeria republicada no mesmo link com **108 telas revisadas** (onda 1: 32, onda 2: 59,
+    onda 3: 17; 4 folhas do kit visual), sem aviso de prévia. Cópia completa em `auditorias/2026-10-25/ux/telas-finais/`
+    (commit `73eb00a`: imagens, galeria, HTML de cada tela, `ds.css`, `KIT.md`, ícones, `render.js`). O kit fez 5 ajustes
+    de cor em relação ao PRD para fechar o contraste AA (verde do aviso `#097200`, toque do rosa `#c20857`, "Desfazer" do
+    toast, trilho do interruptor, contador do suporte) e o foco rosa por padrão: levar ao PRD (U01, U27, U52) quando a
+    onda for executada. Link privado: o dono compartilha pelo Share.
