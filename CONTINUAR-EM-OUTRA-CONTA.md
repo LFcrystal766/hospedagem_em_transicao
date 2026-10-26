@@ -979,6 +979,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       `movimento-faixa` (U16, U22). Camada 3: `menu-leitor-textos` (U04, U15, U18, U20). Camada 4:
       `erros-conversa-audio` (U05, U13), `erro-critico` (U19), `rede-testes` (U23). Camada 1 implementada (10 commits),
       verificação rodando. Base da onda 1 verde, menos o teste de tempo da trava (6,6 ms com a máquina ocupada).
+    - **Contêiner reiniciou (26/10 noite):** o workflow caiu com a camada 1 implementada (3 pacotes, 15 commits nas
+      branches `uxp/onda1-*`, todas empurradas) e 2 de 3 verificações prontas. Retomado com `resumeFromRunId`
+      (`wf_1ed70145-182`, tarefa `w2esbxur7`): o que já terminou volta do cache; a verificação de `paginas-publicas`
+      recomeça com a edição que tinha ficado sem commit (`e2e/voltar.spec.ts`). Se cair de novo: mesmo comando de
+      retomada (está no lembrete automático das 00:46 UTC).
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
