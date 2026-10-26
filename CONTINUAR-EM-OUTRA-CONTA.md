@@ -936,3 +936,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     6 conversa/início + 6 painel suporte + 5 painel dados), cada um com a captura real de hoje, a proposta e "O que mudou"
     com os IDs; fonte em `auditorias/2026-10-25/ux/mockups/`. Privado: o dono precisa compartilhar pelo menu Share para o
     grupo abrir. Nada foi mudado no código do app; a execução é do Igor, onda a onda, pelo PRD.
+
+50. **26/10, pedido do dono: "o mockup preciso que me mostre como ficaria visualmente usando o PRD".** Leitura: ver as
+    telas PRONTAS (depois das 3 ondas), não só antes/depois. Em andamento: workflow `wf_cd44b45a-c72` monta um kit visual
+    (`scratchpad/ux/visual/ds.css` com os tokens e componentes do PRD, fontes reais Inter Tight e Blinker, imagens reais
+    do app) e 9 grupos de telas em HTML (a1–a4 aluna, p1–p4 painel, ds kit), renderizadas em PNG pelo
+    `scratchpad/ux/visual/render.js` (Playwright; celular 390×844 @2x, computador 1280×800), cada grupo revisado por um
+    crítico que abre as imagens, mais uma passada de coerência entre todas. Depois: galeria publicada como artefato
+    (modelo em `scratchpad/ux/visual/galeria-modelo.html`, filtros por área e onda, toque amplia), folhas de contato
+    no chat e cópia das PNGs em `auditorias/2026-10-25/ux/telas-finais/`.
