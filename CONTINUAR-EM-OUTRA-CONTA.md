@@ -957,3 +957,20 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     de cor em relação ao PRD para fechar o contraste AA (verde do aviso `#097200`, toque do rosa `#c20857`, "Desfazer" do
     toast, trilho do interruptor, contador do suporte) e o foco rosa por padrão: levar ao PRD (U01, U27, U52) quando a
     onda for executada. Link privado: o dono compartilha pelo Share.
+
+51. **26/10, pedido do dono: "Execute o PRD completo. Use agentes e faça harness".** Em andamento.
+    - **Harness** em `scratchpad/ux/harness/`: `gate.sh <worktree> rapido|e2e|completo [--porta N]` (tipos, lint,
+      testes dos pacotes mudados, build do web, conferir-safari, audit, e2e com portas próprias: web N, API N+1,
+      Chatwoot falso N+2; logs em `<worktree>/.gate/`), `REGRAS.md` (fonte da verdade = PRD + 108 telas finais como
+      referência visual; cores do kit corrigidas para AA; nunca alma, nunca produção, nunca git destrutivo; commit
+      por item com `Claude Opus 5.5`), `base-onda1.log` (portão completo da base sem mudança, para separar falha
+      antiga de falha nova).
+    - **Branches:** `painel/ux-onda-1` (de `3c343df` + PRD; CI roda em `painel/**`, por isso não `ux/onda-1` como o
+      PRD dizia), depois `painel/ux-onda-2` e `-3` em cima. Pacotes em `uxp/onda<N>-<id>` (sem CI; worktrees em
+      `/home/user/cwux/<id>`, removidos depois de juntados). Integração em `/home/user/cw-ux-onda<N>`.
+    - **Roteiro por onda** (workflow `ux-prd-onda`, reutilizável): planejador divide os itens em pacotes por camada →
+      implementador por pacote (worktree e portas próprias, teste por critério de aceite) → verificador adversarial
+      (textos do PRD caractere por caractere, a11y, segurança onde o PRD manda) → integrador por camada (merge
+      --no-ff, portão completo, push) → portão de saída (CI inteiro, docs, `docs/ux/onda-N-conferir-em-aparelho.md`).
+    - **Onda 1 (U01–U23) rodando:** workflow `wf_1ed70145-182`. Ondas 2 e 3 depois, em sequência, cada uma sobre a
+      anterior. Publicação na VPS continua com o dono (`sha-3c343df` antes ou junto da onda 1).
