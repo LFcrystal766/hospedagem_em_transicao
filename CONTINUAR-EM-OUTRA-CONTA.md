@@ -984,6 +984,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       (`wf_1ed70145-182`, tarefa `w2esbxur7`): o que já terminou volta do cache; a verificação de `paginas-publicas`
       recomeça com a edição que tinha ficado sem commit (`e2e/voltar.spec.ts`). Se cair de novo: mesmo comando de
       retomada (está no lembrete automático das 00:46 UTC).
+    - **Segundo reinício (26/10 ~23:20 UTC):** caiu durante a junção da camada 1. As três verificações tinham
+      terminado e o integrador já tinha juntado os 3 pacotes (`fd82c1f`, `baaa9fd`, `e19ea33`); eu empurrei
+      `painel/ux-onda-1` em `e19ea33`. No portão completo só 2 testes da API estavam vermelhos (U07 ordem das respostas
+      em `messages.test.ts` e um de `staff-eventos.test.ts`), com correção em andamento sem commit no worktree de
+      integração. Retomado de novo (tarefa `wf6lpgtlk`); o integrador recomeça com essas edições no lugar.
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
