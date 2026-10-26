@@ -945,3 +945,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     crítico que abre as imagens, mais uma passada de coerência entre todas. Depois: galeria publicada como artefato
     (modelo em `scratchpad/ux/visual/galeria-modelo.html`, filtros por área e onda, toque amplia), folhas de contato
     no chat e cópia das PNGs em `auditorias/2026-10-25/ux/telas-finais/`.
+    **26/10: dono pediu "ponha em um artefato".** Galeria publicada como PRÉVIA: https://claude.ai/artifact/JdZwwHjuvUfgM6oiuRUFt6
+    (57 telas de 6 grupos: a1–a4 aluna, p1–p2 painel, ainda sem a revisão final; filtros por área e onda, toque amplia).
+    Montada por `scratchpad/ux/visual/galeria-modelo.html` + `_resultados.json` (lista das telas tirada do journal do
+    workflow). Quando o workflow terminar (p3, p4, ds, 9 revisões e coerência), republicar NO MESMO arquivo
+    (`scratchpad/ux/visual/galeria/index.html`) para manter o link, tirando o aviso de prévia.
