@@ -974,6 +974,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       --no-ff, portão completo, push) → portão de saída (CI inteiro, docs, `docs/ux/onda-N-conferir-em-aparelho.md`).
     - **Onda 1 (U01–U23) rodando:** workflow `wf_1ed70145-182`. Ondas 2 e 3 depois, em sequência, cada uma sobre a
       anterior. Publicação na VPS continua com o dono (`sha-3c343df` antes ou junto da onda 1).
+    - **Plano da onda 1 (22:15 UTC):** 10 pacotes em 4 camadas. Camada 1: `tokens-foco-campos` (U01–U03),
+      `fila-midia-offline` (U07, U14), `paginas-publicas` (U21). Camada 2: `login` (U09–U12), `bolha` (U06, U08, U17),
+      `movimento-faixa` (U16, U22). Camada 3: `menu-leitor-textos` (U04, U15, U18, U20). Camada 4:
+      `erros-conversa-audio` (U05, U13), `erro-critico` (U19), `rede-testes` (U23). Camada 1 implementada (10 commits),
+      verificação rodando. Base da onda 1 verde, menos o teste de tempo da trava (6,6 ms com a máquina ocupada).
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
