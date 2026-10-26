@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="1280x800">
+<title>Kit do painel</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  /* Folha do kit no tamanho do painel (md), como a vitrine /equipe/kit. Só arrumação da folha. */
+  .folha { display: flex; flex-direction: column; height: 100%; }
+  .folha-topo { display: flex; align-items: center; gap: 20px; padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .folha-topo .page-header { margin: 0; }
+  .folha-sep { width: 1px; align-self: stretch; background: var(--border-strong); }
+  .folha-grade { flex: 1; min-height: 0; display: grid; grid-template-columns: 260px 280px 304px minmax(0, 1fr); gap: 24px; padding: 18px 24px 16px; }
+  .col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .kit-secao { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .kit-rotulo { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .kit-rotulo .secao-titulo { color: var(--ink); }
+  .kit-nota { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); white-space: nowrap; }
+  .kit-linha { display: flex; align-items: center; gap: 8px; }
+  .kit-linha .btn-text { margin: 0; }
+  .kit-botoes { display: flex; flex-direction: column; gap: 10px; }
+  .kit-campos { display: flex; flex-direction: column; gap: 12px; }
+  .kit-pilulas { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .kit-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .kit-switches { display: flex; flex-direction: column; gap: 4px; }
+  .kit .empty { padding: 18px 14px; gap: 8px; }
+  /* folga para o brilho do "Continuar" (shadow-cta, o do login da equipe) não cair no título de Campo */
+  .kit-secao.secao-campo { margin-top: 18px; }
+
+  /* Miniaturas de diálogo e folha: um pedaço de tela com o véu por cima */
+  .mini { position: relative; overflow: hidden; border: 1px solid var(--border-strong); border-radius: var(--radius-xl); background: var(--bg-app); }
+  .mini-fundo { position: absolute; inset: 0; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .mini-fundo span { display: block; height: 12px; border-radius: var(--radius-md); background: color-mix(in srgb, var(--ink) 9%, transparent); }
+  .mini .veu { position: absolute; }
+  .mini .dialog { width: calc(100% - 24px); }
+  .mini-dialogo { height: 290px; }
+  .mini-folha { flex: 1; min-height: 0; }
+  .mini .sheet { max-width: calc(100% - 36px); }
+  .mini .sheet .sheet-corpo { overflow: hidden; }
+
+  /* Toast fora do lugar dele (fica no pé da tela): aqui só a peça */
+  .kit-toasts { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .kit-toasts .toast { max-width: 100%; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="folha kit">
+  <!-- U54 · CrystalLockup md (o da barra lateral) + PageHeader -->
+  <header class="folha-topo" data-m="topo">
+    <span class="crystal-lockup crystal-lockup-md">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <span><span class="crystal-lockup-nome">Crystal</span><span class="crystal-lockup-apoio">Área da equipe</span></span>
+    </span>
+    <span class="folha-sep" aria-hidden="true"></span>
+    <div class="page-header">
+      <div><h1 class="page-titulo">Kit do painel</h1><p class="page-apoio">Conferência visual dos componentes. Só em desenvolvimento.</p></div>
+    </div>
+  </header>
+
+  <div class="folha-grade">
+    <!-- Coluna 1 · botão e campo -->
+    <div class="col" data-m="c1">
+      <section class="kit-secao">
+        <div class="kit-rotulo"><h2 class="secao-titulo">Botão</h2><span class="kit-nota">44 px · rounded-lg</span></div>
+        <div class="kit-botoes">
+          <div class="kit-linha">
+            <button class="btn btn-primary">Mostrar toast</button>
+            <button class="btn btn-secondary">Abrir diálogo</button>
+          </div>
+          <div class="kit-linha">
+            <button class="btn btn-secondary is-focus">Abrir folha</button>
+            <button class="btn btn-text">Tentar de novo</button>
+          </div>
+          <div class="kit-linha">
+            <button class="btn btn-danger">Confirmar com senha</button>
+          </div>
+          <div class="kit-linha">
+            <button class="btn btn-primary is-busy" disabled aria-busy="true"><span class="spinner" aria-hidden="true"></span>Salvando…</button>
+            <button class="btn btn-cta">Continuar</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="kit-secao secao-campo">
+        <div class="kit-rotulo"><h2 class="secao-titulo">Campo</h2><span class="kit-nota">14 px aqui · 16 px no celular</span></div>
+        <div class="kit-campos">
+          <div class="field">
+            <label class="field-label" for="nome">Nome</label>
+            <input class="field-input" id="nome" value="Bia" aria-describedby="nome-ajuda">
+            <p class="field-hint" id="nome-ajuda">Como aparece para a equipe.</p>
+          </div>
+          <div class="field">
+            <label class="field-label" for="motivo">Motivo <span class="field-label-aside">24 de 200</span></label>
+            <input class="field-input is-focus" id="motivo" value="Pediu para sair do curso">
+          </div>
+          <div class="field">
+            <label class="field-label" for="titulo">Título</label>
+            <input class="field-input is-invalido" id="titulo" aria-invalid="true" aria-describedby="titulo-erro">
+            <p class="field-error" id="titulo-erro"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Escreva o título (até 120 caracteres).</p>
+          </div>
+          <div class="field">
+            <label class="field-label" for="papel">Papel</label>
+            <select class="select is-placeholder" id="papel"><option>Escolha…</option></select>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Coluna 2 · aviso, interruptor, vazio -->
+    <div class="col" data-m="c2">
+      <section class="kit-secao">
+        <div class="kit-rotulo"><h2 class="secao-titulo">Aviso</h2><span class="kit-nota">amarelo é aviso, vermelho é erro</span></div>
+        <div class="notice notice-info" role="status">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          <div class="notice-corpo"><p>O grupo é fechado no momento do agendamento. Quem entrar depois não recebe.</p></div>
+        </div>
+        <div class="notice notice-warning" role="alert">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          <div class="notice-corpo"><p>Não consegui carregar a Equipe agora.</p>
+            <div class="notice-acoes"><button class="btn btn-secondary"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Tentar de novo</button></div></div>
+        </div>
+        <div class="notice notice-danger" role="alert">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          <div class="notice-corpo"><p>Falhou: 2 de 14 não foram entregues.</p></div>
+        </div>
+        <div class="notice notice-success" role="status">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+          <div class="notice-corpo"><p>10 imagens extras adicionadas.</p></div>
+        </div>
+      </section>
+
+      <section class="kit-secao">
+        <div class="kit-rotulo"><h2 class="secao-titulo">Interruptor</h2><span class="kit-nota">sempre com Ligado ou Desligado</span></div>
+        <div class="kit-switches">
+          <div class="switch">
+            <div class="switch-texto"><p class="switch-rotulo">Aviso na conversa</p><p class="switch-apoio">Ligado, a faixa aparece ao abrir a conversa.</p></div>
+            <button class="switch-controle" role="switch" aria-checked="true"><span class="switch-trilho"></span><span class="switch-estado">Ligado</span></button>
+          </div>
+          <div class="switch">
+            <div class="switch-texto"><p class="switch-rotulo">Conteúdo sensível</p><p class="switch-apoio">A notificação mostra só 'Você tem uma mensagem nova.'</p></div>
+            <button class="switch-controle" role="switch" aria-checked="false"><span class="switch-trilho"></span><span class="switch-estado">Desligado</span></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="kit-secao">
+        <div class="kit-rotulo"><h2 class="secao-titulo">Vazio</h2><span class="kit-nota">tracejado só aqui</span></div>
+        <div class="empty">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4V5Zm4 4.5h8M8 12.5h5"/></svg>
+          <p class="empty-texto">Nenhuma mensagem agendada. Toque em Nova mensagem.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Coluna 3 · cartões de número, pílula, abas, diálogo -->
+    <div class="col" data-m="c3">
+      <section class="kit-secao">
+        <div class="kit-rotulo"><h2 class="secao-titulo">Cartão de número</h2></div>
+        <div class="kit-stats">
+          <a class="stat stat-grande" href="#"><p class="stat-rotulo">Alunos ativos</p><p class="stat-valor">1.712</p><p class="stat-sub is-subiu">+3 nesta semana</p></a>
+          <a class="stat stat-grande" href="#"><p class="stat-rotulo">Suporte</p><p class="stat-valor">4<span class="stat-unidade">abertos</span></p><p class="stat-sub">1 aguardando aluno</p></a>
+        </div>
+      </section>
+
+      <section class="kit-secao">
+        <div class="kit-rotulo"><h2 class="secao-titulo">Pílula e contador</h2></div>
+        <div class="kit-pilulas">
+          <span class="badge badge-good">Admin</span>
+          <span class="badge badge-bad">Desligado</span>
+          <span class="badge badge-warn">Aguardando aluno</span>
+        </div>
+        <div class="kit-pilulas">
+          <span class="badge badge-muted">Apagado</span>
+          <span class="badge badge-neutral">Suporte</span>
+          <span class="badge badge-outline">Acesso</span>
+          <span class="badge badge-good badge-xs">Admin</span>
+        </div>
+        <div class="kit-pilulas">
+          <span class="contador">2</span><span class="kit-nota">pedidos do suporte</span>
+          <span class="contador contador-marca" style="margin-left:10px">12</span><span class="kit-nota">não lidas</span>
+        </div>
+      </section>
+
+      <section class="kit-secao">
+        <div class="kit-rotulo"><h2 class="secao-titulo">Abas</h2><span class="kit-nota">o degradê diz que há mais</span></div>
+        <div class="tabs tem-mais-dir" role="tablist" aria-label="Ficha">
+          <button class="tab is-ativa" role="tab" aria-selected="true">Resumo</button>
+          <button class="tab" role="tab" aria-selected="false">Conversa</button>
+          <button class="tab" role="tab" aria-selected="false">Mensagens</button>
+          <button class="tab" role="tab" aria-selected="false">Aparelhos e sessões</button>
+          <button class="tab" role="tab" aria-selected="false">Suporte</button>
+        </div>
+      </section>
+
+      <section class="kit-secao">
+        <div class="kit-rotulo"><h2 class="secao-titulo">Diálogo</h2><span class="kit-nota">centrado no computador</span></div>
+        <div class="mini mini-dialogo">
+          <div class="mini-fundo" aria-hidden="true"><span style="width:55%"></span><span style="width:80%"></span><span style="width:70%"></span><span style="width:40%"></span></div>
+          <div class="veu">
+            <div class="dialog" role="alertdialog" aria-labelledby="dlg-t">
+              <h2 class="dialog-titulo" id="dlg-t">Ligar o modo manutenção?</h2>
+              <div class="dialog-corpo"><p>Todos os alunos ficam sem enviar mensagem até você desligar.</p></div>
+              <div class="dialog-rodape">
+                <button class="btn btn-secondary is-focus">Cancelar</button>
+                <button class="btn btn-primary">Ligar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Coluna 4 · folha lateral e toast -->
+    <div class="col" data-m="c4">
+      <section class="kit-secao" style="flex:1; min-height:0">
+        <div class="kit-rotulo"><h2 class="secao-titulo">Folha</h2><span class="kit-nota">na lateral direita no computador</span></div>
+        <div class="mini mini-folha">
+          <div class="mini-fundo" aria-hidden="true"><span style="width:45%"></span><span style="width:75%"></span><span style="width:60%"></span><span style="width:85%"></span><span style="width:50%"></span></div>
+          <div class="veu">
+            <div class="sheet" role="dialog" aria-labelledby="ct">
+              <div class="sheet-cabecalho"><h2 class="sheet-titulo" id="ct">Sua conta</h2><button class="sheet-fechar">Fechar</button></div>
+              <div class="sheet-corpo">
+                <div class="staff-conta-quem"><span class="staff-conta-btn">R</span><div><p class="staff-header-nome">Rui Ferreira</p><p class="staff-header-papel">Admin</p></div></div>
+                <p class="menu-titulo">Tema</p>
+                <button class="menu-item" role="menuitemradio" aria-checked="false">Claro</button>
+                <button class="menu-item" role="menuitemradio" aria-checked="false">Escuro</button>
+                <button class="menu-item" role="menuitemradio" aria-checked="true">Sistema<svg class="icon menu-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button>
+                <p class="menu-apoio">Sistema segue o claro ou o escuro do celular.</p>
+                <hr class="menu-sep">
+                <a class="menu-item" href="#">Minha senha</a>
+                <a class="menu-item" href="#">Abrir o app</a>
+                <hr class="menu-sep">
+                <button class="menu-item">Sair</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="kit-secao">
+        <div class="kit-rotulo"><h2 class="secao-titulo">Toast</h2><span class="kit-nota">com Desfazer e Fechar</span></div>
+        <div class="kit-toasts">
+          <div class="toast" role="status">
+            <span class="toast-texto">Desligado. As sessões foram encerradas.</span>
+            <button class="toast-acao">Desfazer</button>
+            <button class="toast-fechar" aria-label="Fechar aviso"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+          </div>
+          <div class="toast so-texto" role="status">Salvo. Vale na hora.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div></div>
+</body>
+</html>

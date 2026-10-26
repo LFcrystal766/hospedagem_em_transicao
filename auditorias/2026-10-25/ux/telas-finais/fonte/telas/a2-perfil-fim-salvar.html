@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Perfil, fim</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .app { height: 100%; }
+  /* Mesma linha da seta do Suporte; rolada, a página ganha o fio embaixo da seta */
+  .app-header.com-voltar { padding-top: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border-strong); }
+  /* Rolado até o fim do perfil */
+  .rolagem { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+  .rolagem > .app-main { position: absolute; left: 0; right: 0; bottom: 0; }
+  .form { display: flex; flex-direction: column; gap: 20px; }
+  .foto { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .field-lg .field-input { margin-top: 4px; }
+  /* U20: rodapé do perfil */
+  .rodape { display: flex; flex-direction: column; align-items: center; margin-top: 12px; }
+  .rodape hr { align-self: stretch; margin: 24px 0; border-color: var(--border-strong); }
+</style>
+</head>
+<body>
+<div class="tela"><div class="app">
+  <header class="app-header com-voltar">
+    <button class="icon-btn is-tinta" aria-label="Voltar para o início"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+  </header>
+
+  <div class="rolagem">
+    <main class="app-main">
+      <div class="page-header" style="margin-bottom:0">
+        <div><h1 class="page-titulo">Seu perfil</h1><p class="page-apoio">Todas as respostas são obrigatórias, menos a foto. Dá pra mudar depois.</p></div>
+      </div>
+
+      <form class="form" novalidate>
+        <p class="texto-sm forte mutado" role="status" aria-live="polite">5 de 5 respondidas</p>
+
+        <div class="foto">
+          <span class="avatar avatar-96 avatar-iniciais" aria-hidden="true">A</span>
+          <button type="button" class="btn btn-secondary btn-lg">Trocar foto</button>
+        </div>
+
+        <div class="field field-lg">
+          <label class="field-label" for="nome">Que nome você quer que eu use?</label>
+          <p class="field-hint">É o nome que aparece no seu perfil.</p>
+          <input class="field-input" id="nome" value="Ana">
+        </div>
+
+        <div class="field field-lg">
+          <label class="field-label" for="idade">Quantos anos você tem?</label>
+          <p class="field-hint">Eu só converso com quem tem 18 anos ou mais.</p>
+          <input class="field-input" id="idade" inputmode="numeric" value="29">
+        </div>
+
+        <div class="field field-lg">
+          <p class="field-label" id="busca">O que você busca agora?</p>
+          <p class="field-hint">Puxar assunto é começar a conversa. Manter a conversa é não deixar esfriar. Convite é chamar pra sair.</p>
+          <div class="chips" role="radiogroup" aria-labelledby="busca" style="margin-top:4px">
+            <button type="button" class="chip" role="radio" aria-checked="true">Puxar assunto</button>
+            <button type="button" class="chip" role="radio" aria-checked="false">Manter a conversa</button>
+            <button type="button" class="chip" role="radio" aria-checked="false">Convite</button>
+          </div>
+        </div>
+
+        <div class="field field-lg">
+          <label class="field-label" for="jeito">Seu jeito de conversar</label>
+          <p class="field-hint" id="jeito-ajuda">Me conta como você costuma ser quando conversa com alguém.</p>
+          <textarea class="field-input" id="jeito" rows="3" aria-describedby="jeito-ajuda">No começo fico sem jeito, mas depois que pego confiança converso bastante.</textarea>
+        </div>
+
+        <div class="field field-lg">
+          <label class="field-label" for="momento">Descreva seu momento de vida</label>
+          <p class="field-hint" id="momento-ajuda">Me conta como está sua vida hoje: se está sem relacionamento, se saiu de um, o que mudou. Se você busca outra coisa, conta aqui também.</p>
+          <textarea class="field-input" id="momento" rows="4" aria-describedby="momento-ajuda">Saí de um namoro longo no começo do ano. Quero voltar a conhecer gente nova, mas travo na hora de puxar assunto.</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-full">Salvar</button>
+      </form>
+
+      <div class="rodape">
+        <button type="button" class="btn btn-secondary">Ver o tutorial de novo</button>
+        <hr>
+        <button type="button" class="btn btn-secondary"><svg class="icon icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Excluir minha conta</button>
+      </div>
+    </main>
+  </div>
+</div></div>
+</body>
+</html>

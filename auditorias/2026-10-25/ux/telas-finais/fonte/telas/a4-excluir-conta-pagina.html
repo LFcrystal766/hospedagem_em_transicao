@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Excluir minha conta (página pública)</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .app { height: 100%; }
+  /* U21: PaginaPublicaShell, cabeçalho com seta de 44 px e o título da página (igual a a4-termos) */
+  .app-header.com-voltar { gap: 4px; padding-top: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .legal { display: flex; flex-direction: column; gap: 16px; padding: 16px; }
+  .legal p, .legal li { font-size: var(--fs-body); line-height: 1.625; color: var(--ink); }
+  .legal h2 { margin-top: 8px; font-size: var(--fs-lg); line-height: var(--lh-lg); font-weight: 600; color: var(--ink); }
+  .legal ol, .legal ul { display: flex; flex-direction: column; gap: 4px; padding-left: 20px; }
+  .legal ol { list-style: decimal; }
+  .legal ul { list-style: disc; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="app">
+  <header class="app-header com-voltar">
+    <button class="icon-btn is-tinta" aria-label="Voltar"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+    <h1 class="app-header-titulo">Excluir minha conta</h1>
+  </header>
+
+  <main class="legal">
+    <p>Você pode excluir sua conta do app da Crystal a qualquer momento, sem precisar falar com ninguém.</p>
+
+    <h2>Pelo app</h2>
+    <ol>
+      <!-- U18: passo 1 novo (entrada pelo e-mail da compra e código) -->
+      <li>Entre no app com o e-mail da sua compra e o código que chega por e-mail.</li>
+      <li>Na tela de início, toque em Perfil.</li>
+      <li>No fim da tela, toque em Excluir minha conta e confirme.</li>
+    </ol>
+
+    <h2>O que é apagado</h2>
+    <ul>
+      <li>Sua conta: nome, foto, e-mail, telefone e o registro do seu CPF.</li>
+      <li>Todas as conversas com a Crystal, inclusive imagens e áudios.</li>
+      <!-- U18: item do perfil reescrito com as cinco respostas de hoje -->
+      <li>Seu perfil (nome, idade, o que busca, jeito de conversar e momento de vida) e a foto.</li>
+      <li>Pedidos de suporte e sessões abertas em qualquer aparelho.</li>
+    </ul>
+
+    <h2>O que fica, sem identificar você</h2>
+    <p>Guardamos uma cópia anônima das conversas e do acompanhamento, para melhorar a Crystal. Antes de guardar, tiramos nome, CPF, e-mail, telefone, endereço, links, perfis de redes sociais e datas, e trocamos nomes de outras pessoas por "[nome]". A cópia não tem nenhum código que leve a você.</p>
+  </main>
+</div></div>
+</body>
+</html>

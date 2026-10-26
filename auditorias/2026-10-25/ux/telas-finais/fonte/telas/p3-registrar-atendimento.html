@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="1280x800">
+<title>Registrar atendimento</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .staff-main > * { flex-shrink: 0; }
+  .filtros { display: grid; grid-template-columns: minmax(0, 1fr) 128px 180px 132px auto auto; align-items: end; gap: 8px; }
+  .tickets { border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--surface); overflow: hidden; }
+  .ticket { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .ticket:last-child { border-bottom: 0; }
+  .ticket.is-novo { background: color-mix(in srgb, var(--brand) 5%, var(--surface)); }
+  .ticket-assunto { font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 500; color: var(--ink); }
+  .ticket-aluno { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .ticket-pilulas { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
+  .ticket-resp { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .ticket time { flex-shrink: 0; font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .pilula { display: inline-flex; align-items: center; gap: 2px; min-height: 36px; padding: 0 4px 0 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-full); font-size: var(--fs-sm); font-weight: 500; color: var(--ink); background: var(--surface-2); }
+  .pilula-tirar { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius-full); color: var(--ink-muted); }
+  .dialog { max-width: 480px; }
+  .dialog .chip { min-width: 96px; }
+  .ticket > .icon { color: var(--ink-muted); align-self: center; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="staff">
+  <aside class="staff-sidebar">
+    <div class="staff-sidebar-topo">
+      <span class="crystal-lockup crystal-lockup-md">
+        <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+        <span><span class="crystal-lockup-nome">Crystal</span><span class="crystal-lockup-apoio">Área da equipe</span></span>
+      </span>
+    </div>
+    <nav class="staff-nav" aria-label="Menu principal">
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Operar</p>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-5h3v5h5V9.5"/></svg><span class="rotulo">Início</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-5.5 9a5.5 5.5 0 0 1 11 0M16 4.3a3.5 3.5 0 0 1 0 6.4M17.5 14.5a5.5 5.5 0 0 1 4 5.5"/></svg><span class="rotulo">Alunos</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4V5Zm4 4.5h8M8 12.5h5"/></svg><span class="rotulo">Mensagens</span></a>
+        <a class="staff-link is-ativo" href="#" aria-current="page"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5.6 5.6l3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></svg><span class="rotulo">Suporte</span><span class="contador" aria-label="2 pedidos abertos">2</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Ajustar</p>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4V5Zm4 9.5a2.5 2.5 0 0 1 5 0M10.5 11a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM15 9h2m-2 3h2"/></svg><span class="rotulo">Equipe</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="staff-corpo">
+    <header class="staff-header">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <div class="staff-header-quem"><p class="staff-header-nome">Bia</p><p class="staff-header-papel">Suporte</p></div>
+      <button class="staff-conta-btn" aria-label="Sua conta" aria-haspopup="dialog">B</button>
+    </header>
+
+    <main class="staff-main pilha-lg">
+      <div class="page-header" style="margin-bottom:0">
+        <div><h1 class="page-titulo">Suporte</h1><p class="page-apoio">Atendimentos registrados pela equipe e pedidos dos alunos.</p></div>
+      </div>
+
+      <div class="grade-stats">
+        <a class="stat stat-grande" href="#"><p class="stat-rotulo">Abertos</p><p class="stat-valor">2</p></a>
+        <a class="stat" href="#"><p class="stat-rotulo">Aguardando</p><p class="stat-valor">1</p></a>
+        <a class="stat" href="#"><p class="stat-rotulo">Meus</p><p class="stat-valor">1</p></a>
+      </div>
+
+      <div class="pilha">
+        <form class="filtros" role="search" aria-label="Filtrar pedidos">
+          <div class="field">
+            <label class="field-label" for="f-busca">Buscar</label>
+            <input class="field-input" id="f-busca" type="search" placeholder="Assunto, nome ou e-mail do aluno">
+          </div>
+          <div class="field">
+            <label class="field-label" for="f-situacao">Situação</label>
+            <select class="select" id="f-situacao"><option>Aberto</option></select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="f-categoria">Categoria</label>
+            <select class="select" id="f-categoria"><option>Todas as categorias</option></select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="f-resp">Responsável</label>
+            <select class="select" id="f-resp"><option>Todos</option></select>
+          </div>
+          <button class="btn btn-secondary" type="submit">Buscar</button>
+          <button class="btn btn-primary" type="button" aria-haspopup="dialog">Registrar atendimento</button>
+        </form>
+
+        <ul class="tickets" aria-label="Pedidos">
+          <li class="ticket">
+            <div class="cresce">
+              <p class="ticket-assunto">Cobrança em dobro no cartão</p>
+              <p class="ticket-aluno">Marina Alves · marina@exemplo.com</p>
+              <div class="ticket-pilulas"><span class="badge badge-good">Aberto</span><span class="badge badge-outline">Pagamento</span><span class="ticket-resp">Sem responsável</span></div>
+            </div>
+            <time datetime="2026-10-26T08:40">há 2 h</time>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          </li>
+          <li class="ticket">
+            <div class="cresce">
+              <p class="ticket-assunto">Áudio não envia pelo celular</p>
+              <p class="ticket-aluno">Paulo Reis · paulo@exemplo.com</p>
+              <div class="ticket-pilulas"><span class="badge badge-good">Aberto</span><span class="badge badge-outline">Técnico</span><span class="ticket-resp">Bia</span></div>
+            </div>
+            <time datetime="2026-10-25T16:10">ontem</time>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          </li>
+        </ul>
+      </div>
+    </main>
+
+  </div>
+</div>
+  <div class="veu">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="reg-t">
+      <h2 class="dialog-titulo" id="reg-t">Registrar atendimento</h2>
+      <form class="dialog-corpo" style="gap:16px">
+        <div class="field">
+          <p class="field-label" id="reg-aluno">Buscar aluno</p>
+          <div class="linha" aria-labelledby="reg-aluno">
+            <span class="pilula">Ana Souza<button class="pilula-tirar" type="button" aria-label="Tirar Ana Souza"><svg class="icon icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="reg-assunto">Assunto</label>
+          <input class="field-input" id="reg-assunto" value="Código de entrada não chega">
+        </div>
+        <div class="field">
+          <label class="field-label" for="reg-cat">Categoria</label>
+          <select class="select" id="reg-cat"><option>Acesso</option></select>
+        </div>
+        <fieldset class="field">
+          <legend class="field-label" style="margin-bottom:4px">Chegou por</legend>
+          <div class="chips" role="radiogroup" aria-label="Chegou por">
+            <button class="chip" type="button" role="radio" aria-checked="true">WhatsApp</button>
+            <button class="chip" type="button" role="radio" aria-checked="false">E-mail</button>
+            <button class="chip" type="button" role="radio" aria-checked="false">Outro</button>
+          </div>
+        </fieldset>
+        <div class="field">
+          <label class="field-label" for="reg-pedido">O que a pessoa pediu <span class="field-label-aside">105 de 4.000</span></label>
+          <textarea class="field-input is-focus" id="reg-pedido" rows="4">Escreveu no WhatsApp que o código de entrada não chega. Pedi para olhar a caixa de spam e tentar de novo.</textarea>
+        </div>
+      </form>
+      <div class="dialog-rodape">
+        <button class="btn btn-secondary">Cancelar</button>
+        <button class="btn btn-primary">Registrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Nova mensagem, enviar sem teste</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .staff-main > * { flex-shrink: 0; }
+  .staff-main.pilha { gap: 12px; padding-top: 12px; }
+  .passo { font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 600; color: var(--ink); }
+  .bloco-titulo { font-family: var(--font-display); font-size: var(--fs-lg); line-height: var(--lh-lg); font-weight: 600; color: var(--ink); }
+  .previa { display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; }
+  .notif { display: flex; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--bubble-bot); }
+  .notif img { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; }
+  .notif-app { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .notif-app strong { color: var(--ink); font-weight: 500; }
+  .notif-titulo { font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 600; color: var(--ink); }
+  .notif-texto { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink-muted); }
+  .corte { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .abre { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink); }
+  .abre strong { font-weight: 600; }
+  .resumo { padding: 10px 16px; display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .resumo strong { font-weight: 600; }
+  .rodape-passos { position: absolute; left: 0; right: 0; bottom: 57px; z-index: 19; display: flex; flex-direction: column; gap: 8px; padding: 8px 16px; border-top: 1px solid var(--border); background: var(--surface); }
+  .rodape-linha { display: flex; justify-content: space-between; gap: 8px; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="staff">
+  <div class="staff-corpo">
+    <!-- Admin (Rui Ferreira) no último passo de um envio para todos; a página rolou até o passo e a barra com o nome da tela ficou (U25). -->
+    <div class="staff-barra"><span></span><p class="staff-barra-titulo">Mensagens</p><span></span></div>
+
+    <main class="staff-main pilha">
+      <div class="tabs tem-mais-dir" role="tablist" aria-label="Mensagens">
+        <button class="tab is-ativa" role="tab" aria-selected="true">Nova mensagem</button>
+        <button class="tab" role="tab">Agendadas</button>
+        <button class="tab" role="tab">Enviadas</button>
+        <button class="tab" role="tab">Modelos</button>
+      </div>
+
+      <p class="passo" tabindex="-1">Passo 4 de 4 · Revisar</p>
+
+      <section class="card previa" aria-labelledby="previa-t">
+        <h2 class="bloco-titulo" id="previa-t">Como o aluno vê</h2>
+        <p class="secao-titulo">No celular</p>
+        <div class="notif">
+          <img src="../assets/icone-app-192.png" alt="">
+          <div class="cresce">
+            <p class="notif-app"><strong>Crystal</strong> · agora</p>
+            <p class="notif-titulo">Aula ao vivo na quinta</p>
+            <p class="notif-texto">Quinta, às 20h, tem aula ao vivo no app. Te espero lá!</p>
+          </div>
+        </div>
+        <p class="corte">Em alguns celulares, o texto longo aparece cortado até o aluno abrir a notificação.</p>
+        <p class="abre"><strong>Ao tocar, abre:</strong> a tela de início do app</p>
+      </section>
+
+      <section class="card resumo" aria-label="Resumo do envio">
+        <p>Para: <strong>Todos os alunos ativos</strong></p>
+        <p class="mutado">Vai para 14 alunos; 11 aparelhos recebem a notificação.</p>
+        <p>Quando: <strong>agora</strong></p>
+      </section>
+
+      <!-- U34: a frase do teste saiu do rodapé e aparece aqui quando a pessoa toca em Enviar sem teste. -->
+      <div class="notice notice-warning" role="alert">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <div class="notice-corpo"><p id="trava-teste">Mande um teste desta versão para você antes de enviar para mais de um aluno.</p></div>
+      </div>
+    </main>
+
+    <div class="rodape-passos">
+      <button class="btn btn-secondary btn-full">Enviar teste para mim</button>
+      <div class="rodape-linha">
+        <button class="btn btn-secondary">Voltar</button>
+        <button class="btn btn-primary" disabled aria-describedby="trava-teste">Enviar</button>
+      </div>
+    </div>
+
+    <nav class="staff-bottombar" aria-label="Menu principal">
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-5h3v5h5V9.5"/></svg></span>Início</a>
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-5.5 9a5.5 5.5 0 0 1 11 0M16 4.3a3.5 3.5 0 0 1 0 6.4M17.5 14.5a5.5 5.5 0 0 1 4 5.5"/></svg></span>Alunos</a>
+      <a class="staff-tab is-ativo" href="#" aria-current="page"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4V5Zm4 4.5h8M8 12.5h5"/></svg></span>Mensagens</a>
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5.6 5.6l3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></svg><span class="contador" aria-label="3 pedidos abertos">3</span></span>Suporte</a>
+      <button class="staff-tab" aria-haspopup="dialog"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span>Mais</button>
+    </nav>
+  </div>
+</div></div>
+</body>
+</html>

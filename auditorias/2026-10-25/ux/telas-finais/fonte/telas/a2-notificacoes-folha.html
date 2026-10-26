@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Folha Notificações</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .sheet-cabecalho { gap: 10px; min-height: 52px; }
+  .sheet-cabecalho .titulo { display: flex; align-items: center; gap: 10px; }
+  .sheet-cabecalho .icon { color: var(--brand-ink); }
+  .sheet-corpo.com-folga { padding-bottom: 32px; gap: 0; }
+  .secao { display: flex; flex-direction: column; gap: 10px; }
+  .secao + .secao { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-strong); }
+</style>
+</head>
+<body>
+<div class="tela"><div class="chat">
+  <header class="chat-header">
+    <button class="icon-btn is-tinta" aria-label="Voltar ao início"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+    <button class="chat-header-foto" aria-label="Ver perfil da Crystal"><img class="avatar avatar-40" src="../assets/crystal-foto.jpg" alt=""><span class="ponto-online"></span></button>
+    <div class="chat-header-texto"><h1 class="chat-header-nome">Crystal</h1><p class="chat-header-status">online</p></div>
+    <div class="menu-ancora"><button class="icon-btn" aria-label="Abrir menu" aria-haspopup="menu"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></div>
+  </header>
+
+  <div class="chat-lista">
+    <span class="chat-divisor chat-pill">Hoje</span>
+    <div class="bolha-aluna bolha-primeira"><p class="bolha-texto">Oi Crystal, conheci alguém na academia e não sei como puxar assunto</p>
+      <div class="bolha-meta"><time>14:46</time><svg class="tiques is-lida" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Lida"><path d="M1 6.5 4 9.5 9.5 3"/><path d="M7.5 6.5 10.5 9.5 16 3"/></svg></div></div>
+    <div class="bolha-crystal bolha-primeira"><p class="bolha-texto">Oi! Que bom te ver por aqui.</p><div class="bolha-meta"><time>14:46</time></div></div>
+    <div class="bolha-crystal"><p class="bolha-texto">Me conta: em que posso te ajudar hoje?</p><div class="bolha-meta"><time>14:46</time></div></div>
+  </div>
+
+  <div class="compositor"><div class="compositor-linha">
+    <textarea class="compositor-campo" rows="1" placeholder="Mensagem" aria-label="Escreva sua mensagem"></textarea>
+    <button class="icon-btn" aria-label="Enviar print ou foto"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+    <button class="icon-btn icon-btn-marca" aria-label="Gravar áudio"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></button>
+  </div></div>
+</div>
+
+<!-- U57: menu > Notificações no iPhone pelo Safari. Duas seções: o aparelho e a conta -->
+<div class="veu">
+  <div class="sheet" role="dialog" aria-labelledby="fn-titulo">
+    <span class="sheet-alca"></span>
+    <div class="sheet-cabecalho">
+      <div class="titulo">
+        <svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <h2 class="sheet-titulo" id="fn-titulo">Notificações</h2>
+      </div>
+      <button class="sheet-fechar">Fechar</button>
+    </div>
+    <div class="sheet-corpo com-folga">
+      <section class="secao" aria-labelledby="fn-aparelho">
+        <h3 class="secao-titulo" id="fn-aparelho">Neste aparelho</h3>
+        <p class="texto-sm">No iPhone, as notificações só chegam com o app instalado.</p>
+        <button class="btn btn-primary btn-lg btn-full">Ver como instalar</button>
+      </section>
+
+      <section class="secao" aria-labelledby="fn-conta">
+        <h3 class="secao-titulo" id="fn-conta">Na sua conta</h3>
+        <div class="switch">
+          <div class="switch-texto">
+            <p class="switch-rotulo" id="fn-sw">Avisos de aulas e novidades</p>
+            <p class="switch-apoio" id="fn-sw-apoio">Aulas ao vivo, webinários e ofertas. Chegam na conversa com a Crystal e, se as notificações estiverem ativadas, também como aviso no celular.</p>
+          </div>
+          <button class="switch-controle" role="switch" aria-checked="true" aria-labelledby="fn-sw" aria-describedby="fn-sw-apoio"><span class="switch-trilho"></span><span class="switch-estado">Ligado</span></button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+</div>
+</body>
+</html>

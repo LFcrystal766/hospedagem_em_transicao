@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Login da equipe, sessão vencida</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .auth-titulo { font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 600; color: var(--ink); }
+  .auth-cartao .field-label { font-weight: 600; }
+  .auth-volta { text-align: center; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .auth-volta a { display: inline-flex; align-items: center; min-height: 44px; }
+</style>
+</head>
+<body>
+<div class="tela"><main class="auth">
+  <div class="crystal-lockup crystal-lockup-lg">
+    <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+    <span class="crystal-lockup-nome">Crystal</span>
+  </div>
+
+  <form class="auth-cartao" novalidate>
+    <div class="notice notice-info" role="status">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      <div class="notice-corpo"><p>Sua sessão da área da equipe expirou. Entre de novo com e-mail e senha.</p></div>
+    </div>
+
+    <div class="pilha-sm">
+      <h2 class="auth-titulo">Acesso da equipe</h2>
+      <p class="texto-apoio">Entre com seu e-mail e senha.</p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="staff-email">E-mail</label>
+      <input class="field-input" id="staff-email" type="email" inputmode="email" autocomplete="email" placeholder="voce@empresa.com" value="rui@exemplo.com">
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="staff-password">Senha</label>
+      <input class="field-input is-focus" id="staff-password" type="password" autocomplete="current-password" value="senhadeteste12">
+    </div>
+
+    <button type="submit" class="btn btn-cta btn-lg btn-full">Continuar</button>
+
+    <p class="auth-volta"><a class="link" href="#">Entrar como aluno</a></p>
+  </form>
+
+  <p class="auth-rodape">
+    <svg class="icon icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <span>Área da equipe</span><span aria-hidden="true">·</span><a href="#">Privacidade</a><span aria-hidden="true">·</span><a href="#">Termos de Uso</a>
+  </p>
+</main></div>
+</body>
+</html>

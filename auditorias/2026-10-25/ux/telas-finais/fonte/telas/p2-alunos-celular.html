@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Alunos · Crystal</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  svg.i { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .staff-main { display: flex; flex-direction: column; gap: 12px; }
+  .staff-main > * { flex-shrink: 0; }
+  .campo-busca { position: relative; }
+  .campo-busca .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-muted); pointer-events: none; }
+  .campo-busca .field-input { padding-left: 40px; }
+  .busca-botoes { display: flex; gap: 8px; margin-top: 4px; }
+  .cartoes { display: flex; flex-direction: column; gap: 8px; }
+  .cartao-aluno { display: flex; align-items: flex-start; gap: 4px; padding: 8px 12px 12px 4px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--surface); }
+  .cartao-aluno.is-marcada { border-color: color-mix(in srgb, var(--brand) 45%, var(--border)); background: color-mix(in srgb, var(--brand) 5%, var(--surface)); }
+  .marca { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0; }
+  .cartao-corpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding-top: 10px; }
+  .cartao-corpo .nome { font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 500; color: var(--ink); margin-top: -2px; }
+  /* Página rolada: só a ponta de baixo dos cartões de número aparece sob a barra de título. */
+  .espiada { height: 14px; margin-top: -16px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
+  .espiada > * { flex-shrink: 0; }
+  .barra-selecao { position: absolute; left: 12px; right: 12px; bottom: 64px; z-index: 30; display: flex; align-items: center; gap: 6px; padding: 6px 6px 6px 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-xl); background: var(--surface); box-shadow: var(--shadow-lg); }
+  .barra-selecao .cresce { font-size: var(--fs-sm); font-weight: 600; white-space: nowrap; }
+  .barra-selecao .btn { padding: 0 12px; }
+  .barra-selecao .btn-text { margin: 0; padding: 0 10px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-inicio" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-5h3v5h5V9.5"/></symbol>
+<symbol id="i-usuarios" viewBox="0 0 24 24"><path d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-5.5 9a5.5 5.5 0 0 1 11 0M16 4.3a3.5 3.5 0 0 1 0 6.4M17.5 14.5a5.5 5.5 0 0 1 4 5.5"/></symbol>
+<symbol id="i-mensagens" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Zm4 4.5h8M8 12.5h5"/></symbol>
+<symbol id="i-suporte" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5.6 5.6l3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></symbol>
+<symbol id="i-mais" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+<symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-filtro" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></symbol>
+</defs></svg>
+
+<div class="tela"><div class="staff">
+  <div class="staff-corpo">
+    <!-- Lista rolada: o cabeçalho do painel subiu com a página; a barra de título (U25) fica presa no topo. -->
+    <div class="staff-barra"><span></span><p class="staff-barra-titulo">Alunos</p><span></span></div>
+
+    <main class="staff-main">
+      <div class="espiada" aria-hidden="true"><div class="grade-stats">
+        <div class="stat"><p class="stat-rotulo">Sem usar o app há 30 dias</p><p class="stat-valor">2</p></div>
+        <div class="stat"><p class="stat-rotulo">Novos nesta semana</p><p class="stat-valor">3</p></div>
+      </div></div>
+      <form class="pilha-sm" role="search">
+        <div class="field">
+          <label class="field-label" for="busca">Buscar por nome, e-mail ou CPF</label>
+          <div class="campo-busca">
+            <svg class="icon i" aria-hidden="true"><use href="#i-busca"/></svg>
+            <input class="field-input" id="busca" type="search" aria-describedby="busca-ajuda">
+          </div>
+          <p class="field-hint" id="busca-ajuda">Procura só quem já tem conta no app. O CPF é conferido no servidor e nunca aparece inteiro. Quem comprou e nunca entrou está na aba Base de alunos.</p>
+        </div>
+        <div class="busca-botoes">
+          <button class="btn btn-primary" type="submit">Buscar</button>
+          <button class="btn btn-secondary" type="button" aria-haspopup="dialog"><svg class="icon i" aria-hidden="true"><use href="#i-filtro"/></svg>Filtros</button>
+        </div>
+      </form>
+
+      <p class="sr-only" role="status">15 alunos nesta lista.</p>
+
+      <ul class="cartoes" aria-label="Lista de alunos">
+        <li class="cartao-aluno"><label class="marca"><input type="checkbox" class="checkbox" aria-label="Selecionar Ana Souza"></label>
+          <div class="cartao-corpo"><a class="nome" href="#">Ana Souza</a><div class="linha"><span class="badge badge-good">Ativo</span></div><p class="texto-apoio">Última atividade: Nunca</p></div></li>
+        <li class="cartao-aluno is-marcada"><label class="marca"><input type="checkbox" class="checkbox" checked aria-label="Selecionar Bruno Lima"></label>
+          <div class="cartao-corpo"><a class="nome" href="#">Bruno Lima</a><div class="linha"><span class="badge badge-good">Ativo</span></div><p class="texto-apoio">Última atividade: Hoje</p></div></li>
+        <li class="cartao-aluno is-marcada"><label class="marca"><input type="checkbox" class="checkbox" checked aria-label="Selecionar Caio Rocha"></label>
+          <div class="cartao-corpo"><a class="nome" href="#">Caio Rocha</a><div class="linha"><span class="badge badge-good">Ativo</span></div><p class="texto-apoio">Última atividade: Ontem</p></div></li>
+        <li class="cartao-aluno"><label class="marca"><input type="checkbox" class="checkbox" aria-label="Selecionar Daniela Alves"></label>
+          <div class="cartao-corpo"><a class="nome" href="#">Daniela Alves</a><div class="linha"><span class="badge badge-bad">Desligado</span></div><p class="texto-apoio">Última atividade: Há 12 dias</p></div></li>
+        <li class="cartao-aluno"><label class="marca"><input type="checkbox" class="checkbox" aria-label="Selecionar Eduardo Martins"></label>
+          <div class="cartao-corpo"><a class="nome" href="#">Eduardo Martins</a><div class="linha"><span class="badge badge-good">Ativo</span></div><p class="texto-apoio">Última atividade: Há 3 dias</p></div></li>
+        <li class="cartao-aluno"><label class="marca"><input type="checkbox" class="checkbox" aria-label="Selecionar Fernanda Dias"></label>
+          <div class="cartao-corpo"><a class="nome" href="#">Fernanda Dias</a><div class="linha"><span class="badge badge-good">Ativo</span></div><p class="texto-apoio">Última atividade: Hoje</p></div></li>
+      </ul>
+    </main>
+
+    <!-- U32: a barra de seleção fica 4rem acima do fundo, por cima da lista e fora de trás da barra inferior. -->
+    <div class="barra-selecao" role="region" aria-label="Alunos selecionados">
+      <p class="cresce">2 selecionados</p>
+      <button class="btn btn-primary">Mensagem</button>
+      <button class="btn btn-secondary">CSV</button>
+      <button class="btn btn-text">Limpar</button>
+    </div>
+
+    <nav class="staff-bottombar" aria-label="Menu principal">
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24 i" aria-hidden="true"><use href="#i-inicio"/></svg></span>Início</a>
+      <a class="staff-tab is-ativo" href="#" aria-current="page"><span class="staff-tab-icone"><svg class="icon icon-24 i" aria-hidden="true"><use href="#i-usuarios"/></svg></span>Alunos</a>
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24 i" aria-hidden="true"><use href="#i-mensagens"/></svg></span>Mensagens</a>
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24 i" aria-hidden="true"><use href="#i-suporte"/></svg><span class="contador" aria-label="2 pedidos abertos">2</span></span>Suporte</a>
+      <button class="staff-tab" aria-haspopup="dialog"><span class="staff-tab-icone"><svg class="icon icon-24 i" aria-hidden="true"><use href="#i-mais"/></svg></span>Mais</button>
+    </nav>
+  </div>
+</div></div>
+</body>
+</html>

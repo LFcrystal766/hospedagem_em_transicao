@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Pedido de notificações</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  /* U51: cabeçalho padrão da folha (título + Fechar de 44 px), igual ao da folha do menu */
+  .sheet-cabecalho { gap: 10px; min-height: 52px; }
+  .sheet-cabecalho .titulo { display: flex; align-items: center; gap: 10px; }
+  .sheet-cabecalho .icon { color: var(--brand-ink); }
+  .sheet-corpo.com-folga { padding-bottom: 32px; }
+  .acoes { display: flex; gap: 8px; }
+  .acoes .btn { flex: 1; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="app">
+  <header class="app-header">
+    <span class="crystal-lockup">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <span class="crystal-lockup-nome">Crystal</span>
+    </span>
+    <div class="menu-ancora"><button class="icon-btn" aria-label="Abrir menu" aria-haspopup="menu"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></div>
+  </header>
+
+  <main class="app-main">
+    <section class="pilha-sm" style="align-items:center;text-align:center;padding-top:8px">
+      <button class="avatar-wrap" aria-label="Trocar sua foto"><span class="avatar avatar-96 avatar-iniciais">A</span><span class="avatar-selo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></svg></span></button>
+      <p class="forte" style="font-size:var(--fs-lg);line-height:var(--lh-lg)">Ana</p>
+      <p class="texto-apoio">Perfil completo</p>
+    </section>
+
+    <nav class="caminhos" aria-label="Caminhos">
+      <a class="caminho" href="#">Perfil</a>
+      <a class="caminho" href="#">Conversa</a>
+      <a class="caminho" href="#">Suporte</a>
+    </nav>
+
+    <section class="pilha-sm">
+      <h2 class="secao-titulo">Conversas</h2>
+      <a class="contato" href="#">
+        <span class="avatar-wrap"><img class="avatar avatar-48" src="../assets/crystal-foto.jpg" alt=""><span class="ponto-online"></span></span>
+        <span class="contato-texto"><span class="contato-nome">Crystal</span><span class="contato-previa">Me conta: em que posso te ajudar hoje?</span></span>
+        <span class="contato-hora">14:46</span>
+      </a>
+    </section>
+  </main>
+</div>
+
+<!-- U56 + U57: o pedido só vem numa abertura seguinte, com a conversa liberada e o tutorial da conversa visto -->
+<div class="veu">
+  <div class="sheet" role="dialog" aria-labelledby="np-titulo">
+    <span class="sheet-alca"></span>
+    <div class="sheet-cabecalho">
+      <div class="titulo">
+        <svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <h2 class="sheet-titulo" id="np-titulo">Ative as notificações</h2>
+      </div>
+      <button class="sheet-fechar">Fechar</button>
+    </div>
+    <div class="sheet-corpo com-folga">
+      <p class="texto-sm">Assim você sabe na hora quando a Crystal responde, mesmo com o app fechado, e fica por dentro das aulas ao vivo e das novidades. Os avisos de aulas dá para desligar no menu, em Notificações.</p>
+      <div class="acoes">
+        <button class="btn btn-primary btn-lg">Ativar</button>
+        <button class="btn btn-secondary btn-lg">Agora não</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</body>
+</html>

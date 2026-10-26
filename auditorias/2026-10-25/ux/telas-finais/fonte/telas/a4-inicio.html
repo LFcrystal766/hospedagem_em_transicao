@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Início da aluna</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .perfil-bloco { align-items: center; text-align: center; padding-top: 8px; }
+  .perfil-nome { font-size: var(--fs-lg); line-height: var(--lh-lg); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="app">
+  <header class="app-header">
+    <span class="crystal-lockup">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <span class="crystal-lockup-nome">Crystal</span>
+    </span>
+    <div class="menu-ancora"><button class="icon-btn" aria-label="Abrir menu" aria-haspopup="menu"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></div>
+  </header>
+
+  <main class="app-main">
+    <!-- U58: perfil completo, a foto é botão e mostra o selo de câmera -->
+    <section class="pilha-sm perfil-bloco" aria-label="Seu perfil">
+      <button class="avatar-wrap" aria-label="Trocar sua foto">
+        <span class="avatar avatar-96 avatar-iniciais" aria-hidden="true">A</span>
+        <span class="avatar-selo" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></svg></span>
+      </button>
+      <p class="perfil-nome">Ana</p>
+      <p class="texto-apoio" role="status">Perfil completo</p>
+    </section>
+
+    <nav class="caminhos" aria-label="Caminhos">
+      <a class="caminho" href="#">Perfil</a>
+      <a class="caminho" href="#">Conversa</a>
+      <a class="caminho" href="#">Suporte</a>
+    </nav>
+
+    <section class="pilha-sm" aria-labelledby="conversas-titulo">
+      <h2 class="secao-titulo" id="conversas-titulo">Conversas</h2>
+      <a class="contato" href="#" aria-label="Conversa com a Crystal. Última mensagem às 14:46: Me conta: em que posso te ajudar hoje?">
+        <span class="avatar-wrap"><img class="avatar avatar-48" src="../assets/crystal-foto.jpg" alt=""><span class="ponto-online"></span></span>
+        <span class="contato-texto"><span class="contato-nome">Crystal</span><span class="contato-previa">Me conta: em que posso te ajudar hoje?</span></span>
+        <span class="contato-hora">14:46</span>
+      </a>
+    </section>
+  </main>
+</div></div>
+</body>
+</html>

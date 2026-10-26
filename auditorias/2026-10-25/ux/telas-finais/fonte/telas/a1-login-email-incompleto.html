@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Login, e-mail incompleto</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .lead { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink-muted); }
+  .field-error { margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="tela"><main class="auth">
+  <div class="crystal-lockup crystal-lockup-lg">
+    <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+    <span class="crystal-lockup-nome">Crystal</span>
+  </div>
+
+  <form class="auth-cartao" novalidate>
+    <p class="lead">Oi! Digite o e-mail que você usou na compra. Eu te mando um código pra entrar.</p>
+
+    <div class="field field-lg">
+      <label class="field-label" for="email">E-mail da compra</label>
+      <input class="field-input is-focus is-invalido" id="email" type="email" inputmode="email" value="ana@exemplo" aria-invalid="true" aria-describedby="email-hint email-error">
+      <p class="field-error" id="email-error" role="alert">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <span>Esse e-mail parece incompleto. Confere se tem o @ e o ponto, como nome@gmail.com.</span>
+      </p>
+      <p class="field-hint" id="email-hint">É o mesmo e-mail que recebeu a confirmação da compra.</p>
+    </div>
+
+    <button type="submit" class="btn btn-cta btn-lg btn-full">Receber o código</button>
+  </form>
+
+  <p class="auth-rodape">
+    <svg class="icon icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    Conversa protegida · <a href="#">Privacidade</a> · <a href="#">Termos de Uso</a>
+  </p>
+</main></div>
+</body>
+</html>

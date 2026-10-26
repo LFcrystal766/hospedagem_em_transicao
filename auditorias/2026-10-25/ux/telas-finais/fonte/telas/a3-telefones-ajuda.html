@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Conversa, telefones de ajuda</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  /* U08: o número e o cvv.org.br viram link (text-brand-ink underline font-medium); py-2 -my-2 dá o alvo de 44 px sem mexer na linha */
+  .bolha-crystal a.tel { display: inline-block; padding: 8px 2px; margin: -8px -2px; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="chat">
+  <header class="chat-header">
+    <button class="icon-btn is-tinta" aria-label="Voltar ao início"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+    <button class="chat-header-foto" aria-label="Ver perfil da Crystal"><img class="avatar avatar-40" src="../assets/crystal-foto.jpg" alt=""><span class="ponto-online"></span></button>
+    <!-- U15: a linha de status é só visual (data-testid="status-crystal"); a região viva é uma só -->
+    <div class="chat-header-texto"><h1 class="chat-header-nome">Crystal</h1><p class="chat-header-status" data-testid="status-crystal">online</p></div>
+    <div class="menu-ancora"><button class="icon-btn" aria-label="Abrir menu" aria-haspopup="menu"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></div>
+  </header>
+
+  <div class="chat-lista no-fim" role="log" aria-live="off">
+    <span class="chat-divisor chat-pill">Hoje</span>
+
+    <div class="bolha-crystal bolha-primeira"><p class="bolha-texto">Oi! Que bom te ver por aqui.</p><div class="bolha-meta"><time>21:10</time></div></div>
+    <div class="bolha-crystal"><p class="bolha-texto">Me conta: em que posso te ajudar hoje?</p><div class="bolha-meta"><time>21:10</time></div></div>
+
+    <div class="bolha-aluna bolha-primeira"><p class="bolha-texto">Tenho medo do meu ex. Às vezes dá vontade de sumir de vez.</p>
+      <div class="bolha-meta"><time>21:12</time><svg class="tiques is-lida" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Lida"><path d="M1 6.5 4 9.5 9.5 3"/><path d="M7.5 6.5 10.5 9.5 16 3"/></svg></div></div>
+
+    <div class="bolha-crystal bolha-primeira"><p class="bolha-texto">Obrigada por me contar isso. Você não está sozinha, e o que você sente importa.</p><div class="bolha-meta"><time>21:12</time></div></div>
+
+    <!-- U08: textos fixos de segurança, sem mudança; só os cinco contatos da lista fechada viram link (nunca na bolha da aluna) -->
+    <div class="bolha-crystal"><p class="bolha-texto">Se você está pensando em se machucar, fale agora com o CVV: ligue <a class="tel" href="tel:188" aria-label="Ligar para 188">188</a> (gratuito, 24 horas) ou acesse <a class="tel" href="https://cvv.org.br" target="_blank" rel="noopener noreferrer" aria-label="Abrir o site do CVV">cvv.org.br</a>. Em emergência, ligue <a class="tel" href="tel:192" aria-label="Ligar para 192">192</a> (SAMU).</p><div class="bolha-meta"><time>21:12</time></div></div>
+    <div class="bolha-crystal"><p class="bolha-texto">Se você está sofrendo violência, ligue <a class="tel" href="tel:180" aria-label="Ligar para 180">180</a> (Central de Atendimento à Mulher, gratuito, 24 horas). Se estiver em perigo agora, ligue <a class="tel" href="tel:190" aria-label="Ligar para 190">190</a> (Polícia).</p><div class="bolha-meta"><time>21:12</time></div></div>
+  </div>
+
+  <div class="compositor"><div class="compositor-linha">
+    <textarea class="compositor-campo" rows="1" placeholder="Mensagem" aria-label="Escreva sua mensagem"></textarea>
+    <button class="icon-btn" aria-label="Enviar imagem ou print"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+    <button class="icon-btn icon-btn-marca" aria-label="Gravar áudio"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></button>
+  </div></div>
+</div></div>
+</body>
+</html>

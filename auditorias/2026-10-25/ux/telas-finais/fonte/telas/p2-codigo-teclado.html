@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Ana Souza · Alunos · Crystal</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  svg.i { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .staff-main { display: flex; flex-direction: column; gap: 12px; }
+  .staff-main > * { flex-shrink: 0; }
+  .ficha-cab { display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 14px; }
+  .ficha-cab .avatar-iniciais { font-size: var(--fs-lg); }
+  .ficha-nome { font-family: var(--font-display); font-size: var(--fs-xl); line-height: 1.2; font-weight: 600; color: var(--ink); }
+  .ficha-cab .cresce { display: flex; flex-direction: column; gap: 4px; }
+  .tabs { margin: 0 -16px; padding: 0 16px; }
+  .bloco { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px 16px; }
+  .bloco-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; margin: -10px 0 0; }
+  .bloco-titulo { font-family: var(--font-display); font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 600; color: var(--ink); }
+  .link-acao { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; margin-right: -6px; font-size: var(--fs-sm); font-weight: 500; color: var(--brand-ink); }
+  .link-acao .icon { width: 18px; height: 18px; }
+  .tentativa { font-weight: 500; }
+  .lista-item { padding: 8px 0; }
+  .notice { margin-top: 8px; }
+  .dado { display: flex; justify-content: space-between; gap: 12px; }
+  .dado > span:first-child { color: var(--ink-muted); }
+  .grupo-acoes { padding: 12px 12px 4px; font-size: var(--fs-xs); line-height: var(--lh-xs); font-weight: 500; text-transform: uppercase; letter-spacing: 0.025em; color: var(--ink-muted); }
+  .menu-item.acao-com-apoio { flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; }
+  .acao-perigo { color: var(--danger-ink); }
+  .acao-apoio { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .sheet-corpo { gap: 0; padding-bottom: 12px; }
+  .sem-quebra { white-space: nowrap; }
+  .area-visivel { position: absolute; left: 0; right: 0; top: 0; bottom: 292px; display: flex; flex-direction: column; }
+  .dialog.acima-do-teclado { max-height: calc(100% - 20px); }
+  .dialog.acima-do-teclado .dialog-titulo { flex-shrink: 0; }
+  .corpo-rolado { flex: 1; min-height: 0; overflow: hidden; justify-content: flex-end;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 20px); mask-image: linear-gradient(to bottom, transparent, #000 20px); }
+  .corpo-rolado > * { flex-shrink: 0; }
+  .dialog.acima-do-teclado .dialog-rodape { flex-shrink: 0; }
+  .reauth { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .reauth-titulo { font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 600; color: var(--ink); }
+  .espera { display: flex; align-items: center; gap: 8px; min-height: 36px; font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .espera .icon { color: var(--ink-muted); }
+  .field-codigo-painel { font-size: var(--fs-lg); letter-spacing: 0.2em; font-variant-numeric: tabular-nums; }
+  .teclado { position: absolute; left: 0; right: 0; bottom: 0; height: 292px; z-index: 60; background: #d3d6dc; font-family: var(--font-body); color: #000; }
+  .teclado-sugestao { height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; }
+  .teclado-sugestao small { font-size: 11px; color: #5b5e63; }
+  .teclado-sugestao b { font-size: 15px; font-weight: 600; letter-spacing: 0.04em; }
+  .teclas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 6px 6px; }
+  .tecla { height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; background: #ffffff; box-shadow: 0 1px 0 #8b8d91; line-height: 1; }
+  .tecla .n { font-size: 25px; font-weight: 400; }
+  .tecla .l { margin-top: 1px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.18em; padding-left: 0.18em; }
+  .tecla.vazia { background: transparent; box-shadow: none; }
+  .tecla.funcao { background: transparent; box-shadow: none; }
+  .tecla.funcao svg { width: 26px; height: 26px; }
+  .home { position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: #000; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-inicio" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-5h3v5h5V9.5"/></symbol>
+<symbol id="i-usuarios" viewBox="0 0 24 24"><path d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-5.5 9a5.5 5.5 0 0 1 11 0M16 4.3a3.5 3.5 0 0 1 0 6.4M17.5 14.5a5.5 5.5 0 0 1 4 5.5"/></symbol>
+<symbol id="i-mensagens" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Zm4 4.5h8M8 12.5h5"/></symbol>
+<symbol id="i-suporte" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5.6 5.6l3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></symbol>
+<symbol id="i-mais" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+<symbol id="i-voltar" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+<symbol id="i-chevron-direita" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+<symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+<symbol id="i-apagar" viewBox="0 0 24 24"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Z"/><path d="m18 9-6 6"/><path d="m12 9 6 6"/></symbol>
+</defs></svg>
+
+<div class="tela">
+  <div class="staff" inert><div class="staff-corpo">
+    <header class="staff-header">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <div class="staff-header-quem"><p class="staff-header-nome">Rui Ferreira</p><p class="staff-header-papel">Admin</p></div>
+      <button class="staff-conta-btn" aria-label="Sua conta" aria-haspopup="dialog">R</button>
+    </header>
+    <div class="staff-barra"><a class="staff-barra-voltar" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-voltar"/></svg>Alunos</a><p class="staff-barra-titulo">Ana Souza</p><span></span></div>
+
+    <main class="staff-main">
+      <section class="card ficha-cab" aria-labelledby="ficha-nome">
+        <span class="avatar avatar-48 avatar-iniciais" aria-hidden="true">A</span>
+        <div class="cresce">
+          <h1 class="ficha-nome" id="ficha-nome">Ana Souza</h1>
+          <div class="linha"><span class="badge badge-good">Ativo</span></div>
+          <p class="texto-apoio">Última atividade: Nunca</p>
+        </div>
+        <button class="btn btn-secondary" aria-haspopup="dialog">Ações</button>
+      </section>
+
+      <div class="tabs tem-mais-dir" role="tablist" aria-label="Ficha"><button class="tab is-ativa" role="tab" aria-selected="true">Resumo</button><button class="tab" role="tab" aria-selected="false">Mensagens</button><button class="tab" role="tab" aria-selected="false">Aparelhos</button><button class="tab" role="tab" aria-selected="false">Suporte</button><button class="tab" role="tab" aria-selected="false">Financeiro</button><button class="tab" role="tab" aria-selected="false">Dados</button><button class="tab" role="tab" aria-selected="false">Histórico</button></div>
+
+      <section class="card bloco" aria-labelledby="entrada-t">
+        <div class="bloco-topo"><h2 class="bloco-titulo" id="entrada-t">Entrada no app</h2><a class="link-acao" href="#">Ver todas as tentativas<svg class="icon i" aria-hidden="true"><use href="#i-chevron-direita"/></svg></a></div>
+        <ul class="lista" aria-label="Últimas tentativas de entrada">
+          <li class="lista-item"><span><span class="tentativa">Código enviado</span> <span class="mutado">· 26/10, 09:12 · iPhone · Safari</span></span></li>
+          <li class="lista-item"><span><span class="tentativa">Código enviado</span> <span class="mutado">· 26/10, 09:05 · iPhone · Safari</span></span></li>
+          <li class="lista-item"><span><span class="tentativa">Código enviado</span> <span class="mutado">· 25/10, 21:40 · iPhone · Safari</span></span></li>
+        </ul>
+        <div class="notice notice-info">
+          <svg class="icon i" aria-hidden="true"><use href="#i-info"/></svg>
+          <div class="notice-corpo"><p>O código saiu e a pessoa não entrou. Se o <span class="sem-quebra">e-mail</span> é Outlook ou Hotmail, o código às vezes não chega: confere o <span class="sem-quebra">e-mail</span> da compra ou corrige o <span class="sem-quebra">e-mail</span>.</p>
+            <div class="notice-acoes"><button class="btn btn-secondary">Corrigir e-mail</button></div></div>
+        </div>
+      </section>
+
+      <section class="card bloco" aria-labelledby="conta-t">
+        <div class="bloco-topo"><h2 class="bloco-titulo" id="conta-t">Conta</h2></div>
+        <div class="lista">
+          <div class="lista-item dado"><span>CPF</span><span>•••.•••.•••-05</span></div>
+          <div class="lista-item dado"><span>E-mail</span><span>ana@exemplo.com</span></div>
+          <div class="lista-item dado"><span>Fuso</span><span>America/Sao_Paulo</span></div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="staff-bottombar" aria-label="Menu principal">
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24 i" aria-hidden="true"><use href="#i-inicio"/></svg></span>Início</a>
+      <a class="staff-tab is-ativo" href="#" aria-current="page"><span class="staff-tab-icone"><svg class="icon icon-24 i" aria-hidden="true"><use href="#i-usuarios"/></svg></span>Alunos</a>
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24 i" aria-hidden="true"><use href="#i-mensagens"/></svg></span>Mensagens</a>
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24 i" aria-hidden="true"><use href="#i-suporte"/></svg><span class="contador" aria-label="2 pedidos abertos">2</span></span>Suporte</a>
+      <button class="staff-tab" aria-haspopup="dialog"><span class="staff-tab-icone"><svg class="icon icon-24 i" aria-hidden="true"><use href="#i-mais"/></svg></span>Mais</button>
+    </nav>
+  </div></div>
+  <div class="veu">
+    <div class="area-visivel">
+      <div class="dialog acima-do-teclado" role="alertdialog" aria-modal="true" aria-labelledby="rc-t">
+        <h2 class="dialog-titulo" id="rc-t">Recomeçar a conversa deste aluno com a Crystal?</h2>
+        <div class="dialog-corpo corpo-rolado">
+          <p>A Crystal esquece tudo o que sabe deste aluno e recomeça do zero. A memória do WhatsApp antigo deixa de entrar na conversa dele. A conversa que aparece na tela do aluno continua lá, e ele vê a mensagem de recomeço. Isso não dá para desfazer.</p>
+          <div class="field">
+            <label class="field-label" for="rc-motivo">Motivo</label>
+            <input class="field-input" id="rc-motivo" value="Pediu para começar do zero">
+            <p class="field-hint">Em poucas palavras. O motivo fica na auditoria: não escreva e-mail, CPF nem telefone.</p>
+          </div>
+          <div class="reauth">
+            <p class="reauth-titulo">Confirme que é você</p>
+            <p>Mandamos um código para r***@exemplo.com. Vale 10 minutos. Código 4 de 4.</p>
+            <div class="field">
+              <label class="field-label" for="rc-codigo">Código</label>
+              <input class="field-input field-codigo-painel is-focus" id="rc-codigo" value="482913" inputmode="numeric" autocomplete="one-time-code" aria-describedby="rc-espera">
+            </div>
+            <p class="espera" id="rc-espera" role="timer"><svg class="icon i" aria-hidden="true"><use href="#i-relogio"/></svg>Dá para pedir outro em 11:24</p>
+          </div>
+        </div>
+        <div class="dialog-rodape">
+          <button class="btn btn-secondary btn-full">Cancelar</button>
+          <button class="btn btn-danger btn-full">Sim, recomeçar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="teclado" aria-hidden="true">
+    <div class="teclado-sugestao"><small>Do Mail</small><b>482913</b></div>
+    <div class="teclas"><span class="tecla"><span class="n">1</span><span class="l">&nbsp;</span></span><span class="tecla"><span class="n">2</span><span class="l">ABC</span></span><span class="tecla"><span class="n">3</span><span class="l">DEF</span></span><span class="tecla"><span class="n">4</span><span class="l">GHI</span></span><span class="tecla"><span class="n">5</span><span class="l">JKL</span></span><span class="tecla"><span class="n">6</span><span class="l">MNO</span></span><span class="tecla"><span class="n">7</span><span class="l">PQRS</span></span><span class="tecla"><span class="n">8</span><span class="l">TUV</span></span><span class="tecla"><span class="n">9</span><span class="l">WXYZ</span></span><span class="tecla vazia"></span><span class="tecla"><span class="n">0</span></span><span class="tecla funcao"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width:1.5"><use href="#i-apagar"/></svg></span></div>
+    <span class="home"></span>
+  </div>
+</div>
+</body>
+</html>

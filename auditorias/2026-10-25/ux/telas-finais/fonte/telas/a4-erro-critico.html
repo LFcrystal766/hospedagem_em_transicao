@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Erro crítico</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  /*
+   * U19 · global-error.tsx com <style> próprio (o globals.css não carrega nesta tela).
+   * Compatível com iOS 15: sem dvh, sem aninhamento, sem color-mix.
+   * No aparelho a fonte é a do sistema; aqui a Inter Tight entra só como substituta da San Francisco.
+   */
+  .ge {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 0 24px;
+    text-align: center;
+    background: #f0f2f5;
+    color: #111b21;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter Tight", "Segoe UI", Roboto, sans-serif;
+  }
+  .ge-sinal { font-size: 52px; line-height: 1; font-weight: 600; color: #b8004f; }
+  .ge h1 { font-size: 20px; line-height: 28px; font-weight: 600; }
+  .ge-texto { max-width: 340px; font-size: 15px; line-height: 22px; color: #54656f; }
+  .ge-acoes { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 8px; }
+  .ge-botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 20px;
+    border-radius: 10px; /* U48: botão com texto é sempre rounded-lg, também aqui */
+    background: #e60a68;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .ge-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 8px;
+    color: #b8004f;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="tela">
+  <main class="ge">
+    <p class="ge-sinal" aria-hidden="true">!</p>
+    <h1>Algo deu errado do meu lado.</h1>
+    <p class="ge-texto">Um erro crítico aconteceu. Quer tentar de novo?</p>
+    <p class="ge-texto">Se o erro continuar, atualiza o celular ou abre a Crystal pelo Safari ou pelo Chrome.</p>
+    <div class="ge-acoes">
+      <button class="ge-botao">Tentar de novo</button>
+      <a class="ge-link" href="#">Falar com o suporte</a>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Login, OK na Política</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .passo-titulo { font-size: var(--fs-lg); line-height: var(--lh-lg); font-weight: 600; color: var(--ink); }
+  .passo-lead { margin-top: 4px; font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink-muted); }
+  .aceite { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: var(--radius-xl); background: color-mix(in srgb, var(--brand) 10%, transparent); }
+  .aceite-lead { display: flex; align-items: center; gap: 8px; font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 600; color: var(--ink); }
+  .aceite-selo { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: var(--radius-full); background: var(--success-strong); color: var(--on-brand); flex-shrink: 0; }
+  .aceite-selo .icon { width: 16px; height: 16px; stroke-width: 2.5; }
+  .aceite-caixa { min-height: 44px; align-items: center; gap: 12px; color: var(--ink); }
+  .linha-acoes { display: flex; justify-content: flex-end; margin-top: -8px; }
+  .aceite-caixa a { color: var(--brand-ink); text-decoration: underline; text-underline-offset: 2px; font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="tela"><main class="auth">
+  <div class="crystal-lockup crystal-lockup-lg">
+    <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+    <span class="crystal-lockup-nome">Crystal</span>
+  </div>
+
+  <form class="auth-cartao" novalidate>
+    <div>
+      <h2 class="passo-titulo">Agora olha o seu e-mail</h2>
+      <p class="passo-lead">Se a***@exemplo.com for o e-mail da compra, o código de 6 dígitos já está lá. É só digitar aqui embaixo.</p>
+    </div>
+
+    <div class="aceite" role="group" aria-labelledby="aceite-lead">
+      <p class="aceite-lead" id="aceite-lead" role="status">
+        <span class="aceite-selo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+        Código certo! Falta só o seu OK:
+      </p>
+      <label class="checkbox-linha aceite-caixa">
+        <input type="checkbox" class="checkbox" checked>
+        <span>Li e concordo com a <a href="#">Política de Privacidade</a>, incluindo o uso do meu <span style="white-space:nowrap">e-mail</span> para me identificar.</span>
+      </label>
+    </div>
+
+    <button type="submit" class="btn btn-cta btn-lg btn-full">Concordar e entrar</button>
+
+    <!-- U11: somem o campo e os relógios (inclusive o "Reenviar em"); a saída "Trocar o e-mail" continua -->
+    <div class="linha-acoes">
+      <button type="button" class="btn btn-text">Trocar o e-mail</button>
+    </div>
+  </form>
+
+  <p class="auth-rodape">
+    <svg class="icon icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    Conversa protegida · <a href="#">Privacidade</a> · <a href="#">Termos de Uso</a>
+  </p>
+</main></div>
+</body>
+</html>

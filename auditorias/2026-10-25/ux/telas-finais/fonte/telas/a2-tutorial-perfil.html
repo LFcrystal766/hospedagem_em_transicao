@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Tutorial do perfil</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .app { height: 100%; }
+  /* Mesma linha da seta do Suporte; rolada, a página ganha o fio embaixo da seta */
+  .app-header.com-voltar { padding-top: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border-strong); }
+  /* Área rolável do perfil: o tutorial rolou até a idade (scrollIntoView). */
+  .rolagem { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+  .rolagem > .app-main { position: absolute; left: 0; right: 0; top: 0; }
+  .form { display: flex; flex-direction: column; gap: 20px; }
+  .foto { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+  .tut { position: absolute; inset: 0; z-index: 40; }
+  .tut-recorte { position: absolute; border-radius: var(--radius-xl); box-shadow: 0 0 0 3px var(--brand), 0 0 0 9999px rgba(0, 0, 0, 0.66); }
+  .tut-balao { position: absolute; left: 16px; right: 16px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-2xl); background: var(--surface); box-shadow: var(--shadow-lg); }
+  .tut-cab { display: flex; align-items: center; gap: 8px; }
+  .tut-cab .avatar { width: 36px; height: 36px; }
+  .tut-nome { font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 600; }
+  .tut-passo { margin-left: auto; font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .tut-texto { margin-top: 12px; font-size: var(--fs-base); line-height: 1.625; }
+  .tut-pe { display: flex; align-items: center; gap: 12px; margin-top: 20px; }
+  .tut-pontos { flex: 1; display: flex; gap: 6px; }
+  .tut-pontos span { width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--brand); }
+</style>
+</head>
+<body>
+<div class="tela"><div class="app">
+  <header class="app-header com-voltar">
+    <button class="icon-btn is-tinta" aria-label="Voltar para o início"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+  </header>
+
+  <div class="rolagem">
+    <main class="app-main" data-rolar>
+      <div class="page-header" style="margin-bottom:0">
+        <div><h1 class="page-titulo">Seu perfil</h1><p class="page-apoio">Todas as respostas são obrigatórias, menos a foto. Dá pra mudar depois.</p></div>
+      </div>
+
+      <form class="form" novalidate>
+        <p class="texto-sm forte mutado" role="status">1 de 5 respondidas</p>
+
+        <div class="foto">
+          <span class="avatar avatar-96 avatar-iniciais" aria-hidden="true">A</span>
+          <button type="button" class="btn btn-secondary btn-lg">Trocar foto</button>
+        </div>
+
+        <div class="field field-lg">
+          <label class="field-label" for="nome">Que nome você quer que eu use?</label>
+          <p class="field-hint" id="nome-ajuda">É o nome que aparece no seu perfil.</p>
+          <input class="field-input" id="nome" value="Ana" aria-describedby="nome-ajuda" style="margin-top:4px">
+        </div>
+
+        <div class="field field-lg">
+          <label class="field-label" for="idade">Quantos anos você tem?</label>
+          <p class="field-hint" id="idade-ajuda">Eu só converso com quem tem 18 anos ou mais.</p>
+          <input class="field-input" id="idade" inputmode="numeric" placeholder="Sua idade" aria-describedby="idade-ajuda" data-tutorial="proxima" style="margin-top:4px">
+        </div>
+
+        <div class="field field-lg">
+          <p class="field-label" id="busca">O que você busca agora?</p>
+          <p class="field-hint">Puxar assunto é começar a conversa. Manter a conversa é não deixar esfriar. Convite é chamar pra sair.</p>
+          <div class="chips" role="radiogroup" aria-labelledby="busca" style="margin-top:4px">
+            <button type="button" class="chip" role="radio" aria-checked="false">Puxar assunto</button>
+            <button type="button" class="chip" role="radio" aria-checked="false">Manter a conversa</button>
+            <button type="button" class="chip" role="radio" aria-checked="false">Convite</button>
+          </div>
+        </div>
+
+        <div class="field field-lg">
+          <label class="field-label" for="jeito">Seu jeito de conversar</label>
+          <p class="field-hint">Me conta como você costuma ser quando conversa com alguém.</p>
+          <textarea class="field-input" id="jeito" rows="3" placeholder="Ex.: no começo fico sem jeito, mas depois solto…" style="margin-top:4px"></textarea>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+
+<!-- Tutorial, Parte 2: um passo, mirando o primeiro campo que falta (idade) -->
+<div class="tut" role="dialog" aria-modal="true" aria-labelledby="tut-texto" aria-describedby="tut-passo">
+  <div class="tut-recorte" aria-hidden="true"></div>
+  <section class="tut-balao">
+    <header class="tut-cab">
+      <img class="avatar" src="../assets/crystal-foto.jpg" alt="">
+      <p class="tut-nome">Crystal</p>
+      <p class="tut-passo" id="tut-passo">Passo 1 de 1</p>
+    </header>
+    <p class="tut-texto" id="tut-texto">Seu nome já veio da compra. Agora responde as outras perguntas, começando por aqui. No fim, toca em Salvar.</p>
+    <div class="tut-pe">
+      <div class="tut-pontos" aria-hidden="true"><span></span></div>
+      <button class="btn btn-text btn-lg">Pular</button>
+      <button class="btn btn-primary btn-lg">Começar</button>
+    </div>
+  </section>
+</div>
+</div>
+
+<script>
+  // Simula o scrollIntoView do tutorial: rola a área até o campo da idade ficar perto do meio,
+  // depois põe o recorte sobre o campo e o balão logo abaixo.
+  const telaR = document.querySelector('.tela').getBoundingClientRect();
+  const main = document.querySelector('[data-rolar]');
+  const alvoEl = document.querySelector('[data-tutorial="proxima"]');
+  const desejado = 440; // centro do campo, em px do topo da tela (perto do meio da área que rola)
+  const atual = alvoEl.getBoundingClientRect();
+  const desloca = (atual.top + atual.height / 2) - desejado;
+  main.style.top = (-Math.max(0, desloca)) + 'px';
+  const alvo = alvoEl.getBoundingClientRect();
+  const r = document.querySelector('.tut-recorte');
+  Object.assign(r.style, { top: (alvo.top - telaR.top) + 'px', left: (alvo.left - telaR.left) + 'px', width: alvo.width + 'px', height: alvo.height + 'px' });
+  document.querySelector('.tut-balao').style.top = (alvo.bottom - telaR.top + 12) + 'px';
+</script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Foto que falhou, guardada</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  /* U17: "Tentar de novo" vira pílula dentro da bolha (min-h-11, gap-2, rounded-full, border current/30, px-4) */
+  .bolha-tentar.pilula {
+    gap: 8px;
+    margin: 8px 0 0;
+    padding: 0 16px;
+    border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    border-radius: var(--radius-full);
+    text-decoration: none;
+  }
+  .bolha-aluna .bolha-tentar.pilula { margin-top: 6px; white-space: nowrap; }
+  /* StatusTicks "error" de hoje (o PRD não muda): triângulo cheio de 12 px na cor de aviso */
+  .tique-falha { width: 12px; height: 12px; color: var(--warning); }
+  /* Painel de legendas do VoiceOver (iPhone): mostra o que o leitor de tela fala */
+  .legenda-leitor {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 30;
+    display: flex; align-items: center; min-height: 65px;
+    padding: 10px 16px;
+    background: #1c1c1e; color: #ffffff;
+    font-size: 15px; line-height: 20px;
+  }
+
+  /* O print que a aluna mandou (desenho de uma tela de conversa, sem dado real) */
+  .print {
+    display: flex; flex-direction: column; gap: 6px;
+    width: 100%; margin-bottom: 6px; padding: 0 0 10px;
+    border-radius: var(--radius-lg); overflow: hidden;
+    background: #ffffff; color: #111b21; font-size: 12px; line-height: 16px;
+  }
+  .print-topo { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid #e9edef; font-weight: 600; }
+  .print-foto { width: 24px; height: 24px; border-radius: 9999px; background: linear-gradient(135deg, #c7cdd1, #9aa6ad); }
+  .print-msg { max-width: 78%; padding: 6px 10px; border-radius: 14px; }
+  .print-ela { align-self: flex-start; margin-left: 10px; background: #eceff1; }
+  .print-eu { align-self: flex-end; margin-right: 10px; background: #3b82c4; color: #ffffff; }
+  .print-hora { align-self: center; font-size: 10px; color: #6b7a83; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="chat">
+  <header class="chat-header">
+    <button class="icon-btn is-tinta" aria-label="Voltar ao início"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+    <button class="chat-header-foto" aria-label="Ver perfil da Crystal"><img class="avatar avatar-40" src="../assets/crystal-foto.jpg" alt=""></button>
+    <div class="chat-header-texto"><h1 class="chat-header-nome">Crystal</h1><p class="chat-header-status" data-testid="status-crystal">sem internet</p></div>
+    <div class="menu-ancora"><button class="icon-btn" aria-label="Abrir menu" aria-haspopup="menu"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></div>
+  </header>
+
+  <div class="chat-lista no-fim" role="log" aria-live="off">
+    <span class="chat-divisor chat-pill">Hoje</span>
+
+    <div class="bolha-aluna bolha-primeira"><p class="bolha-texto">Ela treina no mesmo horário que eu, sempre perto da esteira</p>
+      <div class="bolha-meta"><time>14:47</time><svg class="tiques is-lida" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Lida"><path d="M1 6.5 4 9.5 9.5 3"/><path d="M7.5 6.5 10.5 9.5 16 3"/></svg></div></div>
+
+    <div class="bolha-crystal bolha-primeira"><p class="bolha-texto">Vocês já trocaram algum olhar ou sorriso por lá?</p><div class="bolha-meta"><time>14:47</time></div></div>
+
+    <div class="bolha-aluna bolha-primeira"><p class="bolha-texto">Já! E hoje ela me mandou mensagem</p>
+      <div class="bolha-meta"><time>14:48</time><svg class="tiques is-lida" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Lida"><path d="M1 6.5 4 9.5 9.5 3"/><path d="M7.5 6.5 10.5 9.5 16 3"/></svg></div></div>
+
+    <!-- U14: a foto que falhou por rede fica guardada no aparelho; ao abrir o app de novo ela volta com "Tentar de novo"
+         e sai sozinha quando a rede voltar. U17: o botão vira pílula. U15: a falha é anunciada ao leitor de tela. -->
+    <div class="bolha-aluna bolha-primeira sobre-cor">
+      <button class="print" aria-label="Abrir imagem em tela cheia">
+        <span class="print-topo"><span class="print-foto"></span>Nina</span>
+        <span class="print-hora">Hoje 14:20</span>
+        <span class="print-msg print-ela">oi! vc treina sempre de manhã né?</span>
+        <span class="print-msg print-eu">simm, quase todo dia kkk</span>
+        <span class="print-msg print-ela">e aí, bora tomar um açaí depois do treino?</span>
+      </button>
+      <p class="bolha-texto">O que eu respondo agora?</p>
+      <div class="bolha-meta"><time>14:52</time><svg class="tique-falha" viewBox="0 0 12 12" role="img" aria-label="Falha no envio"><path d="M6 1.2 11 10.4H1Z" fill="currentColor"/></svg></div>
+      <!-- O botão de hoje (CHAT.sendFailedRetry) com o mesmo texto, agora em pílula (U17) -->
+      <button class="bolha-tentar pilula"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Não consegui enviar. Tentar de novo</button>
+    </div>
+  </div>
+  <!-- U15: a falha da própria mensagem é anunciada na região viva única -->
+  <p class="sr-only" aria-live="polite">Não consegui enviar. Toca em Tentar de novo.</p>
+
+  <div class="compositor"><div class="compositor-linha">
+    <textarea class="compositor-campo" rows="1" placeholder="Mensagem" aria-label="Escreva sua mensagem"></textarea>
+    <button class="icon-btn" aria-label="Enviar imagem ou print"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+    <button class="icon-btn icon-btn-marca" aria-label="Gravar áudio"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></button>
+  </div></div>
+  <div class="legenda-leitor" aria-hidden="true">Não consegui enviar. Toca em Tentar de novo.</div>
+</div></div>
+</body>
+</html>

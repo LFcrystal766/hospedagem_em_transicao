@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Tutorial, primeiro passo</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  /* Tutorial: <dialog> com recorte próprio (U51 deixa como está). Véu, recorte e balão. */
+  .tut { position: absolute; inset: 0; z-index: 40; }
+  .tut-recorte {
+    position: absolute;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 0 0 3px var(--brand), 0 0 0 9999px rgba(0, 0, 0, 0.66);
+  }
+  .tut-balao {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2xl);
+    background: var(--surface);
+    box-shadow: var(--shadow-lg);
+  }
+  .tut-cab { display: flex; align-items: center; gap: 8px; }
+  .tut-cab .avatar { width: 36px; height: 36px; }
+  .tut-nome { font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 600; }
+  .tut-passo { margin-left: auto; font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .tut-texto { margin-top: 12px; font-size: var(--fs-base); line-height: 1.625; }
+  .tut-pe { display: flex; align-items: center; gap: 12px; margin-top: 20px; }
+  .tut-pontos { flex: 1; display: flex; gap: 6px; }
+  .tut-pontos span { width: 8px; height: 8px; border-radius: var(--radius-full); background: color-mix(in srgb, var(--ink-muted) 40%, transparent); }
+  .tut-pontos span.is-atual { background: var(--brand); }
+  .estado { color: var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="tela"><div class="app">
+  <header class="app-header">
+    <span class="crystal-lockup">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <span class="crystal-lockup-nome">Crystal</span>
+    </span>
+    <div class="menu-ancora"><button class="icon-btn" aria-label="Abrir menu" aria-haspopup="menu"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></div>
+  </header>
+
+  <main class="app-main">
+    <!-- U58: com o perfil incompleto a foto não é botão nem tem selo -->
+    <section class="pilha-sm" style="align-items:center;text-align:center;padding-top:8px">
+      <span class="avatar avatar-96 avatar-iniciais" aria-hidden="true">A</span>
+      <p class="forte" style="font-size:var(--fs-lg);line-height:var(--lh-lg)">Ana</p>
+      <p class="texto-apoio estado" data-slot="estado">Complete seu perfil para liberar a Crystal</p>
+    </section>
+
+    <nav class="caminhos" aria-label="Caminhos">
+      <a class="caminho" href="#" data-alvo>Perfil</a>
+      <a class="caminho is-travado" href="#" aria-label="Conversa (travada)"><svg class="icon icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Conversa</a>
+      <a class="caminho" href="#">Suporte</a>
+    </nav>
+
+    <section class="pilha-sm">
+      <h2 class="secao-titulo">Conversas</h2>
+      <button class="contato is-travada">
+        <img class="avatar avatar-48" src="../assets/crystal-foto.jpg" alt="">
+        <span class="contato-texto"><span class="contato-nome">Crystal</span><span class="contato-previa">Liberada quando você salvar o perfil</span></span>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </button>
+    </section>
+  </main>
+</div>
+
+<!-- Tutorial, Parte 1, passo 1 (padrão do dono: os passos de hoje ficam) -->
+<div class="tut" role="dialog" aria-modal="true" aria-labelledby="tut-texto" aria-describedby="tut-passo">
+  <div class="tut-recorte" aria-hidden="true"></div>
+  <section class="tut-balao">
+    <header class="tut-cab">
+      <img class="avatar" src="../assets/crystal-foto.jpg" alt="">
+      <p class="tut-nome">Crystal</p>
+      <p class="tut-passo" id="tut-passo">Passo 1 de 3</p>
+    </header>
+    <p class="tut-texto" id="tut-texto">Oi! Eu sou a Crystal, uma inteligência artificial. Primeiro, me conta quem você é: seu perfil fica aqui.</p>
+    <div class="tut-pe">
+      <div class="tut-pontos" aria-hidden="true"><span class="is-atual"></span><span></span><span></span></div>
+      <button class="btn btn-text btn-lg">Pular</button>
+      <button class="btn btn-primary btn-lg">Próximo</button>
+    </div>
+  </section>
+</div>
+</div>
+
+<script>
+  // Recorte exatamente sobre o alvo e balão logo abaixo (alvo na metade de cima da tela).
+  const tela = document.querySelector('.tela').getBoundingClientRect();
+  const alvo = document.querySelector('[data-alvo]').getBoundingClientRect();
+  const r = document.querySelector('.tut-recorte');
+  Object.assign(r.style, { top: (alvo.top - tela.top) + 'px', left: (alvo.left - tela.left) + 'px', width: alvo.width + 'px', height: alvo.height + 'px' });
+  document.querySelector('.tut-balao').style.top = (alvo.bottom - tela.top + 12) + 'px';
+</script>
+</body>
+</html>

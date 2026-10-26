@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Suporte, iPhone</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .staff-main > * { flex-shrink: 0; }
+  .cartoes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .cartoes .stat:first-child { grid-column: span 2; }
+  .stat-rotulo { overflow-wrap: normal; hyphens: auto; }
+  .filtros { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .filtros .inteiro { grid-column: span 2; }
+  .filtros-acoes { grid-column: span 2; display: flex; gap: 8px; margin-top: 4px; }
+  .filtros-acoes .btn-primary { flex: 1; }
+  .tickets { border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--surface); overflow: hidden; }
+  .ticket { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .ticket-assunto { font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 500; color: var(--ink); }
+  .ticket-aluno { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .ticket-pilulas { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
+  .ticket-resp { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .ticket time { flex-shrink: 0; font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="tela"><div class="staff">
+  <div class="staff-corpo">
+    <header class="staff-header">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <div class="staff-header-quem"><p class="staff-header-nome">Rui Ferreira</p><p class="staff-header-papel">Admin</p></div>
+      <button class="staff-conta-btn" aria-label="Sua conta" aria-haspopup="dialog">R</button>
+    </header>
+    <div class="staff-barra"><span></span><p class="staff-barra-titulo">Suporte</p><span></span></div>
+
+    <main class="staff-main pilha">
+      <div class="page-header" style="margin-bottom:0">
+        <div><h1 class="page-titulo">Suporte</h1><p class="page-apoio">Atendimentos registrados pela equipe e pedidos dos alunos.</p></div>
+      </div>
+
+      <div class="cartoes">
+        <a class="stat stat-grande" href="#"><p class="stat-rotulo">Abertos</p><p class="stat-valor">3</p></a>
+        <a class="stat" href="#"><p class="stat-rotulo">Aguardando</p><p class="stat-valor">1</p></a>
+        <a class="stat" href="#"><p class="stat-rotulo">Meus</p><p class="stat-valor">0</p></a>
+      </div>
+
+      <form class="filtros" role="search" aria-label="Filtrar pedidos">
+        <div class="field inteiro">
+          <label class="field-label" for="f-busca">Buscar</label>
+          <input class="field-input" id="f-busca" type="search" placeholder="Assunto, nome ou e-mail do aluno">
+        </div>
+        <div class="field">
+          <label class="field-label" for="f-situacao">Situação</label>
+          <select class="select" id="f-situacao"><option>Aberto</option></select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="f-resp">Responsável</label>
+          <select class="select" id="f-resp"><option>Todos</option></select>
+        </div>
+        <div class="field inteiro">
+          <label class="field-label" for="f-categoria">Categoria</label>
+          <select class="select" id="f-categoria"><option>Todas as categorias</option></select>
+        </div>
+        <div class="filtros-acoes">
+          <button class="btn btn-secondary" type="submit">Buscar</button>
+          <button class="btn btn-primary" type="button" aria-haspopup="dialog">Registrar atendimento</button>
+        </div>
+      </form>
+
+      <ul class="tickets" aria-label="Pedidos">
+        <li class="ticket">
+          <div class="cresce">
+            <p class="ticket-assunto">Código de entrada não chega</p>
+            <p class="ticket-aluno">Ana Souza · ana@exemplo.com</p>
+            <div class="ticket-pilulas"><span class="badge badge-good">Aberto</span><span class="badge badge-outline">Acesso</span><span class="ticket-resp">Bia</span></div>
+          </div>
+          <time datetime="2026-10-26T10:42">há 5 min</time>
+        </li>
+        <li class="ticket">
+          <div class="cresce">
+            <p class="ticket-assunto">Cobrança em dobro no cartão</p>
+            <p class="ticket-aluno">Marina Alves · marina@exemplo.com</p>
+            <div class="ticket-pilulas"><span class="badge badge-good">Aberto</span><span class="badge badge-outline">Pagamento</span><span class="ticket-resp">Sem responsável</span></div>
+          </div>
+          <time datetime="2026-10-26T08:40">há 2 h</time>
+        </li>
+      </ul>
+    </main>
+
+    <nav class="staff-bottombar" aria-label="Menu principal">
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-5h3v5h5V9.5"/></svg></span>Início</a>
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-5.5 9a5.5 5.5 0 0 1 11 0M16 4.3a3.5 3.5 0 0 1 0 6.4M17.5 14.5a5.5 5.5 0 0 1 4 5.5"/></svg></span>Alunos</a>
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4V5Zm4 4.5h8M8 12.5h5"/></svg></span>Mensagens</a>
+      <a class="staff-tab is-ativo" href="#" aria-current="page"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5.6 5.6l3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></svg><span class="contador" aria-label="3 pedidos abertos">3</span></span>Suporte</a>
+      <button class="staff-tab" aria-haspopup="dialog"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span>Mais</button>
+    </nav>
+  </div>
+</div></div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="1280x800">
+<title>Pedido de suporte encerrado</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .staff-main > * { flex-shrink: 0; }
+  .ticket-titulo { font-family: var(--font-display); font-size: var(--fs-xl); line-height: var(--lh-xl); font-weight: 600; color: var(--ink); }
+  .pilulas { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .dados { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 16px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--surface-2); }
+  .dados dt { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .dados dd { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink); }
+  .dados dd.forte { font-weight: 500; }
+  .acoes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--surface); }
+  .acoes-status { grid-column: span 2; display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn-perigo-texto { color: var(--danger-ink); }
+  .conversa { display: flex; flex-direction: column; gap: 8px; }
+  .msg { max-width: 75%; padding: 8px 12px; border-radius: var(--radius-xl); box-shadow: 0 1px 1px rgba(17, 27, 33, .08); }
+  .msg.da-equipe { align-self: flex-end; background: var(--bubble-user); color: var(--bubble-user-ink); }
+  .msg.nota { align-self: flex-end; border: 1px dashed var(--warning); background: color-mix(in srgb, var(--warning) 15%, var(--bg-app)); color: var(--ink); }
+  .msg-autor { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-bottom: 2px; font-size: var(--fs-xs); line-height: var(--lh-xs); font-weight: 500; }
+  .msg-texto { font-size: var(--fs-sm); line-height: var(--lh-sm); white-space: pre-wrap; }
+  .msg time { display: block; margin-top: 4px; text-align: right; font-size: var(--fs-xs); line-height: var(--lh-xs); }
+  .compor { display: flex; flex-direction: column; gap: 8px; }
+  .compor-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .compor .switch { align-items: center; justify-content: flex-start; gap: 12px; }
+  .compor .switch-texto { padding-top: 0; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="staff">
+  <aside class="staff-sidebar">
+    <div class="staff-sidebar-topo">
+      <span class="crystal-lockup crystal-lockup-md">
+        <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+        <span><span class="crystal-lockup-nome">Crystal</span><span class="crystal-lockup-apoio">Área da equipe</span></span>
+      </span>
+    </div>
+    <nav class="staff-nav" aria-label="Menu principal">
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Operar</p>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-5h3v5h5V9.5"/></svg><span class="rotulo">Início</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-5.5 9a5.5 5.5 0 0 1 11 0M16 4.3a3.5 3.5 0 0 1 0 6.4M17.5 14.5a5.5 5.5 0 0 1 4 5.5"/></svg><span class="rotulo">Alunos</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4V5Zm4 4.5h8M8 12.5h5"/></svg><span class="rotulo">Mensagens</span></a>
+        <a class="staff-link is-ativo" href="#" aria-current="page"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5.6 5.6l3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></svg><span class="rotulo">Suporte</span><span class="contador" aria-label="2 pedidos abertos">2</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Ajustar</p>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4V5Zm4 9.5a2.5 2.5 0 0 1 5 0M10.5 11a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM15 9h2m-2 3h2"/></svg><span class="rotulo">Equipe</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="staff-corpo">
+    <header class="staff-header">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <div class="staff-header-quem"><p class="staff-header-nome">Bia</p><p class="staff-header-papel">Suporte</p></div>
+      <button class="staff-conta-btn" aria-label="Sua conta" aria-haspopup="dialog">B</button>
+    </header>
+
+    <main class="staff-main pilha">
+      <div class="pilha-sm">
+        <a class="voltar-para" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>Suporte</a>
+        <h1 class="ticket-titulo">Código de entrada não chega</h1>
+        <div class="pilulas"><span class="badge badge-muted">Encerrado</span><span class="badge badge-outline">Acesso</span></div>
+        <dl class="dados">
+          <div><dt>Aluno</dt><dd class="forte">Ana Souza</dd></div>
+          <div><dt>CPF</dt><dd>•••.•••.•••-05</dd></div>
+          <div><dt>E-mail</dt><dd>ana@exemplo.com</dd></div>
+        </dl>
+      </div>
+
+      <div class="acoes">
+        <div class="field">
+          <label class="field-label" for="t-resp">Responsável</label>
+          <select class="select" id="t-resp"><option>Bia</option></select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="t-cat">Categoria</label>
+          <select class="select" id="t-cat"><option>Acesso</option></select>
+        </div>
+        <div class="acoes-status" role="group" aria-label="Status">
+          <button class="btn btn-secondary">Reabrir</button>
+        </div>
+      </div>
+
+      <ol class="conversa" aria-label="Mensagens">
+        <li class="msg da-equipe">
+          <p class="msg-autor">Bia · Equipe</p>
+          <p class="msg-texto">Chegou por WhatsApp.
+Escreveu no WhatsApp que o código de entrada não chega. Pedi para olhar a caixa de spam e tentar de novo.</p>
+          <time datetime="2026-10-26T10:42">26/10/2026, 10:42</time>
+        </li>
+        <li class="msg nota">
+          <p class="msg-autor">Bia · Equipe <span class="badge badge-warn badge-xs">Nota interna</span></p>
+          <p class="msg-texto">Ela respondeu no WhatsApp que achou o código no spam e entrou.</p>
+          <time datetime="2026-10-26T11:05">26/10/2026, 11:05</time>
+        </li>
+      </ol>
+
+      <form class="compor" aria-label="Responder">
+        <label class="sr-only" for="t-resposta">Resposta para o aluno…</label>
+        <textarea class="field-input" id="t-resposta" rows="2" placeholder="Resposta para o aluno…"></textarea>
+        <div class="compor-linha">
+          <div class="switch">
+            <div class="switch-texto"><p class="switch-rotulo" id="t-nota">Nota interna (só a equipe vê)</p></div>
+            <button class="switch-controle" role="switch" aria-checked="false" type="button" aria-labelledby="t-nota"><span class="switch-trilho"></span></button>
+          </div>
+          <button class="btn btn-primary" type="submit">Responder</button>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+
+  <!-- U35 + U27: cada mudança no pedido avisa o valor gravado; "Encerrado." traz "Desfazer" (reabre). -->
+  <div class="toast-area">
+    <div class="toast" role="status">
+      <span class="toast-texto">Encerrado.</span>
+      <button class="toast-acao">Desfazer</button>
+      <button class="toast-fechar" aria-label="Fechar aviso"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

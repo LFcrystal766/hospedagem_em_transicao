@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="1280x800">
+<title>Ana Souza · Alunos · Crystal</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  svg.i { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .staff-nav { gap: 10px; padding: 10px 12px; }
+  .staff-main { display: flex; flex-direction: column; gap: 12px; }
+  .staff-main > * { flex-shrink: 0; }
+  .voltar-para { align-self: flex-start; margin: -12px 0 -10px -4px; padding-right: 8px; }
+  .ficha-cab { display: flex; align-items: center; gap: 16px; padding: 10px 20px; }
+  .ficha-cab .avatar-iniciais { font-size: var(--fs-lg); }
+  .ficha-nome { font-family: var(--font-display); font-size: var(--fs-xl); line-height: 1.2; font-weight: 600; color: var(--ink); }
+  .ficha-cab .cresce { display: flex; flex-direction: column; gap: 4px; }
+  .resumo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+  .resumo .largo { grid-column: 1 / -1; }
+  .bloco { display: flex; flex-direction: column; gap: 4px; }
+  .bloco-topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; margin: -10px 0 0; }
+  .bloco-titulo { font-family: var(--font-display); font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 600; color: var(--ink); }
+  .link-acao { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; font-size: var(--fs-sm); font-weight: 500; color: var(--brand-ink); }
+  .link-acao .icon { width: 18px; height: 18px; }
+  /* U29: a frase de ação fica sob as tentativas (no computador, texto e botão na mesma linha). */
+  .entrada-grade { display: flex; flex-direction: column; gap: 8px; }
+  .entrada-grade .notice { align-items: center; }
+  .entrada-grade .notice-corpo { flex-direction: row; align-items: center; gap: 16px; }
+  .entrada-grade .notice-corpo > p { flex: 1; min-width: 0; }
+  .entrada-grade .notice-acoes { margin-top: 0; flex-shrink: 0; }
+  .tentativa { font-weight: 500; }
+  .dado { display: flex; justify-content: space-between; gap: 12px; }
+  .dado > span:first-child { color: var(--ink-muted); }
+  .linha-acao { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .linha-acao:last-child { border-bottom: 0; }
+  .linha-acao .btn { flex-shrink: 0; white-space: nowrap; }
+  .linha-acao .rotulo { color: var(--ink-muted); }
+  .grupo-acoes { padding: 12px 12px 4px; font-size: var(--fs-xs); line-height: var(--lh-xs); font-weight: 500; text-transform: uppercase; letter-spacing: 0.025em; color: var(--ink-muted); }
+  .menu-item.acao-com-apoio { flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; }
+  .acao-perigo { color: var(--danger-ink); }
+  .acao-apoio { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .sheet-corpo { gap: 0; }
+  .navegador { height: 72px; display: flex; flex-direction: column; background: #dfe3e8; border-bottom: 1px solid #c9ced4; font-family: var(--font-body); }
+  .nav-abas { height: 34px; display: flex; align-items: flex-end; gap: 16px; padding: 0 12px; }
+  .nav-luzes { display: flex; gap: 8px; align-self: center; }
+  .nav-luzes span { width: 12px; height: 12px; border-radius: 50%; }
+  .nav-aba { display: flex; align-items: center; gap: 8px; width: 280px; height: 28px; padding: 0 10px 0 12px; border-radius: 8px 8px 0 0; background: #ffffff; font-size: 12px; color: #1f2328; }
+  .nav-aba .crystal-mark { width: 16px; height: 16px; }
+  .nav-aba .cresce { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nav-aba .icon { width: 14px; height: 14px; color: #5f6368; }
+  .nav-endereco { height: 38px; display: flex; align-items: center; gap: 6px; padding: 0 12px; background: #ffffff; }
+  .nav-endereco > .icon { color: #5f6368; width: 18px; height: 18px; margin: 0 4px; }
+  .nav-campo { flex: 1; height: 30px; display: flex; align-items: center; gap: 8px; margin-left: 6px; padding: 0 14px; border-radius: 999px; background: #eef0f3; font-size: 13px; color: #5f6368; }
+  .nav-campo .icon { width: 14px; height: 14px; }
+  .nav-campo b { color: #111b21; font-weight: 600; }
+  .tela > .staff { height: calc(100% - 72px); }
+  .tela > .staff .staff-nav { gap: 7px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-inicio" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-5h3v5h5V9.5"/></symbol>
+<symbol id="i-usuarios" viewBox="0 0 24 24"><path d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-5.5 9a5.5 5.5 0 0 1 11 0M16 4.3a3.5 3.5 0 0 1 0 6.4M17.5 14.5a5.5 5.5 0 0 1 4 5.5"/></symbol>
+<symbol id="i-mensagens" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Zm4 4.5h8M8 12.5h5"/></symbol>
+<symbol id="i-suporte" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5.6 5.6l3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></symbol>
+<symbol id="i-banners" viewBox="0 0 24 24"><path d="M3 6h18v12H3V6Zm0 9 5-4 4 3 3-2 6 4M8.5 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></symbol>
+<symbol id="i-financeiro" viewBox="0 0 24 24"><path d="M3 7h18v12H3V7Zm0 4h18M16 15h2M6 7V5h12v2"/></symbol>
+<symbol id="i-crystal" viewBox="0 0 24 24"><path d="M12 3 6 9l6 12 6-12-6-6ZM6 9h12M9.5 9 12 21m2.5-12L12 21"/></symbol>
+<symbol id="i-laboratorio" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3M7.5 15h9"/></symbol>
+<symbol id="i-grafico" viewBox="0 0 24 24"><path d="M4 20V10m6 10V4m6 16v-7m4 7H3"/></symbol>
+<symbol id="i-auditoria" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.5 3.2 8.2 7.5 9.5 4.3-1.3 7.5-5 7.5-9.5V6L12 3Zm-3 9 2 2 4-4"/></symbol>
+<symbol id="i-configuracoes" viewBox="0 0 24 24"><path d="M4 7h10m4 0h2M4 17h4m4 0h8M14 5v4m-4 6v4"/></symbol>
+<symbol id="i-integracoes" viewBox="0 0 24 24"><path d="M9 7V3m6 4V3M7 7h10v4a5 5 0 0 1-10 0V7Zm5 9v5"/></symbol>
+<symbol id="i-equipe" viewBox="0 0 24 24"><path d="M4 5h16v14H4V5Zm4 9.5a2.5 2.5 0 0 1 5 0M10.5 11a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM15 9h2m-2 3h2"/></symbol>
+<symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-filtro" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></symbol>
+<symbol id="i-voltar" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+<symbol id="i-chevron-direita" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+<symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+<symbol id="i-recomecar" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+<symbol id="i-fechar" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+</defs></svg>
+
+<div class="tela">
+  <div class="navegador" aria-hidden="true">
+    <div class="nav-abas">
+      <span class="nav-luzes"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></span>
+      <span class="nav-aba"><span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span><span class="cresce">Ana Souza · Alunos · Crystal</span><svg class="icon i"><use href="#i-fechar"/></svg></span>
+    </div>
+    <div class="nav-endereco">
+      <svg class="icon i"><use href="#i-voltar"/></svg><svg class="icon i"><use href="#i-chevron-direita"/></svg><svg class="icon i"><use href="#i-recomecar"/></svg>
+      <span class="nav-campo"><svg class="icon i"><use href="#i-cadeado"/></svg><span>app.crystalnowpp.com.br/equipe/alunos/8c41e2<b>?aba=resumo</b></span></span>
+    </div>
+  </div>
+  <div class="staff">
+  <aside class="staff-sidebar">
+    <div class="staff-sidebar-topo">
+      <span class="crystal-lockup crystal-lockup-md">
+        <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+        <span><span class="crystal-lockup-nome">Crystal</span><span class="crystal-lockup-apoio">Área da equipe</span></span>
+      </span>
+    </div>
+    <nav class="staff-nav" aria-label="Menu principal">
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Operar</p>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-inicio"/></svg><span class="rotulo">Início</span></a>
+        <a class="staff-link is-ativo" href="#" aria-current="page"><svg class="icon i" aria-hidden="true"><use href="#i-usuarios"/></svg><span class="rotulo">Alunos</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-mensagens"/></svg><span class="rotulo">Mensagens</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-suporte"/></svg><span class="rotulo">Suporte</span><span class="contador" aria-label="2 pedidos abertos">2</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-banners"/></svg><span class="rotulo">Banners</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-financeiro"/></svg><span class="rotulo">Financeiro</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Crystal</p>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-crystal"/></svg><span class="rotulo">Crystal</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-laboratorio"/></svg><span class="rotulo">Laboratório</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Entender</p>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-grafico"/></svg><span class="rotulo">Métricas</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-auditoria"/></svg><span class="rotulo">Auditoria</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Ajustar</p>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-configuracoes"/></svg><span class="rotulo">Configurações</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-integracoes"/></svg><span class="rotulo">Integrações</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-equipe"/></svg><span class="rotulo">Equipe</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="staff-corpo">
+    <header class="staff-header">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <div class="staff-header-quem"><p class="staff-header-nome">Rui Ferreira</p><p class="staff-header-papel">Admin</p></div>
+      <button class="staff-conta-btn" aria-label="Sua conta" aria-haspopup="dialog">R</button>
+    </header>
+
+    <main class="staff-main">
+      <a class="voltar-para so-desktop" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-voltar"/></svg>Alunos</a>
+      <section class="card ficha-cab" aria-labelledby="ficha-nome">
+        <span class="avatar avatar-48 avatar-iniciais" aria-hidden="true">A</span>
+        <div class="cresce">
+          <h1 class="ficha-nome" id="ficha-nome">Ana Souza</h1>
+          <div class="linha"><span class="badge badge-good">Ativo</span></div>
+          <p class="texto-apoio">Última atividade: Nunca</p>
+        </div>
+        <button class="btn btn-secondary" aria-haspopup="dialog">Ações</button>
+      </section>
+
+      <div class="tabs" role="tablist" aria-label="Ficha">
+        <button class="tab is-ativa" role="tab" aria-selected="true">Resumo</button>
+        <button class="tab" role="tab" aria-selected="false">Mensagens</button>
+        <button class="tab" role="tab" aria-selected="false">Aparelhos e sessões</button>
+        <button class="tab" role="tab" aria-selected="false">Suporte</button>
+        <button class="tab" role="tab" aria-selected="false">Financeiro</button>
+        <button class="tab" role="tab" aria-selected="false">Dados</button>
+        <button class="tab" role="tab" aria-selected="false">Histórico</button>
+      </div>
+
+      <div class="resumo" role="tabpanel">
+        <section class="card bloco largo" aria-labelledby="entrada-t">
+          <div class="bloco-topo"><h2 class="bloco-titulo" id="entrada-t">Entrada no app</h2><a class="link-acao" href="#">Ver todas as tentativas<svg class="icon i" aria-hidden="true"><use href="#i-chevron-direita"/></svg></a></div>
+          <div class="entrada-grade">
+            <ul class="lista" aria-label="Últimas tentativas de entrada">
+              <li class="lista-item"><span><span class="tentativa">Código enviado</span> <span class="mutado">· 26/10, 09:12 · iPhone · Safari</span></span></li>
+              <li class="lista-item"><span><span class="tentativa">Código enviado</span> <span class="mutado">· 26/10, 09:05 · iPhone · Safari</span></span></li>
+              <li class="lista-item"><span><span class="tentativa">Código enviado</span> <span class="mutado">· 25/10, 21:40 · iPhone · Safari</span></span></li>
+            </ul>
+            <div class="notice notice-info">
+              <svg class="icon i" aria-hidden="true"><use href="#i-info"/></svg>
+              <div class="notice-corpo"><p>O código saiu e a pessoa não entrou. Se o e-mail é Outlook ou Hotmail, o código às vezes não chega: confere o e-mail da compra ou corrige o e-mail.</p>
+                <div class="notice-acoes"><button class="btn btn-secondary">Corrigir e-mail</button></div></div>
+            </div>
+          </div>
+        </section>
+        <section class="card bloco" aria-labelledby="conta-t">
+          <div class="bloco-topo"><h2 class="bloco-titulo" id="conta-t">Conta</h2></div>
+          <div class="lista">
+            <div class="lista-item dado"><span>CPF</span><span>•••.•••.•••-05</span></div>
+            <div class="lista-item dado"><span>E-mail</span><span>ana@exemplo.com</span></div>
+            <div class="lista-item dado"><span>Fuso</span><span>America/Sao_Paulo</span></div>
+            <div class="lista-item dado"><span>Aluno desde</span><span>24/10/2026</span></div>
+            <div class="lista-item dado"><span>Aceitou os termos em</span><span>Ainda não</span></div>
+            <div class="lista-item dado"><span>Entrada</span><span>Pela base</span></div>
+            <div class="lista-item dado"><span>Base</span><span>assinatura ativa</span></div>
+          </div>
+        </section>
+        <section class="card bloco" aria-labelledby="cw-t">
+          <div class="bloco-topo"><h2 class="bloco-titulo" id="cw-t">Crystal e WhatsApp</h2></div>
+          <div class="lista">
+            <div class="linha-acao"><p><span class="rotulo">Memória do WhatsApp:</span> ainda não importada</p><button class="btn btn-secondary">Importar agora</button></div>
+            <div class="linha-acao"><p><span class="rotulo">Crystal no WhatsApp:</span> respondendo</p><button class="btn btn-secondary">Silenciar WhatsApp</button></div>
+            <div class="linha-acao"><p><span class="rotulo">Conversa da Crystal:</span> nunca recomeçada</p><button class="btn btn-secondary">Recomeçar conversa da Crystal</button></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+  </div>
+</div>
+</body>
+</html>

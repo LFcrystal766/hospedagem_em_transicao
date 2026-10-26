@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Suporte, rever o tutorial</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .app-header.com-voltar { padding-top: 8px; padding-bottom: 0; }
+  .app-main { gap: 16px; padding-top: 0; }
+  .page-header { margin-bottom: 0; }
+  .assuntos { margin-top: 8px; }
+  .contato-valor { margin-top: 8px; font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 500; color: var(--ink); }
+  .card-acoes { margin-top: 12px; }
+  /* U56 item 7: linha abaixo da nota, sem cartão novo; botão de texto de 44 px */
+  .rever { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-top: -4px; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="app">
+  <header class="app-header com-voltar">
+    <button class="icon-btn is-tinta" aria-label="Voltar para o início"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+  </header>
+
+  <main class="app-main">
+    <!-- Mesma tela do a4-suporte (U04, U54); aqui o foco é a linha nova do U56 item 7, no fim -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-titulo">Suporte</h1>
+        <p class="page-apoio">Dúvida sobre o curso, as aulas, seu acesso, pagamento ou o app? Fale com a nossa equipe.</p>
+        <p class="texto-apoio assuntos">A equipe responde sobre: aulas e conteúdo do curso · acesso e login · pagamento e reembolso · o app.</p>
+      </div>
+    </div>
+
+    <section class="card card-alt card-lg" aria-labelledby="sp-whatsapp">
+      <h2 class="card-titulo" id="sp-whatsapp">WhatsApp</h2>
+      <p class="card-apoio" style="margin-top:4px">Fale com a Bia, do nosso suporte.</p>
+      <p class="contato-valor tabular">+55 11 99999-0000</p>
+      <a class="btn btn-primary btn-lg btn-full card-acoes" href="#">Abrir o WhatsApp</a>
+    </section>
+
+    <section class="card card-alt card-lg" aria-labelledby="sp-email">
+      <h2 class="card-titulo" id="sp-email">E-mail</h2>
+      <p class="card-apoio" style="margin-top:4px">Prefere escrever? Mande um e-mail.</p>
+      <p class="contato-valor">suporte@exemplo.com</p>
+      <div class="grade-2 card-acoes" style="gap:8px">
+        <a class="btn btn-primary btn-lg" href="#">Escrever e-mail</a>
+        <button class="btn btn-secondary btn-lg"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copiar</button>
+      </div>
+    </section>
+
+    <p class="texto-apoio">Aqui você fala com pessoas da nossa equipe. Para conversar com a Crystal, use a Conversa na tela de início.</p>
+
+    <div class="rever">
+      <p class="texto-apoio">Quer rever como usar o app? A tela de início e, na conversa, o áudio e o print.</p>
+      <button type="button" class="btn btn-text">Ver o tutorial de novo</button>
+    </div>
+  </main>
+</div></div>
+</body>
+</html>

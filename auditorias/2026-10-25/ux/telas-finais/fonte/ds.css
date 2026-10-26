@@ -1,0 +1,1568 @@
+/*
+ * ds.css · kit visual da Crystal DEPOIS do PRD de UX/UI de 25/10/2026 (U01 a U58).
+ *
+ * Fonte dos valores: apps/web/app/globals.css (commit 3c343df) + a seção
+ * "Tokens e componentes a criar ou unificar" do PRD. O PRD corrige e unifica;
+ * a marca, o rosa, os temas tirados do WhatsApp e a cara da conversa não mudam.
+ *
+ * Tema: CLARO é o padrão deste kit (:root). ESCURO = <html class="tema-escuro">.
+ * Tamanho da letra (U58): <html data-text="lg"> ou <html data-text="xl">.
+ * Estados desenháveis: .is-focus (foco de teclado, U02), .is-hover, .is-active
+ * (toque), .is-disabled, .is-busy, .is-invalido, .is-ativo / .is-ativa, .is-ligado.
+ *
+ * Ajustes feitos aqui para fechar o AA (o PRD manda ajustar o tom sem trocar a matiz):
+ *  - --success-ink claro #0a7500 -> #097200 (4,49 -> 4,67:1 no Notice success sobre surface).
+ *  - --brand-press #c20857 nos dois temas para hover/toque do botão rosa
+ *    (o --brand-strong do escuro, #ff1f7a, dá 3,67:1 com branco).
+ *  - --toast-acao: o "Desfazer" do toast usa o rosa de texto do tema oposto
+ *    (text-brand sobre ink dá 3,83:1; com este token, 7,18 e 5,66:1).
+ *  - --control-off: trilho do interruptor desligado com 3:1 contra a superfície.
+ *  - .contador (o SupportBadge): amarelo com tinta escura (o atual dá 2,32 e 1,29:1).
+ */
+
+/* ── Fontes reais do app (apps/web/app/fonts, OFL) ─────────────────────── */
+@font-face {
+  font-family: "Inter Tight";
+  src: url("fonts/InterTight-latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Blinker";
+  src: url("fonts/Blinker-400-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Blinker";
+  src: url("fonts/Blinker-600-latin.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Blinker";
+  src: url("fonts/Blinker-700-latin.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── Tokens · tema CLARO (WhatsApp claro no iPhone) ────────────────────── */
+:root {
+  color-scheme: light;
+
+  --bg-app: #ffffff;
+  --surface: #f0f2f5;
+  --surface-2: #e9edef;
+  --ink: #111b21;
+  --ink-muted: #54656f;
+
+  --brand: #e60a68;
+  --brand-ink: #b8004f;
+  --brand-strong: #c20857;
+  --brand-press: #c20857;
+  --on-brand: #ffffff;
+
+  --success: #0ba900;
+  --success-bright: #0dc800;
+  --success-ink: #097200;
+  --success-strong: #067a00;
+  --cta-gradient: linear-gradient(90deg, #0b8900, #0a7500);
+  --cta-edge: rgba(255, 255, 255, 0.12);
+  --shadow-cta: 0 4px 60px 0 rgba(10, 159, 0, 0.48);
+
+  --warning: #b77f00;
+  --warning-ink: #6b4a00;
+  --on-warning: #111b21;
+
+  --danger: #d40003;
+  --danger-ink: #b80003;
+  --danger-solid: #d40003;
+
+  --border: #e9edef;
+  --border-strong: #d1d7db;
+  --control-off: #76858e;
+  --scrim: rgba(17, 27, 33, 0.45);
+
+  --bubble-user: var(--brand);
+  --bubble-user-ink: var(--on-brand);
+  --bubble-bot: #ffffff;
+  --bubble-bot-ink: var(--ink);
+  --tick-read: #bfe9ff;
+
+  --chat-bg: #efeae2;
+  --chat-wallpaper: url("assets/papel-de-parede-claro.png");
+  --chat-wallpaper-size: 412px auto;
+
+  --toast-bg: var(--ink);
+  --toast-ink: var(--surface);
+  --toast-acao: #ff7aac;
+
+  /* Tipografia */
+  --font-body: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Blinker", var(--font-body);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --fs-scale: 1;
+  --fs-body: calc(0.9375rem * var(--fs-scale));
+  --fs-2xs: max(0.75rem, calc(0.6875rem * var(--fs-scale)));
+  --lh-2xs: calc(1rem * var(--fs-scale));
+  --fs-xs: calc(0.75rem * var(--fs-scale));
+  --lh-xs: calc(1rem * var(--fs-scale));
+  --fs-sm: calc(0.875rem * var(--fs-scale));
+  --lh-sm: calc(1.25rem * var(--fs-scale));
+  --fs-base: calc(1rem * var(--fs-scale));
+  --lh-base: calc(1.5rem * var(--fs-scale));
+  --fs-lg: calc(1.125rem * var(--fs-scale));
+  --lh-lg: calc(1.6875rem * var(--fs-scale));
+  --fs-xl: calc(1.25rem * var(--fs-scale));
+  --lh-xl: calc(1.875rem * var(--fs-scale));
+  --fs-2xl: calc(1.5rem * var(--fs-scale));
+  --lh-2xl: calc(1.875rem * var(--fs-scale));
+  --fs-3xl: calc(2.375rem * var(--fs-scale));
+  --lh-3xl: 1;
+  --fs-5xl: calc(3.25rem * var(--fs-scale));
+  --lh-5xl: 1.25;
+
+  /* Raio, sombra, espaço, movimento */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.16);
+  --space: 4px;
+  --motion-fast: 150ms;
+}
+
+/* ── Tokens · tema ESCURO (padrão do app; aqui por classe) ─────────────── */
+html.tema-escuro {
+  color-scheme: dark;
+
+  --bg-app: #0b141a;
+  --surface: #202c33;
+  --surface-2: #2a3942;
+  --ink: #e9edef;
+  --ink-muted: #9aa8b2;
+
+  --brand-ink: #ff7aac;
+  --brand-strong: #ff1f7a;
+
+  --success-ink: #6fe05f;
+
+  --warning: #f5b301;
+  --warning-ink: #ffd166;
+
+  --danger: #ff0004;
+  --danger-ink: #ff8a8d;
+
+  --border: #2a3942;
+  --border-strong: #3b4a54;
+  --control-off: #76868f;
+  --scrim: rgba(11, 20, 26, 0.8);
+
+  --bubble-bot: #202c33;
+  --chat-bg: #0b141a;
+  --chat-wallpaper: url("assets/papel-de-parede-escuro.png");
+
+  --toast-acao: #b8004f;
+}
+
+/* U58 · tamanho da letra escolhido no menu */
+html[data-text="lg"] { --fs-scale: 1.15; }
+html[data-text="xl"] { --fs-scale: 1.3; }
+
+/* ── Reset mínimo (o do preflight do Tailwind, enxuto) ─────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0 solid;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-color: var(--bg-app);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  background: none;
+  letter-spacing: inherit;
+}
+button,
+[role="button"] {
+  cursor: pointer;
+  text-align: inherit;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+ul,
+ol {
+  list-style: none;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+hr {
+  border-top: 1px solid var(--border);
+}
+
+/* ── U02 · foco visível em tudo (regra global + estado desenhável) ─────── */
+:focus-visible,
+.is-focus {
+  outline: 2px solid var(--brand-ink);
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+/* Sobre fundo rosa ou verde (bolha da aluna, faixa verde) o anel é branco. */
+.sobre-cor :focus-visible,
+.sobre-cor .is-focus {
+  outline-color: var(--on-brand);
+}
+
+/* ── Moldura das telas de mock ─────────────────────────────────────────── */
+.tela {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-app);
+}
+
+/* ── Utilitários ───────────────────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.pilha { display: flex; flex-direction: column; gap: 12px; }
+.pilha-sm { display: flex; flex-direction: column; gap: 8px; }
+.pilha-lg { display: flex; flex-direction: column; gap: 24px; }
+.linha { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.entre { justify-content: space-between; }
+.cresce { flex: 1; min-width: 0; }
+.truncar { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.tabular { font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--font-mono); font-size: 0.92em; }
+.texto-apoio { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink-muted); }
+.texto-xs { font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.texto-sm { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.texto-base { font-size: var(--fs-base); line-height: var(--lh-base); }
+.mutado { color: var(--ink-muted); }
+.forte { font-weight: 600; }
+.link {
+  color: var(--brand-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.grade-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.grade-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 768px) {
+  .so-celular { display: none !important; }
+  .grade-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+}
+@media (max-width: 767.98px) {
+  .so-desktop { display: none !important; }
+  .grade-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+}
+
+/* ── U53 · ícones (grade 24, traço 1,75; trechos em icones.md) ─────────── */
+.icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.icon-16 { width: 16px; height: 16px; }
+.icon-24 { width: 24px; height: 24px; }
+
+/* ── U48 · botão único ─────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+  font-weight: 500;
+  text-align: center;
+  transition: background-color var(--motion-fast), filter var(--motion-fast);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.btn .icon { width: 20px; height: 20px; }
+.btn .icon.icon-16 { width: 16px; height: 16px; }
+.btn-md { min-height: 44px; padding: 0 16px; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.btn-lg { min-height: 48px; padding: 0 20px; font-size: var(--fs-base); line-height: var(--lh-base); }
+.btn-full { width: 100%; }
+
+.btn-primary { background: var(--brand); color: var(--on-brand); }
+.btn-primary:hover,
+.btn-primary.is-hover,
+.btn-primary:active,
+.btn-primary.is-active { background: var(--brand-press); }
+
+.btn-secondary { background: var(--surface); color: var(--ink); border-color: var(--border-strong); }
+.btn-secondary:hover,
+.btn-secondary.is-hover,
+.btn-secondary:active,
+.btn-secondary.is-active { background: var(--surface-2); }
+
+.btn-danger { background: var(--danger-solid); color: var(--on-brand); }
+.btn-danger:active,
+.btn-danger.is-active { filter: brightness(0.9); }
+
+.btn-text {
+  min-height: 44px;
+  padding: 0 8px;
+  margin: 0 -8px;
+  background: none;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.btn-text.is-marca { color: var(--brand-ink); }
+
+.btn-cta {
+  background-color: var(--success);
+  background-image: var(--cta-gradient);
+  border-color: var(--cta-edge);
+  color: var(--on-brand);
+  box-shadow: var(--shadow-cta);
+}
+.btn-cta:active,
+.btn-cta.is-active { filter: brightness(0.95); }
+
+.btn:disabled,
+.btn.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.btn.is-busy { cursor: progress; }
+
+/* Botão redondo só de ícone (voltar, três pontinhos, clipe, enviar, microfone) */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  color: var(--ink-muted);
+  -webkit-tap-highlight-color: transparent;
+}
+.icon-btn:hover,
+.icon-btn.is-hover,
+.icon-btn:active,
+.icon-btn.is-active { background: var(--surface-2); }
+.icon-btn.is-tinta { color: var(--ink); }
+.icon-btn-marca { background: var(--brand); color: var(--on-brand); }
+.icon-btn-marca:hover,
+.icon-btn-marca.is-hover,
+.icon-btn-marca:active,
+.icon-btn-marca.is-active { background: var(--brand-press); }
+
+/* U26 · spinner dentro do botão */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: girar 0.8s linear infinite;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+
+/* ── U49 · campo único (16 px no toque, U03) ───────────────────────────── */
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+  color: var(--ink);
+}
+.field-label-aside { font-size: var(--fs-xs); color: var(--ink-muted); }
+.field-input,
+.select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-2);
+  color: var(--ink);
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+  outline: none;
+}
+.field-input::placeholder { color: var(--ink-muted); opacity: 1; }
+textarea.field-input { min-height: 96px; resize: vertical; }
+.field-input:focus-visible,
+.field-input:focus,
+.field-input.is-focus,
+.select:focus-visible,
+.select:focus,
+.select.is-focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 2px var(--brand-ink);
+}
+.field-input[aria-invalid="true"],
+.field-input.is-invalido,
+.select.is-invalido { border-color: var(--danger); }
+.field-input:disabled,
+.field-input.is-disabled { opacity: 0.5; cursor: not-allowed; }
+.field-hint { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+.field-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+  color: var(--danger-ink);
+}
+.field-error .icon { width: 16px; height: 16px; margin-top: 2px; }
+/* tamanho="lg" (lado da aluna: perfil, login) */
+.field-lg .field-label { font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 600; }
+.field-lg .field-hint { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+/* Campo do código (OTP): grande e centralizado sobre o mesmo campo */
+.field-codigo {
+  font-size: var(--fs-2xl);
+  line-height: var(--lh-2xl);
+  text-align: center;
+  letter-spacing: 0.3em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Select nativo com seta própria; .is-placeholder = "Escolha…" (U31) */
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2354656f' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px 20px;
+}
+html.tema-escuro .select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa8b2' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+.select.is-placeholder { color: var(--ink-muted); }
+
+/* No computador o painel volta a 14 px (U03: text-base md:text-sm); tamanho lg fica 16 */
+@media (min-width: 768px) {
+  .field:not(.field-lg) .field-input,
+  .field:not(.field-lg) .select,
+  .field-input.is-md,
+  .select.is-md {
+    font-size: var(--fs-sm);
+    line-height: var(--lh-sm);
+  }
+}
+
+/* Caixa de marcar (aceite do login, seleção de linha) */
+.checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 2px solid var(--control-off);
+  border-radius: 5px;
+  background: transparent;
+}
+.checkbox:checked,
+.checkbox.is-ligado {
+  border-color: var(--brand);
+  background: var(--brand) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 14px 14px no-repeat;
+}
+.checkbox-linha { display: flex; align-items: flex-start; gap: 10px; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.checkbox-linha .checkbox { margin-top: 0; }
+
+/* ── U50 · aviso único: amarelo é aviso, vermelho é erro ───────────────── */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-lg);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+}
+.notice > .icon { width: 20px; height: 20px; margin-top: 0; }
+.notice-corpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.notice-titulo { font-weight: 600; }
+.notice-acoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.notice-info { background: color-mix(in srgb, var(--brand) 10%, transparent); color: var(--ink); }
+.notice-info > .icon,
+.notice-info .notice-titulo { color: var(--brand-ink); }
+.notice-warning { background: color-mix(in srgb, var(--warning) 15%, transparent); color: var(--warning-ink); }
+.notice-danger { background: color-mix(in srgb, var(--danger) 10%, transparent); color: var(--danger-ink); }
+.notice-success { background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success-ink); }
+.notice details { margin-top: 4px; }
+.notice summary { cursor: pointer; font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
+
+/* Faixa no topo (U22: uma por vez) */
+.faixa {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+}
+.faixa-aviso { background: color-mix(in srgb, var(--warning) 20%, var(--surface)); color: var(--warning-ink); }
+.faixa-info { background: var(--surface-2); color: var(--ink); }
+
+/* ── U51 · véu, diálogo e folha ────────────────────────────────────────── */
+.veu {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background: var(--scrim);
+}
+.dialog,
+.sheet {
+  width: 100%;
+  margin-top: auto;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-xl);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.dialog { max-height: 90%; padding: 16px 16px 20px; gap: 8px; }
+.dialog-cabecalho,
+.sheet-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.dialog-titulo,
+.sheet-titulo {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  line-height: var(--lh-lg);
+  font-weight: 600;
+  color: var(--ink);
+}
+.dialog-corpo { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink); display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+.dialog-corpo .mutado { color: var(--ink-muted); }
+.dialog-rodape { display: flex; flex-direction: column-reverse; gap: 8px; margin-top: 8px; }
+.dialog-fechar,
+.sheet-fechar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 8px;
+  margin-right: -8px;
+  border-radius: var(--radius-lg);
+  font-size: var(--fs-sm);
+  color: var(--ink-muted);
+}
+.dialog-fechar:hover,
+.sheet-fechar:hover { background: var(--surface-2); }
+
+.sheet { max-height: 85%; }
+.sheet-alca {
+  width: 36px;
+  height: 5px;
+  margin: 8px auto 0;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--ink-muted) 45%, transparent);
+  flex-shrink: 0;
+}
+.sheet-cabecalho { padding: 6px 16px; border-bottom: 1px solid var(--border); }
+.sheet-corpo { padding: 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.sheet-corpo.com-folga { padding: 16px; gap: 12px; }
+
+@media (min-width: 640px) {
+  .dialog {
+    margin: auto;
+    max-width: 448px;
+    border-radius: var(--radius-2xl);
+    padding: 20px;
+  }
+  .dialog-rodape { flex-direction: row; justify-content: flex-end; }
+}
+@media (min-width: 768px) {
+  .sheet {
+    margin: 0 0 0 auto;
+    height: 100%;
+    max-height: none;
+    max-width: 384px;
+    border-radius: 0;
+  }
+  .sheet.sheet-md { max-width: 448px; }
+  .sheet .sheet-alca { display: none; }
+}
+
+/* ── U52 · interruptor único ───────────────────────────────────────────── */
+.switch { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.switch-texto { min-width: 0; padding-top: 10px; }
+.switch-rotulo { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink); }
+.switch-apoio { margin-top: 2px; font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+.switch-controle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 4px;
+  flex-shrink: 0;
+  border-radius: var(--radius-lg);
+  font-size: var(--fs-sm);
+  color: var(--ink);
+}
+.switch-trilho {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: var(--control-off);
+  transition: background-color var(--motion-fast);
+}
+.switch-trilho::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: left var(--motion-fast);
+}
+.switch-controle[aria-checked="true"] .switch-trilho,
+.switch-controle.is-ligado .switch-trilho { background: var(--brand); }
+.switch-controle[aria-checked="true"] .switch-trilho::after,
+.switch-controle.is-ligado .switch-trilho::after { left: 22px; }
+.switch-estado { width: 80px; text-align: left; }
+
+/* ── U27 · toast com "Desfazer" e "Fechar" ─────────────────────────────── */
+.toast-area {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 80px;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  pointer-events: none;
+}
+@media (min-width: 768px) { .toast-area { bottom: 24px; } }
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 4px 4px 4px 16px;
+  border-radius: 24px;
+  background: var(--toast-bg);
+  color: var(--toast-ink);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+}
+.toast-texto { flex: 1; min-width: 0; padding: 8px 4px 8px 0; }
+.toast-acao {
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius-full);
+  color: var(--toast-acao);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.toast-fechar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  color: var(--toast-ink);
+}
+.toast .is-focus,
+.toast :focus-visible { outline-color: var(--toast-acao); outline-offset: -2px; }
+.toast.so-texto { padding: 10px 16px; }
+
+/* ── U30 · abas roláveis com degradê na ponta que tem mais ─────────────── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tabs.tem-mais-dir {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+}
+.tabs.tem-mais-esq {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 32px);
+  mask-image: linear-gradient(to right, transparent, #000 32px);
+}
+.tabs.tem-mais-esq.tem-mais-dir {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+}
+.tab {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+  font-weight: 500;
+  color: var(--ink-muted);
+}
+.tab:hover { color: var(--ink); }
+.tab.is-ativa,
+.tab[aria-selected="true"] { border-bottom-color: var(--brand); color: var(--brand-ink); }
+
+/* ── U52 · pílula única (Badge) e contador ─────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-xs);
+  font-weight: 500;
+  white-space: nowrap;
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.badge-good { background: color-mix(in srgb, var(--brand) 15%, transparent); color: var(--brand-ink); }
+.badge-warn { background: color-mix(in srgb, var(--warning) 20%, transparent); color: var(--warning-ink); }
+.badge-bad { background: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger) 60%, transparent); }
+.badge-muted { background: var(--surface-2); color: var(--ink-muted); }
+.badge-neutral { background: var(--surface-2); color: var(--ink); }
+.badge-outline { background: transparent; color: var(--ink-muted); box-shadow: inset 0 0 0 1px var(--border-strong); }
+.badge-xs { padding: 0 6px; font-size: var(--fs-2xs); line-height: var(--lh-2xs); }
+
+.contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  background: var(--warning);
+  color: var(--on-warning);
+  font-size: var(--fs-2xs);
+  line-height: 1;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.contador-marca { background: var(--brand); color: var(--on-brand); }
+
+/* Chip (filtro, opção de rádio do perfil, chips fixos de Configurações) */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.chip.is-ativo,
+.chip[aria-pressed="true"],
+.chip[aria-checked="true"] { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chips.rolavel { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+
+/* ── Cartão, número, vazio, esqueleto, título ──────────────────────────── */
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  padding: 16px;
+}
+.card-alt { background: var(--surface-2); border-color: transparent; }
+.card-lg { border-radius: var(--radius-2xl); padding: 20px; }
+.card-titulo { font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 600; color: var(--ink); }
+.card-apoio { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink-muted); }
+a.card:hover,
+.card.is-link:hover,
+.card.is-hover { border-color: var(--brand); }
+
+.stat {
+  display: block;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  padding: 16px;
+}
+.stat-rotulo { font-size: var(--fs-xs); line-height: var(--lh-xs); text-transform: uppercase; letter-spacing: 0.025em; color: var(--ink-muted); }
+.stat-valor {
+  margin-top: 4px;
+  font-size: var(--fs-lg);
+  line-height: var(--lh-lg);
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stat-grande .stat-valor { font-size: var(--fs-2xl); line-height: var(--lh-2xl); }
+.stat-unidade { margin-left: 4px; font-size: var(--fs-sm); font-weight: 500; color: var(--ink-muted); }
+.stat-sub { margin-top: 2px; font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+.stat-sub.is-subiu { color: var(--brand-ink); }
+.stat-sub.is-caiu { color: var(--danger-ink); }
+a.stat:hover,
+.stat.is-hover { border-color: var(--brand); }
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 16px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-xl);
+  text-align: center;
+}
+.empty .icon { width: 24px; height: 24px; color: var(--ink-muted); }
+.empty-texto { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink-muted); max-width: 32ch; }
+
+.skeleton {
+  display: block;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--ink) 9%, transparent);
+  animation: pulsar 1.6s ease-in-out infinite;
+}
+@keyframes pulsar { 50% { opacity: 0.55; } }
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.page-header > div { min-width: 0; }
+.page-titulo {
+  font-family: var(--font-display);
+  font-size: var(--fs-2xl);
+  line-height: var(--lh-2xl);
+  font-weight: 600;
+  color: var(--ink);
+}
+.page-apoio { margin-top: 2px; font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink-muted); }
+.secao-titulo {
+  font-size: var(--fs-xs);
+  line-height: var(--lh-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: var(--ink-muted);
+}
+
+/* Lista de linhas (Precisa de atenção, Sua conta, filtros) */
+.lista { display: flex; flex-direction: column; }
+.lista-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+  color: var(--ink);
+}
+.lista-item:last-child { border-bottom: 0; }
+.lista-item > .icon { color: var(--ink-muted); }
+
+/* U30 · "← Alunos" (no celular o voltar vai na barra de título) */
+.voltar-para {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--brand-ink);
+}
+
+/* ── U54 · marca: CrystalMark + "Crystal" em Blinker ───────────────────── */
+.crystal-mark {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--brand-strong), var(--brand));
+}
+.crystal-mark svg { width: 100%; height: 100%; }
+.crystal-mark .cm-faceta { fill: var(--on-brand); }
+.crystal-mark .cm-topo { opacity: 0.85; }
+.crystal-mark .cm-linha { fill: none; stroke: var(--brand); stroke-width: 1.2; opacity: 0.5; }
+.crystal-mark.is-pulsando { animation: pulsar 1.6s ease-in-out infinite; }
+
+.crystal-lockup { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+.crystal-lockup-nome {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--fs-2xl);
+  line-height: 1.1;
+  color: var(--brand-ink);
+}
+.crystal-lockup-apoio { display: block; font-family: var(--font-body); font-size: var(--fs-xs); line-height: var(--lh-xs); font-weight: 400; color: var(--ink-muted); }
+.crystal-lockup .crystal-mark { width: 32px; height: 32px; }
+.crystal-lockup-sm .crystal-mark { width: 28px; height: 28px; }
+.crystal-lockup-sm .crystal-lockup-nome { font-size: var(--fs-lg); }
+.crystal-lockup-md .crystal-mark { width: 36px; height: 36px; }
+.crystal-lockup-md .crystal-lockup-nome { font-size: var(--fs-lg); }
+.crystal-lockup-lg { flex-direction: column; gap: 8px; }
+.crystal-lockup-lg .crystal-mark { width: 64px; height: 64px; }
+.crystal-lockup-lg .crystal-lockup-nome { font-size: var(--fs-2xl); }
+
+/* ── Avatares ──────────────────────────────────────────────────────────── */
+.avatar {
+  display: block;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+.avatar-40 { width: 40px; height: 40px; }
+.avatar-48 { width: 48px; height: 48px; }
+.avatar-96 { width: 96px; height: 96px; }
+.avatar-112 { width: 112px; height: 112px; }
+.avatar-iniciais {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--brand) 15%, transparent);
+  color: var(--brand-ink);
+  font-weight: 600;
+  font-size: var(--fs-base);
+}
+.avatar-96.avatar-iniciais { font-size: var(--fs-3xl); }
+.avatar-wrap { position: relative; display: inline-block; flex-shrink: 0; }
+.ponto-online {
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--surface);
+  background: var(--success);
+}
+.avatar-48 + .ponto-online { width: 14px; height: 14px; right: 0; bottom: 0; }
+/* U58 · selo de câmera na foto do início (só com o perfil completo) */
+.avatar-selo {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--surface);
+  background: var(--brand);
+  color: var(--on-brand);
+}
+.avatar-selo .icon { width: 16px; height: 16px; }
+
+/* ═══ Moldura da ALUNA ═══════════════════════════════════════════════════ */
+.app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 640px;
+  min-height: 100%;
+  margin: 0 auto;
+  background: var(--surface);
+}
+.app-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+}
+.app-header.com-voltar { padding-left: 8px; justify-content: flex-start; }
+.app-header-titulo {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  line-height: var(--lh-xl);
+  font-weight: 600;
+  color: var(--ink);
+}
+.app-main { display: flex; flex-direction: column; gap: 24px; padding: 8px 16px 16px; flex: 1; }
+
+/* Menu de três pontinhos (AppMenu) */
+.menu-ancora { position: relative; }
+.menu {
+  position: absolute;
+  right: 0;
+  top: 48px;
+  z-index: 30;
+  width: 264px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+}
+.menu-titulo {
+  padding: 8px 12px 4px;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: var(--ink-muted);
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: var(--radius-lg);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+  color: var(--ink);
+  text-align: left;
+}
+.menu-item:hover,
+.menu-item.is-hover,
+.menu-item.is-active { background: var(--surface-2); }
+.menu-item.is-focus { background: var(--surface-2); outline-offset: -2px; }
+.menu-item.is-perigo { color: var(--danger-ink); }
+.menu-check { width: 18px; height: 18px; color: var(--brand-ink); }
+.menu-apoio { padding: 4px 12px 8px; font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+.menu-sep { margin: 4px 0; border: 0; border-top: 1px solid var(--border); }
+
+/* Início: três caminhos e a linha da Crystal */
+.caminhos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.caminho {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 10px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+  font-weight: 600;
+  color: var(--ink);
+  text-align: center;
+}
+.caminho:hover,
+.caminho.is-hover { border-color: var(--brand); }
+.caminho.is-active { filter: brightness(0.95); }
+.caminho.is-travado { color: var(--ink-muted); }
+
+.contato {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  padding: 8px;
+  border-radius: var(--radius-xl);
+  text-align: left;
+}
+.contato:hover,
+.contato.is-hover { background: var(--surface-2); }
+.contato-texto { flex: 1; min-width: 0; }
+.contato-nome { display: block; font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 600; color: var(--ink); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.contato-previa { display: block; font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink-muted); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.contato-hora { align-self: flex-start; padding-top: 4px; font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+.contato.is-travada .avatar { opacity: 0.5; }
+.contato.is-travada > .icon { color: var(--ink-muted); }
+
+/* Login (aluna e equipe) */
+.auth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  min-height: 100%;
+  padding: 32px 16px;
+}
+.auth-cartao {
+  width: 100%;
+  max-width: 384px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.auth-rodape { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; font-size: var(--fs-sm); color: var(--ink-muted); }
+.auth-rodape a { text-decoration: underline; text-underline-offset: 2px; }
+
+/* ═══ Conversa (a cara de WhatsApp fica) ═════════════════════════════════ */
+.chat {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 768px;
+  height: 100%;
+  margin: 0 auto;
+  background: var(--chat-bg);
+}
+.chat-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 10px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.chat-header-foto { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: var(--radius-full); flex-shrink: 0; }
+.chat-header-foto .ponto-online { right: 2px; bottom: 2px; }
+.chat-header-texto { flex: 1; min-width: 0; }
+.chat-header-nome { font-size: var(--fs-base); line-height: 1.25; font-weight: 600; color: var(--ink); }
+.chat-header-status { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+.chat-lista {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+  overflow: hidden;
+  background-color: var(--chat-bg);
+  background-image: var(--chat-wallpaper);
+  background-size: var(--chat-wallpaper-size);
+  background-repeat: repeat;
+  background-position: top left;
+}
+.chat-lista.no-fim { justify-content: flex-end; }
+
+.chat-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-md);
+  background: var(--bubble-bot);
+  color: var(--ink-muted);
+  box-shadow: var(--shadow-sm);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-xs);
+  font-weight: 500;
+}
+.chat-divisor { align-self: center; margin: 12px 0; }
+
+.bolha-crystal,
+.bolha-aluna,
+.digitando {
+  position: relative;
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.bolha-crystal,
+.digitando { align-self: flex-start; margin-left: 12px; background: var(--bubble-bot); color: var(--bubble-bot-ink); }
+.bolha-aluna { align-self: flex-end; margin-right: 12px; background: var(--bubble-user); color: var(--bubble-user-ink); }
+.bolha-primeira { margin-top: 8px; }
+.bolha-crystal.bolha-primeira,
+.digitando.bolha-primeira { border-top-left-radius: 0; }
+.bolha-aluna.bolha-primeira { border-top-right-radius: 0; }
+.bolha-primeira::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 13px;
+}
+.bolha-crystal.bolha-primeira::before,
+.digitando.bolha-primeira::before { left: -8px; background: var(--bubble-bot); clip-path: polygon(0 0, 100% 0, 100% 100%); }
+.bolha-aluna.bolha-primeira::before { right: -8px; background: var(--bubble-user); clip-path: polygon(0 0, 100% 0, 0 100%); }
+@media (min-width: 640px) {
+  .bolha-crystal,
+  .bolha-aluna { max-width: 70%; }
+}
+.bolha-texto { white-space: pre-wrap; }
+.bolha-texto + .bolha-texto { margin-top: 6px; }
+.bolha-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: var(--fs-2xs);
+  line-height: var(--lh-2xs);
+  color: var(--ink-muted);
+}
+.bolha-aluna .bolha-meta { color: var(--bubble-user-ink); }
+.tiques { width: 16px; height: 12px; color: var(--on-brand); }
+.tiques.is-lida { color: var(--tick-read); }
+/* U08 · telefones de ajuda e cvv.org.br tocáveis */
+.bolha-crystal a:not(.bolha-acao),
+.bolha-link { color: var(--brand-ink); text-decoration: underline; text-underline-offset: 2px; font-weight: 500; }
+/* U01 · transcrição sem opacidade, com a linha fina na cor da bolha */
+.bolha-transcricao {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+}
+/* U05/U06 · bolha que diz a causa e "Tentar de novo" */
+.bolha-aviso { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink-muted); }
+.bolha-aluna .bolha-aviso { color: var(--bubble-user-ink); }
+.bolha-tentar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin: 0 -4px -6px;
+  padding: 0 4px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  color: inherit;
+}
+.bolha-crystal .bolha-tentar { color: var(--ink); }
+.bolha-tentar .icon { width: 18px; height: 18px; }
+/* Botão dentro da bolha (A06: convite, link de aula) */
+.bolha-acao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  margin: 8px -12px -8px;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--brand-ink);
+}
+.bolha-imagem { display: block; width: 100%; margin-bottom: 6px; border-radius: var(--radius-lg); object-fit: cover; }
+
+/* P12 · tocador de áudio na bolha (U17: play com 44 px; U01: tempo sem opacidade) */
+.audio { display: flex; align-items: center; gap: 8px; min-width: 232px; }
+.audio-play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  margin-left: -6px;
+  border-radius: var(--radius-full);
+  color: currentColor;
+}
+.audio-play svg { width: 26px; height: 26px; fill: currentColor; }
+.audio-centro { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.audio-onda { display: flex; align-items: center; gap: 1px; height: 32px; }
+.audio-onda span { flex: 1; min-width: 2px; border-radius: var(--radius-full); background: color-mix(in srgb, currentColor 35%, transparent); }
+.audio-onda span.tocada { background: currentColor; }
+.audio-tempo { font-size: var(--fs-xs); line-height: 1; font-variant-numeric: tabular-nums; }
+.audio-velocidade {
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 32px;
+  padding: 0 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* U07 · "digitando…" (três pontinhos) */
+.digitando { display: inline-flex; align-items: center; gap: 6px; padding: 14px 16px; }
+.digitando span {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--ink-muted);
+  animation: digitando 1.2s infinite ease-in-out;
+}
+.digitando span:nth-child(1) { opacity: 0.35; }
+.digitando span:nth-child(2) { opacity: 0.65; animation-delay: 0.15s; }
+.digitando span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes digitando {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-2px); }
+}
+
+/* Barra de escrever */
+.compositor {
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  padding: 10px 12px 10px;
+}
+.compositor-linha { display: flex; align-items: flex-end; gap: 6px; }
+.compositor-campo {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  max-height: 140px;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+  resize: none;
+  outline: none;
+}
+.compositor-campo::placeholder { color: var(--ink-muted); opacity: 1; }
+.compositor-campo:focus,
+.compositor-campo.is-focus { border-color: var(--brand); outline: none; }
+.compositor-campo.is-focus-teclado { border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-ink); }
+.compositor .icon-btn .icon { width: 24px; height: 24px; }
+.compositor .icon-btn-marca .icon { width: 22px; height: 22px; }
+.compositor-apoio { margin-bottom: 6px; font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); text-align: right; }
+
+/* ═══ Moldura do PAINEL (equipe) ═════════════════════════════════════════ */
+.staff { display: flex; width: 100%; height: 100%; background: var(--bg-app); }
+.staff-sidebar {
+  display: none;
+  flex-direction: column;
+  width: 240px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+.staff-sidebar-topo { display: flex; align-items: center; gap: 12px; padding: 16px; border-bottom: 1px solid var(--border); }
+.staff-nav { display: flex; flex-direction: column; gap: 14px; padding: 12px; }
+.staff-grupo { display: flex; flex-direction: column; gap: 2px; }
+.staff-grupo-titulo {
+  padding: 0 12px 4px;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: var(--ink-muted);
+}
+.staff-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius-lg);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+  color: var(--ink-muted);
+}
+.staff-link .rotulo { flex: 1; min-width: 0; }
+.staff-link:hover,
+.staff-link.is-hover { background: var(--surface-2); color: var(--ink); }
+.staff-link.is-ativo { background: var(--brand); color: var(--on-brand); font-weight: 500; }
+
+.staff-corpo { position: relative; display: flex; flex-direction: column; flex: 1; min-width: 0; height: 100%; }
+/* U25 · cabeçalho de uma linha com "Sua conta" */
+.staff-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.staff-header-quem { flex: 1; min-width: 0; }
+.staff-header-nome { font-size: var(--fs-base); line-height: 1.25; font-weight: 600; color: var(--ink); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.staff-header-papel { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+.staff-conta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--brand) 15%, transparent);
+  color: var(--brand-ink);
+  font-size: var(--fs-base);
+  font-weight: 600;
+}
+/* U25 · barra de título fixa só no celular: "← Alunos" e o nome da tela */
+.staff-barra {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.staff-barra-voltar { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; margin-left: -6px; font-size: var(--fs-sm); font-weight: 500; color: var(--brand-ink); justify-self: start; }
+.staff-barra-voltar .icon { width: 20px; height: 20px; }
+.staff-barra-titulo { max-width: 60vw; font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 600; color: var(--ink); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.staff-main {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 16px 112px;
+  overflow: hidden;
+}
+/* U45 · barra inferior por papel */
+.staff-bottombar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.staff-tab {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 56px;
+  padding: 6px 4px;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-xs);
+  font-weight: 500;
+  color: var(--ink-muted);
+  text-align: center;
+}
+.staff-tab.is-ativo { color: var(--brand-ink); }
+.staff-tab-icone { position: relative; display: inline-flex; }
+.staff-tab-icone .contador { position: absolute; right: -14px; top: -8px; }
+/* U45 · folha "Mais" reagrupada e U25 · folha "Sua conta" */
+.staff-sheet-mais .staff-nav { padding: 4px 0 8px; }
+.staff-conta-quem { display: flex; align-items: center; gap: 12px; padding: 8px 12px 12px; }
+
+@media (min-width: 768px) {
+  .staff-sidebar { display: flex; }
+  .staff-header .crystal-mark { display: none; }
+  .staff-barra { display: none; }
+  .staff-bottombar { display: none; }
+  .staff-main { padding: 24px 24px 32px; }
+}
+
+/* ── U16 · reduzir movimento desliga toda animação decorativa ──────────── */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .digitando span,
+  .crystal-mark.is-pulsando,
+  .spinner { animation: none; }
+  /* U16: com "Reduzir movimento" os três pontinhos ficam parados e iguais (.typing-dot { opacity: .6 }) */
+  .digitando span:nth-child(n) { opacity: 0.6; }
+  .spinner { border-right-color: color-mix(in srgb, currentColor 30%, transparent); }
+  * { transition: none !important; }
+}

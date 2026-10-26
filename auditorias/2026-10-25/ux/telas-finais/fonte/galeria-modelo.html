@@ -1,0 +1,239 @@
+<title>Crystal depois do PRD</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Blinker:wght@600;700&family=Inter+Tight:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: uma coluna de leitura; cada área é uma faixa com a grade das telas; celular em moldura estreita, computador ocupa duas colunas. */
+:root {
+  --bg: #f6f3f4;
+  --surface: #ffffff;
+  --surface-2: #efe9ec;
+  --fg: #1d1418;
+  --muted: #5d4e55;
+  --line: #e3d9de;
+  --accent: #b8004f;
+  --accent-soft: #fbe3ee;
+  --onda1: #0a6b3d;
+  --onda2: #1f4fa3;
+  --onda3: #7a3fa0;
+  --veu: rgba(20, 12, 16, 0.86);
+  --font-display: "Blinker", "Inter Tight", system-ui, sans-serif;
+  --font-body: "Inter Tight", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141012; --surface: #1e181b; --surface-2: #2a2226; --fg: #f4eef1; --muted: #bba9b2;
+    --line: #3a2f35; --accent: #ff6aa6; --accent-soft: #3d1a2a; --onda1: #6fd69b; --onda2: #8db2ff; --onda3: #d6a6f5;
+    --veu: rgba(0, 0, 0, 0.9); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141012; --surface: #1e181b; --surface-2: #2a2226; --fg: #f4eef1; --muted: #bba9b2;
+  --line: #3a2f35; --accent: #ff6aa6; --accent-soft: #3d1a2a; --onda1: #6fd69b; --onda2: #8db2ff; --onda3: #d6a6f5;
+  --veu: rgba(0, 0, 0, 0.9); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 64px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+header.topo { display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin: 0; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(34px, 6vw, 56px); line-height: 1.02; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+.lead { margin: 0; max-width: 64ch; color: var(--muted); font-size: 17px; }
+.aviso { margin: 0; max-width: 64ch; font-size: 15px; font-weight: 600; color: var(--fg); background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; }
+.numeros { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 4px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 15px; }
+.numeros b { color: var(--fg); font-variant-numeric: tabular-nums; }
+.filtros { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px; display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.chip { font: inherit; font-size: 14px; font-weight: 600; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 0 14px; min-height: 40px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.chip:focus-visible, .tela-img:focus-visible, .lb-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sep { width: 1px; background: var(--line); margin: 4px 4px; }
+section.area { display: flex; flex-direction: column; gap: 18px; }
+.area-cab { display: flex; flex-direction: column; gap: 4px; }
+h2 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 1.1; margin: 0; text-wrap: balance; }
+.area-cab p { margin: 0; color: var(--muted); font-size: 15px; max-width: 70ch; }
+.grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 22px 18px; align-items: start; }
+.tela { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.tela.larga { grid-column: span 2; }
+@media (max-width: 540px) { .tela.larga { grid-column: 1 / -1; } .grade { grid-template-columns: 1fr 1fr; gap: 18px 12px; } }
+.tela-img { display: block; padding: 0; border: 0; background: none; cursor: zoom-in; border-radius: var(--radius); }
+.tela-img img { display: block; width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface-2); }
+.tela.celular .tela-img img { border-radius: 22px; }
+.tela h3 { margin: 0; font-size: 15px; font-weight: 700; line-height: 1.3; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.onda { font-size: 12px; font-weight: 700; letter-spacing: 0.03em; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.onda-1 { color: var(--onda1); } .onda-2 { color: var(--onda2); } .onda-3 { color: var(--onda3); }
+.itens { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tela p { margin: 0; font-size: 14px; color: var(--muted); }
+.rodape { color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-direction: column; gap: 6px; }
+.vazio { color: var(--muted); }
+dialog.lb { border: 0; padding: 0; background: transparent; max-width: 100vw; max-height: 100vh; width: 100vw; height: 100%; }
+dialog.lb::backdrop { background: var(--veu); }
+.lb-corpo { height: 100%; display: flex; flex-direction: column; gap: 10px; padding: calc(12px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); color: #fff; }
+.lb-barra { display: flex; align-items: center; gap: 8px; }
+.lb-titulo { flex: 1 1 auto; min-width: 0; font-weight: 700; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-btn { font: inherit; font-weight: 700; font-size: 15px; color: #fff; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28); border-radius: 999px; min-width: 44px; min-height: 44px; padding: 0 14px; cursor: pointer; }
+.lb-img { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: auto; }
+.lb-img img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; }
+.lb-desc { font-size: 14px; color: rgba(255,255,255,0.86); max-width: 70ch; margin: 0 auto; text-align: center; }
+@media (prefers-reduced-motion: no-preference) { .tela-img img { transition: transform 160ms ease; } .tela-img:hover img { transform: translateY(-2px); } }
+</style>
+
+<div class="wrap">
+  <header class="topo">
+    <p class="eyebrow">PRD de UX/UI · 26/10/2026</p>
+    <h1>Como a Crystal vai ficar</h1>
+    <p class="lead">As telas do app da aluna e do painel da equipe depois das três ondas do PRD, desenhadas com os textos, as cores e os componentes que ele fixa. Toque numa tela para ver em tamanho grande.</p>
+    <p class="aviso" id="aviso" hidden></p>
+    <ul class="numeros" id="numeros"></ul>
+  </header>
+
+  <nav class="filtros" aria-label="Filtrar telas">
+    <button type="button" class="chip" data-filtro="area" data-valor="todas" aria-pressed="true">Todas</button>
+    <button type="button" class="chip" data-filtro="area" data-valor="aluna" aria-pressed="false">App da aluna</button>
+    <button type="button" class="chip" data-filtro="area" data-valor="painel" aria-pressed="false">Painel da equipe</button>
+    <button type="button" class="chip" data-filtro="area" data-valor="kit" aria-pressed="false">Kit visual</button>
+    <span class="sep" aria-hidden="true"></span>
+    <button type="button" class="chip" data-filtro="onda" data-valor="todas" aria-pressed="true">Todas as ondas</button>
+    <button type="button" class="chip" data-filtro="onda" data-valor="1" aria-pressed="false">Onda 1</button>
+    <button type="button" class="chip" data-filtro="onda" data-valor="2" aria-pressed="false">Onda 2</button>
+    <button type="button" class="chip" data-filtro="onda" data-valor="3" aria-pressed="false">Onda 3</button>
+  </nav>
+
+  <main id="areas"></main>
+
+  <footer class="rodape">
+    <span>Telas desenhadas a partir do PRD de execução (itens U01 a U58) e das capturas reais do app de 25/10. Dados fictícios. Nada disso está publicado ainda.</span>
+    <span>Onda 1: o que a aluna sente, acessibilidade e erros. Onda 2: painel e suporte. Onda 3: kit único e primeiro acesso.</span>
+  </footer>
+</div>
+
+<dialog class="lb" id="lb" aria-label="Tela ampliada">
+  <div class="lb-corpo">
+    <div class="lb-barra">
+      <button type="button" class="lb-btn" id="lb-ant" aria-label="Tela anterior">&#8249;</button>
+      <span class="lb-titulo" id="lb-titulo"></span>
+      <button type="button" class="lb-btn" id="lb-prox" aria-label="Próxima tela">&#8250;</button>
+      <button type="button" class="lb-btn" id="lb-fechar">Fechar</button>
+    </div>
+    <div class="lb-img"><img id="lb-img" alt=""></div>
+    <p class="lb-desc" id="lb-desc"></p>
+  </div>
+</dialog>
+
+<script>
+const DADOS = __DADOS__;
+
+const estado = { area: 'todas', onda: 'todas' };
+const areasEl = document.getElementById('areas');
+let visiveis = [];
+
+function el(tag, attrs, filhos) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v);
+  }
+  for (const f of filhos || []) n.appendChild(f);
+  return n;
+}
+
+function desenhar() {
+  areasEl.replaceChildren();
+  visiveis = [];
+  let total = 0;
+  for (const grupo of DADOS.grupos) {
+    if (estado.area !== 'todas' && grupo.area !== estado.area) continue;
+    const telas = grupo.telas.filter((t) => estado.onda === 'todas' || t.onda === estado.onda);
+    if (!telas.length) continue;
+    const grade = el('div', { class: 'grade' });
+    for (const t of telas) {
+      const idx = visiveis.length;
+      visiveis.push(t);
+      total++;
+      const larga = !t.viewport.startsWith('390');
+      const btn = el('button', { type: 'button', class: 'tela-img', 'aria-label': 'Ampliar: ' + t.titulo }, [
+        el('img', { src: 'telas/' + t.arquivo, alt: t.titulo, loading: 'lazy', width: larga ? '1280' : '780', height: larga ? '800' : '1688' }),
+      ]);
+      btn.addEventListener('click', () => abrir(idx));
+      grade.appendChild(el('article', { class: 'tela ' + (larga ? 'larga' : 'celular') }, [
+        btn,
+        el('h3', { text: t.titulo }),
+        el('div', { class: 'meta' }, [
+          el('span', { class: 'onda onda-' + t.onda, text: 'Onda ' + t.onda }),
+          el('span', { class: 'itens', text: t.itens }),
+        ]),
+        el('p', { text: t.descricao }),
+      ]));
+    }
+    areasEl.appendChild(el('section', { class: 'area', 'aria-labelledby': 'h-' + grupo.grupo }, [
+      el('div', { class: 'area-cab' }, [
+        el('h2', { id: 'h-' + grupo.grupo, text: grupo.nome }),
+        el('p', { text: grupo.resumo + ' ' + telas.length + (telas.length === 1 ? ' tela.' : ' telas.') }),
+      ]),
+      grade,
+    ]));
+  }
+  if (!total) areasEl.appendChild(el('p', { class: 'vazio', text: 'Nenhuma tela com esse filtro.' }));
+}
+
+function numeros() {
+  const ul = document.getElementById('numeros');
+  const todas = DADOS.grupos.flatMap((g) => g.telas);
+  const conta = (f) => todas.filter(f).length;
+  const linhas = [
+    [todas.length, 'telas'],
+    [conta((t) => t.onda === '1'), 'da onda 1'],
+    [conta((t) => t.onda === '2'), 'da onda 2'],
+    [conta((t) => t.onda === '3'), 'da onda 3'],
+  ];
+  for (const [n, rotulo] of linhas) {
+    const li = el('li');
+    li.appendChild(el('b', { text: String(n) }));
+    li.appendChild(document.createTextNode(' ' + rotulo));
+    ul.appendChild(li);
+  }
+}
+
+const lb = document.getElementById('lb');
+let atual = 0;
+function mostrar(i) {
+  atual = (i + visiveis.length) % visiveis.length;
+  const t = visiveis[atual];
+  document.getElementById('lb-img').src = 'telas/' + t.arquivo;
+  document.getElementById('lb-img').alt = t.titulo;
+  document.getElementById('lb-titulo').textContent = t.titulo + ' · Onda ' + t.onda;
+  document.getElementById('lb-desc').textContent = t.itens + '. ' + t.descricao;
+}
+function abrir(i) { mostrar(i); if (!lb.open) lb.showModal(); }
+document.getElementById('lb-fechar').addEventListener('click', () => lb.close());
+document.getElementById('lb-ant').addEventListener('click', () => mostrar(atual - 1));
+document.getElementById('lb-prox').addEventListener('click', () => mostrar(atual + 1));
+lb.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') mostrar(atual - 1);
+  if (e.key === 'ArrowRight') mostrar(atual + 1);
+});
+lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
+
+for (const b of document.querySelectorAll('.chip')) {
+  b.addEventListener('click', () => {
+    const f = b.dataset.filtro;
+    estado[f] = b.dataset.valor;
+    for (const o of document.querySelectorAll('.chip[data-filtro="' + f + '"]')) o.setAttribute('aria-pressed', String(o === b));
+    desenhar();
+  });
+}
+
+if (DADOS.aviso) {
+  const a = document.getElementById('aviso');
+  a.textContent = DADOS.aviso;
+  a.hidden = false;
+}
+numeros();
+desenhar();
+</script>

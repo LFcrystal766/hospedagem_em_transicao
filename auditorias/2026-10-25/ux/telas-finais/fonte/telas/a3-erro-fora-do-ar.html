@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Conversa, Crystal fora do ar</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  /* U05: a mesma AvisoFaixa da manutenção (bg-warning/20, text-sm, centrada, linha embaixo), uma por vez (U22) */
+  .faixa { justify-content: center; text-align: center; border-bottom: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="tela"><div class="chat">
+  <header class="chat-header">
+    <button class="icon-btn is-tinta" aria-label="Voltar ao início"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+    <!-- Fora do ar: sem a bolinha verde -->
+    <button class="chat-header-foto" aria-label="Ver perfil da Crystal"><img class="avatar avatar-40" src="../assets/crystal-foto.jpg" alt=""></button>
+    <div class="chat-header-texto"><h1 class="chat-header-nome">Crystal</h1><p class="chat-header-status" data-testid="status-crystal">fora do ar agora</p></div>
+    <div class="menu-ancora"><button class="icon-btn" aria-label="Abrir menu" aria-haspopup="menu"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></div>
+  </header>
+
+  <!-- U05: faixa no estilo da manutenção enquanto a Crystal está fora (uma faixa por vez, U22) -->
+  <div class="faixa faixa-aviso" role="status">Estou fora do ar agora. Tenta de novo daqui a alguns minutos.</div>
+
+  <div class="chat-lista no-fim" role="log" aria-live="off">
+    <span class="chat-divisor chat-pill">Hoje</span>
+
+    <div class="bolha-aluna bolha-primeira"><p class="bolha-texto">Oi Crystal, conheci alguém na academia e não sei como puxar assunto</p>
+      <div class="bolha-meta"><time>14:46</time><svg class="tiques is-lida" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Lida"><path d="M1 6.5 4 9.5 9.5 3"/><path d="M7.5 6.5 10.5 9.5 16 3"/></svg></div></div>
+
+    <div class="bolha-crystal bolha-primeira"><p class="bolha-texto">Oi! Que bom te ver por aqui.</p><div class="bolha-meta"><time>14:46</time></div></div>
+    <div class="bolha-crystal"><p class="bolha-texto">Me conta: em que posso te ajudar hoje?</p><div class="bolha-meta"><time>14:46</time></div></div>
+
+    <div class="bolha-aluna bolha-primeira"><p class="bolha-texto">Ela treina no mesmo horário que eu, sempre perto da esteira</p>
+      <div class="bolha-meta"><time>14:47</time><svg class="tiques is-lida" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Lida"><path d="M1 6.5 4 9.5 9.5 3"/><path d="M7.5 6.5 10.5 9.5 16 3"/></svg></div></div>
+
+    <!-- U05: causa de operação (Crystal fora, sem saldo, tempo esgotado): o texto diz que o problema é dela e não há "Tentar de novo" -->
+    <div class="bolha-crystal bolha-primeira">
+      <p class="bolha-aviso">Estou com um problema aqui do meu lado. Me escreve de novo daqui a alguns minutos.</p>
+      <div class="bolha-meta"><time>14:47</time></div>
+    </div>
+  </div>
+
+  <!-- O campo continua aberto fora da manutenção -->
+  <div class="compositor"><div class="compositor-linha">
+    <textarea class="compositor-campo" rows="1" placeholder="Mensagem" aria-label="Escreva sua mensagem"></textarea>
+    <button class="icon-btn" aria-label="Enviar imagem ou print"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+    <button class="icon-btn icon-btn-marca" aria-label="Gravar áudio"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></button>
+  </div></div>
+</div></div>
+</body>
+</html>

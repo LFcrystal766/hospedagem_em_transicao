@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Kit da aluna</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  /* Folha do kit no tamanho da aluna (lg). Só arrumação da folha; os componentes são os do ds.css. */
+  .app-main.kit { gap: 10px; padding-top: 0; padding-bottom: 0; }
+  .kit .page-header { margin-bottom: 0; }
+  .kit-tag { font-size: var(--fs-xs); line-height: var(--lh-xs); font-weight: 600; letter-spacing: 0.025em; text-transform: uppercase; color: var(--ink-muted); }
+  .kit-secao { display: flex; flex-direction: column; gap: 6px; }
+  .kit-rotulo { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .kit-rotulo .secao-titulo { color: var(--ink); }
+  .kit-nota { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .kit-linha { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; }
+  .kit-linha .btn-text { margin: 0; }
+  .kit-botoes { display: flex; flex-direction: column; gap: 22px; }
+  .kit-campos { display: flex; flex-direction: column; gap: 10px; }
+  .kit-icones { display: flex; gap: 8px; margin-left: auto; }
+  /* folga para o brilho do botão de entrar (shadow-cta) não cair em cima do título da seção seguinte */
+  .kit [data-m="campo"] { margin-top: 14px; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="app">
+  <!-- U54 · CrystalLockup (tamanho do início: 32 + 24) -->
+  <header class="app-header" data-m="header">
+    <span class="crystal-lockup">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <span class="crystal-lockup-nome">Crystal</span>
+    </span>
+    <span class="kit-tag">Kit da aluna</span>
+  </header>
+
+  <main class="app-main kit">
+    <!-- U54 · PageHeader: h1 em Blinker 24 + apoio -->
+    <div class="page-header" data-m="titulo">
+      <div><h1 class="page-titulo">Seu perfil</h1></div>
+    </div>
+
+    <!-- U48 · Button lg: 48 px, rounded-lg, font-medium -->
+    <section class="kit-secao" data-m="botao">
+      <div class="kit-rotulo"><h2 class="secao-titulo">Botão</h2><span class="kit-nota">48 px · o mesmo raio em todos</span></div>
+      <div class="kit-botoes">
+      <div class="kit-linha">
+        <button class="btn btn-primary btn-lg">Salvar</button>
+        <button class="btn btn-secondary btn-lg is-focus">Ficar</button>
+        <button class="btn btn-danger btn-lg">Excluir minha conta</button>
+      </div>
+      <div class="kit-linha">
+        <button class="btn btn-cta btn-lg">Receber o código</button>
+        <button class="btn btn-text btn-lg">Tentar de novo</button>
+      </div>
+      </div>
+    </section>
+
+    <!-- U49 + U03 · campo único, 16 px (o iPhone não dá zoom) -->
+    <section class="kit-secao" data-m="campo">
+      <div class="kit-rotulo"><h2 class="secao-titulo">Campo</h2><span class="kit-nota">16 px · normal, foco, erro</span></div>
+      <div class="kit-campos">
+        <div class="grade-2">
+          <div class="field field-lg">
+            <label class="field-label" for="email1">E-mail da compra</label>
+            <input class="field-input" id="email1" type="email" value="ana@exemplo.com">
+          </div>
+          <div class="field field-lg">
+            <label class="field-label" for="email2">E-mail da compra</label>
+            <input class="field-input is-focus" id="email2" type="email" value="ana@exem">
+          </div>
+        </div>
+        <div class="field field-lg">
+          <label class="field-label" for="email3">E-mail da compra</label>
+          <input class="field-input is-invalido" id="email3" type="email" placeholder="ex.: seunome@gmail.com" aria-invalid="true" aria-describedby="email3-erro">
+          <p class="field-error" id="email3-erro"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Digite o e-mail que você usou na compra.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- U50 · Notice: amarelo é aviso, vermelho é erro -->
+    <section class="kit-secao" data-m="aviso">
+      <div class="kit-rotulo"><h2 class="secao-titulo">Aviso</h2><span class="kit-nota">informação, aviso, erro, sucesso</span></div>
+      <div class="notice notice-info" role="status">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <div class="notice-corpo"><p>Chegou no limite de 2 minutos. Envia esse áudio ou apaga e grava outro.</p></div>
+      </div>
+      <div class="notice notice-warning" role="alert">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <div class="notice-corpo"><p>Não consegui carregar agora.</p></div>
+      </div>
+      <div class="notice notice-danger" role="alert">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <div class="notice-corpo"><p>Código incorreto. Você ainda tem 4 tentativas.</p></div>
+      </div>
+      <div class="notice notice-success" role="status">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+        <div class="notice-corpo"><p>Perfil salvo.</p></div>
+      </div>
+    </section>
+
+    <!-- U52 · interruptor único (com Ligado/Desligado) · U48 · pílula só em chip e em botão redondo só de ícone.
+         O vazio (EmptyState) e a pílula de status (Badge) são só do painel: ficam no kit do painel. -->
+    <section class="kit-secao" data-m="resto">
+      <div class="kit-rotulo"><h2 class="secao-titulo">Interruptor e pílula</h2><span class="kit-nota">pílula só em chip e botão de ícone</span></div>
+      <div class="switch">
+        <div class="switch-texto"><p class="switch-rotulo">Avisos de aulas e novidades</p></div>
+        <button class="switch-controle" role="switch" aria-checked="true"><span class="switch-trilho"></span><span class="switch-estado">Ligado</span></button>
+      </div>
+      <div class="kit-linha" role="radiogroup" aria-label="Objetivo">
+        <button class="chip is-ativo" role="radio" aria-checked="true">Puxar assunto</button>
+        <button class="chip" role="radio" aria-checked="false">Convite</button>
+        <span class="kit-icones">
+          <button class="icon-btn icon-btn-marca" aria-label="Gravar áudio"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19v3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><rect x="9" y="2" width="6" height="13" rx="3"/></svg></button>
+          <button class="icon-btn icon-btn-marca" aria-label="Enviar mensagem"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.71 3.05a.5.5 0 0 0-.68.63l2.84 7.62a2 2 0 0 1 0 1.4l-2.84 7.62a.5.5 0 0 0 .68.63l18-8.5a.5.5 0 0 0 0-.9z"/><path d="M6 12h16"/></svg></button>
+        </span>
+      </div>
+    </section>
+  </main>
+</div></div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Termos de uso</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .app { height: 100%; }
+  /* U21: PaginaPublicaShell, cabeçalho com seta de 44 px e o título da página */
+  .app-header.com-voltar { gap: 4px; padding-top: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .legal { display: flex; flex-direction: column; gap: 16px; padding: 16px; }
+  .legal p, .legal li { font-size: var(--fs-body); line-height: 1.625; }
+  .legal ol { display: flex; flex-direction: column; gap: 4px; padding-left: 20px; list-style: decimal; }
+  .legal h2 { margin-top: 8px; font-size: var(--fs-lg); line-height: var(--lh-lg); font-weight: 600; color: var(--ink); }
+  .legal .meta { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink-muted); }
+  .legal .notice p { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .icone-texto { display: inline-block; width: 16px; height: 16px; vertical-align: -3px; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="app">
+  <header class="app-header com-voltar">
+    <button class="icon-btn is-tinta" aria-label="Voltar"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+    <h1 class="app-header-titulo">Termos de uso</h1>
+  </header>
+
+  <main class="legal">
+    <!-- Conteúdo no padrão do U18 (pergunta 6 ao dono): as frases dos Termos só mudam com a validação; a caixa vira o aviso único do kit (U50). -->
+    <div class="notice notice-warning" role="note">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+      <div class="notice-corpo">
+        <p><strong>Versão preliminar — sujeita a revisão jurídica.</strong> Este documento é um rascunho preparatório para as lojas (App Store e Play Store). Não constitui documento jurídico final e não deve ser considerado vinculante até aprovação formal por advogado habilitado. Campos marcados <svg class="icone-texto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="com o ícone de pessoa"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> precisam ser preenchidos antes da publicação.</p>
+      </div>
+    </div>
+
+    <p class="meta">Versão 0.1 · setembro de 2026 · Empresa: Empresa Exemplo Ltda · CNPJ: 00.000.000/0001-00</p>
+
+    <h2>1. O que é este serviço</h2>
+    <p>O Crystal Web Chat ("app" ou "serviço") é um aplicativo de coaching por inteligência artificial. Ele permite que você converse com a Crystal, uma IA desenvolvida para acompanhar seu processo de desenvolvimento pessoal conforme o programa ao qual você aderiu.</p>
+    <p><strong>A Crystal é uma inteligência artificial.</strong> Ela não é terapeuta, psicóloga, médica nem qualquer outro profissional de saúde. As conversas e orientações da Crystal não substituem acompanhamento profissional de saúde mental, médico ou jurídico. Se você estiver em crise ou precisar de ajuda urgente, procure um profissional habilitado ou ligue para o CVV (188).</p>
+
+    <h2>2. Quem pode usar</h2>
+    <p>O app é exclusivo para:</p>
+    <ol>
+      <li><strong>Maiores de 18 anos.</strong> Ao acessar o serviço, você declara ter 18 anos completos ou mais.</li>
+      <li><strong>Clientes com compra ativa.</strong> A conta é criada automaticamente quando você adquire o programa. Não há cadastro aberto ou uso gratuito.</li>
+    </ol>
+    <p>Ao usar o app, você confirma que atende a esses dois requisitos.</p>
+  </main>
+</div></div>
+</body>
+</html>

@@ -1,0 +1,920 @@
+[
+ {
+  "grupo": "a1",
+  "nome": "Aluna · entrada",
+  "telas": [
+   {
+    "arquivo": "a1-login-passo1.png",
+    "titulo": "Entrar: passo 1 (e-mail da compra)",
+    "viewport": "390x844",
+    "itens": "U01, U03, U09",
+    "descricao": "O botão verde \"Receber o código\" fica num verde mais escuro, legível ao sol, e já aparece aceso em vez de apagado. O campo usa letra de 16 px, então o iPhone não dá mais zoom, e o exemplo passa a ser \"ex.: seunome@gmail.com\".",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a1-login-email-incompleto.png",
+    "titulo": "Entrar: e-mail incompleto",
+    "viewport": "390x844",
+    "itens": "U09, U01, U02, U03",
+    "descricao": "Ao tocar em \"Receber o código\" com \"ana@exemplo\", aparece abaixo do campo uma frase em vermelho legível, com ícone: \"Esse e-mail parece incompleto. Confere se tem o @ e o ponto, como nome@gmail.com.\". O cursor volta para o campo, que ganha anel de foco, e a borda não fica mais vermelha enquanto a pessoa ainda está digitando.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a1-codigo-primeiro-minuto.png",
+    "titulo": "Código: primeiro minuto (Hotmail)",
+    "viewport": "390x844",
+    "itens": "U10, U02, U03",
+    "descricao": "O título fica curto (\"Agora olha o seu e-mail\"), a tela tem um relógio só (\"Reenviar em 42 s\") e, com e-mail do Hotmail ou do Outlook, uma dica avisa desde o começo que o código pode demorar ou cair em Lixo Eletrônico. \"Voltar\" passa a se chamar \"Trocar o e-mail\", os dois botões de texto ficam do tamanho do dedo (44 px) e o \"Entrar\" só acende quando os 6 dígitos estão digitados.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a1-codigo-nao-chegou.png",
+    "titulo": "Código: Não chegou? (último minuto)",
+    "viewport": "390x844",
+    "itens": "U10, U02",
+    "descricao": "Passado o primeiro minuto, o reenvio é liberado e aparece o bloco \"Não chegou?\" com os três caminhos: onde procurar o e-mail, \"Trocar o e-mail\", o botão \"Falar com o suporte\" e o link \"ou pela tela de Suporte\". No último minuto da validade aparece \"Esse código vence em 0:45.\".",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a1-codigo-incorreto.png",
+    "titulo": "Código incorreto (tema escuro)",
+    "viewport": "390x844",
+    "itens": "U01, U10, U50",
+    "descricao": "O erro \"Código incorreto. Você ainda tem 4 tentativas.\" vem num aviso vermelho com ícone, num tom que fica legível também no tema escuro. A contagem do reenvio e o \"Trocar o e-mail\" continuam à mão.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a1-aceite-politica.png",
+    "titulo": "OK na Política depois do código",
+    "viewport": "390x844",
+    "itens": "U11, U10",
+    "descricao": "No primeiro acesso, depois do código certo, o campo e os relógios somem e aparece \"Código certo! Falta só o seu OK:\", com uma caixa de marcar maior (aqui já marcada pela pessoa) e o botão \"Concordar e entrar\". Esse OK não gasta tentativa nem deixa o código vencer no meio do caminho, e o \"Trocar o e-mail\" continua como saída.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a1-faixa-instalar.png",
+    "titulo": "Início com a faixa de instalar",
+    "viewport": "390x844",
+    "itens": "U01",
+    "descricao": "A faixa \"Instale o app da Crystal\" fica num verde mais escuro, com o texto branco legível, e o botão branco \"Instalar\" cresce para 44 px de altura com letra verde forte, sem a faixa ficar mais alta. Na linha travada da Crystal o texto deixa de ficar apagado: o cadeado e a foto esmaecida é que dizem que ela está travada.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a1-instalar-iphone.png",
+    "titulo": "Folha Instalar no iPhone",
+    "viewport": "390x844",
+    "itens": "U12, U51",
+    "descricao": "Antes dos passos, a folha avisa que, depois de instalar, o app vai pedir o e-mail e o código mais uma vez, só nessa primeira vez. O passo 4 fica só \"Pronto. Abra a Crystal pelo ícone novo.\".",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a1-login-app-instalado.png",
+    "titulo": "Entrar no app recém-instalado",
+    "viewport": "390x844",
+    "itens": "U12, U09",
+    "descricao": "Na primeira vez que a pessoa abre o app pelo ícone novo no iPhone, a tela de entrar explica o motivo: \"Pronto, o app está instalado! Entra de novo com o e-mail da compra, só desta vez.\". Nas próximas vezes volta o texto normal.",
+    "onda": "1"
+   }
+  ]
+ },
+ {
+  "grupo": "a2",
+  "nome": "Aluna · primeiro acesso",
+  "telas": [
+   {
+    "arquivo": "a2-tutorial-inicio.png",
+    "titulo": "Tutorial: primeiro passo no início",
+    "viewport": "390x844",
+    "itens": "U56 (padrão: os passos de hoje ficam), U58, U54, U48",
+    "descricao": "Na primeira entrada, a Crystal se apresenta num balão e o contorno rosa marca o botão Perfil. Se o dono não decidir, esta parte continua com 3 passos e o texto de hoje. A foto da aluna deixa de ser botão enquanto o perfil está incompleto, e a marca ganha o símbolo ao lado do nome.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "a2-tutorial-inicio-um-passo.png",
+    "titulo": "Tutorial do início em um passo (proposta)",
+    "viewport": "390x844",
+    "itens": "U56 (item 1, proposta; pergunta 13 ao dono)",
+    "descricao": "Só vale se o dono aprovar. Fica um balão só, que já avisa que são 5 perguntas rápidas, com os botões 'Completar perfil' e 'Agora não'. Somem as bolinhas e o 'Passo 1 de 1'. Sem o OK do dono, fica a tela anterior.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "a2-perfil-aceite.png",
+    "titulo": "Perfil: aceite com o que vem depois",
+    "viewport": "390x844",
+    "itens": "U56, U20, U54",
+    "descricao": "Antes das perguntas, a tela pede só o OK, e uma linha diz o que vem depois. O título fica maior. O texto do aceite não muda. 'Ver o tutorial de novo' e 'Excluir minha conta' descem para o pé da tela, separados por uma linha, e o botão de excluir ganha o ícone de lixeira.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "a2-tutorial-perfil.png",
+    "titulo": "Tutorial do perfil começa pela idade",
+    "viewport": "390x844",
+    "itens": "U56, U18",
+    "descricao": "O balão do perfil destaca o primeiro campo vazio, que é a idade. Antes ele destacava o nome, que já vem da compra, e o texto agora diz isso. O botão Começar põe o cursor na idade. A pergunta do nome fica neutra: 'Que nome você quer que eu use?'.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "a2-perfil-topo-erro.png",
+    "titulo": "Perfil: topo com erro na idade",
+    "viewport": "390x844",
+    "itens": "U18, U49, U50, U54, U56 (contador no padrão)",
+    "descricao": "O topo do perfil tem o título grande, o contador '4 de 5 respondidas' (como hoje) e as perguntas em texto neutro. Se a aluna toca em Salvar com a idade vazia, o campo fica com borda vermelha e o erro aparece logo abaixo dele, em vermelho e com ícone.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "a2-perfil-fim-salvar.png",
+    "titulo": "Perfil: fim com Salvar e rodapé",
+    "viewport": "390x844",
+    "itens": "U20, U18, U48",
+    "descricao": "No fim do perfil, a explicação do 'momento de vida' fica neutra ('se está sem relacionamento'). Abaixo do Salvar, 'Ver o tutorial de novo' vira um botão com borda. 'Excluir minha conta' fica sozinho depois de uma linha, com ícone de lixeira, para não parecer um link qualquer.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a2-conversa-perfil-salvo.png",
+    "titulo": "Conversa: Perfil salvo",
+    "viewport": "390x844",
+    "itens": "U56",
+    "descricao": "Quando a aluna salva o perfil pela primeira vez, ela vai direto para a conversa, sem passar pela tela de início. Uma pílula curta confirma 'Perfil salvo. Agora é só me contar o que está rolando.' e some sozinha. A pílula é do app, não é mensagem da Crystal, e não fica no histórico.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "a2-tutorial-conversa-print.png",
+    "titulo": "Tutorial da conversa: passo do print",
+    "viewport": "390x844",
+    "itens": "U18, U56 (padrão: os 3 passos ficam)",
+    "descricao": "Se o dono não decidir, o tutorial da conversa continua com 3 passos. O último passo, que marca o clipe, ganha um texto novo: diz que o print vai pelo clipe e não promete mais 'três opções' de resposta.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a2-tutorial-conversa-um-passo.png",
+    "titulo": "Tutorial da conversa em um passo (proposta)",
+    "viewport": "390x844",
+    "itens": "U56 (item 2, proposta; pergunta 13 ao dono)",
+    "descricao": "Só vale se o dono aprovar. Logo depois de salvar o perfil, um balão só marca a caixa de escrever e já diz onde ficam o microfone e o clipe. 'Começar' abre o teclado. Por baixo do véu aparece a pílula 'Perfil salvo'.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "a2-notificacoes-pedido.png",
+    "titulo": "Pedido de notificações na hora certa",
+    "viewport": "390x844",
+    "itens": "U57, U56, U58, U51",
+    "descricao": "O pedido de notificações só aparece numa abertura seguinte, quando a conversa já está liberada e o tutorial dela já foi visto. O texto começa pelo principal: saber na hora quando a Crystal responde, mesmo com o app fechado. Os botões são Ativar e Agora não, e a folha tem o Fechar padrão no topo. A foto da aluna já mostra o selo de câmera.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "a2-notificacoes-folha.png",
+    "titulo": "Folha Notificações em duas partes",
+    "viewport": "390x844",
+    "itens": "U57, U52, U51",
+    "descricao": "A folha do menu fica em duas partes. Em 'Neste aparelho' (iPhone pelo Safari) aparecem o aviso de que só funciona com o app instalado e o botão 'Ver como instalar'. Em 'Na sua conta' fica um interruptor de verdade, 'Avisos de aulas e novidades', com uma frase que explica onde esses avisos chegam.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "a2-suporte-rever-tutorial.png",
+    "titulo": "Suporte: ver o tutorial de novo",
+    "viewport": "390x844",
+    "itens": "U56 (item 7)",
+    "descricao": "No fim do Suporte, abaixo da nota, uma linha nova oferece rever o tutorial inteiro, inclusive a parte da conversa (áudio e print). Não é um cartão novo: é só um botão de texto.",
+    "onda": "3"
+   }
+  ]
+ },
+ {
+  "grupo": "a3",
+  "nome": "Aluna · conversa",
+  "telas": [
+   {
+    "arquivo": "a3-conversa-digitando.png",
+    "titulo": "Conversa com digitando na hora",
+    "viewport": "390x844",
+    "itens": "U07, U16, U17",
+    "descricao": "Assim que a mensagem chega à Crystal, os tiques ficam azuis e os três pontinhos aparecem na mesma hora, sem a tela parada esperando. No áudio, o botão de tocar e o 1x ficaram maiores e mais fáceis de acertar com o dedo. Com Reduzir movimento ligado, como nesta imagem, os três pontinhos ficam parados e do mesmo tom.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a3-erro-fora-do-ar.png",
+    "titulo": "Crystal fora do ar, com a causa",
+    "viewport": "390x844",
+    "itens": "U05",
+    "descricao": "Quando o problema é da Crystal (fora do ar, sem saldo, demorou demais), uma faixa amarela no topo, igual à da manutenção, avisa. A bolha diz que o problema é dela e quando escrever de novo. Não aparece o Tentar de novo, porque ele não resolveria agora, e o campo de escrever continua aberto.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a3-erro-caiu-no-meio.png",
+    "titulo": "Resposta que caiu no meio",
+    "viewport": "390x844",
+    "itens": "U05, U17",
+    "descricao": "Se a internet caiu no meio da resposta, a bolha diz isso e mostra o Tentar de novo, agora com cara de botão (pílula com ícone). O botão só aparece quando tentar de novo pode dar certo.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a3-trava-tentar-de-novo.png",
+    "titulo": "Resposta barrada pela trava",
+    "viewport": "390x844",
+    "itens": "U06, U17",
+    "descricao": "Quando a trava de segurança barra a resposta, a frase da Crystal continua a mesma, mas agora vem com um botão Tentar de novo. Um toque refaz a resposta sem a aluna ter de digitar a pergunta outra vez.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a3-telefones-ajuda.png",
+    "titulo": "Telefones de ajuda tocáveis",
+    "viewport": "390x844",
+    "itens": "U08",
+    "descricao": "Nos avisos de segurança, os números 188, 192, 180 e 190 e o cvv.org.br ficam em rosa e sublinhados, e funcionam com um toque: ligam direto ou abrem o site do CVV. Os textos de segurança não mudam e nada mais na bolha vira link.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a3-audio-limite.png",
+    "titulo": "Áudio parado no limite de 2:00",
+    "viewport": "390x844",
+    "itens": "U13",
+    "descricao": "Aos 2 minutos a gravação para e espera a aluna decidir, em vez de sair sozinha. Um aviso explica o que fazer, e ela escolhe entre a lixeira (apagar) e o botão de enviar.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a3-microfone-bloqueado.png",
+    "titulo": "Microfone bloqueado, com o caminho",
+    "viewport": "390x844",
+    "itens": "U13",
+    "descricao": "Se o microfone estiver bloqueado, o aviso diz onde liberar no aparelho dela (aqui, no app instalado no iPhone). Embaixo do texto ficam o botão Já liberei, para tentar gravar de novo, e ao lado dele um X para fechar o aviso.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a3-foto-tentar-de-novo.png",
+    "titulo": "Foto que falhou fica no aparelho",
+    "viewport": "390x844",
+    "itens": "U14, U15, U17",
+    "descricao": "Um print que não saiu por falta de internet continua na conversa mesmo depois de fechar e abrir o app. Ele aparece com o botão Não consegui enviar. Tentar de novo, agora em pílula, e sai sozinho quando a internet volta. A faixa preta embaixo é o painel de legendas do VoiceOver do iPhone: mostra que agora o leitor de tela avisa a falha.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a3-conversa-escuro.png",
+    "titulo": "Conversa no tema escuro",
+    "viewport": "390x844",
+    "itens": "U07, U16, U17",
+    "descricao": "É a mesma conversa com digitando na hora, agora no tema escuro, com o papel de parede escuro e as mesmas bolhas rosa. As cores continuam legíveis e os pontinhos ficam parados.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a3-trava-escuro.png",
+    "titulo": "Resposta barrada, tema escuro",
+    "viewport": "390x844",
+    "itens": "U06, U17",
+    "descricao": "O Tentar de novo da resposta barrada no tema escuro: a pílula com o ícone aparece com a mesma clareza do tema claro.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a3-fora-do-ar-escuro.png",
+    "titulo": "Crystal fora do ar, tema escuro",
+    "viewport": "390x844",
+    "itens": "U05",
+    "descricao": "A faixa amarela de fora do ar e a bolha que diz a causa, no tema escuro. A linha do topo diz fora do ar agora, sem a bolinha verde.",
+    "onda": "1"
+   }
+  ]
+ },
+ {
+  "grupo": "a4",
+  "nome": "Aluna · início, menu e suporte",
+  "telas": [
+   {
+    "arquivo": "a4-inicio.png",
+    "titulo": "Início da aluna",
+    "viewport": "390x844",
+    "itens": "U58, U54",
+    "descricao": "O topo do início traz o símbolo da Crystal ao lado do nome. A foto da aluna ganhou um selinho rosa de câmera, que mostra que dá para tocar nela e trocar a foto. O selo só aparece com o perfil completo. Com o perfil incompleto, a foto não é botão.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "a4-menu-conversa.png",
+    "titulo": "Menu de três pontinhos da conversa",
+    "viewport": "390x844",
+    "itens": "U04, U58",
+    "descricao": "O menu ganhou Suporte e Recomeçar a conversa, que chegam na onda 1. Assim, o \"Menu > Suporte\" que a Crystal fala passa a existir de verdade. Na onda 3 entra o bloco Tamanho da letra (Normal, Grande, Muito grande). Sair fica por último, separado do resto. No início o menu é igual, só sem Recomeçar.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "a4-recomecar-dialogo.png",
+    "titulo": "Diálogo Recomeçar a conversa",
+    "viewport": "390x844",
+    "itens": "U04",
+    "descricao": "Ao tocar em Recomeçar a conversa, sobe uma janela que explica o que acontece: as mensagens continuam na tela e o limite é de 3 vezes por dia. Só o botão Recomeçar faz alguma coisa, e Cancelar fecha sem mandar nada. Antes, recomeçar só funcionava digitando #reset. Por baixo continua o mesmo #reset de hoje.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a4-suporte.png",
+    "titulo": "Tela Suporte",
+    "viewport": "390x844",
+    "itens": "U04, U54",
+    "descricao": "O texto de cima agora diz que a equipe também responde sobre o curso, as aulas e o pagamento, e lista esses assuntos numa linha. Os dois cartões (WhatsApp e e-mail) continuam iguais. A mensagem pronta do WhatsApp passa a ser \"Oi, Bia! Faço o curso da Crystal e preciso de ajuda.\" Tudo isso chega na onda 1. O título grande na fonte da marca só chega na onda 3.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a4-sair-confirmar.png",
+    "titulo": "Confirmação de Sair",
+    "viewport": "390x844",
+    "itens": "U20",
+    "descricao": "Tocar em Sair não desconecta mais na hora. Uma janela avisa que, para voltar, vai ser preciso um código novo no e-mail, e oferece Ficar ou Sair.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a4-excluir-conta.png",
+    "titulo": "Excluir conta com Entendi",
+    "viewport": "390x844",
+    "itens": "U20",
+    "descricao": "A janela de excluir conta explica em linguagem simples o que é apagado e que o curso continua normal. O botão vermelho fica apagado até a aluna marcar \"Entendi que não dá para desfazer\". Logo acima da janela aparece o fim do perfil: \"Ver o tutorial de novo\" virou botão com borda e, abaixo de uma linha, \"Excluir minha conta\" fica sozinho, com o ícone de lixeira.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a4-excluir-conta-pagina.png",
+    "titulo": "Página pública Excluir minha conta",
+    "viewport": "390x844",
+    "itens": "U21, U18",
+    "descricao": "É a página de exclusão que as lojas exigem, agora com o cabeçalho de seta e o título no topo. O passo 1 deixa de falar em CPF: \"Entre no app com o e-mail da sua compra e o código que chega por e-mail.\" Na lista do que é apagado, o perfil passa a citar as respostas de hoje no lugar de \"metas, progresso e sugestões\".",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a4-termos.png",
+    "titulo": "Termos de uso com cabeçalho e voltar",
+    "viewport": "390x844",
+    "itens": "U21",
+    "descricao": "As páginas públicas (Termos, Política e Excluir conta) ganharam um cabeçalho com a seta de voltar no topo. Antes só havia um link escondido no fim de uma página enorme. O texto dos Termos continua o de hoje até Gisele e Luiz validarem as frases novas, que é o padrão do PRD. A caixa amarela de rascunho continua, agora com contraste legível, e o emoji virou ícone.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a4-erro-critico.png",
+    "titulo": "Erro crítico com a cara da Crystal",
+    "viewport": "390x844",
+    "itens": "U19",
+    "descricao": "A tela de erro grave deixa de sair roxa e sem estilo e passa a usar o rosa e as cores da Crystal. Ela explica o que fazer (atualizar o celular ou abrir pelo Safari ou pelo Chrome) e oferece um link para falar com o suporte. Esta é a versão no tema claro.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a4-erro-critico-escuro.png",
+    "titulo": "Erro crítico no escuro",
+    "viewport": "390x844",
+    "itens": "U19",
+    "descricao": "É a mesma tela com o celular no modo escuro: fundo escuro da Crystal, com o sinal e o link em rosa claro. Antes, a tela saía branca mesmo com o celular no escuro.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a4-faixa-backup.png",
+    "titulo": "Faixa de backup na conversa",
+    "viewport": "390x844",
+    "itens": "U22, U18",
+    "descricao": "A faixa do topo deixa de dizer que o WhatsApp está instável. Agora diz \"Estou te atendendo por aqui, no app. É o mesmo atendimento de sempre.\" Só aparece uma faixa por vez no topo. O aviso de imagens fica numa linha discreta logo acima do campo de escrever, com o texto novo: \"Ainda dá para me mandar 2 imagens esta semana.\"",
+    "onda": "1"
+   },
+   {
+    "arquivo": "a4-inicio-letra-muito-grande.png",
+    "titulo": "Início com letra Muito grande",
+    "viewport": "390x844",
+    "itens": "U58",
+    "descricao": "É a mesma tela de início depois de escolher Muito grande no menu. Todo o texto do app cresce 30% e continua cabendo: os três botões ficam numa linha só e a prévia da conversa termina em reticências.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "a4-conversa-letra-muito-grande.png",
+    "titulo": "Conversa com letra Muito grande",
+    "viewport": "390x844",
+    "itens": "U58",
+    "descricao": "É a conversa com a letra Muito grande. As bolhas, a hora e o campo de escrever crescem juntos, sem uma linha ficar por cima da outra. A cara de WhatsApp continua a mesma.",
+    "onda": "3"
+   }
+  ]
+ },
+ {
+  "grupo": "p1",
+  "nome": "Painel · navegação",
+  "telas": [
+   {
+    "arquivo": "p1-login-sessao-vencida.png",
+    "titulo": "Login da equipe com sessão vencida",
+    "viewport": "390x844",
+    "itens": "U24",
+    "descricao": "Quando a sessão da equipe vence, a pessoa cai no login da equipe, e não mais no da aluna. Um aviso no topo do cartão explica o que aconteceu, e o rodapé diz \"Área da equipe\" no lugar de \"Conversa protegida\".",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p1-login-codigo-equipe.png",
+    "titulo": "Login da equipe, passo do código",
+    "viewport": "390x844",
+    "itens": "U24",
+    "descricao": "O passo do código da equipe fala como sistema, não como a Crystal: \"Confirme com o código do e-mail\", \"Mandamos um código…\" e \"Não chegou? Olhe o spam ou peça o reenvio.\". Some o \"Te mandei\" e o rodapé passa a dizer \"Área da equipe\".",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p1-404-painel.png",
+    "titulo": "Endereço errado dentro do painel",
+    "viewport": "1280x800",
+    "itens": "U24, U45, U25",
+    "descricao": "Um endereço que não existe agora abre dentro do próprio painel, com o menu ao lado. O botão \"Voltar para o Início\" leva ao Início da equipe, e não mais à tela da aluna.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p1-inicio-computador.png",
+    "titulo": "Início do painel no computador",
+    "viewport": "1280x800",
+    "itens": "U44, U45, U25",
+    "descricao": "Entram os atalhos do papel: buscar aluno, liberar acesso, nova conta, nova mensagem, Crystal e Laboratório. Todo cartão e todo envio levam a uma tela, e a borda rosa mostra o mouse em cima de um cartão. O menu lateral fica em 4 grupos, com a Crystal num grupo só dela, e o topo traz só o nome e um botão redondo da conta.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p1-inicio-iphone.png",
+    "titulo": "Início do painel no iPhone",
+    "viewport": "390x844",
+    "itens": "U25, U44, U45",
+    "descricao": "O topo ocupa uma linha só, sem a segunda linha de Tema e links. Logo abaixo fica uma barra fixa com o nome da tela. Os atalhos vêm antes dos números. A barra de baixo continua com Início, Alunos, Mensagens, Suporte e Mais, que é o padrão enquanto o dono não responder.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p1-mais-iphone.png",
+    "titulo": "Folha Mais reagrupada",
+    "viewport": "390x844",
+    "itens": "U45",
+    "descricao": "A folha Mais do admin usa os mesmos 4 grupos do computador. O Financeiro sobe para Operar, e Crystal e Laboratório ganham um grupo próprio, separado dos ajustes.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p1-sua-conta-iphone.png",
+    "titulo": "Folha Sua conta com Sair",
+    "viewport": "390x844",
+    "itens": "U25, U24",
+    "descricao": "Tocar na letra do nome abre \"Sua conta\". Ali ficam o tema em três opções, Minha senha, Abrir o app e o Sair, que antes não existia no painel.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p1-abrindo-painel.png",
+    "titulo": "Abrindo o painel",
+    "viewport": "390x844",
+    "itens": "U26",
+    "descricao": "Ao abrir ou recarregar o painel aparece a marca da Crystal com \"Um instante…\", no lugar da tela em branco de hoje. Nada da área da equipe aparece antes de confirmar quem é a pessoa.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p1-abrindo-demorando.png",
+    "titulo": "Abrindo o painel, demorando",
+    "viewport": "390x844",
+    "itens": "U26",
+    "descricao": "Se depois de 8 segundos o painel ainda não abriu, aparece um aviso amarelo \"Está demorando mais que o normal. Confere a internet.\" com o botão \"Tentar de novo\". A tela continua sem mostrar nada da área da equipe.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p1-carregando-computador.png",
+    "titulo": "Início carregando (esqueleto)",
+    "viewport": "1280x800",
+    "itens": "U26, U44",
+    "descricao": "Enquanto os números chegam, os cartões e as duas listas aparecem como formas cinza do mesmo tamanho e no mesmo lugar em que o conteúdo vai ficar. Não aparece mais um \"Carregando…\" solto nem uma área vazia.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p1-toast-desfazer.png",
+    "titulo": "Aviso com Desfazer depois de desligar",
+    "viewport": "390x844",
+    "itens": "U27, U25",
+    "descricao": "Depois de desligar uma aluna, o aviso de baixo ganha \"Desfazer\", que religa em um toque, e um X para fechar. Ele fica 8 segundos na tela e não some enquanto o dedo estiver em cima. A barra fixa do topo mostra a seta de voltar com \"Alunos\" e o nome da aluna.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p1-config-confirmar-iphone.png",
+    "titulo": "Confirmar mudança nas Configurações",
+    "viewport": "390x844",
+    "itens": "U27",
+    "descricao": "Antes de mudar o Modo reserva do canal, que vale para todo mundo, o painel pergunta \"Mudar Modo reserva do canal para Manual?\" e explica \"Vale na hora. Vale para todos os alunos.\", com Mudar e Cancelar. As outras chaves gravam direto e mostram \"Salvo.\" com Desfazer.",
+    "onda": "2"
+   }
+  ]
+ },
+ {
+  "grupo": "p2",
+  "nome": "Painel · alunos e ficha",
+  "telas": [
+   {
+    "arquivo": "p2-alunos-busca-sem-resultado.png",
+    "titulo": "Alunos: busca que não acha leva à base",
+    "viewport": "1280x800",
+    "itens": "U28, U25, U45",
+    "descricao": "Quando a busca não encontra ninguém no app, a tela não fica num beco sem saída. Ela diz que não achou \"julia.prado@exemplo.com\", explica que quem comprou e ainda não entrou fica na base e oferece dois botões: \"Buscar na base de alunos\" e \"Liberar acesso manual\". A ajuda do campo também diz que a busca só procura quem já tem conta.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p2-liberar-email-preenchido.png",
+    "titulo": "Liberar acesso manual já com o e-mail da busca",
+    "viewport": "1280x800",
+    "itens": "U28, U31",
+    "descricao": "O botão \"Liberar acesso manual\" da busca vazia abre a folha com o e-mail procurado já preenchido (lara.matos@exemplo.com). O prazo abre em \"Escolha…\", em cinza. Enquanto o botão \"Liberar acesso\" está travado, logo abaixo dele aparece \"Falta: prazo do acesso\", o primeiro campo que falta.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p2-alunos-selecao.png",
+    "titulo": "Alunos: lista com a barra de seleção à vista",
+    "viewport": "1280x800",
+    "itens": "U32, U28",
+    "descricao": "Com três alunos marcados, a barra \"3 selecionados\" fica presa ao pé da tela, com Enviar mensagem, Exportar CSV e Limpar seleção. O número do topo (\"15 alunos\") agora bate com os cartões (14 ativos e 1 desligado), porque as contas de revisão da loja ficam fora da lista por padrão.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p2-alunos-celular.png",
+    "titulo": "Alunos no iPhone, em cartões",
+    "viewport": "390x844",
+    "itens": "U32, U28, U25",
+    "descricao": "Lista já rolada: a ponta dos cartões de números sumiu sob a barra de título, que continua mostrando \"Alunos\" no topo. Cada aluno tem um cartão com caixa de marcar de tamanho confortável. A barra \"2 selecionados\" cabe numa linha só (Mensagem, CSV, Limpar) e fica acima da barra de baixo, sem ficar escondida atrás dela.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p2-base-abrir-ficha.png",
+    "titulo": "Base de alunos: o cartão leva à ficha",
+    "viewport": "1280x800",
+    "itens": "U28, U50",
+    "descricao": "Na aba Base de alunos, quem já tem conta no app ganha o link \"Abrir a ficha no app\" ao lado das pílulas, como a Rita Prado. Quem ainda não tem conta, como a Júlia Prado, continua com Corrigir e-mail e Liberar para o app.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p2-ficha-computador.png",
+    "titulo": "Ficha da aluna no computador",
+    "viewport": "1280x800",
+    "itens": "U29, U30, U25",
+    "descricao": "O primeiro bloco do Resumo agora é \"Entrada no app\". Ele mostra as três últimas tentativas de entrar e, logo abaixo delas, diz o que fazer (\"O código saiu e a pessoa não entrou…\"), com o botão Corrigir e-mail. A tela também ganhou \"← Alunos\" para voltar e a seção \"Crystal e WhatsApp\" com título. A aba aberta aparece no endereço (?aba=resumo) e no nome da aba do navegador.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p2-ficha-acoes-computador.png",
+    "titulo": "Folha Ações em grupos, no computador",
+    "viewport": "1280x800",
+    "itens": "U29, U35",
+    "descricao": "A lista solta de ações virou quatro grupos com título: Cadastro, Conta, Equipe e Dados do aluno. \"Revogar sessões\" agora se chama \"Encerrar sessões\", e \"Registrar atendimento\" entrou no grupo Equipe. As duas ações perigosas, Desligar e Excluir conta manual, aparecem em vermelho com uma linha que explica o efeito. \"Pedidos e dados do aluno\" não é mais vermelho.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p2-ficha-celular.png",
+    "titulo": "Ficha da aluna no iPhone",
+    "viewport": "390x844",
+    "itens": "U30, U29, U25",
+    "descricao": "A barra do topo tem \"← Alunos\" e o nome da aluna. A fileira de abas usa o nome curto \"Aparelhos\" e vai sumindo na ponta direita, com \"Financeiro\" pela metade, o que mostra que dá para arrastar e ver mais. Logo abaixo vem o bloco \"Entrada no app\", com a frase do que fazer sob as tentativas.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p2-ficha-acoes-celular.png",
+    "titulo": "Folha Ações em grupos, no iPhone",
+    "viewport": "390x844",
+    "itens": "U29, U51, U35",
+    "descricao": "A mesma folha Ações sobe de baixo, com os quatro grupos e todos os itens cabendo na tela. Desligar fica em vermelho e explica: \"Sai de todos os aparelhos e não entra mais. Dá para religar.\"",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p2-codigo-teclado.png",
+    "titulo": "Código de confirmação com o teclado aberto",
+    "viewport": "390x844",
+    "itens": "U33",
+    "descricao": "Com o teclado numérico do iPhone aberto, o diálogo encolhe e os botões \"Sim, recomeçar\" e \"Cancelar\" continuam visíveis acima dele. Só o texto do meio rola: o rótulo \"Motivo\" já está sumindo no alto, e o motivo digitado aparece logo abaixo. A tela diz quanto tempo o código vale e quantos já foram pedidos (\"Vale 10 minutos. Código 4 de 4.\"). No limite, um relógio mostra a espera: \"Dá para pedir outro em 11:24\".",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p2-recomecar-antes-do-codigo.png",
+    "titulo": "Recomeçar: antes de pedir o código",
+    "viewport": "1280x800",
+    "itens": "U33, U31",
+    "descricao": "Antes de mandar o código, o diálogo já avisa que ele \"Vale 10 minutos e só para esta ação\". Enquanto o motivo está vazio, o botão fica travado e, logo abaixo, uma linha diz o que falta: \"Falta: motivo (3 a 200 letras, sem e-mail nem telefone)\".",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p2-desligar-escolha.png",
+    "titulo": "Desligar: \"Escolha…\" e o que falta",
+    "viewport": "1280x800",
+    "itens": "U31, U51",
+    "descricao": "A lista de motivos abre com \"Escolha…\" em cinza, em vez de uma linha em branco. O botão Desligar fica travado e embaixo aparece \"Falta: motivo\", então a pessoa sabe por que não consegue confirmar.",
+    "onda": "2"
+   }
+  ]
+ },
+ {
+  "grupo": "p3",
+  "nome": "Painel · mensagens, suporte, equipe, banners, auditoria",
+  "telas": [
+   {
+    "arquivo": "p3-mensagem-passo1-iphone.png",
+    "titulo": "Nova mensagem do suporte, passo 1 de 2",
+    "viewport": "390x844",
+    "itens": "U34 (com U25 na barra de título)",
+    "descricao": "A Bia, do suporte, abre a Nova mensagem pela ficha e a aluna já vem escolhida (\"Para: Ana Souza\", com \"Trocar\"). São 2 passos em vez de 4, e o rodapé tem uma linha só, sem a frase do teste ocupando espaço.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-mensagem-revisar-iphone.png",
+    "titulo": "Nova mensagem, passo 2 de 2 (Revisar)",
+    "viewport": "390x844",
+    "itens": "U34, U32 (com U25 na barra de título)",
+    "descricao": "No último passo a pessoa vê como a aluna vai receber a mensagem, a contagem no singular (\"Vai para 1 aluno; 1 aparelho...\") e a linha fixa \"Quando: agora\". O rodapé tem \"Enviar teste para mim\" em cima e \"Voltar\" e \"Enviar\" embaixo. O aviso \"Teste enviado\" aparece no topo, longe dos botões.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-mensagem-sem-teste-iphone.png",
+    "titulo": "Nova mensagem do admin: enviar sem teste",
+    "viewport": "390x844",
+    "itens": "U34, U32 (com U25 na barra de título)",
+    "descricao": "O admin continua com 4 passos. Num envio para 14 alunos, \"Enviar\" fica apagado até sair o teste. A frase \"Mande um teste desta versão para você antes de enviar para mais de um aluno.\" saiu do rodapé e vira um aviso acima dele. O rodapé continua só com os botões.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-mensagem-cancelar-envio-iphone.png",
+    "titulo": "Cancelar envio agendado",
+    "viewport": "390x844",
+    "itens": "U34, U32",
+    "descricao": "Nos agendados, o botão vermelho agora diz \"Cancelar envio\", e não só \"Cancelar\". A confirmação diz para quando era o envio e quantos alunos deixam de receber. A saída segura é \"Manter agendado\".",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-suporte-computador.png",
+    "titulo": "Suporte no computador",
+    "viewport": "1280x800",
+    "itens": "U35, U32 (com U25 no cabeçalho)",
+    "descricao": "A caixa avisa que também mostra os atendimentos que a equipe registra. Os filtros têm nome e \"Registrar atendimento\" fica ao lado de Buscar. O pedido que acabou de ser anotado já aparece na lista, com o aviso \"Atendimento registrado.\".",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-registrar-atendimento.png",
+    "titulo": "Diálogo Registrar atendimento",
+    "viewport": "1280x800",
+    "itens": "U35",
+    "descricao": "A Bia anota um atendimento que chegou pelo WhatsApp: a aluna, o assunto, a categoria, por onde o pedido chegou e o que a pessoa pediu. Assim o atendimento fica registrado no painel.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-suporte-iphone.png",
+    "titulo": "Suporte no iPhone",
+    "viewport": "390x844",
+    "itens": "U35, U32 (com U25 na barra de título)",
+    "descricao": "Os três números cabem sem cortar palavra: \"Abertos\" ocupa a linha inteira e \"Aguardando\" e \"Meus\" ficam lado a lado. Os filtros têm rótulo e \"Registrar atendimento\" fica ao lado de Buscar.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-ticket-encerrar.png",
+    "titulo": "Pedido de suporte: encerrar pede confirmação",
+    "viewport": "1280x800",
+    "itens": "U35",
+    "descricao": "\"Encerrar\" não fecha mais o pedido com um toque só. Agora abre a pergunta \"Encerrar este pedido?\", com a frase \"Dá para reabrir depois.\" e os botões \"Cancelar\" e \"Encerrar\".",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-ticket-encerrado.png",
+    "titulo": "Pedido encerrado, com Desfazer",
+    "viewport": "1280x800",
+    "itens": "U35 (com U27 no aviso)",
+    "descricao": "Cada mudança no pedido avisa o que foi gravado. Ao encerrar, aparece \"Encerrado.\" com \"Desfazer\". O atendimento registrado começa com \"Chegou por WhatsApp.\", e o interruptor \"Nota interna (só a equipe vê)\" substitui a caixinha de marcar.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-equipe-nova-conta.png",
+    "titulo": "Equipe: criar conta",
+    "viewport": "1280x800",
+    "itens": "U36 (com U25 no cabeçalho)",
+    "descricao": "A tela agora se chama Equipe. Ao criar a conta de alguém, o CPF é opcional, e abaixo do papel uma linha explica o que aquele papel vê no painel. No topo, quem publica a alma aparece como \"Admin · publica a alma\".",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-equipe-definir-senha.png",
+    "titulo": "Equipe: senha no mesmo fluxo",
+    "viewport": "1280x800",
+    "itens": "U36, U33",
+    "descricao": "Logo depois de criar a conta, a ficha da pessoa abre com a janela \"Definir senha\" já aberta e o aviso \"Conta criada. Agora defina a senha inicial.\". A ficha mostra \"Sem CPF\", e o botão de encerrar sessões foi para uma \"Zona de risco\" no fim.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-equipe-lista.png",
+    "titulo": "Equipe: lista com papéis e selo",
+    "viewport": "1280x800",
+    "itens": "U36",
+    "descricao": "A lista mostra só a equipe e os filtros têm nome. Quem pode publicar a alma tem o selo \"Publica a alma\", também no cabeçalho (\"Admin · publica a alma\"). Quem não informou CPF aparece com \"Sem CPF\". Um aviso no fim confirma que a pessoa nova já consegue entrar.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-banner-ligar-ao-criar-iphone.png",
+    "titulo": "Novo banner: ligar ao criar",
+    "viewport": "390x844",
+    "itens": "U46 (com U25 na barra de título)",
+    "descricao": "Com a imagem escolhida, o interruptor \"Ligar assim que criar\" faz o banner entrar no ar quando a pessoa toca em \"Criar banner\". Não precisa mais abrir a edição depois para ligar.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-banners-mais-iphone.png",
+    "titulo": "Banners: lista com Mais",
+    "viewport": "390x844",
+    "itens": "U46",
+    "descricao": "Cada banner mostra só Desligar, Editar e Mais. Subir, Descer e Ver inscritos ficam na folha que abre pelo Mais. Subir aparece apagado porque este banner já é o primeiro.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-auditoria-filtros-iphone.png",
+    "titulo": "Auditoria: Filtros (2) e filtros à vista",
+    "viewport": "390x844",
+    "itens": "U47, U32",
+    "descricao": "O botão diz quantos filtros estão ligados (\"Filtros (2)\"). Os filtros aparecem como pílulas acima da lista (\"De 19/10\", \"Pessoa: Bia\"), e dá para saber o que está filtrado sem abrir o formulário.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p3-base-detalhe-tecnico-iphone.png",
+    "titulo": "Base de conhecimento: erro sem jargão",
+    "viewport": "390x844",
+    "itens": "U41 (com U37 na navegação e U25 na barra)",
+    "descricao": "Quando a base não responde, a primeira frase diz o que fazer e a quem avisar, sem termo técnico. A causa técnica fica em \"Detalhe técnico\", que começa fechado. Na tela, quem cuida da técnica já abriu esse detalhe. \"Tentar de novo\" fica logo abaixo.",
+    "onda": "2"
+   }
+  ]
+ },
+ {
+  "grupo": "p4",
+  "nome": "Painel · Crystal e dados",
+  "telas": [
+   {
+    "arquivo": "p4-crystal-computador.png",
+    "titulo": "Página Crystal no computador",
+    "viewport": "1280x800",
+    "itens": "U37, U38",
+    "descricao": "No topo há um menu da área Crystal (Painel, Alma, Base, Acompanhar, Laboratório). Abaixo, o Status fica num cartão próprio, com \"Atualizado às 14:32\". As quatro abas (Modelo, Comportamento, Fichas, Saúde) acabam com a rolagem de 12 blocos seguidos. O bloco do modelo mostra quem trocou, quando e qual era o anterior, e tem o campo \"Buscar modelo\".",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-crystal-iphone.png",
+    "titulo": "Página Crystal no iPhone",
+    "viewport": "390x844",
+    "itens": "U37, U38, U25",
+    "descricao": "No celular, o menu da área Crystal, o Status renovado e as abas cabem na primeira tela. A barra fixa de cima mostra sempre que você está em Crystal. Logo abaixo vêm \"Em uso\", com quem escolheu e quando, e os botões \"Ver histórico\", \"Voltar para modelo econômico\" e \"Voltar ao padrão\".",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-crystal-comportamento-iphone.png",
+    "titulo": "Crystal › Comportamento: Memória salva",
+    "viewport": "390x844",
+    "itens": "U37, U27",
+    "descricao": "Na aba Comportamento, a Memória da Crystal usa o campo do kit. Ao salvar aparece o aviso \"Salvo. Vale a partir da próxima resposta.\" em vez de uma frase solta no bloco. Uma linha de apoio leva direto a Configurações › Produto, onde fica a memória que vem do WhatsApp.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-modelo-custo-computador.png",
+    "titulo": "Bloco do modelo com o salto de custo",
+    "viewport": "1280x800",
+    "itens": "U38, U37, U41",
+    "descricao": "Ao buscar \"avançado\" e escolher um modelo bem mais caro, a ficha mostra em vermelho: \"Custa 210% a mais que o modelo em uso: cerca de US$ 186,26 por mês contra US$ 60,09 hoje.\" No topo do bloco ficam o \"Em uso\" (escolhido por quem e quando, e o anterior) e o \"Voltar para modelo econômico\". O preço de cache aparece como \"Entrada já lida (cache)\".",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-trocar-modelo-iphone.png",
+    "titulo": "Diálogo de troca do modelo no iPhone",
+    "viewport": "390x844",
+    "itens": "U38",
+    "descricao": "Antes de gravar, o diálogo põe De e Para lado a lado, com o gasto por mês de cada um e o +210% em vermelho. Como o salto passa de 100%, é preciso digitar TROCAR, e o botão \"Trocar e conferir\" fica vermelho.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-lab-vazio-iphone.png",
+    "titulo": "Laboratório sem conversas",
+    "viewport": "390x844",
+    "itens": "U39, U37, U52",
+    "descricao": "Sem nenhuma conversa, aparece uma caixa só, \"Nenhuma conversa ainda.\", com o botão \"Nova conversa\" dentro. Antes eram duas caixas tracejadas uma embaixo da outra e o botão ficava fora delas. O menu da área Crystal rola, e o \"Painel\" esmaecido à esquerda mostra que há mais itens.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-lab-conversa-iphone.png",
+    "titulo": "Conversa do Laboratório no iPhone",
+    "viewport": "390x844",
+    "itens": "U39, U53",
+    "descricao": "A conversa ocupa a tela, e o campo \"Mensagem da aluna\" fica sempre visível acima da barra de baixo. Cada resposta da Crystal tem só \"Boa\" e \"Ruim\" (ícone e texto) e um \"Mais\"; a mensagem da aluna tem só \"Mais\". O aviso de que a trava barrou a resposta vira um botão.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-lab-mais-iphone.png",
+    "titulo": "Folha \"Esta mensagem\" do Laboratório",
+    "viewport": "390x844",
+    "itens": "U39",
+    "descricao": "O \"Mais\" da última resposta da Crystal abre uma folha com as cinco ações (Editar, Como deveria ser, Refazer resposta, Duplicar até aqui, Apagar daqui). Cada ação traz uma linha de ajuda visível, sem depender de dica escondida, que o iPhone não mostra.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-lab-conversas-iphone.png",
+    "titulo": "Lista de conversas em folha",
+    "viewport": "390x844",
+    "itens": "U39, U37",
+    "descricao": "A lista de conversas deixa de ocupar a tela em cima do chat. Ela abre numa folha pelo botão \"Conversas (3)\", ao lado de \"Nova conversa\", com a conversa atual marcada.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-lab-trava-iphone.png",
+    "titulo": "Por que a trava barrou",
+    "viewport": "390x844",
+    "itens": "U39",
+    "descricao": "Tocar no aviso amarelo da trava abre uma explicação curta: o modelo devolveu conteúdo interno, e a resposta foi trocada por um pedido para repetir, como acontece com uma aluna.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-configuracoes-iphone.png",
+    "titulo": "Configurações no iPhone, grupos fechados",
+    "viewport": "390x844",
+    "itens": "U40, U25",
+    "descricao": "A página, que hoje tem quase dez telas de altura, cabe numa só. A busca e os chips dos grupos ficam numa faixa fixa, e cada grupo começa fechado, com a quantidade de ajustes ao lado do nome.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-configuracoes-produto-iphone.png",
+    "titulo": "Configurações: grupo Produto aberto pelo chip",
+    "viewport": "390x844",
+    "itens": "U40",
+    "descricao": "Tocar no chip Produto abre só esse grupo e rola até ele. O nome técnico da chave sai do cartão. Quando o padrão vem do servidor fora da faixa, o cartão explica isso sem mostrar erro: \"Padrão: 500 · definido no servidor, fora da faixa de 10 a 120\".",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-historico-chave-iphone.png",
+    "titulo": "Histórico com a chave técnica",
+    "viewport": "390x844",
+    "itens": "U40",
+    "descricao": "O nome técnico da configuração aparece só no histórico, para quem cuida da técnica. A folha mostra quem mudou, quando e de quanto para quanto.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-erro-base-iphone.png",
+    "titulo": "Base de conhecimento fora do ar (iPhone)",
+    "viewport": "390x844",
+    "itens": "U41, U37, U25",
+    "descricao": "A primeira linha do erro diz o que fazer, na língua da equipe: tentar de novo ou avisar quem cuida da técnica. Os termos técnicos ficam recolhidos em \"Detalhe técnico\". A barra de cima tem \"‹ Crystal\" para voltar.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-erro-fichas-computador.png",
+    "titulo": "Crystal › Fichas com o detalhe técnico aberto",
+    "viewport": "1280x800",
+    "itens": "U41, U37",
+    "descricao": "Na aba Fichas, o erro de leitura segue a mesma regra. Quem precisa do detalhe abre \"Detalhe técnico\" e vê a causa provável. A primeira linha continua sem jargão.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-metricas-computador.png",
+    "titulo": "Métricas no computador com leitura de um ponto",
+    "viewport": "1280x800",
+    "itens": "U42, U32",
+    "descricao": "Com o dedo, o mouse ou as setas do teclado sobre o gráfico, uma linha marca o dia e o valor aparece escrito embaixo (\"04/10 · Logins: 4 · Alunos: 3\"). As datas do eixo não se atropelam, e \"Ver como tabela\" mostra os números. Os cartões de cima usam plural certo e a unidade ao lado do número.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-metricas-iphone.png",
+    "titulo": "Métricas no iPhone",
+    "viewport": "390x844",
+    "itens": "U42",
+    "descricao": "No celular, tocar na curva escreve o valor do dia logo abaixo. O eixo de alunos usa só números inteiros (0, 1, 2), e as datas aparecem espaçadas, sem sobreposição.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-financeiro-iphone.png",
+    "titulo": "Financeiro no iPhone em cartões",
+    "viewport": "390x844",
+    "itens": "U43",
+    "descricao": "A tabela que rolava de lado vira cartões com nome, valor, situação e vencimento (\"Vence 15/10/2026 · Boleto\" ou \"Pago em 25/10/2026\"). Quem chega pela ficha do aluno vê o filtro \"Aluno: Ana Souza\" à vista, com um X para tirar.",
+    "onda": "2"
+   },
+   {
+    "arquivo": "p4-financeiro-filtros-iphone.png",
+    "titulo": "Filtros do Financeiro em folha",
+    "viewport": "390x844",
+    "itens": "U43, U52",
+    "descricao": "O botão Filtros abre uma folha em que cada campo tem nome visível (Buscar, Status, Método, De, Até). \"Só vencidos\" passa a ser um interruptor que diz se está ligado.",
+    "onda": "2"
+   }
+  ]
+ },
+ {
+  "grupo": "ds",
+  "nome": "Design system",
+  "telas": [
+   {
+    "arquivo": "ds-kit-aluna.png",
+    "titulo": "Kit da aluna",
+    "viewport": "390x844",
+    "itens": "U48, U49, U50, U52, U54, U02, U03",
+    "descricao": "Todas as peças que a aluna toca, no tamanho do celular. Os cinco tipos de botão têm o mesmo canto arredondado. O campo aparece normal, com foco e com erro, em 16 px, e o iPhone deixa de dar zoom. Também estão os quatro tons de aviso (amarelo é aviso, vermelho é erro), o interruptor que escreve 'Ligado' e a pílula só onde ela pode aparecer: no chip e no botão redondo de ícone. O título 'Seu perfil' fica em Blinker, abaixo da marca Crystal.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "ds-kit-painel.png",
+    "titulo": "Kit do painel",
+    "viewport": "1280x800",
+    "itens": "U48, U49, U50, U51, U52, U54, U02, U03, U25, U27, U30, U31, U32",
+    "descricao": "As mesmas peças no tamanho do painel, como na vitrine da equipe: botões de 44 px, campos de 14 px no computador e o 'Escolha…' no seletor. Também aparecem os quatro avisos (com 'Tentar de novo'), interruptores com Ligado/Desligado, o vazio, as pílulas e contadores, as abas com degradê mostrando que há mais e os cartões de número. Fecham a folha o diálogo centrado, a folha 'Sua conta' na lateral e o toast com Desfazer e Fechar.",
+    "onda": "3"
+   },
+   {
+    "arquivo": "ds-cores.png",
+    "titulo": "Cores e contraste",
+    "viewport": "1280x800",
+    "itens": "U01, U02, U55",
+    "descricao": "As cores finais lado a lado, com o celular no claro e no escuro. Cada texto aparece sobre o seu fundo com o contraste medido, e todos passam do mínimo (inclusive o botão verde de entrar, agora mais escuro). Os tons que o PRD não tem vêm marcados como 'proposta', e o verde que o PRD mandou escurecer vem como 'ajustado'. Mostra também o anel de foco do teclado em botão, campo, link e sobre o rosa, e as cores sem uso que saem do código.",
+    "onda": "1"
+   },
+   {
+    "arquivo": "ds-icones.png",
+    "titulo": "Ícones",
+    "viewport": "1280x800",
+    "itens": "U53",
+    "descricao": "Um conjunto só de 46 ícones com o mesmo traço, com os nomes que o PRD dá: os 23 novos que o PRD pede, os 15 que o painel já tem e 8 que as outras telas usam, mostrados também em três tamanhos. Aparecem aplicados: voltar, enviar, barra de escrever, menu da equipe e os votos 'Boa' e 'Ruim' do Laboratório no lugar dos emojis. Ao lado ficam as três exceções: tiques da bolha, play e pausa cheios do tocador de áudio, e a marca (o símbolo da Crystal e o ícone do app instalado).",
+    "onda": "3"
+   }
+  ]
+ }
+]

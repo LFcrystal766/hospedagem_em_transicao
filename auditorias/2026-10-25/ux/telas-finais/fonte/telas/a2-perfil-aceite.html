@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Perfil, aceite</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .app { height: 100%; }
+  /* Mesma moldura do Suporte (ProntuarioShell): seta numa linha, título em Blinker abaixo (U54) */
+  .app-header.com-voltar { padding-top: 8px; padding-bottom: 0; }
+  .app-main { gap: 16px; padding-top: 0; padding-bottom: 32px; }
+  /* Cartão do aceite igual ao de hoje (ConsentGate): título 16 px, texto 14 px; o texto não muda (S15) */
+  .aceite { border: 1px solid color-mix(in srgb, var(--brand) 40%, transparent); display: flex; flex-direction: column; gap: 8px; }
+  .aceite-titulo { font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 600; color: var(--ink); }
+  .aceite-texto { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--ink-muted); }
+  /* U56 item 6 + U20: o rodapé vai para o pé da tela, com o divisor antes de Excluir */
+  .rodape { margin-top: auto; display: flex; flex-direction: column; align-items: center; }
+  .rodape hr { align-self: stretch; margin: 24px 0; border-color: var(--border-strong); }
+</style>
+</head>
+<body>
+<div class="tela"><div class="app">
+  <header class="app-header com-voltar">
+    <button class="icon-btn is-tinta" aria-label="Voltar para o início"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+  </header>
+
+  <main class="app-main">
+    <div class="page-header" style="margin-bottom:0">
+      <div><h1 class="page-titulo">Seu perfil</h1><p class="page-apoio">Primeiro o seu OK; depois, 5 perguntas rápidas.</p></div>
+    </div>
+
+    <section class="card card-alt card-lg aceite" aria-labelledby="aceite-titulo">
+      <h2 class="aceite-titulo" id="aceite-titulo">Antes de guardar as coisas mais delicadas</h2>
+      <p class="aceite-texto">Aqui eu anoto o que você me conta pra te acompanhar de verdade — inclusive coisas pessoais. Isso fica cifrado e só você acessa. Posso guardar?</p>
+      <button class="btn btn-primary btn-lg btn-full" style="margin-top:8px">Pode guardar</button>
+    </section>
+
+    <p class="texto-apoio depois">Depois do OK: seu nome, sua idade, o que você busca, seu jeito de conversar e seu momento de vida.</p>
+
+    <div class="rodape">
+      <button type="button" class="btn btn-secondary">Ver o tutorial de novo</button>
+      <hr>
+      <button type="button" class="btn btn-secondary"><svg class="icon icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Excluir minha conta</button>
+    </div>
+  </main>
+</div></div>
+</body>
+</html>

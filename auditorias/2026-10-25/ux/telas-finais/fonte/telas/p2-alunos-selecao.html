@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="1280x800">
+<title>Alunos · Crystal</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  svg.i { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .staff-nav { gap: 10px; padding: 10px 12px; }
+  .staff-main { display: flex; flex-direction: column; gap: 16px; }
+  .staff-main > * { flex-shrink: 0; }
+  .page-header { margin-bottom: 0; align-items: center; }
+  .page-header .linha { flex-wrap: nowrap; }
+  .stats-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .busca { display: flex; align-items: flex-start; gap: 8px; }
+  .busca .field { flex: 1; min-width: 0; }
+  .busca-botoes { display: flex; gap: 8px; margin-top: 24px; }
+  .campo-busca { position: relative; }
+  .campo-busca .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-muted); pointer-events: none; }
+  .campo-busca .field-input { padding-left: 40px; }
+  .staff-main { position: relative; }
+  .tabela { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .tabela th { height: 44px; padding: 0 12px; border-bottom: 1px solid var(--border); text-align: left; font-size: var(--fs-xs); line-height: var(--lh-xs); font-weight: 500; text-transform: uppercase; letter-spacing: 0.025em; color: var(--ink-muted); white-space: nowrap; }
+  .tabela td { height: 56px; padding: 0 12px; border-bottom: 1px solid var(--border); color: var(--ink); white-space: nowrap; }
+  .tabela .col-marca { width: 52px; padding: 0 0 0 0; }
+  .marca { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+  .tabela a.nome { font-weight: 500; color: var(--ink); text-decoration: underline; text-decoration-color: transparent; }
+  .tabela tr.is-marcada td { background: color-mix(in srgb, var(--brand) 5%, transparent); }
+  .nome-celula { display: inline-flex; align-items: center; gap: 8px; }
+  .barra-selecao { position: absolute; left: 24px; right: 24px; bottom: 8px; z-index: 30; display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 16px; border: 1px solid var(--border-strong); border-radius: var(--radius-xl); background: var(--surface); box-shadow: var(--shadow-lg); }
+  .barra-selecao .cresce { font-size: var(--fs-sm); font-weight: 600; }
+  .barra-selecao .btn-text { margin: 0; padding: 0 12px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-inicio" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-5h3v5h5V9.5"/></symbol>
+<symbol id="i-usuarios" viewBox="0 0 24 24"><path d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-5.5 9a5.5 5.5 0 0 1 11 0M16 4.3a3.5 3.5 0 0 1 0 6.4M17.5 14.5a5.5 5.5 0 0 1 4 5.5"/></symbol>
+<symbol id="i-mensagens" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Zm4 4.5h8M8 12.5h5"/></symbol>
+<symbol id="i-suporte" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5.6 5.6l3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></symbol>
+<symbol id="i-banners" viewBox="0 0 24 24"><path d="M3 6h18v12H3V6Zm0 9 5-4 4 3 3-2 6 4M8.5 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></symbol>
+<symbol id="i-financeiro" viewBox="0 0 24 24"><path d="M3 7h18v12H3V7Zm0 4h18M16 15h2M6 7V5h12v2"/></symbol>
+<symbol id="i-crystal" viewBox="0 0 24 24"><path d="M12 3 6 9l6 12 6-12-6-6ZM6 9h12M9.5 9 12 21m2.5-12L12 21"/></symbol>
+<symbol id="i-laboratorio" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3M7.5 15h9"/></symbol>
+<symbol id="i-grafico" viewBox="0 0 24 24"><path d="M4 20V10m6 10V4m6 16v-7m4 7H3"/></symbol>
+<symbol id="i-auditoria" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.5 3.2 8.2 7.5 9.5 4.3-1.3 7.5-5 7.5-9.5V6L12 3Zm-3 9 2 2 4-4"/></symbol>
+<symbol id="i-configuracoes" viewBox="0 0 24 24"><path d="M4 7h10m4 0h2M4 17h4m4 0h8M14 5v4m-4 6v4"/></symbol>
+<symbol id="i-integracoes" viewBox="0 0 24 24"><path d="M9 7V3m6 4V3M7 7h10v4a5 5 0 0 1-10 0V7Zm5 9v5"/></symbol>
+<symbol id="i-equipe" viewBox="0 0 24 24"><path d="M4 5h16v14H4V5Zm4 9.5a2.5 2.5 0 0 1 5 0M10.5 11a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM15 9h2m-2 3h2"/></symbol>
+<symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-filtro" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></symbol>
+</defs></svg>
+
+<div class="tela"><div class="staff">
+  <aside class="staff-sidebar">
+    <div class="staff-sidebar-topo">
+      <span class="crystal-lockup crystal-lockup-md">
+        <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+        <span><span class="crystal-lockup-nome">Crystal</span><span class="crystal-lockup-apoio">Área da equipe</span></span>
+      </span>
+    </div>
+    <nav class="staff-nav" aria-label="Menu principal">
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Operar</p>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-inicio"/></svg><span class="rotulo">Início</span></a>
+        <a class="staff-link is-ativo" href="#" aria-current="page"><svg class="icon i" aria-hidden="true"><use href="#i-usuarios"/></svg><span class="rotulo">Alunos</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-mensagens"/></svg><span class="rotulo">Mensagens</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-suporte"/></svg><span class="rotulo">Suporte</span><span class="contador" aria-label="2 pedidos abertos">2</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-banners"/></svg><span class="rotulo">Banners</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-financeiro"/></svg><span class="rotulo">Financeiro</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Crystal</p>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-crystal"/></svg><span class="rotulo">Crystal</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-laboratorio"/></svg><span class="rotulo">Laboratório</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Entender</p>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-grafico"/></svg><span class="rotulo">Métricas</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-auditoria"/></svg><span class="rotulo">Auditoria</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Ajustar</p>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-configuracoes"/></svg><span class="rotulo">Configurações</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-integracoes"/></svg><span class="rotulo">Integrações</span></a>
+        <a class="staff-link" href="#"><svg class="icon i" aria-hidden="true"><use href="#i-equipe"/></svg><span class="rotulo">Equipe</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="staff-corpo">
+    <header class="staff-header">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <div class="staff-header-quem"><p class="staff-header-nome">Rui Ferreira</p><p class="staff-header-papel">Admin</p></div>
+      <button class="staff-conta-btn" aria-label="Sua conta" aria-haspopup="dialog">R</button>
+    </header>
+
+    <main class="staff-main">
+      <div class="page-header">
+        <div><h1 class="page-titulo">Alunos</h1><p class="page-apoio">15 alunos. Toque em um para ver a ficha.</p></div>
+        <div class="linha"><button class="btn btn-secondary">Liberar acesso manual</button><button class="btn btn-primary">Nova conta local</button></div>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Alunos">
+        <button class="tab is-ativa" role="tab" aria-selected="true">Alunos</button>
+        <button class="tab" role="tab" aria-selected="false">Base de alunos</button>
+        <button class="tab" role="tab" aria-selected="false">Lotes</button>
+      </div>
+
+      <div class="stats-4">
+        <div class="stat"><p class="stat-rotulo">Ativos</p><p class="stat-valor">14</p></div>
+        <div class="stat"><p class="stat-rotulo">Desligados</p><p class="stat-valor">1</p></div>
+        <div class="stat"><p class="stat-rotulo">Sem usar o app há 30 dias</p><p class="stat-valor">2</p></div>
+        <div class="stat"><p class="stat-rotulo">Novos nesta semana</p><p class="stat-valor">3</p></div>
+      </div>
+
+      <form class="busca" role="search">
+        <div class="field">
+          <label class="field-label" for="busca">Buscar por nome, e-mail ou CPF</label>
+          <div class="campo-busca">
+            <svg class="icon i" aria-hidden="true"><use href="#i-busca"/></svg>
+            <input class="field-input" id="busca" type="search" aria-describedby="busca-ajuda">
+          </div>
+          <p class="field-hint" id="busca-ajuda">Procura só quem já tem conta no app. O CPF é conferido no servidor e nunca aparece inteiro. Quem comprou e nunca entrou está na aba Base de alunos.</p>
+        </div>
+        <div class="busca-botoes">
+          <button class="btn btn-primary" type="submit">Buscar</button>
+          <button class="btn btn-secondary" type="button" aria-haspopup="dialog"><svg class="icon i" aria-hidden="true"><use href="#i-filtro"/></svg>Filtros</button>
+        </div>
+      </form>
+
+      <p class="sr-only" role="status">15 alunos nesta lista.</p>
+
+      <table class="tabela">
+        <caption class="sr-only">Lista de alunos</caption>
+        <thead><tr><th class="col-marca"><label class="marca"><input type="checkbox" class="checkbox" aria-label="Selecionar todos desta página"></label></th><th>Nome</th><th>Status</th><th>Última atividade</th><th>Perfil</th><th>App</th><th>Acesso</th></tr></thead>
+        <tbody>
+          <tr><td class="col-marca"><label class="marca"><input type="checkbox" class="checkbox" aria-label="Selecionar Ana Souza"></label></td><td><span class="nome-celula"><a class="nome" href="#">Ana Souza</a></span></td><td><span class="badge badge-good">Ativo</span></td><td>Nunca</td><td>Incompleto</td><td>Navegador</td><td>Em dia</td></tr>
+          <tr class="is-marcada"><td class="col-marca"><label class="marca"><input type="checkbox" class="checkbox" checked aria-label="Selecionar Bruno Lima"></label></td><td><span class="nome-celula"><a class="nome" href="#">Bruno Lima</a></span></td><td><span class="badge badge-good">Ativo</span></td><td>Hoje</td><td>Completo</td><td>iPhone</td><td>Em dia</td></tr>
+          <tr class="is-marcada"><td class="col-marca"><label class="marca"><input type="checkbox" class="checkbox" checked aria-label="Selecionar Caio Rocha"></label></td><td><span class="nome-celula"><a class="nome" href="#">Caio Rocha</a></span></td><td><span class="badge badge-good">Ativo</span></td><td>Ontem</td><td>Completo</td><td>Android</td><td>Em dia</td></tr>
+          <tr><td class="col-marca"><label class="marca"><input type="checkbox" class="checkbox" aria-label="Selecionar Daniela Alves"></label></td><td><span class="nome-celula"><a class="nome" href="#">Daniela Alves</a></span></td><td><span class="badge badge-bad">Desligado</span></td><td>Há 12 dias</td><td>Completo</td><td>iPhone</td><td>Inativo</td></tr>
+          <tr class="is-marcada"><td class="col-marca"><label class="marca"><input type="checkbox" class="checkbox" checked aria-label="Selecionar Eduardo Martins"></label></td><td><span class="nome-celula"><a class="nome" href="#">Eduardo Martins</a></span></td><td><span class="badge badge-good">Ativo</span></td><td>Há 3 dias</td><td>Completo</td><td>iPhone</td><td>Em dia</td></tr>
+          <tr><td class="col-marca"><label class="marca"><input type="checkbox" class="checkbox" aria-label="Selecionar Fernanda Dias"></label></td><td><span class="nome-celula"><a class="nome" href="#">Fernanda Dias</a></span></td><td><span class="badge badge-good">Ativo</span></td><td>Hoje</td><td>Completo</td><td>Navegador</td><td>Em dia</td></tr>
+          <tr><td class="col-marca"><label class="marca"><input type="checkbox" class="checkbox" aria-label="Selecionar Gabriel Nunes"></label></td><td><span class="nome-celula"><a class="nome" href="#">Gabriel Nunes</a></span></td><td><span class="badge badge-good">Ativo</span></td><td>Há 34 dias</td><td>Incompleto</td><td>Android</td><td>Em dia</td></tr>
+          <tr><td class="col-marca"><label class="marca"><input type="checkbox" class="checkbox" aria-label="Selecionar Marcos Ribeiro"></label></td><td><span class="nome-celula"><a class="nome" href="#">Marcos Ribeiro</a> <span class="badge badge-outline">Manual</span></span></td><td><span class="badge badge-good">Ativo</span></td><td>Nunca</td><td>Incompleto</td><td>Navegador</td><td>Sem registro</td></tr>
+        </tbody>
+      </table>
+
+      <div class="barra-selecao" role="region" aria-label="Alunos selecionados">
+        <p class="cresce">3 selecionados</p>
+        <button class="btn btn-primary"><svg class="icon i" aria-hidden="true"><use href="#i-mensagens"/></svg>Enviar mensagem</button>
+        <button class="btn btn-secondary">Exportar CSV</button>
+        <button class="btn btn-text">Limpar seleção</button>
+      </div>
+    </main>
+  </div>
+</div></div>
+</body>
+</html>

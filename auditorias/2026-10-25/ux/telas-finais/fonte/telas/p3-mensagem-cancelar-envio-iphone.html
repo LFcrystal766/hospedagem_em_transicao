@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Cancelar envio agendado</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .staff-main > * { flex-shrink: 0; }
+  .envio { display: flex; flex-direction: column; gap: 2px; padding-top: 8px; }
+  .envio-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .envio-titulo { display: flex; align-items: center; min-height: 44px; font-size: var(--fs-base); line-height: var(--lh-base); font-weight: 600; color: var(--ink); text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; }
+  .envio-meta { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .envio-acoes { display: flex; gap: 8px; margin-top: 6px; }
+  .envio-acoes .btn { flex: 1; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="staff">
+  <div class="staff-corpo">
+    <header class="staff-header">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <div class="staff-header-quem"><p class="staff-header-nome">Rui Ferreira</p><p class="staff-header-papel">Admin</p></div>
+      <button class="staff-conta-btn" aria-label="Sua conta" aria-haspopup="dialog">R</button>
+    </header>
+    <div class="staff-barra"><span></span><p class="staff-barra-titulo">Mensagens</p><span></span></div>
+
+    <main class="staff-main pilha">
+      <div class="page-header" style="margin-bottom:0">
+        <div><h1 class="page-titulo">Mensagens</h1><p class="page-apoio">Mande uma mensagem da Crystal para um aluno, um grupo ou todos, agora ou agendada, e acompanhe quem recebeu.</p></div>
+      </div>
+
+      <div class="tabs tem-mais-dir" role="tablist" aria-label="Mensagens">
+        <button class="tab" role="tab">Nova mensagem</button>
+        <button class="tab is-ativa" role="tab" aria-selected="true">Agendadas</button>
+        <button class="tab" role="tab">Enviadas</button>
+        <button class="tab" role="tab">Modelos</button>
+      </div>
+
+      <article class="card envio">
+        <div class="envio-topo"><a class="envio-titulo" href="#">Novidades da semana</a><span class="badge badge-muted">Agendada</span></div>
+        <p class="envio-meta">29/10 às 19:00 · 14 alunos · por Carla Mendes · Mensagem da Crystal</p>
+        <div class="envio-acoes">
+          <button class="btn btn-secondary">Editar</button>
+          <button class="btn btn-danger">Cancelar envio</button>
+        </div>
+      </article>
+
+      <article class="card envio">
+        <div class="envio-topo"><a class="envio-titulo" href="#">Pesquisa rápida sobre o app</a><span class="badge badge-muted">Agendada</span></div>
+        <p class="envio-meta">02/11 às 10:00 · 1 aluno · por Rui Ferreira · Só aviso</p>
+        <div class="envio-acoes">
+          <button class="btn btn-secondary">Editar</button>
+          <button class="btn btn-danger">Cancelar envio</button>
+        </div>
+      </article>
+    </main>
+
+    <nav class="staff-bottombar" aria-label="Menu principal">
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-5h3v5h5V9.5"/></svg></span>Início</a>
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-5.5 9a5.5 5.5 0 0 1 11 0M16 4.3a3.5 3.5 0 0 1 0 6.4M17.5 14.5a5.5 5.5 0 0 1 4 5.5"/></svg></span>Alunos</a>
+      <a class="staff-tab is-ativo" href="#" aria-current="page"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4V5Zm4 4.5h8M8 12.5h5"/></svg></span>Mensagens</a>
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5.6 5.6l3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></svg><span class="contador" aria-label="3 pedidos abertos">3</span></span>Suporte</a>
+      <button class="staff-tab" aria-haspopup="dialog"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span>Mais</button>
+    </nav>
+
+    <div class="veu">
+      <div class="dialog" role="alertdialog" aria-labelledby="cancelar-t" aria-describedby="cancelar-c">
+        <h2 class="dialog-titulo" id="cancelar-t">Cancelar o envio agendado?</h2>
+        <div class="dialog-corpo"><p id="cancelar-c">Agendado para 29/10 às 19:00, para 14 alunos. Eles não vão receber nada.</p></div>
+        <div class="dialog-rodape">
+          <button class="btn btn-secondary btn-lg btn-full is-focus">Manter agendado</button>
+          <button class="btn btn-danger btn-lg btn-full">Sim, cancelar o envio</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</body>
+</html>

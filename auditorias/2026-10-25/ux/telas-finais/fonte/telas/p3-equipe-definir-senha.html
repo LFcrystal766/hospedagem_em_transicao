@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="1280x800">
+<title>Equipe, definir a senha</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .staff-nav { gap: 10px; padding: 10px 12px; }
+  .staff-main > * { flex-shrink: 0; }
+  .filtros { display: grid; grid-template-columns: minmax(0, 1fr) 180px 180px auto; align-items: end; gap: 8px; }
+  .pessoas { border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--surface); overflow: hidden; }
+  .pessoa { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; width: 100%; }
+  .pessoa:last-child { border-bottom: 0; }
+  .pessoa-nome { font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 500; color: var(--ink); }
+  .pessoa-linha { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .pessoa-lado { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+  .pessoa-selos { display: flex; gap: 4px; }
+  .pessoa-senha { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--brand-ink); }
+  .pessoa-data { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .selo-alma .icon { width: 12px; height: 12px; }
+  .pessoa-senha.sem { color: var(--ink-muted); }
+  .pessoa.is-selecionada { background: var(--surface-2); }
+  .detalhe-nome { font-family: var(--font-display); font-size: var(--fs-xl); line-height: var(--lh-xl); font-weight: 600; color: var(--ink); }
+  .dados { display: flex; flex-direction: column; border-radius: var(--radius-xl); background: var(--surface-2); padding: 4px 12px; }
+  .dados div { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; font-size: var(--fs-sm); line-height: var(--lh-sm); border-bottom: 1px solid var(--border); }
+  .dados div:last-child { border-bottom: 0; }
+  .dados dt { color: var(--ink-muted); }
+  .dados dd { color: var(--ink); text-align: right; }
+  .bloco-titulo { font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 600; color: var(--ink); }
+  .zona-risco { border-top: 1px solid var(--border); padding-top: 12px; }
+  .btn-perigo-texto { color: var(--danger-ink); }
+  .dialog .field + .field { margin-top: 0; }
+  .reauth { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; }
+  .papel-linha { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="tela"><div class="staff">
+  <aside class="staff-sidebar">
+    <div class="staff-sidebar-topo">
+      <span class="crystal-lockup crystal-lockup-md">
+        <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+        <span><span class="crystal-lockup-nome">Crystal</span><span class="crystal-lockup-apoio">Área da equipe</span></span>
+      </span>
+    </div>
+    <nav class="staff-nav" aria-label="Menu principal">
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Operar</p>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-5h3v5h5V9.5"/></svg><span class="rotulo">Início</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-5.5 9a5.5 5.5 0 0 1 11 0M16 4.3a3.5 3.5 0 0 1 0 6.4M17.5 14.5a5.5 5.5 0 0 1 4 5.5"/></svg><span class="rotulo">Alunos</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4V5Zm4 4.5h8M8 12.5h5"/></svg><span class="rotulo">Mensagens</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5.6 5.6l3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></svg><span class="rotulo">Suporte</span><span class="contador" aria-label="3 pedidos abertos">3</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3V6Zm0 9 5-4 4 3 3-2 6 4M8.5 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></svg><span class="rotulo">Banners</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18v12H3V7Zm0 4h18M16 15h2M6 7V5h12v2"/></svg><span class="rotulo">Financeiro</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Crystal</p>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 6 9l6 12 6-12-6-6ZM6 9h12M9.5 9 12 21m2.5-12L12 21"/></svg><span class="rotulo">Crystal</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3M7.5 15h9"/></svg><span class="rotulo">Laboratório</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Entender</p>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10m6 10V4m6 16v-7m4 7H3"/></svg><span class="rotulo">Métricas</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.5 3.2 8.2 7.5 9.5 4.3-1.3 7.5-5 7.5-9.5V6L12 3Zm-3 9 2 2 4-4"/></svg><span class="rotulo">Auditoria</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Ajustar</p>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10m4 0h2M4 17h4m4 0h8M14 5v4m-4 6v4"/></svg><span class="rotulo">Configurações</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7V3m6 4V3M7 7h10v4a5 5 0 0 1-10 0V7Zm5 9v5"/></svg><span class="rotulo">Integrações</span></a>
+        <a class="staff-link is-ativo" href="#" aria-current="page"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4V5Zm4 9.5a2.5 2.5 0 0 1 5 0M10.5 11a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM15 9h2m-2 3h2"/></svg><span class="rotulo">Equipe</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="staff-corpo">
+    <header class="staff-header">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <div class="staff-header-quem"><p class="staff-header-nome">Carla Mendes</p><p class="staff-header-papel">Admin · publica a alma</p></div>
+      <button class="staff-conta-btn" aria-label="Sua conta" aria-haspopup="dialog">C</button>
+    </header>
+
+    <main class="staff-main pilha-lg">
+      <div class="page-header" style="margin-bottom:0">
+        <div><h1 class="page-titulo">Equipe</h1><p class="page-apoio">Quem entra na área da equipe: papel, status e senha. CPF sempre mascarado.</p></div>
+        <button class="btn btn-primary" aria-haspopup="dialog">Nova conta de equipe</button>
+      </div>
+
+      <div class="pilha">
+        <form class="filtros" role="search" aria-label="Filtrar a equipe">
+          <div class="field">
+            <label class="field-label" for="f-busca">Buscar</label>
+            <input class="field-input" id="f-busca" type="search" placeholder="Nome, e-mail ou CPF completo">
+          </div>
+          <div class="field">
+            <label class="field-label" for="f-papel">Papel</label>
+            <select class="select" id="f-papel"><option>Todos os papéis</option></select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="f-status">Status</label>
+            <select class="select" id="f-status"><option>Todos os status</option></select>
+          </div>
+          <button class="btn btn-secondary" type="submit">Buscar</button>
+        </form>
+
+        <ul class="pessoas" aria-label="Pessoas da equipe">
+          <li><button class="pessoa is-selecionada">
+            <div class="cresce"><p class="pessoa-nome">Júlia Martins</p><p class="pessoa-linha">julia@exemplo.com · Sem CPF</p></div>
+            <div class="pessoa-lado">
+              <span class="pessoa-selos"><span class="badge badge-neutral">Suporte</span><span class="badge badge-good">Ativo</span></span>
+              <span class="pessoa-senha sem">sem senha</span>
+              <time class="pessoa-data">26/10/2026, 10:42</time>
+            </div>
+          </button></li>
+          <li><button class="pessoa">
+            <div class="cresce"><p class="pessoa-nome">Rui Ferreira</p><p class="pessoa-linha">rui@exemplo.com · •••.•••.•••-09</p></div>
+            <div class="pessoa-lado">
+              <span class="pessoa-selos"><span class="badge badge-good">Admin</span><span class="badge badge-good">Ativo</span></span>
+              <span class="pessoa-senha">senha definida</span>
+              <time class="pessoa-data">12/09/2026, 10:15</time>
+            </div>
+          </button></li>
+          <li><button class="pessoa">
+            <div class="cresce"><p class="pessoa-nome">Carla Mendes</p><p class="pessoa-linha">carla@exemplo.com · •••.•••.•••-31</p></div>
+            <div class="pessoa-lado">
+              <span class="pessoa-selos"><span class="badge badge-outline selo-alma"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 6 9l6 12 6-12-6-6ZM6 9h12M9.5 9 12 21m2.5-12L12 21"/></svg>Publica a alma</span><span class="badge badge-good">Admin</span><span class="badge badge-good">Ativo</span></span>
+              <span class="pessoa-senha">senha definida</span>
+              <time class="pessoa-data">12/09/2026, 10:20</time>
+            </div>
+          </button></li>
+          <li><button class="pessoa">
+            <div class="cresce"><p class="pessoa-nome">Bia</p><p class="pessoa-linha">bia@exemplo.com · Sem CPF</p></div>
+            <div class="pessoa-lado">
+              <span class="pessoa-selos"><span class="badge badge-neutral">Suporte</span><span class="badge badge-good">Ativo</span></span>
+              <span class="pessoa-senha">senha definida</span>
+              <time class="pessoa-data">03/10/2026, 09:02</time>
+            </div>
+          </button></li>
+        </ul>
+      </div>
+    </main>
+  </div>
+</div>
+
+  <div class="veu">
+    <div class="sheet sheet-md" role="dialog" aria-modal="true" aria-labelledby="det-t">
+      <div class="sheet-cabecalho"><h2 class="sheet-titulo" id="det-t">Detalhes da conta</h2><button class="sheet-fechar">Fechar</button></div>
+      <div class="sheet-corpo com-folga" style="gap:14px">
+        <div class="pilha-sm" style="gap:4px">
+          <p class="detalhe-nome">Júlia Martins</p>
+          <span class="pessoa-selos"><span class="badge badge-neutral">Suporte</span><span class="badge badge-good">Ativo</span></span>
+        </div>
+        <dl class="dados">
+          <div><dt>CPF</dt><dd>Sem CPF</dd></div>
+          <div><dt>E-mail</dt><dd>julia@exemplo.com</dd></div>
+          <div><dt>Criado em</dt><dd>26/10/2026, 10:42</dd></div>
+        </dl>
+        <div><button class="btn btn-secondary">Definir senha</button></div>
+        <form class="pilha" aria-labelledby="alt-t">
+          <p class="bloco-titulo" id="alt-t">Alterar conta</p>
+          <div class="field"><label class="field-label" for="d-nome">Nome</label><input class="field-input" id="d-nome" value="Júlia Martins"></div>
+          <div class="field"><label class="field-label" for="d-papel">Papel</label><select class="select" id="d-papel" aria-describedby="d-papel-linha"><option>Suporte</option></select>
+            <p class="papel-linha" id="d-papel-linha">Suporte vê: Início, Alunos, Mensagens (um aluno por vez), Suporte e Equipe (só leitura).</p></div>
+          <div class="field"><label class="field-label" for="d-status">Status</label><select class="select" id="d-status"><option>Ativo</option></select></div>
+          <div><button class="btn btn-primary" type="submit">Salvar alterações</button></div>
+        </form>
+        <section class="zona-risco pilha-sm" aria-labelledby="zr-t">
+          <p class="bloco-titulo" id="zr-t">Zona de risco</p>
+          <div><button class="btn btn-secondary btn-perigo-texto">Encerrar as sessões desta pessoa</button></div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <div class="veu">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="senha-t">
+      <h2 class="dialog-titulo" id="senha-t">Definir senha</h2>
+      <div class="dialog-corpo" style="gap:14px">
+        <p class="mutado">A nova senha será exigida no próximo login desta conta.</p>
+        <div class="field"><label class="field-label" for="s-nova">Nova senha</label><input class="field-input is-focus" id="s-nova" type="password" autocomplete="new-password"></div>
+        <div class="field"><label class="field-label" for="s-conf">Confirmação</label><input class="field-input" id="s-conf" type="password" placeholder="Repita a nova senha"></div>
+        <div class="reauth">
+          <p class="forte">Confirme que é você</p>
+          <p class="mutado">Para continuar, vamos mandar um código para o e-mail da sua conta. Vale 10 minutos e só para esta ação.</p>
+          <div style="margin-top:4px"><button class="btn btn-secondary">Enviar código para o meu e-mail</button></div>
+        </div>
+      </div>
+      <div class="dialog-rodape">
+        <button class="btn btn-secondary">Cancelar</button>
+        <button class="btn btn-primary" disabled>Salvar senha</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast-area">
+    <div class="toast" role="status">
+      <span class="toast-texto">Conta criada. Agora defina a senha inicial.</span>
+      <button class="toast-fechar" aria-label="Fechar aviso"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

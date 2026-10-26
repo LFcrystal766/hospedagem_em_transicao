@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Perfil com erro</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  /* Mesma moldura do Suporte (ProntuarioShell): seta numa linha, título em Blinker abaixo (U54) */
+  .app-header.com-voltar { padding-top: 8px; padding-bottom: 0; }
+  .app-main { padding-top: 0; }
+  .form { display: flex; flex-direction: column; gap: 20px; }
+  .foto { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .field-lg .field-input { margin-top: 4px; }
+  .field-error { margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="app">
+  <header class="app-header com-voltar">
+    <button class="icon-btn is-tinta" aria-label="Voltar para o início"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+  </header>
+
+  <main class="app-main">
+    <div class="page-header" style="margin-bottom:0">
+      <div><h1 class="page-titulo">Seu perfil</h1><p class="page-apoio">Todas as respostas são obrigatórias, menos a foto. Dá pra mudar depois.</p></div>
+    </div>
+
+    <form class="form" novalidate>
+      <p class="texto-sm forte mutado" role="status" aria-live="polite">4 de 5 respondidas</p>
+
+      <div class="foto">
+        <span class="avatar avatar-96 avatar-iniciais" aria-hidden="true">A</span>
+        <button type="button" class="btn btn-secondary btn-lg">Trocar foto</button>
+      </div>
+
+      <div class="field field-lg">
+        <label class="field-label" for="nome">Que nome você quer que eu use?</label>
+        <p class="field-hint" id="nome-ajuda">É o nome que aparece no seu perfil.</p>
+        <input class="field-input" id="nome" value="Ana" autocomplete="given-name" aria-describedby="nome-ajuda">
+      </div>
+
+      <!-- Salvar encontrou a idade vazia: rolou até aqui e pôs o cursor no campo; o erro fica ligado por aria-describedby -->
+      <div class="field field-lg">
+        <label class="field-label" for="idade">Quantos anos você tem?</label>
+        <p class="field-hint" id="idade-ajuda">Eu só converso com quem tem 18 anos ou mais.</p>
+        <input class="field-input is-invalido is-focus" id="idade" inputmode="numeric" placeholder="Sua idade" aria-invalid="true" aria-describedby="idade-ajuda idade-erro">
+        <p class="field-error" id="idade-erro"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Me diz sua idade.</p>
+      </div>
+
+      <div class="field field-lg">
+        <p class="field-label" id="busca">O que você busca agora?</p>
+        <p class="field-hint">Puxar assunto é começar a conversa. Manter a conversa é não deixar esfriar. Convite é chamar pra sair.</p>
+        <div class="chips" role="radiogroup" aria-labelledby="busca" style="margin-top:4px">
+          <button type="button" class="chip" role="radio" aria-checked="true">Puxar assunto</button>
+          <button type="button" class="chip" role="radio" aria-checked="false">Manter a conversa</button>
+          <button type="button" class="chip" role="radio" aria-checked="false">Convite</button>
+        </div>
+      </div>
+
+      <div class="field field-lg">
+        <label class="field-label" for="jeito">Seu jeito de conversar</label>
+        <p class="field-hint">Me conta como você costuma ser quando conversa com alguém.</p>
+        <textarea class="field-input" id="jeito" rows="3">No começo fico sem jeito, mas depois que pego confiança converso bastante.</textarea>
+      </div>
+    </form>
+  </main>
+</div></div>
+</body>
+</html>

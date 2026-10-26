@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="1280x800">
+<title>Início do painel, computador</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .staff-nav { gap: 10px; padding: 10px 12px; }
+  .atalhos { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; }
+  .atalho-busca { display: flex; align-items: flex-end; gap: 8px; flex: 1 1 300px; min-width: 0; }
+  .atalho-busca .field { flex: 1; min-width: 0; }
+  .campo-busca { position: relative; }
+  .campo-busca .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-muted); pointer-events: none; }
+  .campo-busca .field-input { padding-left: 40px; }
+  .bloco-titulo { font-family: var(--font-display); font-size: var(--fs-lg); line-height: var(--lh-lg); font-weight: 600; color: var(--ink); }
+  .bloco-topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+  .lista-item .icon { color: var(--ink-muted); }
+  .envio { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .envio-titulo { font-weight: 500; color: var(--ink); }
+  .envio-meta { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--ink-muted); }
+  .lista-item:hover, .lista-item.is-hover { color: var(--brand-ink); }
+  .ver-todos { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--fs-sm); color: var(--brand-ink); }
+</style>
+</head>
+<body>
+<div class="tela"><div class="staff">
+  <aside class="staff-sidebar">
+    <div class="staff-sidebar-topo">
+      <span class="crystal-lockup crystal-lockup-md">
+        <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+        <span><span class="crystal-lockup-nome">Crystal</span><span class="crystal-lockup-apoio">Área da equipe</span></span>
+      </span>
+    </div>
+    <nav class="staff-nav" aria-label="Menu principal">
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Operar</p>
+        <a class="staff-link is-ativo" href="#" aria-current="page"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-5h3v5h5V9.5"/></svg><span class="rotulo">Início</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-5.5 9a5.5 5.5 0 0 1 11 0M16 4.3a3.5 3.5 0 0 1 0 6.4M17.5 14.5a5.5 5.5 0 0 1 4 5.5"/></svg><span class="rotulo">Alunos</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4V5Zm4 4.5h8M8 12.5h5"/></svg><span class="rotulo">Mensagens</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5.6 5.6l3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></svg><span class="rotulo">Suporte</span><span class="contador" aria-label="2 pedidos abertos">2</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3V6Zm0 9 5-4 4 3 3-2 6 4M8.5 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></svg><span class="rotulo">Banners</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18v12H3V7Zm0 4h18M16 15h2M6 7V5h12v2"/></svg><span class="rotulo">Financeiro</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Crystal</p>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 6 9l6 12 6-12-6-6ZM6 9h12M9.5 9 12 21m2.5-12L12 21"/></svg><span class="rotulo">Crystal</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3M7.5 15h9"/></svg><span class="rotulo">Laboratório</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Entender</p>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10m6 10V4m6 16v-7m4 7H3"/></svg><span class="rotulo">Métricas</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.5 3.2 8.2 7.5 9.5 4.3-1.3 7.5-5 7.5-9.5V6L12 3Zm-3 9 2 2 4-4"/></svg><span class="rotulo">Auditoria</span></a>
+      </div>
+      <div class="staff-grupo"><p class="staff-grupo-titulo">Ajustar</p>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10m4 0h2M4 17h4m4 0h8M14 5v4m-4 6v4"/></svg><span class="rotulo">Configurações</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7V3m6 4V3M7 7h10v4a5 5 0 0 1-10 0V7Zm5 9v5"/></svg><span class="rotulo">Integrações</span></a>
+        <a class="staff-link" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4V5Zm4 9.5a2.5 2.5 0 0 1 5 0M10.5 11a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM15 9h2m-2 3h2"/></svg><span class="rotulo">Equipe</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="staff-corpo">
+    <header class="staff-header">
+      <span class="crystal-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="cm-faceta" d="M24 9 36 24 24 39 12 24Z"/><path class="cm-faceta cm-topo" d="M24 9 36 24H12Z"/><path class="cm-linha" d="M24 9v30M12 24h24"/></svg></span>
+      <div class="staff-header-quem"><p class="staff-header-nome">Rui Ferreira</p><p class="staff-header-papel">Admin</p></div>
+      <button class="staff-conta-btn" aria-label="Sua conta" aria-haspopup="dialog">R</button>
+    </header>
+
+    <main class="staff-main pilha-lg">
+      <div class="page-header" style="margin-bottom:0">
+        <div><h1 class="page-titulo">Início</h1><p class="page-apoio">Como a Crystal está hoje, segunda-feira, 26 de outubro.</p></div>
+        <button class="btn btn-secondary">Atualizar</button>
+      </div>
+
+      <section class="pilha-sm" aria-labelledby="atalhos-t">
+        <h2 class="secao-titulo" id="atalhos-t">Atalhos</h2>
+        <div class="atalhos">
+          <form class="atalho-busca" role="search">
+            <div class="field">
+              <label class="field-label" for="busca">Buscar aluno</label>
+              <div class="campo-busca">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input class="field-input" id="busca" type="search" placeholder="Nome, e-mail ou CPF">
+              </div>
+            </div>
+          </form>
+          <a class="btn btn-secondary" href="#">Liberar acesso manual</a>
+          <a class="btn btn-secondary" href="#">Nova conta local</a>
+          <a class="btn btn-secondary" href="#">Nova mensagem</a>
+          <a class="btn btn-secondary" href="#">Crystal</a>
+          <a class="btn btn-secondary" href="#">Laboratório</a>
+        </div>
+      </section>
+
+      <div class="grade-stats">
+        <a class="stat stat-grande" href="#"><p class="stat-rotulo">Alunos ativos</p><p class="stat-valor">14</p><p class="stat-sub is-subiu">+3 nesta semana</p></a>
+        <a class="stat stat-grande is-hover" href="#"><p class="stat-rotulo">Conversaram hoje</p><p class="stat-valor">3</p><p class="stat-sub">41 mensagens</p></a>
+        <a class="stat stat-grande" href="#"><p class="stat-rotulo">Crystal</p><p class="stat-valor">No ar</p><p class="stat-sub">0% das respostas falharam em 24 h</p></a>
+        <a class="stat stat-grande" href="#"><p class="stat-rotulo">Mensagens</p><p class="stat-valor">2<span class="stat-unidade">agendadas</span></p><p class="stat-sub">Próxima em 29/10 · <span style="white-space:nowrap">2 enviadas ontem</span></p></a>
+        <a class="stat stat-grande" href="#"><p class="stat-rotulo">Suporte</p><p class="stat-valor">2<span class="stat-unidade">abertos</span></p><p class="stat-sub">1 aguardando aluno</p></a>
+        <a class="stat stat-grande" href="#"><p class="stat-rotulo">Financeiro</p><p class="stat-valor">R$&nbsp;1.297,00<span class="stat-unidade">no mês</span></p><p class="stat-sub">1 com vencimento</p></a>
+      </div>
+
+      <div class="grade-2" style="gap:16px; align-items:start">
+        <section class="card" aria-labelledby="atencao-t">
+          <div class="bloco-topo"><h2 class="bloco-titulo" id="atencao-t">Precisa de atenção</h2></div>
+          <div class="lista">
+            <a class="lista-item" href="#"><span>1 pedido de suporte ainda sem responsável.</span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+            <a class="lista-item" href="#"><span>1 aluno desligado por reembolso desde ontem.</span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+            <a class="lista-item" href="#"><span>As notificações no celular não estão configuradas.</span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+          </div>
+        </section>
+        <section class="card" aria-labelledby="envios-t">
+          <div class="bloco-topo"><h2 class="bloco-titulo" id="envios-t">Últimos envios</h2><a class="ver-todos" href="#">Ver todos</a></div>
+          <div class="lista">
+            <a class="lista-item" href="#"><span class="envio"><span class="envio-titulo">Aula ao vivo de quinta</span><span class="envio-meta">25/10 19:00 · 14 alunos · 9 aberturas</span></span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+            <a class="lista-item" href="#"><span class="envio"><span class="envio-titulo">Material da aula de sábado</span><span class="envio-meta">25/10 10:30 · 14 alunos · 12 aberturas</span></span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div></div>
+</body>
+</html>

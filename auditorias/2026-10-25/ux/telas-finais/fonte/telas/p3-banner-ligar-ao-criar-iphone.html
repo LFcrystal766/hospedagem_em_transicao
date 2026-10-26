@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport-mock" content="390x844">
+<title>Novo banner, ligar ao criar</title>
+<link rel="stylesheet" href="../ds.css">
+<style>
+  .staff-main { padding-top: 0; }
+  /* Página rolada até "Quando aparece": o cabeçalho saiu de vista e a barra com o nome da tela fica (U25). */
+  .rolagem { display: flex; flex-direction: column; gap: 20px; margin-top: -500px; }
+  .rolagem > * { flex-shrink: 0; }
+  .grupo { display: flex; flex-direction: column; gap: 14px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--surface); }
+  .grupo legend { padding: 0 4px; font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 600; color: var(--ink); }
+  .arquivo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .arquivo-nome { font-size: var(--fs-sm); color: var(--ink-muted); }
+  .data { position: relative; }
+  .data .icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-muted); pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="tela"><div class="staff">
+  <div class="staff-corpo">
+    <div class="staff-barra"><span></span><p class="staff-barra-titulo">Banners</p><span></span></div>
+
+    <main class="staff-main">
+      <div class="rolagem">
+        <div>
+          <p style="margin-bottom:8px"><a class="link texto-sm" href="#">Voltar para os banners</a></p>
+          <div class="page-header" style="margin-bottom:0"><div><h1 class="page-titulo">Novo banner</h1><p class="page-apoio">Os destaques da tela de início do app: imagem, link e, se quiser, um evento com inscrição.</p></div></div>
+        </div>
+
+        <fieldset class="grupo">
+          <legend>Dados do banner</legend>
+          <div class="field"><label class="field-label" for="b-nome">Nome interno</label><input class="field-input" id="b-nome" value="Aula ao vivo de quinta"><p class="field-hint">Só aparece aqui no painel (até 80 caracteres).</p></div>
+          <div class="field"><label class="field-label" for="b-alt">Texto alternativo</label><input class="field-input" id="b-alt" value="Aula ao vivo na quinta, às 20h"><p class="field-hint">O leitor de tela lê este texto no lugar da imagem (até 120 caracteres).</p></div>
+          <div class="field"><label class="field-label" for="b-link">Link</label><input class="field-input" id="b-link" value="/chat"><p class="field-hint">O toque no banner leva para cá. Use https:// (como o link do grupo) ou um caminho do app, como /chat.</p></div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Imagem</legend>
+          <p class="texto-apoio">JPEG, PNG ou WebP, até 2 MB, no mínimo 1280 × 720 px, em 16:9 (miniatura do YouTube).</p>
+          <div class="arquivo"><button class="btn btn-secondary" type="button">Trocar imagem</button><span class="arquivo-nome">aula-ao-vivo-quinta.jpg</span></div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Quando aparece</legend>
+          <div class="field"><label class="field-label" for="b-de">Exibir de</label><div class="data"><input class="field-input" id="b-de" placeholder="dd/mm/aaaa, --:--"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div></div>
+          <div class="field"><label class="field-label" for="b-ate">Exibir até</label><div class="data"><input class="field-input" id="b-ate" placeholder="dd/mm/aaaa, --:--"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div></div>
+          <p class="field-hint">Horário de Brasília. Vazio: no ar enquanto estiver ligado.</p>
+          <div class="switch">
+            <div class="switch-texto"><p class="switch-rotulo">Ligar assim que criar</p></div>
+            <button class="switch-controle" role="switch" aria-checked="true" type="button"><span class="switch-trilho"></span><span class="switch-estado">Ligado</span></button>
+          </div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Evento</legend>
+          <div class="switch">
+            <div class="switch-texto"><p class="switch-rotulo">É para um evento</p><p class="switch-apoio">O toque no banner inscreve o aluno e abre o link, na mesma hora.</p></div>
+            <button class="switch-controle" role="switch" aria-checked="false" type="button"><span class="switch-trilho"></span><span class="switch-estado">Não</span></button>
+          </div>
+        </fieldset>
+
+        <div><button class="btn btn-primary" type="submit">Criar banner</button></div>
+
+        <section class="grupo" aria-labelledby="previa-t" style="gap:8px">
+          <h2 id="previa-t" style="font-family:var(--font-display);font-size:var(--fs-lg);line-height:var(--lh-lg);font-weight:600">Como fica na tela de início</h2>
+          <p class="texto-apoio">Abaixo de “Conversas”, no celular.</p>
+        </section>
+      </div>
+    </main>
+
+    <nav class="staff-bottombar" aria-label="Menu principal">
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-5h3v5h5V9.5"/></svg></span>Início</a>
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-5.5 9a5.5 5.5 0 0 1 11 0M16 4.3a3.5 3.5 0 0 1 0 6.4M17.5 14.5a5.5 5.5 0 0 1 4 5.5"/></svg></span>Alunos</a>
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4V5Zm4 4.5h8M8 12.5h5"/></svg></span>Mensagens</a>
+      <a class="staff-tab" href="#"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5.6 5.6l3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></svg><span class="contador" aria-label="3 pedidos abertos">3</span></span>Suporte</a>
+      <button class="staff-tab is-ativo" aria-haspopup="dialog" aria-current="page"><span class="staff-tab-icone"><svg class="icon icon-24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span>Mais</button>
+    </nav>
+  </div>
+</div></div>
+</body>
+</html>
