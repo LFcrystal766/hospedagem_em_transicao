@@ -1,10 +1,10 @@
 # Relatório de UX/UI da Crystal · 25/10/2026
 
 Para: Luiz (dono), Igor (dev), Gisele (admin), Bia (suporte).
-Base: código em `3c343df` (ramo da revisão de segurança, pronto e não publicado), 104 capturas reais
+Base: código em `3c343df` (branch `painel/onda6-custo-aluno-2`, a revisão de segurança, pronta e não publicada), 104 capturas reais
 do app e do painel em modo de demonstração, 143 achados brutos revisados um a um.
 Depois de juntar os achados repetidos entre lentes, sobraram **98 achados distintos**
-(10 altos, 65 médios, 23 baixos). Capturas em `capturas/`.
+(10 altos, 65 médios, 23 baixos). Capturas em `capturas/`. PRD de execução, com as mesmas três ondas e os mesmos números: `docs/ux/PRD-ux-ui-2026-10-25.md` no repositório do app (58 itens, U01 a U58).
 
 ---
 
@@ -19,7 +19,7 @@ Depois de juntar os achados repetidos entre lentes, sobraram **98 achados distin
 7. **Problema 5:** no painel, a sessão da equipe vencida cai no login da aluna, onde o e-mail da equipe "não existe" (UX-90); e todo campo de 14–15 px faz o Safari do iPhone dar zoom (UX-58). Logo atrás: trocar o modelo sem ver o salto de custo (UX-116) e sete pares de cor abaixo do mínimo de contraste (UX-43).
 8. **O que está bom e não se mexe:** a cara de WhatsApp da conversa (papel de parede, tiques, status no topo, áudio com segurar e deslizar), a tela de início com três botões iguais e a Crystal como contato, a tela de Suporte com dois cartões, o login só com e-mail e código, o tutorial em três partes (só enxugar), a alma da Crystal e os blocos fixos de segurança.
 9. **No painel, manter:** o kit (lista vira cartão no celular, filtros em folha com a URL, CPF sempre mascarado), a confirmação forte com palavra digitada e código por e-mail, o "Enviar teste para mim" com prévia dupla, e o 404 no lugar de 403.
-10. **Caminho:** 40 ganhos rápidos (esforço P, impacto alto ou médio) cabem numa primeira onda junto com acessibilidade e os erros da conversa; a segunda onda é painel e suporte; a terceira, primeiro acesso, consistência visual e design system. Nenhuma proposta mexe na alma.
+10. **Caminho:** três ondas, as mesmas do PRD de execução. A U-onda 1 junta ganhos rápidos, acessibilidade e os erros da conversa e do login (7 dos 10 altos e 22 dos 40 ganhos rápidos, de esforço P e impacto alto ou médio); a U-onda 2 é painel e suporte (os outros 3 altos e 14 ganhos rápidos); a U-onda 3 é início, consistência visual e design system, com o primeiro acesso enxuto (4 ganhos rápidos). Nenhuma proposta mexe na alma.
 
 ---
 
@@ -39,7 +39,7 @@ Depois de juntar os achados repetidos entre lentes, sobraram **98 achados distin
 - Sem teste com alunas reais e sem métricas de uso: a gravidade vem da frequência da tela, das reclamações registradas e do custo de errar, não de medição.
 - Capturas em modo de demonstração: o login aparece com CPF (o modo real, só e-mail, não roda no ambiente de teste, ver UX-72); a base e as fichas aparecem com erro por falta de banco.
 - Sem Android na equipe (pendência 15 do PRD do painel): o que foi medido em 390 px vale para o iPhone do dono; Samsung Internet e Chrome do Android não foram vistos em aparelho.
-- Esforço P/M/G é estimativa de implementação pelo Igor: P até meio dia, M até dois dias, G mais que isso.
+- Esforço P/M/G é estimativa de implementação pelo Igor, na mesma escala do PRD: P até meio dia, M até três dias, G uma semana ou mais.
 
 ---
 
@@ -53,18 +53,18 @@ O caminho real da aluna nova tem oito camadas antes da primeira mensagem: login 
 
 | ID | Sev. | Problema | Proposta | Esf. | Captura |
 |---|---|---|---|---|---|
-| UX-01 | Alta | Código que não chega: o passo 2 não tem saída para o suporte nem dica para Hotmail/Outlook; "Reenviar" num desafio sem e-mail diz "reenviado" sem nada sair | Bloco "Não chegou?" visível quando o reenvio libera: olhar spam, "Trocar e-mail", botão "Falar com o suporte" com mensagem pronta (sem o e-mail), aviso para domínios da Microsoft (OK do dono: S12 era "o Luiz cuida") | P | aluna-login-codigo-390.png |
-| UX-02 | Média | Pedir o código de novo em 5 min devolve o mesmo desafio e a tela diz que mandou outro | A resposta marca "reaproveitado"; a tela diz "Use o código que já está no seu e-mail, ele ainda vale por mm:ss" | P | aluna-login-codigo-390.png |
+| UX-01 | Alta | Código que não chega: o passo 2 não tem saída para o suporte nem dica para Hotmail/Outlook; "Reenviar" num desafio sem e-mail diz "reenviado" sem nada sair | Bloco "Não chegou?" visível quando o reenvio libera: olhar spam, "Trocar o e-mail", botão "Falar com o suporte" com mensagem pronta (sem o e-mail), aviso para domínios da Microsoft (OK do dono no botão: S12 era "o Luiz cuida"; padrão do PRD: entra) | P | aluna-login-codigo-390.png |
+| UX-02 | Média | Pedir o código de novo em 5 min devolve o mesmo desafio e a tela diz que mandou outro | A resposta marca "reaproveitado"; a tela diz "Use o código que já está no seu e-mail" e "Ele ainda vale por {mm:ss}: não precisa pedir outro" | P | aluna-login-codigo-390.png |
 | UX-03 | Média | No primeiro acesso, o OK na política só aparece depois do código certo, com um segundo "Entrar"; redigitar gasta tentativa e os 5 min podem vencer no meio | Esconder o campo depois do código certo, mostrar "Código certo! Falta só o seu OK" com a caixa e "Concordar e entrar"; a API devolve a tentativa e renova o prazo | M | aluna-login-consentimento-390.png |
 | UX-04 (UX-44) | Média | E-mail incompleto: só a borda fica vermelha, sem frase; o botão nasce apagado e parece quebrado | Botão sempre ativo; ao tocar, frase sob o campo ("Esse e-mail parece incompleto. Confere se tem o @ e o ponto") ligada ao campo para leitor de tela | P | aluna-login-390.png |
-| UX-05 (UX-76) | Média | Passo do código: três parágrafos com "se", dois relógios (05:00 e 60 s) e "Voltar" sem dizer para onde | Título "Digite o código que chegou no seu e-mail"; um relógio só, visível no último minuto; "Voltar" vira "Trocar e-mail" com o campo preenchido | P | aluna-login-codigo-390.png |
+| UX-05 (UX-76) | Média | Passo do código: três parágrafos com "se", dois relógios (05:00 e 60 s) e "Voltar" sem dizer para onde | Título "Agora olha o seu e-mail"; um relógio só, visível no último minuto; "Voltar" vira "Trocar o e-mail" com o campo preenchido | P | aluna-login-codigo-390.png |
 | UX-69 (UX-06) | Média | "Reenviar código" e "Voltar" são links de ~20 px lado a lado; a rota /login fica fora da regra de 44 px e da auditoria | Os dois viram botões de 44 px em linha; o cartão do login entra na regra `.mobile-controls` | P | aluna-login-codigo-390.png |
-| UX-07 | Média | Tutorial parte 1: três balões antes de qualquer ação (Suporte e Crystal travada repetem o que está na tela); "Pular" some com tudo | Com perfil incompleto, um balão só ("me conta quem você é em 5 perguntas") com "Completar perfil" e "Agora não"; quem já tem perfil mantém os passos (OK do dono: ajuste do P02) | M | aluna-tutorial-3-390.png |
+| UX-07 | Média | Tutorial parte 1: três balões antes de qualquer ação (Suporte e Crystal travada repetem o que está na tela); "Pular" some com tudo | Com perfil incompleto, um balão só ("me conta quem você é em 5 perguntas") com "Completar perfil" e "Agora não"; quem já tem perfil mantém os passos (OK do dono: ajuste do P02; padrão do PRD: fica como está) | M | aluna-tutorial-3-390.png |
 | UX-08 | Baixa | O aceite sensível ocupa uma tela inteira com "Todas as respostas são obrigatórias" sem pergunta; "Excluir minha conta" já aparece no primeiro acesso | Apoio "Primeiro o seu OK; depois, 5 perguntas rápidas"; rodapé empurrado para o pé da tela, "Excluir" menor e abaixo de um divisor | P | aluna-onboarding-1-consentimento-390.png |
-| UX-13 | Baixa | O balão da parte 2 foca o nome, que já vem da compra; o contador começa em "1 de 5" sem a aluna fazer nada | Focar a primeira pergunta vazia (a idade); contador por faltantes ("Faltam 4 respostas") (OK do dono: o PRD cita "N de 5") | P | aluna-onboarding-2-formulario-390.png |
+| UX-13 | Baixa | O balão da parte 2 foca o nome, que já vem da compra; o contador começa em "1 de 5" sem a aluna fazer nada | Focar a primeira pergunta vazia (a idade); contador por faltantes ("Faltam 4 respostas") (OK do dono no contador: o P13 cita "N de 5 respondidas"; padrão do PRD: fica como está) | P | aluna-onboarding-2-formulario-390.png |
 | UX-09 | Média | Salvar o perfil não confirma nada e volta ao início; a aluna precisa perceber que "Conversa" destravou | No primeiro salvamento abrir a conversa com uma pílula "Perfil salvo. Agora é só me contar o que está rolando" (não é mensagem da Crystal; S07 intacto) | P | aluna-onboarding-2-formulario-390.png |
-| UX-10 | Média | Primeira conversa: três balões cobrem a boas-vindas e, ao fechar, sobe a folha de notificações; no iPhone instalado, duas folhas | Parte 3 com um balão só e "Começar" que abre o teclado; a folha de notificações espera a abertura seguinte | M | aluna-tutorial-chat-390.png |
-| UX-11 | Média | Instalar no iPhone termina num login do zero, sem aviso de que isso era esperado, e pede o código de novo | Lead especial no login do app recém-instalado ("Pronto, o app está instalado! Entra de novo só desta vez"); aviso no guia antes de sair do Safari | M | aluna-inicio-390.png |
+| UX-10 | Média | Primeira conversa: três balões cobrem a boas-vindas e, ao fechar, sobe a folha de notificações; no iPhone instalado, duas folhas | Parte 3 com um balão só e "Começar" que abre o teclado (OK do dono: ajuste do P02; padrão do PRD: fica como está); a folha de notificações espera a abertura seguinte | M | aluna-tutorial-chat-390.png |
+| UX-11 | Média | Instalar no iPhone termina num login do zero, sem aviso de que isso era esperado, e pede o código de novo | Lead especial no login do app recém-instalado ("Pronto, o app está instalado! Entra de novo com o e-mail da compra, só desta vez."); aviso no guia antes de sair do Safari | M | aluna-inicio-390.png |
 
 ### 3.2 Aluna · Conversa
 
@@ -73,17 +73,17 @@ A conversa é o produto, e o visual acertou: bolhas curtas com rabinho só na pr
 | ID | Sev. | Problema | Proposta | Esf. | Captura |
 |---|---|---|---|---|---|
 | UX-15 (UX-28, UX-73) | Alta | A Crystal e a bolha fixa do #reset mandam para "Menu > Suporte"; o menu de três pontinhos tem Tema, Notificações, Política e Sair. Da conversa, o único caminho é voltar ao início | Item "Suporte" no menu, entre Notificações e Política, válido no início e na conversa. A fala da Crystal passa a ser verdade sem tocar na alma | P | aluna-menu-390.png |
-| UX-16 | Alta | Entre enviar e o primeiro sinal do modelo não há "digitando…" (com a trava, isso vem depois de ler alma, base e histórico); depois, as pausas do ritmo somam até 8 s | Marcar "lida" (tiques azuis + "digitando…") no instante em que a Crystal recebe o turno; no painel, Ritmo: 40 → 20 ms por letra e pausa máxima 3.000 → 1.500 ms (OK do dono, sem publicar) | P | aluna-chat-resposta-1-390.png |
-| UX-17 (UX-74, UX-75) | Alta | Saldo zerado, modelo vazio, transcrição fora, pausa pelo painel e queda de rede dão a mesma bolha "Não consegui terminar minha resposta" com "Tentar de novo"; o topo diz "fora do ar agora" em 12 px cinza e nada mais muda | Texto por causa: "Estou fora do ar agora. Tenta daqui a alguns minutos" (sem botão), "Não consegui ouvir esse áudio agora…" (botão fica), "A conexão caiu no meio. Toca em Tentar de novo"; pílula fixa acima do campo quando a Crystal está fora; "em pausa" em minúscula; manutenção com um texto só | M | aluna-chat-390.png |
+| UX-16 | Alta | Entre enviar e o primeiro sinal do modelo não há "digitando…" (com a trava, isso vem depois de ler alma, base e histórico); depois, as pausas do ritmo somam até 8 s | Marcar "lida" (tiques azuis + "digitando…") no instante em que a Crystal recebe o turno; no painel, Ritmo: 40 → 20 ms por letra e pausa máxima 3.000 → 1.500 ms (OK do dono, sem publicar; padrão: nada muda até ele mexer no painel) | P | aluna-chat-resposta-1-390.png |
+| UX-17 (UX-74, UX-75) | Alta | Saldo zerado, modelo vazio, transcrição fora, pausa pelo painel e queda de rede dão a mesma bolha "Não consegui terminar minha resposta" com "Tentar de novo"; o topo diz "fora do ar agora" em 12 px cinza e nada mais muda | Texto por causa: "Estou com um problema aqui do meu lado. Me escreve de novo daqui a alguns minutos." (sem botão), "Não consegui ouvir esse áudio agora…" (botão fica), "Nossa conversa caiu no meio. Toca em Tentar de novo que eu continuo."; faixa "Estou fora do ar agora. Tenta de novo daqui a alguns minutos." no topo quando a Crystal está fora; "em pausa" em minúscula; manutenção com um texto só | M | aluna-chat-390.png |
 | UX-18 | Alta | Num turno de risco, "ligue 188", "ligue 180/190/192" e "cvv.org.br" chegam como texto puro: a aluna precisa decorar e discar | Lista fechada: só esses números viram `tel:` e só esse endereço vira link, nas bolhas da Crystal; nenhum outro link do modelo vira clicável | P | — |
 | UX-19 | Média | Resposta barrada pela trava vira "Desculpa, me perdi aqui. Pode repetir?" como bolha normal, sem "Tentar de novo"; repetir à mão cai na mesma trava | Marcar a bolha neutra e oferecer o mesmo "Tentar de novo" da resposta interrompida (frase e alma intactas) | M | — |
-| UX-20 | Média | Aos 2:00 o áudio é enviado sozinho, cortado no meio da frase | No limite, pausar em vez de enviar: painel com "2:00", lixeira e enviar, aviso "Chegou no limite de 2 minutos" (OK do dono) | P | aluna-chat-compositor-390.png |
+| UX-20 | Média | Aos 2:00 o áudio é enviado sozinho, cortado no meio da frase | No limite, pausar em vez de enviar: painel com "2:00", lixeira e enviar, aviso "Chegou no limite de 2 minutos" (OK do dono: reverte uma linha do S02; padrão do PRD: para e espera) | P | aluna-chat-compositor-390.png |
 | UX-21 | Média | Foto ou áudio que falhou some sem aviso quando a aluna fecha o app; texto, não | Guardar no aparelho o arquivo que falhou por rede (não o recusado), recriar a bolha ao reabrir e tentar sozinho; teto de 5 arquivos | M | — |
 | UX-22 | Média | Mensagem enviada enquanto a Crystal escreve vira turno que não vê a resposta anterior; as respostas chegam intercaladas | Na API, enfileirar por conversa (espera a geração anterior, teto de 20 s); a tela mostra um tique até "entregue" | M | aluna-chat-390.png |
 | UX-23 | Média | A faixa de backup diz "O WhatsApp está instável" num app que vira o canal principal; até três faixas podem empilhar | Texto "Estou te atendendo por aqui, no app"; padrão de backup desligado; uma faixa só por prioridade (manutenção > backup > recado) | P | — |
-| UX-24 | Média | Recomeçar a conversa só existe digitando "#reset"; ninguém descobre | Item "Recomeçar a conversa" no menu da conversa, com diálogo "Eu esqueço o que a gente conversou até aqui…" e "Recomeçar" (mesmo caminho do #reset) | P | aluna-menu-390.png |
+| UX-24 | Média | Recomeçar a conversa só existe digitando "#reset"; ninguém descobre | Item "Recomeçar a conversa" no menu da conversa, com diálogo "Eu esqueço o que a gente conversou até aqui…" e "Recomeçar" (mesmo caminho do #reset) (OK do dono: item novo no menu do P17; padrão do PRD: entra) | P | aluna-menu-390.png |
 | UX-25 | Média | O aviso de microfone recusado fica fixo acima do campo e manda a "ajustes do navegador" | Botão de fechar no aviso; texto por aparelho (Ajustes do iPhone, botão AA do Safari, cadeado do Chrome) (conferir no iPhone do dono) | P | aluna-chat-compositor-390.png |
-| UX-26 (UX-77, UX-79) | Baixa | Erros de imagem com jargão ("JPG, PNG ou WebP", "5MB"); "a contagem volta a zero no domingo" soa como perda; tutorial promete "três opções" | "Esse arquivo não é uma imagem. Me manda um print da tela?"; "Suas imagens desta semana acabaram. No domingo libera de novo"; tutorial nomeia o clipe sem prometer número | P | aluna-chat-compositor-390.png |
+| UX-26 (UX-77, UX-79) | Baixa | Erros de imagem com jargão ("JPG, PNG ou WebP", "5MB"); "a contagem volta a zero no domingo" soa como perda; tutorial promete "três opções" | "Isso não é uma imagem. Me manda um print da tela ou uma foto da galeria?"; "Suas imagens desta semana acabaram. No domingo libera de novo"; tutorial nomeia o clipe sem prometer número | P | aluna-chat-compositor-390.png |
 
 ### 3.3 Aluna · Início, menu e suporte
 
@@ -98,11 +98,11 @@ A tela de início é simples e certa: foto, nome, três botões do mesmo tamanho
 | UX-33 | Média | A folha de notificações pode subir no início antes de a aluna salvar o perfil, sem contexto | Só pedir depois que a conversa destravou e a parte 3 do tutorial passou; daí em diante a cada abertura, como hoje (S27 mantida) | P | — |
 | UX-34 | Média | Excluir conta: um toque num botão vermelho, até 90 s sem dizer que demora; o link no rodapé é igual ao "Ver o tutorial de novo" | Caixa "Entendi que não dá para desfazer" antes de liberar o botão; "Pode levar até um minuto. Não feche o app"; link separado por divisor e com outra cara | P | aluna-perfil-390.png |
 | UX-35 | Média | Política, Termos e Excluir conta abrem sem cabeçalho do app nem seta; o único "Voltar" é um link no fim de 7.600 a 10.000 px | Moldura comum das páginas públicas com seta de voltar de 44 px no topo e título | P | aluna-privacidade-390.png |
-| UX-36 | Média | Textos públicos defasados: "entre com CPF e e-mail", "metas, progresso e insights"; os Termos abrem com "não deve ser considerado vinculante" e "campos marcados 👤" (nota para o dev) | Trocar palavra por palavra pelo login atual e pelo que o app guarda de fato; uma caixa só "Estes Termos ainda estão em revisão" (texto legal: a confirmar com o dono, S18) | P | aluna-excluir-conta-390.png |
+| UX-36 | Média | Textos públicos defasados: "entre com CPF e e-mail", "metas, progresso e insights"; os Termos abrem com "não deve ser considerado vinculante" e "campos marcados 👤" (nota para o dev) | Trocar palavra por palavra pelo login atual e pelo que o app guarda de fato; uma caixa só "Estes Termos ainda estão em revisão" (texto legal: a confirmar com o dono, S18; padrão do PRD: só a página de exclusão, o painel e a API) | P | aluna-excluir-conta-390.png |
 | UX-37 (UX-12) | Média | Faixa "Instale o app": botão de 36 px e texto verde sobre branco em 3,14:1 (mínimo 4,5) | Botão de 44 px e verde mais escuro só na tinta do botão (novo token), faixa igual | P | — |
-| UX-38 (UX-55, UX-137) | Média | Erro crítico (o caso dos iPhones antigos) sai sem estilo: página branca, botão índigo de 40 px, sem suporte; splash e offline só têm o escuro | Estilos próprios na tela de erro (cores da marca, 44 px, link para o suporte); offline com tema claro; abertura do app com a cor do tema escolhido | P | — |
+| UX-38 (UX-55, UX-137) | Média | Erro crítico (o caso dos iPhones antigos) sai sem estilo: página branca, botão índigo de 40 px, sem suporte; splash e offline só têm o escuro | Estilos próprios na tela de erro (cores da marca, 44 px, link para o suporte); splash e offline continuam escuros (decisão registrada), com teste que confere as cópias das cores do tema | P | — |
 | UX-39 | Baixa | A foto do início é botão sem pista (nada de câmera); com perfil incompleto, tocar muda de tela sem explicar | Selo de câmera sobre a foto quando o perfil está completo; sem perfil, a foto não é botão | P | aluna-inicio-390.png |
-| UX-40 | Baixa | "Pular" esconde o tutorial para sempre; só volta por um link cinza no fim do perfil; a tela de Suporte não ensina nada do app | "Ver de novo" também reabre a parte da conversa; cartão "Como usar o app" na tela de Suporte (microfone, clipe, recomeçar) | M | aluna-perfil-390.png |
+| UX-40 | Baixa | "Pular" esconde o tutorial para sempre; só volta por um link cinza no fim do perfil; a tela de Suporte não ensina nada do app | "Ver de novo" também reabre a parte da conversa; na tela de Suporte, abaixo da nota, o botão de texto "Ver o tutorial de novo" (sem cartão novo: os dois cartões do S25 ficam) | M | aluna-perfil-390.png |
 | UX-41 | Baixa | Pontinhos do carrossel com 36 px de largura | Área de toque de 44 px (o ponto desenhado não muda) | P | — |
 
 ### 3.4 Painel · Navegação (moldura, barra, cabeçalho, sessão)
@@ -111,10 +111,10 @@ No computador, a barra lateral em três grupos funciona. No celular, a moldura c
 
 | ID | Sev. | Problema | Proposta | Esf. | Captura |
 |---|---|---|---|---|---|
-| UX-90 (UX-112) | Alta | Sessão vencida (14 dias sem uso) leva ao login da aluna, onde o e-mail da equipe responde "não encontrado"; endereço errado ou área sem permissão mostra o 404 da Crystal com "Voltar para o início" da aluna | Quem já entrou como equipe cai em `/login/equipe?sessao=expirada` com a faixa "Sua sessão expirou. Entre de novo"; 404 dentro da moldura do painel com "Voltar ao Início do painel" | P | equipe-404-1280.png |
-| UX-89 (UX-59, UX-143) | Média | Não existe "Sair" na área da equipe (o caminho é ir ao chat da aluna); Tema (um select nativo, diferente do menu da aluna), Minha senha e Ir para o chat gastam uma linha inteira (~105 px) em toda tela do celular | Cabeçalho de uma linha com botão-avatar de 44 px que abre a folha "Sua conta": Tema (três opções, igual ao app), Minha senha, Ir para o chat e Sair | M | equipe-inicio-390.png |
-| UX-91 (UX-68) | Média | Toda abertura direta do painel (recarregar o PWA, tocar numa notificação) é tela branca até a sessão ser conferida; alimenta a fama de "às vezes não carrega" | Esqueleto da moldura (cabeçalho, título, dois cartões cinza) enquanto carrega; depois de 8 s, "Está demorando. Confere a internet" com Tentar de novo | P | equipe-inicio-390.png |
-| UX-88 (UX-60) | Média | Barra inferior igual para todo papel: Suporte fixo (caixa que nunca recebe nada), Crystal e Laboratório a dois toques atrás de "Mais" para o dono | Barra por papel: admin vê Início, Alunos, Mensagens, Crystal; suporte vê Início, Alunos, Mensagens, Suporte; link "Abrir o Laboratório" na tela Crystal (OK do dono: muda o A01 do PRD) | P | equipe-mais-390.png |
+| UX-90 (UX-112) | Alta | Sessão vencida (14 dias sem uso) leva ao login da aluna, onde o e-mail da equipe responde "não encontrado"; endereço errado ou área sem permissão mostra o 404 da Crystal com "Voltar para o início" da aluna | Quem já entrou como equipe cai em `/login/equipe?sessao=expirada` com a faixa "Sua sessão da área da equipe expirou. Entre de novo com e-mail e senha."; 404 dentro da moldura do painel com "Voltar para o Início" | P | equipe-404-1280.png |
+| UX-89 (UX-59, UX-143) | Média | Não existe "Sair" na área da equipe (o caminho é ir ao chat da aluna); Tema (um select nativo, diferente do menu da aluna), Minha senha e Ir para o chat gastam uma linha inteira (~105 px) em toda tela do celular | Cabeçalho de uma linha com botão-avatar de 44 px que abre a folha "Sua conta": Tema (três opções, igual ao app), Minha senha, Abrir o app e Sair | M | equipe-inicio-390.png |
+| UX-91 (UX-68) | Média | Toda abertura direta do painel (recarregar o PWA, tocar numa notificação) é tela branca até a sessão ser conferida; alimenta a fama de "às vezes não carrega" | Marca pulsando com "Um instante…" enquanto a sessão é conferida (nada do painel aparece antes, para quem não é da equipe não deduzir a área); depois de 8 s, "Está demorando mais que o normal. Confere a internet." com Tentar de novo | P | equipe-inicio-390.png |
+| UX-88 (UX-60) | Média | Barra inferior igual para todo papel: Suporte fixo (caixa que nunca recebe nada), Crystal e Laboratório a dois toques atrás de "Mais" para o dono | Barra por papel: admin vê Início, Alunos, Mensagens, Crystal; suporte vê Início, Alunos, Mensagens, Suporte; link "Abrir o Laboratório" na tela Crystal (OK do dono: muda o princípio 2 do PRD do painel; padrão do PRD: só a folha "Mais" é reagrupada) | P | equipe-mais-390.png |
 | UX-98 | Média | No celular o cabeçalho rola para fora; em telas de 7 a 16 mil px (Crystal, Configurações, Métricas) só resta a barra inferior marcando "Mais" | Barra fixa de 44 px no topo, só no celular, com o nome da tela e o "voltar" quando houver | M | equipe-crystal-390.png |
 | UX-93 | Média | O Início é só leitura: "Conversaram hoje" não abre nada, cada envio em "Últimos envios" não é link, o aviso de reembolso leva à lista inteira | Bloco "Atalhos" por papel (Buscar aluno, Liberar acesso, Nova conta, Nova mensagem, Crystal, Laboratório); todo cartão e todo item com link para o filtro certo | M | equipe-inicio-suporte-1280.png |
 | UX-95 | Média | Ficha: sem "Voltar" na tela normal, aba fora da URL (um link do Início não chega na aba certa), toda ficha se chama "Alunos · Crystal" na janela; cinco jeitos de voltar no painel | "← Alunos" acima do cabeçalho da ficha e o mesmo padrão nas outras sub-rotas; aba na URL (`?aba=`); título da janela com o nome do aluno | P | equipe-ficha-390.png |
@@ -127,19 +127,19 @@ O atendimento mais comum é "não consigo entrar". Hoje ele exige saber que exis
 
 | ID | Sev. | Problema | Proposta | Esf. | Captura |
 |---|---|---|---|---|---|
-| UX-92 (UX-103) | Alta | A busca em Alunos só olha quem já entrou no app; quem só comprou está na aba "Base de alunos", e o vazio diz "Nenhum aluno com esses filtros" sem nenhum botão. O cartão da base não leva à ficha | Vazio com "Não achei esse aluno no app" + botão "Buscar na base de alunos" (leva o termo) + "Liberar acesso manual" se for e-mail; cartão da base com "Abrir a ficha" quando há conta | M | equipe-alunos-390.png |
+| UX-92 (UX-103) | Alta | A busca em Alunos só olha quem já entrou no app; quem só comprou está na aba "Base de alunos", e o vazio diz "Nenhum aluno com esses filtros" sem nenhum botão. O cartão da base não leva à ficha | Vazio com "Não achei {busca} entre os alunos do app." + botão "Buscar na base de alunos" (leva o termo, sem pôr na URL) + "Liberar acesso manual" se for e-mail; cartão da base com "Abrir a ficha no app" quando há conta | M | equipe-alunos-390.png |
 | UX-102 | Média | Para ver por que a aluna não entra: Alunos → buscar → nome → rolar as abas até "Aparelhos e sessões" → rolar até "Tentativas de entrada" (5 toques); o Resumo não explica a causa | Bloco "Entrada no app" no topo do Resumo com as 3 últimas tentativas e a frase de ação ("O código saiu e a pessoa não entrou. Se é Outlook ou Hotmail…" + botão "Corrigir e-mail") | M | equipe-ficha-390.png |
 | UX-62 (UX-51, UX-106) | Média | Oito abas roláveis na ficha (e nas Métricas) sem sinal de que há mais à direita; a quarta aparece cortada; aba trocada por código não rola até ela | Degradê de "há mais" nas pontas enquanto houver conteúdo escondido; a aba ativa rola para a vista; rótulo curto "Aparelhos" no celular | P | equipe-ficha-390.png |
 | UX-101 | Média | Diálogo do código não diz para qual e-mail antes de enviar, nem que vale 10 min, nem o teto de 4 em 15 min; no 5.º pedido, "espera um minutinho" que nunca resolve | "Mandamos um código para {e-mail}. Vale 10 minutos. Código 2 de 4"; ao estourar, "Dá para pedir outro em {m} min" com contagem | M | equipe-ficha-dialogo-codigo-390.png |
 | UX-63 | Média | No iPhone a folha do diálogo não trata o teclado: ao focar "Motivo" ou "Código", os botões ficam atrás dele; num iPhone pequeno o título some para cima | Folha com altura da área visível (visual viewport); só o corpo rola; rodapé com os botões sempre visível | M | equipe-ficha-dialogo-codigo-390.png |
-| UX-52 (UX-111) | Média | Desligar, Nova conta e Liberação manual: o select obrigatório abre com uma linha em branco e o botão fica cinza sem dizer o que falta | Opção "Escolha…" desabilitada no lugar da linha vazia; linha "Falta escolher o motivo" sob o botão travado | P | — |
+| UX-52 (UX-111) | Média | Desligar, Nova conta e Liberação manual: o select obrigatório abre com uma linha em branco e o botão fica cinza sem dizer o que falta | Opção "Escolha…" desabilitada no lugar da linha vazia; linha "Falta: motivo" sob o botão travado | P | — |
 | UX-105 | Média | Folha "Ações" com até 12 itens sem grupo; "Apagar dados" em vermelho só troca de aba; "Revogar sessões" vira "Encerrar todas" no diálogo | Grupos Cadastro / Conta / Equipe / Dados do aluno; "Encerrar sessões" nos dois lugares; "Pedidos e dados do aluno" sem vermelho | P | equipe-ficha-acoes-1280.png |
 | UX-61 | Média | A barra "N selecionados" (Enviar mensagem, Exportar CSV) fica atrás da barra de abas no celular; só aparece ao rolar até o fim | Barra grudada acima da barra de abas, uma linha, botões de 44 px com rótulo curto | P | equipe-alunos-390.png |
 | UX-109 (UX-122) | Média | Nenhuma ação tem "Desfazer" (Desligar, Silenciar, Encerrar, interruptores de Configurações gravam no toque); o toast de 4 s não pausa no toque e não aceita botão | Toast com botão "Desfazer" e "Fechar", 8 s, pausa no toque; aplicar em Desligar/Religar, Silenciar, Encerrar ticket, interruptores e listas de Configurações | M | — |
 | UX-110 | Média | Suporte manda mensagem a uma aluna em 4 passos; "Público" já vem preenchido e "Quando" tem uma opção só (7 toques) | Passos por papel: para o suporte com aluna definida, só Conteúdo e Revisar ("Passo 1 de 2") | M | — |
 | UX-97 (UX-107) | Média | A caixa de entrada do Suporte nunca recebe nada (a aluna fala por WhatsApp e e-mail; a ação "Abrir pedido" existe no texto e não está ligada); o atendimento real não deixa rastro na ficha; a 390 px o rótulo quebra em "AGUARDAND / O ALUNO" | Rota para a equipe registrar um pedido (origem WhatsApp/e-mail) a partir de Ações da ficha; cartões em 2 colunas no celular com rótulos curtos ("Aguardando", "Meus") | M | equipe-suporte-bia-1280.png |
-| UX-64 | Média | Nova mensagem no celular: rodapé fixo + barra de abas + toast tomam ~200 px do fundo; com teclado sobram ~250 px para escrever | Rodapé de uma linha (Voltar / Continuar); no passo 4, "Enviar teste" em cima e Voltar/Enviar embaixo; frase do teste vira aviso só ao tentar enviar sem teste; toast no topo | M | equipe-mensagens-390.png |
-| UX-104 | Baixa | Cabeçalho diz "14 alunos" e a lista "15 alunos nesta lista" (uma é conta de revisão da loja) | Um contador só, por busca e filtro; contas de revisão fora por padrão (OK do dono) | P | equipe-alunos-390.png |
+| UX-64 | Média | Nova mensagem no celular: rodapé fixo + barra de abas + toast tomam ~200 px do fundo; com teclado sobram ~250 px para escrever | Rodapé de uma linha (Voltar / Continuar); no passo 4, "Enviar teste" em cima e Voltar/Enviar embaixo; frase do teste vira aviso só ao tentar enviar sem teste; toast no topo (esconder a barra inferior nesse fluxo só com OK do dono; padrão do PRD: não) | M | equipe-mensagens-390.png |
+| UX-104 | Baixa | Cabeçalho diz "14 alunos" e a lista "15 alunos nesta lista" (uma é conta de revisão da loja) | Um contador só, por busca e filtro; contas de revisão fora por padrão (OK do dono; padrão do PRD: ficam fora) | P | equipe-alunos-390.png |
 | UX-108 | Baixa | Ticket: trocar responsável ou categoria grava no toque; "Encerrar" sem confirmação; "Ticket atualizado" fica para sempre; caixa de resposta dá zoom | Toast com o valor gravado; "Encerrar este pedido?" com "Dá para reabrir"; filtros com rótulo visível; campo em 16 px | P | — |
 | UX-113 | Baixa | Auditoria no celular: botão "Filtros" sem contagem nem resumo do que está aplicado (Alunos já mostra "Filtros (2)") | "Filtros (n)" e chips com os filtros ativos acima da lista | P | — |
 | UX-115 | Baixa | O bloco com Importar memória, Silenciar WhatsApp e Recomeçar conversa não tem título, fica no fim do Resumo e responde com caixas rosa que nunca somem | Título "Crystal e WhatsApp", bloco logo após "Conta", sucesso por toast | P | equipe-ficha-390.png |
@@ -150,14 +150,14 @@ Aqui está o que o dono faz todo dia pelo iPhone: trocar modelo, ver custo, paus
 
 | ID | Sev. | Problema | Proposta | Esf. | Captura |
 |---|---|---|---|---|---|
-| UX-116 | Alta | Na ficha do modelo, "Não lê imagem" e "Gratuito" são avisos vermelhos, mas "+N% de custo" fica em letra pequena cinza; "Trocar o modelo?" confirma com um clique e sem o valor atual ao lado | Com +50% ou mais, aviso vermelho "Custa N% a mais: cerca de {novo}/mês contra {atual} hoje"; diálogo com "De: … / Para: …" em linhas fixas e palavra TROCAR | P | equipe-crystal-1280.png |
+| UX-116 | Alta | Na ficha do modelo, "Não lê imagem" e "Gratuito" são avisos vermelhos, mas "+N% de custo" fica em letra pequena cinza; "Trocar o modelo?" confirma com um clique e sem o valor atual ao lado | Com +50% ou mais, aviso vermelho "Custa N% a mais: cerca de {novo}/mês contra {atual} hoje"; diálogo com "De: … / Para: …" em linhas fixas; palavra TROCAR quando o custo dobra ou o preço não é conhecido | P | equipe-crystal-1280.png |
 | UX-120 | Média | Com a lista de modelos carregada, o seletor não diz quem trocou, quando, nem qual era o anterior; só "Voltar ao padrão" | Linha "Em uso: {modelo} · escolhido por {nome} em {data} · antes: {anterior}", "Ver histórico" e "Voltar para {anterior}" | P | equipe-crystal-390.png |
 | UX-123 (UX-65, UX-94) | Média | Página Crystal: 12 blocos sem índice, status que não se renova, modelo no 10.º bloco; Alma, Base e Acompanhar sem navegação entre si; quatro lugares para "testar" e dois para "memória" | Status fixo no topo com recarga a cada 60 s; abas Modelo / Comportamento / Fichas / Saúde na URL; subnavegação comum entre Painel, Alma, Base, Acompanhar e Laboratório; busca no seletor de modelo | M | equipe-crystal-390.png |
 | UX-121 | Média | Configurações no celular: dez telas de rolagem, "Grupo" some ao rolar, sem voltar ao topo; "Chave: op_x" em todo campo; o "Padrão" pode estar fora da faixa que a própria tela cobra | Chips fixos por grupo no celular com seções recolhíveis e contagem; chave técnica só na folha de histórico; ajuda gerada da regra real | M | equipe-configuracoes-390.png |
-| UX-124 (UX-85, UX-100) | Média | Erros e rótulos falam com o técnico ("As funções app_ficha_* já estão no Supabase?", p95, TTL, dedup); "só o superadmin muda" sem dizer quem é; o cabeçalho mostra "Admin" para quatro pessoas com poderes diferentes | Primeira linha para a equipe ("Não consegui ler as fichas agora. Se continuar, avise o técnico"), detalhe técnico recolhido; selo "Publica a alma" na tela Equipe e no cabeçalho; aviso claro quando ninguém está autorizado | M | equipe-crystal-base-1280.png |
+| UX-124 (UX-85, UX-100) | Média | Erros e rótulos falam com o técnico ("As funções app_ficha_* já estão no Supabase?", p95, TTL, dedup); "só o superadmin muda" sem dizer quem é; o cabeçalho mostra "Admin" para quatro pessoas com poderes diferentes | Primeira linha para a equipe ("Não consegui ler as fichas agora. Tenta de novo; se continuar, avisa quem cuida da técnica."), detalhe técnico recolhido; selo "Publica a alma" na tela Equipe e no cabeçalho; aviso claro quando ninguém está autorizado | M | equipe-crystal-base-1280.png |
 | UX-117 (UX-70) | Média | Números dos cartões quebram no meio da palavra ("1 conversand/o", "AGUARDAND/O ALUNO") e a moeda se separa do símbolo ("R$ / 1.297,00") | Valor e unidade separados no cartão, sem quebra no número; espaço fixo entre símbolo e valor; plural tratado | P | equipe-metricas-390.png |
 | UX-118 | Média | Gráficos no celular: os dois últimos rótulos de data se sobrepõem; eixo mostra "0,5" aluno quando a série é zero | Descartar o penúltimo rótulo quando não cabe; eixo inteiro nas contagens | P | equipe-metricas-390.png |
-| UX-119 | Média | Não dá para tocar num ponto ou barra e ler o valor do dia; os números só existem numa tabela oculta | Toque ou teclado seleciona o ponto e mostra "04/10 · Logins: 4 · Alunos: 3" sob o gráfico; botão "Ver tabela" | M | equipe-metricas-1280.png |
+| UX-119 | Média | Não dá para tocar num ponto ou barra e ler o valor do dia; os números só existem numa tabela oculta | Toque ou teclado seleciona o ponto e mostra "04/10 · Logins: 4 · Alunos: 3" sob o gráfico; "Ver como tabela" abaixo dele | M | equipe-metricas-1280.png |
 | UX-127 (UX-66) | Média | Laboratório no iPhone: lista de conversas em cima do chat (duas rolagens), campo de mensagem no fim, até sete botões de 12 px por resposta, dicas só no hover (nunca aparecem no toque) | No celular a lista vira folha; campo fixo acima da barra; por mensagem só 👍/👎 e "Mais" (folha com cada ação explicada); selo da trava abre "Por quê?" | M | equipe-laboratorio-390.png |
 | UX-125 (UX-67) | Média | Financeiro é a única tela com tabela que rola de lado no celular; filtros sem rótulo; "Ver no Financeiro" da ficha perde o aluno | Lista do kit (cartão por lançamento com status em selo); filtros com rótulo visível; link da ficha já filtrado pelo aluno | M | equipe-financeiro-1280.png |
 | UX-56 | Baixa | Filtros antigos (Suporte, Financeiro, Equipe) só têm a primeira opção como rótulo; no Laboratório a explicação do selo e do "Refazer" só existe no hover | Filtros com o campo do kit (rótulo acima); textos de ajuda visíveis sob os botões do Laboratório | P | — |
@@ -169,10 +169,10 @@ O público é adulto, muitas vezes com óculos de leitura e celular antigo. Os p
 
 | ID | Sev. | Problema | Proposta | Esf. | Captura |
 |---|---|---|---|---|---|
-| UX-43 | Alta | Sete pares abaixo do mínimo: branco sobre o verde do "Entrar" (3,14 e 2,26), "Instalar" verde sobre branco (3,14), erro de campo do kit no escuro (3,58), erro do login (3,50), placeholder do perfil (2,95), transcrição do áudio (2,98), caixa amarela dos Termos (3,11) | Tokens de tinta mais escuros para botão verde, erro e sucesso; transcrição sem transparência; teste de contraste ampliado para pegar opacidade e telas da aluna | M | aluna-login-codigo-errado-390.png |
+| UX-43 | Alta | Sete pares abaixo do mínimo: branco sobre o verde do "Entrar" (3,14 e 2,26), "Instalar" verde sobre branco (3,14), erro de campo do kit no escuro (3,58), erro do login (3,50), placeholder do perfil (2,95), transcrição do áudio (2,98), caixa amarela dos Termos (3,11) | Tokens de tinta mais escuros para botão verde, erro e sucesso; transcrição sem transparência; teste de contraste ampliado para pegar opacidade e telas da aluna (OK do dono no botão de entrar: verde mais escuro ou rosa; padrão do PRD: verde) | M | aluna-login-codigo-errado-390.png |
 | UX-45 (UX-141) | Média | Foco do teclado: anéis rosa a 30–40% (1,2:1) e itens de menu que só mudam o fundo; nenhum botão tem estado de toque; três opacidades de desabilitado e seis anéis diferentes | Regra global de foco visível (2 px na cor da marca), estado de toque em todo botão, uma opacidade de desabilitado; guarda no CI contra anéis fora do kit | M | — |
 | UX-49 | Média | Leitor de tela ouve "digitando…", "Crystal está digitando", "Crystal disse…", "online" até nove vezes numa resposta de 3 bolhas; a falha de envio passa em silêncio | Uma região viva só: "Crystal está digitando" uma vez por turno, "Crystal disse" por bolha, "Não consegui enviar" na falha | P | aluna-chat-escuro-390.png |
-| UX-48 | Média | Letra fixa em 15 px (hora e tiques em 11 px); o app ignora o ajuste de texto do celular; a pinça encolhe a conversa | "Tamanho da letra" no menu (Normal, Grande, Muito grande) guardado no aparelho; a pinça não é tratada como teclado | M | — |
+| UX-48 | Média | Letra fixa em 15 px (hora e tiques em 11 px); o app ignora o ajuste de texto do celular; a pinça encolhe a conversa | "Tamanho da letra" no menu (Normal, Grande, Muito grande) guardado no aparelho (OK do dono: item novo no menu do P17; padrão do PRD: entra); a pinça não é tratada como teclado | M | — |
 | UX-46 (UX-71) | Baixa | Alvos de 20 a 40 px fora do que a auditoria mede: reenviar, voltar, play do áudio (40), velocidade (~26), "Tentar de novo" em texto, fechar o visor, instalar (36) | Regra de 44 px no corpo inteiro; "Tentar de novo" vira pílula com ícone; play e velocidade de 44 px | P | aluna-login-codigo-errado-390.png |
 | UX-142 (UX-54, UX-27) | Baixa | "Reduzir movimento" do celular não desliga os três pontinhos (loop infinito a cada resposta), o esqueleto, o spinner nem o zoom do visor | Um bloco só no CSS que respeita a preferência: pontinhos parados, spinner mais lento, sem zoom | P | aluna-chat-resposta-1-390.png |
 | UX-57 | Baixa | Entre tocar numa área e o conteúdo chegar, o leitor de tela não ouve nada; toasts longos somem em 4 s sem como segurar no celular | "Carregando…" só para leitor de tela em todo esqueleto; duração do toast pelo tamanho do texto e pausa no toque | P | — |
@@ -196,7 +196,7 @@ A regra do produto está clara: a Crystal fala "eu" na conversa; com a equipe fa
 | UX-84 (UX-114) | Média | CPF ainda aparece como chave de entrada: diálogo "Religar" ("volta a entrar com CPF e e-mail"), funil de login ("CPF ou e-mail não batem"), API ("Me confirma seu CPF?"), página de exclusão, Termos e Privacidade | Trocar palavra por palavra pelo login atual (e-mail + código); Termos e Privacidade como item a confirmar com o dono (S18) | P | equipe-ficha-acoes-1280.png |
 | UX-86 | Média | "Cancelar" vermelho no cartão de Agendadas cancela o envio; "Cancelar" em todo diálogo só fecha; o diálogo responde "Sim, cancelar" | Botão "Cancelar envio"; diálogo "Cancelar o envio agendado?" com "Sim, cancelar o envio" / "Manter agendado"; regra: quem desfaz algo nunca se chama só "Cancelar" | P | equipe-mensagens-agendadas-1280.png |
 | UX-87 | Baixa | "Vai para 1 alunos", "1 aparelhos recebem"; o alerta de integridade da auditoria nomeia uma pessoa da equipe de hoje | Função de plural única; "Avise quem cuida da técnica" | P | equipe-mensagens-390.png |
-| UX-78 | Baixa | Perfil e suporte no masculino ("Como você quer ser chamado?", "fico tímido", "solteiro", "Sou aluno") para um público misto | Frases neutras ("Que nome você quer que eu use?", "sem relacionamento"); mensagem pronta "Uso o app da Crystal e preciso de ajuda" (OK do dono: gênero) | P | aluna-onboarding-3-erro-idade-390.png |
+| UX-78 | Baixa | Perfil e suporte no masculino ("Como você quer ser chamado?", "fico tímido", "solteiro", "Sou aluno") para um público misto | Frases neutras ("Que nome você quer que eu use?", "sem relacionamento"); mensagem pronta "Oi, {atendente}! Faço o curso da Crystal e preciso de ajuda." (OK do dono: gênero; padrão do PRD: forma neutra) | P | aluna-onboarding-3-erro-idade-390.png |
 | UX-81 | Baixa | A página sem conexão do navegador fala formal ("Confira", "tente") e a do app fala "confere", "tenta"; a aluna pode ver as duas no mesmo minuto | Mesma voz nas duas; regra de voz registrada no arquivo de textos | P | — |
 
 ### 3.10 Transversal · Consistência visual e design system
@@ -221,7 +221,7 @@ Os dois lados dividem os tokens de cor, mas não os componentes: o botão princi
 
 ### 4.1 Matriz impacto × esforço (98 achados distintos)
 
-| | **P** (até meio dia) | **M** (até dois dias) | **G** (mais) |
+| | **P** (até meio dia) | **M** (até três dias) | **G** (uma semana ou mais) |
 |---|---|---|---|
 | **Alta** (7 + 3 + 0) | UX-01, UX-15, UX-16, UX-18, UX-58, UX-90, UX-116 | UX-17, UX-43, UX-92 | — |
 | **Média** (33 + 31 + 1) | UX-02, UX-04, UX-05, UX-09, UX-20, UX-23, UX-24, UX-25, UX-29, UX-30, UX-31, UX-32, UX-33, UX-34, UX-35, UX-36, UX-37, UX-38, UX-49, UX-52, UX-61, UX-62, UX-69, UX-84, UX-86, UX-88, UX-91, UX-95, UX-105, UX-117, UX-118, UX-120, UX-134 | UX-03, UX-07, UX-10, UX-11, UX-19, UX-21, UX-22, UX-45, UX-48, UX-63, UX-64, UX-72, UX-82, UX-89, UX-93, UX-96, UX-97, UX-98, UX-101, UX-102, UX-109, UX-110, UX-119, UX-121, UX-123, UX-124, UX-125, UX-127, UX-130, UX-131, UX-139 | UX-133 |
@@ -231,64 +231,132 @@ Leitura: 59 dos 98 achados são P. Dez são altos, e sete deles são P. O único
 
 ### 4.2 Ganhos rápidos (P, alta ou média): 40 achados
 
-Ordem sugerida, do que mais dói para o que menos dói. Os sete primeiros são altos.
+Ordem sugerida, do que mais dói para o que menos dói; entre colchetes, o item do PRD que atende. Os sete primeiros são altos. No PRD, 22 deles entram na U-onda 1 (linhas 1 a 5 e 8 a 11), 14 na U-onda 2 (linhas 6, 7, 12 e 13, todos do painel, porque usam a moldura, os tokens e a rede de testes que a onda 1 cria) e 4 na U-onda 3 (linha 14, que mexe no mesmo fluxo do primeiro acesso e do tutorial).
 
-1. **UX-15** Suporte no menu de três pontinhos (início e conversa).
-2. **UX-16** "Lida" e "digitando…" assim que a Crystal recebe o turno; ritmo mais curto no painel.
-3. **UX-18** Telefones de ajuda e o endereço do CVV clicáveis nas bolhas de risco.
-4. **UX-01** Bloco "Não chegou?" com saída para o suporte e aviso para Hotmail/Outlook.
-5. **UX-58** Campos com 16 px no celular (painel inteiro e os dois logins).
-6. **UX-90** Sessão vencida e 404 voltam para a entrada e a moldura da equipe.
-7. **UX-116** Salto de custo como aviso vermelho e diálogo "De / Para" ao trocar o modelo.
-8. **UX-05**, **UX-02**, **UX-04**, **UX-69** O passo do código inteiro: um relógio, "Trocar e-mail", código reaproveitado explicado, e-mail incompleto com frase, botões de 44 px.
-9. **UX-23**, **UX-25**, **UX-24**, **UX-20** Conversa: faixa de backup sem "WhatsApp instável", aviso do microfone que fecha e explica, "Recomeçar" no menu, áudio de 2 min não sai sozinho.
-10. **UX-29**, **UX-30**, **UX-32**, **UX-33**, **UX-31** Suporte com o escopo certo, "Sair" com confirmação, pedido de notificações com o benefício real, no momento certo, folha coerente.
-11. **UX-34**, **UX-35**, **UX-36**, **UX-37**, **UX-38** Excluir conta com trava, seta nas páginas legais, textos públicos atualizados, faixa de instalar com 44 px e contraste, tela de erro crítico com a cara do app.
-12. **UX-09**, **UX-49** Perfil salvo abre a conversa; leitor de tela ouve a resposta uma vez.
-13. **UX-91**, **UX-62**, **UX-61**, **UX-52**, **UX-95**, **UX-105** Painel: esqueleto na abertura, abas com sinal de "há mais", barra de seleção visível, "Falta escolher o motivo", voltar e aba na URL da ficha, folha Ações em grupos.
-14. **UX-88**, **UX-84**, **UX-86**, **UX-117**, **UX-118**, **UX-120**, **UX-134** Barra por papel (OK do dono), CPF fora dos textos de entrada, "Cancelar envio", números que não quebram, rótulos dos gráficos, "quem trocou o modelo" e "voltar ao anterior", um "carregando" só.
+1. **UX-15** Suporte no menu de três pontinhos (início e conversa). [U04 · onda 1]
+2. **UX-16** "Lida" e "digitando…" assim que a Crystal recebe o turno; ritmo mais curto no painel. [U07 · onda 1]
+3. **UX-18** Telefones de ajuda e o endereço do CVV clicáveis nas bolhas de risco. [U08 · onda 1]
+4. **UX-01** Bloco "Não chegou?" com saída para o suporte e aviso para Hotmail/Outlook. [U10 · onda 1]
+5. **UX-58** Campos com 16 px no celular (painel inteiro e os dois logins). [U03 · onda 1]
+6. **UX-90** Sessão vencida e 404 voltam para a entrada e a moldura da equipe. [U24 · onda 2]
+7. **UX-116** Salto de custo como aviso vermelho e diálogo "De / Para" ao trocar o modelo. [U38 · onda 2]
+8. **UX-05**, **UX-02**, **UX-04**, **UX-69** O passo do código inteiro: um relógio, "Trocar o e-mail", código reaproveitado explicado, e-mail incompleto com frase, botões de 44 px. [U09, U10 · onda 1]
+9. **UX-23**, **UX-25**, **UX-24**, **UX-20** Conversa: faixa de backup sem "WhatsApp instável", aviso do microfone que fecha e explica, "Recomeçar" no menu, áudio de 2 min não sai sozinho. [U22, U13, U04 · onda 1]
+10. **UX-29**, **UX-30**, **UX-49** Suporte com o escopo certo, "Sair" com confirmação, leitor de tela ouve a resposta uma vez. [U04, U20, U15 · onda 1]
+11. **UX-34**, **UX-35**, **UX-36**, **UX-37**, **UX-38**, **UX-84** Excluir conta com trava, seta nas páginas legais, textos públicos atualizados, faixa de instalar com 44 px e contraste, tela de erro crítico com a cara do app, CPF fora dos textos de entrada. [U20, U21, U18, U01, U19 · onda 1]
+12. **UX-91**, **UX-62**, **UX-61**, **UX-52**, **UX-95**, **UX-105** Painel: "Um instante…" na abertura, abas com sinal de "há mais", barra de seleção visível, "Falta: motivo", voltar e aba na URL da ficha, folha Ações em grupos. [U26, U30, U32, U31, U29 · onda 2]
+13. **UX-88**, **UX-86**, **UX-117**, **UX-118**, **UX-120**, **UX-134** Barra por papel (OK do dono), "Cancelar envio", números que não quebram, rótulos dos gráficos, "quem trocou o modelo" e "voltar ao anterior", um "carregando" só. [U45, U34, U32, U42, U38, U26 · onda 2]
+14. **UX-09**, **UX-32**, **UX-33**, **UX-31** Perfil salvo abre a conversa; pedido de notificações com o benefício real, no momento certo, e folha coerente. [U56, U57, U52 · onda 3]
 
 ---
 
 ## 5. Roadmap em três ondas
 
-As ondas abaixo usam a mesma numeração do PRD de UX que está sendo escrito em paralelo (U-onda 1, 2 e 3). Cada onda é uma publicação só (sem ambiente de teste, cada publicação chega a todas as alunas), com conferência no iPhone do dono antes e volta pela tag anterior. Nenhuma onda mexe na alma, nos blocos fixos de segurança, na VPS, no Supabase ou no n8n.
+As ondas são as do PRD de execução (`docs/ux/PRD-ux-ui-2026-10-25.md` no repositório do app, 58 itens, U01 a U58): mesma numeração, mesmo conteúdo, mesmos números. Cada achado está no item do PRD que o atende; quando um achado tem duas partes (por exemplo, a cor do botão agora e o componente único depois), ele aparece nas duas ondas. Cada onda é uma publicação só, sem ambiente de teste (cada publicação chega a todas as alunas): imagens pelo workflow `imagens-vps` na branch da onda, `backup` e `app-subir sha-XXXXXXX` na VPS pelo dono, conferência no iPhone dele logo depois de subir e volta pela tag anterior na hora se um item falhar. A revisão de segurança (`sha-3c343df`) sobe antes da onda 1 ou junto com ela. Nenhuma onda mexe na alma nem nos blocos fixos de segurança; nenhuma pede SQL no Supabase nem mudança no n8n; na VPS, só a subida das imagens (a onda 1 leva uma migração aditiva no banco do app, a coluna `messages.neutra`, que roda na subida e não atrapalha a volta).
 
-### U-onda 1 · Ganhos rápidos + acessibilidade + erros e mensagens da conversa
+| Onda | Itens do PRD | Altos | Ganhos rápidos |
+|---|---|---|---|
+| U-onda 1 · Ganhos rápidos, acessibilidade e erros da conversa e do login | U01 a U23 | 7 (UX-01, UX-15, UX-16, UX-17, UX-18, UX-43, UX-58) | 22 |
+| U-onda 2 · Painel e suporte | U24 a U47 | 3 (UX-90, UX-92, UX-116) | 14 |
+| U-onda 3 · Início, consistência visual e design system | U48 a U58 | nenhum | 4 |
+| **Total** | **58 itens** | **10** | **40** |
 
-**Entra:** os 40 ganhos rápidos da seção 4.2; os três altos de esforço M (UX-17 erros por causa, UX-43 contraste, UX-92 ponte entre as duas buscas de aluno); os três M da conversa (UX-19 trava com "Tentar de novo", UX-21 foto e áudio que não se perdem, UX-22 fila por conversa); e os de acessibilidade que cabem (UX-45 foco visível, UX-46 alvos, UX-142 menos movimento, UX-57 carregando para leitor de tela, UX-26 jargão de imagem).
+### U-onda 1 · Ganhos rápidos, acessibilidade e erros da conversa e do login
 
-**Por quê:** é onde estão as reclamações reais de outubro (código que não chega, "Crystal parou", "onde ficam as aulas", "Tentar de novo" sem fim) e os dois incidentes de custo. Tudo é pequeno, local e reversível; a alma não entra.
+| Item | O que muda | Achados que atende |
+|---|---|---|
+| U01 | Cores dentro do AA: tintas de erro e sucesso, CTA verde legível, opacidade fora do texto | UX-43, UX-37, UX-12, UX-139 (tokens), UX-130 (decisão do verde) |
+| U02 | Foco visível em tudo, retorno ao toque e um só desabilitado | UX-45, UX-141 |
+| U03 | Nenhum campo abaixo de 16 px no toque: o iPhone deixa de dar zoom | UX-58, UX-47, UX-06 (parte do campo e da moldura), UX-131 (parte dos 16 px; a unificação é o U49) |
+| U04 | O menu de três pontinhos corresponde à fala: Suporte e Recomeçar a conversa | UX-73, UX-28, UX-15, UX-24, UX-29 |
+| U05 | A bolha de erro diz a causa; a tela diz que a Crystal está fora do ar | UX-74, UX-17, UX-75 |
+| U06 | Resposta barrada pela trava ganha "Tentar de novo" | UX-19 |
+| U07 | "Digitando…" quando a Crystal recebe a mensagem; fila por conversa | UX-16, UX-22 |
+| U08 | Telefones de ajuda e cvv.org.br tocáveis na bolha da Crystal | UX-18 |
+| U09 | Login, passo 1: o botão não nasce apagado e o e-mail errado ganha uma frase | UX-04, UX-44 |
+| U10 | Login, passo 2: menos incerteza, um relógio, saída quando o código não chega | UX-01, UX-05, UX-76, UX-02, UX-69, UX-06 (parte dos alvos), UX-46 (parte do login) |
+| U11 | O OK na política, depois do código, não custa tentativa nem prazo | UX-03 |
+| U12 | Instalar no iPhone termina num login que explica por que pede de novo | UX-11 |
+| U13 | Áudio: aos 2:00 a aluna decide; o erro do microfone diz onde liberar | UX-20, UX-25 |
+| U14 | Foto e áudio que falharam ficam no aparelho até sair | UX-21 |
+| U15 | Leitor de tela na conversa: uma região viva, e a falha de envio é anunciada | UX-49 |
+| U16 | "Reduzir movimento" desliga toda animação decorativa num bloco só | UX-142, UX-54, UX-27 (parte do movimento) |
+| U17 | Alvos de 44 px de largura na conversa, no carrossel e nas telas de erro | UX-27 (parte dos alvos), UX-71, UX-41 |
+| U18 | Textos defasados (CPF, "metas e insights", rascunho jurídico) e voz das telas de sistema | UX-84, UX-114, UX-36, UX-81, UX-77, UX-26, UX-79, UX-78 |
+| U19 | Erro crítico com a cara da Crystal; espelhos do tema conferidos por teste | UX-38, UX-55, UX-137 |
+| U20 | Sair pede confirmação; Excluir conta pede "Entendi" e deixa de parecer link inofensivo | UX-30, UX-80, UX-34 |
+| U21 | Páginas públicas com cabeçalho e seta de voltar | UX-35 |
+| U22 | Faixa de backup sem culpar o WhatsApp; uma faixa no topo por vez | UX-23 |
+| U23 | Rede de testes: login real, 390 px, sub-rotas, diálogos abertos, axe completo | UX-14, UX-72, UX-53 (e as partes de audit de UX-69, UX-46, UX-71, UX-03, UX-10) |
 
-**O que a aluna vai notar:** a Crystal "responde" na hora (tiques azuis e "digitando…" no instante do envio); quando algo falha, a bolha diz o que foi e o que fazer; o menu tem Suporte e Recomeçar; o passo do código tem saída; os números de ajuda abrem o telefone; o app não some sem avisar; o botão de entrar e os erros ficam legíveis.
+**Por quê:** é onde estão as reclamações reais de outubro (código que não chega, "Crystal parou", "onde ficam as aulas", "Tentar de novo" sem fim) e é o que a aluna sente na primeira semana. Os três primeiros itens (U01 a U03) criam os tokens, o foco e os campos de 16 px que as outras ondas usam, e o U23 monta o e2e do login real antes de qualquer item mexer no passo do código. Tudo é local e reversível; a alma não entra.
 
-**O que a equipe vai notar:** o painel para de dar zoom no iPhone; a sessão vencida volta para a entrada da equipe; o custo salta aos olhos antes de trocar o modelo; a busca de aluno não termina em beco; a Bia atende "não consigo entrar" com menos toques.
+**O que a aluna vai notar:** a Crystal "responde" na hora (tiques azuis e "digitando…" assim que recebe a mensagem); quando algo falha, a bolha diz o que foi e o que fazer; o menu tem Suporte e Recomeçar; o passo do código tem um relógio só e saída quando o código não chega; os números de ajuda abrem o telefone; "Sair" pede confirmação; foto e áudio que falharam não se perdem; o botão de entrar, os erros e a transcrição ficam legíveis; as páginas legais têm seta de voltar.
 
-**Pede OK do dono antes:** UX-01 (S12), UX-16 parte 2 (ritmo), UX-20 (áudio), UX-88 (barra por papel), UX-36 e UX-84 (textos legais, S18), UX-104 (contas de revisão fora da lista).
+**O que a equipe vai notar:** os campos do painel e da entrada da equipe param de dar zoom no iPhone; o foco do teclado fica visível no computador; os textos do painel deixam de tratar o CPF como chave de entrada; a faixa de backup não culpa mais o WhatsApp; o e2e passa a cobrir o login real (só e-mail), 390 px, sub-rotas e diálogos abertos.
+
+**Pede OK do dono antes (padrão do PRD, que vale se ele não responder):** U01 (verde do botão de entrar; padrão: verde mais escuro), U04 (Recomeçar no menu, UX-24; padrão: entra), U07 (ritmo no painel, UX-16 parte 2; padrão: nada muda até ele mexer), U10 (botão do suporte no passo do código, UX-01, S12; padrão: entra), U13 (áudio aos 2:00, UX-20; padrão: para e espera), U18 (páginas legais, UX-36 e UX-84, S18; padrão: só a página de exclusão, o painel e a API; e gênero da microcopy, UX-78; padrão: forma neutra).
 
 ### U-onda 2 · Painel e suporte
 
-**Entra:** UX-102 (bloco "Entrada no app" no Resumo), UX-101 e UX-63 (diálogo do código: validade, teto, teclado do iPhone), UX-109 (Desfazer e toast), UX-110 (mensagem do suporte em 2 passos), UX-97 (registrar pedido de suporte pela equipe), UX-89 (cabeçalho de uma linha com Sair), UX-98 (nome da tela fixo no celular), UX-93 (atalhos no Início), UX-96 (tela Equipe), UX-64 (Nova mensagem no celular), UX-123 e UX-121 (Crystal e Configurações com índice e abas), UX-124 (jargão fora da primeira linha), UX-125 (Financeiro em cartões), UX-127 (Laboratório no celular), UX-119 (leitura de ponto nos gráficos), UX-82 (voz de sistema na entrada da equipe), UX-72 (auditoria mobile em 390 px e nas sub-rotas), e os baixos do painel (UX-56, UX-99, UX-108, UX-113, UX-115, UX-128, UX-87).
+| Item | O que muda | Achados que atende |
+|---|---|---|
+| U24 | Sessão vencida e endereço errado voltam para a equipe, e a equipe tem "Sair" | UX-112, UX-90, UX-82 (itens 1 a 3 e 5) |
+| U25 | Cabeçalho do painel em uma linha, folha "Sua conta" e nome da tela fixo no celular | UX-89, UX-59, UX-143, UX-98 |
+| U26 | Carregando: regra de três estados, portão neutro, kit nas telas antigas | UX-134, UX-129, UX-91, UX-68, UX-42, UX-57 (parte do carregando) |
+| U27 | Toast com "Desfazer", pausa no toque e botão de fechar | UX-109, UX-122, UX-57 (parte do toast), UX-108 (parte do toast) |
+| U28 | Alunos: a busca que não acha leva à base; o cartão da base leva à ficha; contadores iguais | UX-92, UX-103, UX-83, UX-104 |
+| U29 | Ficha do aluno: "Entrada no app" no topo, Ações em grupos, bloco Crystal e WhatsApp com título | UX-102, UX-105, UX-115 |
+| U30 | Ficha e sub-rotas: voltar, aba na URL, título por item, abas roláveis que mostram que há mais | UX-95, UX-106, UX-62, UX-51 |
+| U31 | Select obrigatório abre em "Escolha…" e o botão travado diz o que falta | UX-111, UX-52 |
+| U32 | Barra de seleção à vista, números que não quebram, plural certo | UX-61, UX-117, UX-70, UX-87 |
+| U33 | Diálogo do código: validade, contagem, teto com relógio, e o teclado do iPhone não esconde o botão | UX-101, UX-63 |
+| U34 | Nova mensagem: só os passos que o papel decide, rodapé de uma linha, "Cancelar envio" | UX-110, UX-64, UX-86 |
+| U35 | Suporte: cartões que cabem, "Registrar atendimento" pela equipe, ticket sem gravação silenciosa | UX-107, UX-97, UX-108, UX-56 (filtros do suporte) |
+| U36 | Tela Equipe: nome certo, papéis de equipe, CPF opcional, senha no mesmo fluxo, quem publica a alma | UX-126, UX-96, UX-100, UX-85 (item 1) |
+| U37 | Página Crystal: Status fixo e renovado, abas na URL, navegação entre as sub-páginas | UX-123, UX-65, UX-94 |
+| U38 | Trocar o modelo: o salto de custo em vermelho, De/Para no diálogo, quem trocou e volta ao anterior | UX-116, UX-120 |
+| U39 | Laboratório no celular: lista em folha, "Mais" por mensagem com ajuda visível, trava explicada | UX-127, UX-66, UX-135 (parte do Laboratório), UX-56 (parte dos `title`), UX-85 (item 3) |
+| U40 | Configurações no celular: chips fixos, grupos fechados, chave técnica só no histórico | UX-121, UX-85 (item 2), UX-65 (parte de Configurações) |
+| U41 | Jargão fora da primeira linha: a equipe lê o que fazer, o técnico lê o detalhe | UX-124 |
+| U42 | Gráficos: ler o valor de um ponto por toque e teclado; eixo que não se atropela nem fraciona aluno | UX-119, UX-118 |
+| U43 | Financeiro: cartões no celular, filtros com rótulo, filtro do aluno visível, diálogo do kit | UX-125, UX-67, UX-50 (parte do "Novo lançamento") |
+| U44 | Início com atalhos por papel; todo cartão e todo envio levam a algum lugar | UX-93 |
+| U45 | Barra inferior por papel e folha "Mais" reagrupada | UX-88, UX-60, UX-99 |
+| U46 | Banners: ligar ao criar e lista com "Mais" | UX-128 |
+| U47 | Auditoria no celular: "Filtros (n)" e os filtros ativos à vista | UX-113 |
 
-**Por quê:** são mudanças de estrutura (abas, folhas, rotas novas, API de ticket) que pedem mais teste e algumas decisões (pendência 20 do PRD, ticket criado pela equipe). Entram depois que a onda 1 estabilizou o que a aluna vê.
+**Por quê:** são mudanças de estrutura (moldura, abas, folhas, rotas novas, API de ticket) que pedem mais teste e algumas decisões, e usam o que a onda 1 cria (tokens, foco, campos de 16 px, rede de testes). Por isso os três altos do painel (sessão vencida, busca de aluno, salto de custo do modelo) e os 14 ganhos rápidos do painel entram aqui, nos primeiros itens da onda, e não na onda 1.
 
-**O que a equipe vai notar:** a ficha responde "por que ela não entra" na primeira tela; o código por e-mail diz quanto vale e quantos restam, e os botões não somem atrás do teclado; "Desfazer" depois de desligar a aluna errada; o atendimento do WhatsApp fica registrado na ficha; o dono acha o modelo e a pausa em dois toques, com o status atualizado; Configurações cabe no celular; os erros falam com quem opera, não com quem programa.
+**O que a equipe vai notar:** a sessão vencida volta para a entrada da equipe e existe "Sair"; cabeçalho de uma linha e o nome da tela fixo no celular; nada de tela branca ao abrir; "Desfazer" depois de desligar a aluna errada; a busca de aluno não termina em beco; a ficha responde "por que ela não entra" na primeira tela; o código por e-mail diz quanto vale e quantos restam, e os botões não somem atrás do teclado; o atendimento do WhatsApp fica registrado na ficha; o custo salta aos olhos antes de trocar o modelo, com "Voltar para {anterior}"; o dono acha o modelo e a pausa em dois toques, com o status atualizado; Configurações e Laboratório cabem no celular; os erros falam com quem opera, não com quem programa.
 
 **O que a aluna vai notar:** quase nada direto. Indiretamente, suporte mais rápido e menos erro de operação.
 
-**Pede OK do dono antes:** UX-97 (equipe registra pedido), UX-110 (passos por papel), UX-63 item 3 (código no mesmo diálogo), UX-121 e UX-123 (reordenação das telas Crystal e Configurações).
+**Pede OK do dono antes (padrão do PRD):** U28 (contas de revisão fora da lista, UX-104; padrão: ficam fora), U33 item 5 (código num segundo passo da mesma folha, UX-63; padrão: não faz), U34 parte B (barra inferior escondida na Nova mensagem, UX-64; padrão: não), U45 (barra inferior por papel, UX-88; padrão: só a folha "Mais" reagrupada) e a pendência 20 do PRD do painel (a Bia religa aluno; padrão: o código de hoje, e o "Desfazer" do U27 segue a mesma permissão).
 
-### U-onda 3 · Primeiro acesso, consistência visual e design system
+### U-onda 3 · Início, consistência visual e design system
 
-**Entra:** UX-07 e UX-10 (tutorial enxuto, OK do dono: P02), UX-03 (OK da política sem segundo "Entrar"), UX-11 (instalação no iPhone com contexto), UX-08, UX-13, UX-40, UX-39, UX-41 (primeiro acesso e início); UX-48 (tamanho da letra); UX-130, UX-131, UX-139 (botão, campo e aviso únicos), UX-133 (base única dos diálogos, o G), UX-134 (regra dos três estados), UX-135, UX-136, UX-138, UX-140 (vazio, ícones, tokens, tipografia de título), UX-78 e UX-81 (gênero e voz, OK do dono).
+| Item | O que muda | Achados que atende |
+|---|---|---|
+| U48 | Um botão para os dois lados: `components/ui/Button` | UX-130, UX-141 (parte do desabilitado e do toque) |
+| U49 | Um campo de texto para os dois lados: `components/ui/fields` | UX-131 |
+| U50 | Um aviso para os dois lados: `components/ui/Notice`; amarelo é aviso, vermelho é erro | UX-139, UX-138 (item 1) |
+| U51 | Um diálogo para os dois lados: `Overlay`, `Dialog` e `Sheet` sobre `<dialog>` nativo | UX-133, UX-50 (visor e prévia) |
+| U52 | Interruptor, vazio e pílula únicos | UX-132, UX-135, UX-31 (parte do interruptor) |
+| U53 | Um conjunto de ícones: `components/ui/icons.tsx` | UX-136 |
+| U54 | Títulos e marca iguais nos dois lados: `PageHeader` e `CrystalLockup` | UX-140 |
+| U55 | Tokens mortos fora, design-system legado separado, `DESIGN.md` reescrito | UX-138 (itens 2 a 4) |
+| U56 | Primeiro acesso com menos telas: tutorial enxuto, notificações no momento certo, "Perfil salvo" | UX-07, UX-13, UX-10, UX-33, UX-09, UX-08, UX-40 |
+| U57 | Notificações: o pedido fala do benefício certo e a folha separa aparelho de conta | UX-32, UX-31 (texto e estrutura) |
+| U58 | Início: a foto diz que é botão; tamanho da letra no menu | UX-39, UX-48 |
 
-**Por quê:** são mudanças de fundação. Botão, campo, aviso e diálogo únicos reduzem o número de lugares onde o Igor corrige o mesmo bug e tornam as ondas seguintes mais baratas. O tutorial e a instalação pedem decisão de produto e conferência em aparelho real (iPhone e, se aparecer, Android).
+**Por quê:** são mudanças de fundação. Botão, campo, aviso, diálogo, interruptor, ícones e título únicos reduzem o número de lugares onde o Igor corrige o mesmo bug e tornam as ondas seguintes mais baratas; mexem em muitos arquivos de uma vez, e nada das ondas 1 e 2 depende deles. O primeiro acesso (tutorial, notificações, "Perfil salvo") entra junto porque pede decisão de produto e conferência com uma conta nova no iPhone.
 
-**O que a aluna vai notar:** menos telas antes da primeira mensagem; o app com a mesma cara do login ao perfil; letra maior quando quiser; a instalação no iPhone sem susto.
+**O que a aluna vai notar:** o app com a mesma cara do login ao perfil; ao salvar o perfil pela primeira vez, a conversa abre com "Perfil salvo…"; a folha de notificações chega depois da primeira conversa e fala da resposta da Crystal; a foto do início com selo de câmera; letra maior quando quiser; com o OK do dono, um balão só em cada parte do tutorial.
 
-**O que a equipe vai notar:** o painel e o app com a mesma família de botões, campos e avisos; o Igor mantém um componente em vez de nove.
+**O que a equipe vai notar:** o painel e o app com a mesma família de botões, campos, avisos e diálogos; o Igor mantém um componente em vez de nove; o `DESIGN.md` passa a descrever o app de verdade.
 
-**Pede OK do dono antes:** UX-07, UX-10, UX-13 (ajustes do P02 e do contador), UX-78 (gênero da microcopy), UX-48 (item novo no menu).
+**Pede OK do dono antes (padrão do PRD):** U56 (tutorial partes 1 e 3 com um balão e contador "Faltam N respostas", UX-07, UX-10, UX-13; padrão: ficam como estão, e o resto do item entra) e U58 item 2 (tamanho da letra no menu, UX-48; padrão: entra).
 
 ---
 
@@ -298,7 +366,7 @@ Decisões já tomadas e itens recusados pelo dono. Nenhum achado deste relatóri
 
 **A alma da Crystal não muda** (decisão final de 23/10). Nenhuma proposta pede mudança no texto do prompt nem nos blocos fixos do código (formato em bolhas, áudio, imagem, resumo, padrões de risco). Isso arquivou três ajustes que continuam arquivados: responder a vários assuntos numa mensagem, "dúvidas do app e do curso → Menu > Suporte" via prompt, e o falso positivo em "lembra da nossa conversa no WhatsApp". A resposta de UX a "a Crystal não fala de mais de uma coisa" é a fila por conversa e o "digitando…" imediato (UX-22, UX-16), não a alma. A resposta a "onde ficam as aulas" é o item Suporte no menu e o escopo da tela de Suporte (UX-15, UX-29), não a alma.
 
-**Itens recusados (não propor de novo):** foto e nome do Instagram (P04); "Analisar o Instagram" (P05); perfil chegando à Crystal (S01); reescrita do texto da Crystal (S04); ajustar a rede de segurança dos telefones de emergência (S05: UX-18 só torna o texto clicável, não muda quando ele aparece); primeira mensagem da Crystal depois do perfil (S07: a pílula de UX-09 é do app, não da Crystal, e não entra no histórico); limite de uso por aluna além das 25 imagens (S09, S11); tela "abra no navegador" (S13); lojas antes do PWA (S14); aviso de IA e consentimento detalhado (S15: os textos do aceite ficam como estão em UX-03 e UX-08); denunciar resposta (S16); conferir idade (S17); páginas legais além do encarregado (S18: UX-36 e UX-84 marcam os trechos legais como "a confirmar"); notificação genérica (S19, já superado pelo B01); plano de passagem do WhatsApp (S20); funil de produto com eventos de tela (S21: nada aqui pede medir "tela vista"); alarmes e backup pelo app (S22); ambiente de teste (S23: por isso toda onda conferida no iPhone do dono); modo treino e revisão por print (S28).
+**Itens recusados (não propor de novo):** foto e nome do Instagram (P04); "Analisar o Instagram" (P05); perfil chegando à Crystal (S01); reescrita do texto da Crystal (S04); ajustar a rede de segurança dos telefones de emergência (S05: UX-18 só torna o texto clicável, não muda quando ele aparece); primeira mensagem da Crystal depois do perfil (S07: a pílula de UX-09 é do app, não da Crystal, e não entra no histórico); limite de uso por aluna além das 25 imagens (S09); base de alunos ligada ao login (S10, já superado); login e ajuda para entrar (S12, "o Luiz cuida": o UX-01 não guarda o passo do código entre aberturas, e o botão do suporte no passo do código vai como pergunta ao dono, com padrão "entra", porque a tela já manda ao suporte em texto); tela "abra no navegador" (S13); lojas antes do PWA (S14); aviso de IA e consentimento detalhado (S15: os textos do aceite ficam como estão em UX-03 e UX-08); denunciar resposta (S16); conferir idade (S17); páginas legais além do encarregado (S18: UX-36 e UX-84 marcam os trechos legais como "a confirmar"); notificação genérica (S19, já superado pelo B01); plano de passagem do WhatsApp (S20); funil de produto com eventos de tela (S21: nada aqui pede medir "tela vista"); alarmes e backup pelo app (S22); ambiente de teste (S23: por isso toda onda conferida no iPhone do dono); modo treino e revisão por print (S28).
 
 **Fora do escopo do painel (PRD):** editar ou apagar mensagens da aluna pelo painel; ver jeito de conversar, momento de vida e memória; custo em reais por resposta; mensagem gerada por tema; histórico de avisos no app da aluna; gatilhos automáticos; A/B; imagem ou áudio nas mensagens da equipe; editar segredos, URLs, prazos, matriz de áreas, blocos fixos, microcopy e páginas legais pelo painel; TOTP; backup pelo painel; importar alunos por planilha; papel "editor". UX-97 (registrar pedido de suporte) foi prometido pelo PRD do painel e por isso entra; religar aluno pelo suporte (pendência 20) segue como está até o dono responder.
 
@@ -306,7 +374,7 @@ Decisões já tomadas e itens recusados pelo dono. Nenhum achado deste relatóri
 
 **Regras de segurança que as propostas respeitam:** o login responde igual para qualquer e-mail (UX-01, UX-02 e UX-05 mantêm a frase "se for o e-mail da sua compra" e nunca mostram o e-mail na mensagem ao suporte); a equipe só entra por `/login/equipe` e o login da aluna continua sem link para lá (UX-90 só manda para lá quem já entrou como equipe neste aparelho); nenhum link vindo do modelo vira clicável fora da lista fechada de UX-18; motivos das ações continuam sem e-mail, CPF ou telefone; CPF sempre mascarado; nada de segredo, chave ou identificador de modelo em tela.
 
-**O que está bom e fica como está:** cara de WhatsApp da conversa; três botões iguais no início; Crystal como contato com cadeado até o perfil; Suporte com dois cartões e a nota "aqui você fala com pessoas"; login só com e-mail e código; tutorial em três partes (só enxugado); kit do painel (lista vira cartão, filtros em folha com URL, PageHeading, selos); confirmação forte com palavra e código; prévia dupla e "Enviar teste para mim"; 404 em vez de 403; tema claro e escuro guardado no aparelho.
+**O que está bom e fica como está:** cara de WhatsApp da conversa; três botões iguais no início; Crystal como contato com cadeado até o perfil; Suporte com dois cartões e a nota "aqui você fala com pessoas" (o UX-40 só acrescenta um botão de texto abaixo da nota, sem cartão novo); login só com e-mail e código; tutorial em três partes (só enxugado); kit do painel (lista vira cartão, filtros em folha com URL, PageHeading, selos); confirmação forte com palavra e código; prévia dupla e "Enviar teste para mim"; 404 em vez de 403; tema claro e escuro guardado no aparelho.
 
 ---
 

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Login · e-mail da compra (e-mail incompleto)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#0F5C4A}a:hover{color:#0A4236}
+</style>
+</helmet>
+<div style="width: 1320px; height: 1060px; box-sizing: border-box; padding: 40px; background: #F1F5F9; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #0F172A; display: flex; flex-direction: column; gap: 24px">
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-size: 28px; line-height: 1.2">Login · e-mail da compra (e-mail incompleto)</h1>
+    <p style="margin: 0; font-size: 15px; color: #475569">Achados UX-44, UX-04, UX-06, UX-43, UX-11, UX-14 · PRD U09, U03, U01, U12, U23 · U-onda 1</p>
+  </div>
+  <div style="display: flex; gap: 40px; align-items: flex-start">
+    <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px">
+      <figcaption style="font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #475569">Antes · hoje</figcaption>
+      <img src="/_blob/fbc53252cf72e0515b292088cad14644" alt="Tela atual do login, no modo CPF e e-mail, com o botão Entrar apagado" style="display: block; width: 390px; height: 844px; object-fit: cover; object-position: top; border-radius: 28px; border: 1px solid #CBD5E1">
+    </figure>
+    <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px">
+      <figcaption style="font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #0F5C4A">Depois · proposta</figcaption>
+      <div style="width: 390px; height: 844px; overflow: hidden; position: relative; box-sizing: border-box; border-radius: 28px; border: 1px solid #CBD5E1; background: #FFFFFF">
+        <div style="width: 100%; height: 100%; background: #FFFFFF; font-family: 'Inter Tight', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #111b21">
+          <main style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; height: 100%; box-sizing: border-box; padding: 24px 16px">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+              <svg viewBox="0 0 48 48" width="64" height="64" aria-hidden="true" style="display: block"><defs><linearGradient id="cg-login" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c20857"></stop><stop offset="1" stop-color="#e60a68"></stop></linearGradient></defs><circle cx="24" cy="24" r="24" fill="url(#cg-login)"></circle><path d="M24 9 36 24 24 39 12 24Z" fill="#ffffff"></path><path d="M24 9v30" stroke="#e60a68" stroke-width="1.2" opacity=".5"></path><path d="M12 24h24" stroke="#e60a68" stroke-width="1.2" opacity=".5"></path></svg>
+              <p style="margin: 0; font-family: 'Blinker', 'Inter Tight', system-ui, sans-serif; font-size: 24px; line-height: 30px; font-weight: 600; color: #b8004f">Crystal</p>
+            </div>
+
+            <div style="width: 100%; max-width: 384px; box-sizing: border-box; border-radius: 20px; border: 1px solid #e9edef; background: #f0f2f5; padding: 24px; box-shadow: 0 1px 2px rgba(0,0,0,.06)">
+              <form style="display: flex; flex-direction: column; gap: 16px; margin: 0">
+                <p style="margin: 0; font-size: 14px; line-height: 20px; color: #54656f">Oi! Digite o e-mail que você usou na compra. Eu te mando um código pra entrar.</p>
+
+                <div style="display: flex; flex-direction: column; gap: 6px">
+                  <label for="login-email" style="font-size: 14px; line-height: 20px; font-weight: 600; color: #111b21">E-mail da compra</label>
+                  <input id="login-email" name="email" type="email" inputmode="email" autocomplete="email" value="ana@gmail" placeholder="ex.: seunome@gmail.com" aria-invalid="true" aria-describedby="email-hint email-error" style="min-height: 44px; width: 100%; box-sizing: border-box; border-radius: 12px; border: 1px solid #d40003; background: #e9edef; padding: 12px 16px; font-family: inherit; font-size: 16px; line-height: 20px; color: #111b21; outline: none">
+                  <p id="email-hint" style="margin: 0; font-size: 12px; line-height: 16px; color: #54656f">É o mesmo e-mail que recebeu a confirmação da compra.</p>
+                  <p id="email-error" role="alert" style="margin: 2px 0 0; display: flex; gap: 6px; align-items: flex-start; font-size: 14px; line-height: 20px; color: #b80003">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#d40003" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5"></path><path d="M12 16.5v.01"></path></svg>
+                    <span>Esse e-mail parece incompleto. Confere se tem o @ e o ponto, como nome@gmail.com.</span>
+                  </p>
+                </div>
+
+                <button type="submit" style="display: flex; min-height: 44px; width: 100%; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12); background: linear-gradient(90deg,#0b8900,#0a7500); padding: 0 16px; font-family: inherit; font-size: 16px; font-weight: 600; color: #ffffff; box-shadow: 0 4px 60px 0 rgba(10,159,0,.48); cursor: pointer">Receber o código</button>
+              </form>
+            </div>
+
+            <p style="margin: 0; display: flex; align-items: center; gap: 6px; font-size: 14px; line-height: 20px; color: #54656f">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+              <span>Conversa protegida ·</span>
+              <a href="#" style="color: #54656f; text-decoration: underline; text-underline-offset: 2px">Privacidade</a>
+              <span>·</span>
+              <a href="#" style="color: #54656f; text-decoration: underline; text-underline-offset: 2px">Termos de Uso</a>
+            </p>
+          </main>
+        </div>
+      </div>
+    </figure>
+    <div style="width: 380px; display: flex; flex-direction: column; gap: 12px; padding-top: 28px">
+      <h2 style="margin: 0; font-size: 18px">O que mudou</h2>
+      <ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.45">
+        <li><b>UX-44</b> · O e-mail incompleto ganha a frase "Esse e-mail parece incompleto. Confere se tem o @ e o ponto, como nome@gmail.com." sob o campo, em role="alert" e ligada ao campo; a borda só fica vermelha depois de sair do campo ou tocar no botão, não a cada tecla (antes: só a borda, sem texto).</li>
+        <li><b>UX-04</b> · "Receber o código" nasce aceso e só apaga enquanto envia; com o campo vazio, a frase é "Digite o e-mail que você usou na compra." e o foco volta ao campo. Placeholder neutro: "ex.: seunome@gmail.com" no lugar de "voce@exemplo.com".</li>
+        <li><b>UX-06</b> · Campo em 16 px (o Safari do iPhone deixa de dar zoom) e a moldura do login dentro de .mobile-controls: todo botão e campo com 44 px.</li>
+        <li><b>UX-43</b> · Erro em --danger-ink #b80003 (a borda segue em #d40003) e o botão no verde mais escuro #0b8900→#0a7500, com o branco a 4,57:1 e 5,9:1 (hoje 2,26 a 3,14:1). Pergunta ao dono; o padrão é continuar verde.</li>
+        <li><b>UX-11</b> · Na primeira abertura do app recém-instalado no iPhone (uma vez por aparelho), o lead vira "Pronto, o app está instalado! Entra de novo com o e-mail da compra, só desta vez."</li>
+        <li><b>UX-14</b> · O "antes" é o modo CPF, o único que o e2e percorre hoje; o "depois" é o modo só e-mail de produção, que ganha login-email.spec.ts, axe e auditoria de 44 px.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":1060}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

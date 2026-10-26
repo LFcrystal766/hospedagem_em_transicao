@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Login · código incorreto, depois de 1 min (bloco Não chegou?)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#0F5C4A}a:hover{color:#0A4236}
+</style>
+</helmet>
+<div style="width: 1320px; height: 1060px; box-sizing: border-box; padding: 40px; background: #F1F5F9; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #0F172A; display: flex; flex-direction: column; gap: 24px">
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-size: 28px; line-height: 1.2">Login · código incorreto, depois de 1 min (bloco Não chegou?)</h1>
+    <p style="margin: 0; font-size: 15px; color: #475569">Achados UX-01, UX-05, UX-43, UX-06 · PRD U10, U01, U03 · U-onda 1</p>
+  </div>
+  <div style="display: flex; gap: 40px; align-items: flex-start">
+    <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px">
+      <figcaption style="font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #475569">Antes · hoje</figcaption>
+      <img src="/_blob/20caea748f8635483f122cadfe7a5725" alt="Tela atual do código incorreto, sem saída para quando o código não chega" style="display: block; width: 390px; height: 844px; object-fit: cover; object-position: top; border-radius: 28px; border: 1px solid #CBD5E1">
+    </figure>
+    <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px">
+      <figcaption style="font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #0F5C4A">Depois · proposta</figcaption>
+      <div style="width: 390px; height: 844px; overflow: hidden; position: relative; box-sizing: border-box; border-radius: 28px; border: 1px solid #CBD5E1; background: #FFFFFF">
+        <div style="width: 100%; height: 100%; background: #FFFFFF; font-family: 'Inter Tight', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #111b21">
+          <main style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; height: 100%; box-sizing: border-box; padding: 12px 16px">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+              <svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true" style="display: block"><defs><linearGradient id="cg-errado" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c20857"></stop><stop offset="1" stop-color="#e60a68"></stop></linearGradient></defs><circle cx="24" cy="24" r="24" fill="url(#cg-errado)"></circle><path d="M24 9 36 24 24 39 12 24Z" fill="#ffffff"></path><path d="M24 9v30" stroke="#e60a68" stroke-width="1.2" opacity=".5"></path><path d="M12 24h24" stroke="#e60a68" stroke-width="1.2" opacity=".5"></path></svg>
+              <p style="margin: 0; font-family: 'Blinker', 'Inter Tight', system-ui, sans-serif; font-size: 24px; line-height: 30px; font-weight: 600; color: #b8004f">Crystal</p>
+            </div>
+
+            <div style="width: 100%; max-width: 384px; box-sizing: border-box; border-radius: 20px; border: 1px solid #e9edef; background: #f0f2f5; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,.06)">
+              <form style="display: flex; flex-direction: column; gap: 12px; margin: 0">
+                <div>
+                  <h2 style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600; color: #111b21">Agora olha o seu e-mail</h2>
+                  <p style="margin: 4px 0 0; font-size: 14px; line-height: 20px; color: #54656f">Se a***@gmail.com for o e-mail da compra, o código de 6 dígitos já está lá. Digita ele aqui.</p>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 6px">
+                  <label for="otp-code-errado" style="font-size: 14px; line-height: 20px; font-weight: 600; color: #111b21">Código de verificação</label>
+                  <input id="otp-code-errado" name="otp-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" value="418203" placeholder="000000" aria-invalid="true" aria-describedby="otp-error-errado otp-timer-errado" style="min-height: 44px; width: 100%; box-sizing: border-box; border-radius: 12px; border: 1px solid #d40003; background: #e9edef; padding: 10px 16px; font-family: inherit; font-size: 24px; line-height: 30px; letter-spacing: .5em; text-align: center; color: #111b21; outline: none">
+                  <p id="otp-timer-errado" style="margin: 0; font-size: 12px; line-height: 16px; color: #54656f">Esse código vence em 0:45.</p>
+                </div>
+
+                <p id="otp-error-errado" role="alert" style="margin: 0; border-radius: 10px; background: rgba(212,0,3,.10); padding: 10px 12px; font-size: 14px; line-height: 20px; color: #b80003">Código incorreto. Você ainda tem 4 tentativas.</p>
+
+                <button type="submit" style="display: flex; min-height: 44px; width: 100%; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12); background: linear-gradient(90deg,#0b8900,#0a7500); padding: 0 16px; font-family: inherit; font-size: 16px; font-weight: 600; color: #ffffff; box-shadow: 0 4px 60px 0 rgba(10,159,0,.48); cursor: pointer">Entrar</button>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; margin: 0 -12px">
+                  <button type="button" style="display: inline-flex; flex: 1; min-height: 44px; align-items: center; padding: 0 12px; background: none; border: 0; font-family: inherit; font-size: 14px; color: #b8004f; text-decoration: underline; text-underline-offset: 2px; cursor: pointer">Reenviar código</button>
+                  <button type="button" style="display: inline-flex; min-height: 44px; align-items: center; padding: 0 12px; background: none; border: 0; font-family: inherit; font-size: 14px; color: #54656f; text-decoration: underline; text-underline-offset: 2px; cursor: pointer">Trocar o e-mail</button>
+                </div>
+
+                <section aria-labelledby="nao-chegou" style="border-radius: 12px; border: 1px solid #d1d7db; background: #e9edef; padding: 12px; display: flex; flex-direction: column; gap: 8px">
+                  <h3 id="nao-chegou" style="margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; color: #111b21">Não chegou?</h3>
+                  <p style="margin: 0; font-size: 14px; line-height: 20px; color: #54656f">Olha em Spam, Lixo Eletrônico ou "Outros" e procura por "Seu código de acesso à Crystal".</p>
+                  <button type="button" style="display: flex; min-height: 44px; width: 100%; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; border: 1px solid #d1d7db; background: #ffffff; padding: 0 16px; font-family: inherit; font-size: 14px; font-weight: 600; color: #111b21; cursor: pointer">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"></path></svg>
+                    Falar com o suporte
+                  </button>
+                  <a href="#" style="display: inline-flex; min-height: 44px; align-items: center; align-self: center; padding: 0 12px; font-size: 14px; color: #54656f; text-decoration: underline; text-underline-offset: 2px">ou pela tela de Suporte</a>
+                </section>
+              </form>
+            </div>
+
+            <p style="margin: 0; display: flex; align-items: center; gap: 6px; font-size: 14px; line-height: 20px; color: #54656f">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+              <span>Conversa protegida ·</span>
+              <a href="#" style="color: #54656f; text-decoration: underline; text-underline-offset: 2px">Privacidade</a>
+              <span>·</span>
+              <a href="#" style="color: #54656f; text-decoration: underline; text-underline-offset: 2px">Termos de Uso</a>
+            </p>
+          </main>
+        </div>
+      </div>
+    </figure>
+    <div style="width: 380px; display: flex; flex-direction: column; gap: 12px; padding-top: 28px">
+      <h2 style="margin: 0; font-size: 18px">O que mudou</h2>
+      <ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.45">
+        <li><b>UX-01</b> · Zerado o "Reenviar", entra o bloco "Não chegou?" com a linha "Olha em Spam, Lixo Eletrônico ou "Outros" e procura por "Seu código de acesso à Crystal"." (o assunto real do e-mail), o botão de 44 px "Falar com o suporte", que abre o WhatsApp com "Oi, Bia! Pedi o código no app da Crystal e ele não chegou no meu e-mail." (sem o e-mail da aluna), e "ou pela tela de Suporte". O "Trocar o e-mail" do bloco é o mesmo botão logo acima, para não repetir. Aparece para qualquer e-mail, sem revelar quem é cadastrada. Antes: "fala com a gente no suporte" em 12 px, sem link.</li>
+        <li><b>UX-05</b> · Relógio só no último minuto: "Esse código vence em 0:45." Ao zerar, "Esse código venceu." com o botão "Pedir outro código" (volta ao passo 1 com o e-mail preenchido) e o "Reenviar" some. Se o Entrar responder prazo vencido: "Esse código venceu. Pede outro aqui embaixo."</li>
+        <li><b>UX-43</b> · "Código incorreto. Você ainda tem 4 tentativas." (texto mantido) em --danger-ink #b80003 sobre o vermelho claro, 5,1:1 no claro (hoje 3,50:1 no escuro); a borda do campo segue em #d40003 e o botão vai ao verde escuro #0b8900→#0a7500.</li>
+        <li><b>UX-06</b> · "Reenviar código", "Trocar o e-mail", "Falar com o suporte" e "ou pela tela de Suporte" com 44 px de altura; a rota /login entra na auditoria de alvos em 360, 375, 390 e 412 px.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":1060}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

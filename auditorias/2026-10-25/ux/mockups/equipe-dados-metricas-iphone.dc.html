@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Painel · Métricas no iPhone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#0F5C4A}a:hover{color:#0A4236}
+</style>
+</helmet>
+<div style="width: 1320px; height: 1060px; box-sizing: border-box; padding: 40px; background: #F1F5F9; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #0F172A; display: flex; flex-direction: column; gap: 24px">
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-size: 28px; line-height: 1.2">Painel · Métricas no iPhone</h1>
+    <p style="margin: 0; font-size: 15px; color: #475569">Achados UX-118, UX-119 · PRD U42 · U-onda 2 · iPhone, 390 px, tema claro, mesmos dados de demonstração da captura</p>
+  </div>
+  <div style="display: flex; gap: 40px; align-items: flex-start">
+    <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px">
+      <figcaption style="font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #475569">Antes · hoje</figcaption>
+      <img src="/_blob/ec60b7ea72c3688d1ceecf1a0957b9e6" alt="Métricas hoje no iPhone: eixo com 0,5 aluno e as datas 20/10 e 25/10 coladas" style="display: block; width: 390px; height: 844px; object-fit: cover; object-position: top; border-radius: 28px; border: 1px solid #CBD5E1">
+    </figure>
+    <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px">
+      <figcaption style="font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #0F5C4A">Depois · proposta</figcaption>
+      <div style="width: 390px; height: 844px; overflow: hidden; position: relative; box-sizing: border-box; border-radius: 28px; border: 1px solid #CBD5E1; background: #FFFFFF; font-family: 'Inter Tight', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #111B21">
+        <div style="background: #F0F2F5; border-bottom: 1px solid #E9EDEF; padding: 12px 16px 8px; display: flex; flex-direction: column; gap: 4px">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="18" fill="#E60A68"></circle><path d="M18 8 26 18 18 28 10 18Z" fill="#FFFFFF"></path><path d="M10 18h16M18 8v20" fill="none" stroke="#F5B8D1" stroke-width="1"></path></svg>
+            <div><p style="margin: 0; font-size: 16px; font-weight: 600">Rui Ferreira</p><p style="margin: 0; font-size: 12px; color: #54656F">Admin</p></div>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; font-size: 14px">
+            <label for="d-tema" style="color: #54656F">Tema</label>
+            <div style="position: relative">
+              <select id="d-tema" style="appearance: none; -webkit-appearance: none; min-height: 44px; box-sizing: border-box; padding: 0 32px 0 10px; border: 1px solid #E9EDEF; border-radius: 10px; background: #F0F2F5; font-family: inherit; font-size: 16px; color: #111B21"><option>Sistema</option></select>
+              <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; right: 10px; top: 15px; pointer-events: none"><path d="m6 9 6 6 6-6" fill="none" stroke="#111B21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+            <a href="#" style="color: #54656F; text-decoration: none">Minha senha</a>
+            <a href="#" style="color: #B8004F; text-decoration: none">Ir para o chat</a>
+          </div>
+        </div>
+
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 16px">
+          <div>
+            <h2 style="margin: 0; font-family: 'Blinker', 'Inter Tight', system-ui, sans-serif; font-size: 24px; line-height: 30px; font-weight: 600">Métricas</h2>
+            <p style="margin: 2px 0 0; font-size: 14px; line-height: 20px; color: #54656F">O produto, a Crystal e a equipe por período, com o que já está consolidado do dia.</p>
+            <button type="button" style="margin-top: 12px; min-height: 44px; padding: 0 16px; border: 1px solid #D1D7DB; border-radius: 10px; background: transparent; font-family: inherit; font-size: 14px; font-weight: 500; color: #111B21">Exportar CSV</button>
+          </div>
+          <button type="button" aria-haspopup="dialog" style="min-height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border: 1px solid #D1D7DB; border-radius: 10px; background: transparent; font-family: inherit; font-size: 14px; font-weight: 500; color: #111B21">Período: Últimos 30 dias<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="#111B21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+          <div style="display: flex; gap: 4px; border-bottom: 1px solid #E9EDEF; overflow: hidden; white-space: nowrap">
+            <button type="button" aria-pressed="true" style="flex: none; min-height: 44px; padding: 0 10px; border: 0; border-bottom: 2px solid #E60A68; margin-bottom: -1px; background: transparent; font-family: inherit; font-size: 15px; font-weight: 600; color: #B8004F">Produto</button>
+            <button type="button" aria-pressed="false" style="flex: none; min-height: 44px; padding: 0 10px; border: 0; background: transparent; font-family: inherit; font-size: 15px; color: #54656F">Alunos</button>
+            <button type="button" aria-pressed="false" style="flex: none; min-height: 44px; padding: 0 10px; border: 0; background: transparent; font-family: inherit; font-size: 15px; color: #54656F">Crystal</button>
+            <button type="button" aria-pressed="false" style="flex: none; min-height: 44px; padding: 0 10px; border: 0; background: transparent; font-family: inherit; font-size: 15px; color: #54656F">Mensagens</button>
+            <button type="button" aria-pressed="false" style="flex: none; min-height: 44px; padding: 0 10px; border: 0; background: transparent; font-family: inherit; font-size: 15px; color: #54656F">Suporte</button>
+          </div>
+
+          <section aria-labelledby="d-conv" style="border: 1px solid #E9EDEF; border-radius: 12px; background: #F0F2F5; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+            <div>
+              <h3 id="d-conv" style="margin: 0; font-size: 16px; font-weight: 600">Conversaram: 0 alunos</h3>
+              <p style="margin: 2px 0 0; font-size: 14px; color: #54656F">Igual ao período anterior</p>
+            </div>
+            <figure aria-label="Conversaram: 0 alunos" aria-describedby="d-leitura" style="margin: 0">
+              <svg width="324" height="200" viewBox="0 0 324 200" aria-hidden="true" style="display: block; touch-action: pan-y">
+                <line x1="32" x2="284" y1="174" y2="174" stroke="#D1D7DB" stroke-width="1"></line>
+                <line x1="32" x2="284" y1="95" y2="95" stroke="#D1D7DB" stroke-width="1"></line>
+                <line x1="32" x2="284" y1="16" y2="16" stroke="#D1D7DB" stroke-width="1"></line>
+                <text x="26" y="178" text-anchor="end" font-size="12" fill="#54656F">0</text>
+                <text x="26" y="99" text-anchor="end" font-size="12" fill="#54656F">1</text>
+                <text x="26" y="20" text-anchor="end" font-size="12" fill="#54656F">2</text>
+                <text x="32" y="194" text-anchor="start" font-size="12" fill="#54656F">26/09</text>
+                <text x="101.5" y="194" text-anchor="middle" font-size="12" fill="#54656F">04/10</text>
+                <text x="171" y="194" text-anchor="middle" font-size="12" fill="#54656F">12/10</text>
+                <text x="284" y="194" text-anchor="end" font-size="12" fill="#54656F">25/10</text>
+                <line x1="240.6" x2="240.6" y1="16" y2="174" stroke="#54656F" stroke-width="1.5"></line>
+                <polyline points="32,174 284,174" fill="none" stroke="#E60A68" stroke-width="2.5" stroke-linecap="round"></polyline>
+                <circle cx="284" cy="174" r="3.5" fill="#E60A68" stroke="#F0F2F5" stroke-width="1.5"></circle>
+                <text x="290" y="168" font-size="12" font-weight="600" fill="#111B21">0</text>
+                <circle cx="240.6" cy="174" r="6" fill="#E60A68" stroke="#FFFFFF" stroke-width="2"></circle>
+              </svg>
+            </figure>
+            <p id="d-leitura" style="margin: 0; font-size: 14px; color: #111B21"><b>20/10</b> · Total: 0</p>
+            <div style="display: flex; gap: 20px">
+              <details>
+                <summary style="display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 14px; color: #B8004F">Ver como tabela</summary>
+              </details>
+              <details>
+                <summary style="display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 14px; color: #B8004F">Como é calculado</summary>
+              </details>
+            </div>
+          </section>
+
+          <section aria-labelledby="d-msg" style="border: 1px solid #E9EDEF; border-radius: 12px; background: #F0F2F5; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+            <div>
+              <h3 id="d-msg" style="margin: 0; font-size: 16px; font-weight: 600">Mensagens: 0 mensagens</h3>
+              <p style="margin: 2px 0 0; font-size: 14px; color: #54656F">Igual ao período anterior</p>
+            </div>
+            <p style="margin: 0; border: 1px dashed #D1D7DB; border-radius: 10px; padding: 24px 12px; text-align: center; font-size: 14px; color: #54656F">Ainda não há dados neste período.</p>
+          </section>
+        </div>
+
+        <nav aria-label="Navegação principal" style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; height: 64px; padding-bottom: 6px; background: #F0F2F5; border-top: 1px solid #E9EDEF; display: grid; grid-template-columns: repeat(5, 1fr)">
+          <a href="#" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; font-size: 12px; color: #54656F; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><path d="M10 21v-6h4v6"></path></svg>Início</a>
+          <a href="#" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; font-size: 12px; color: #54656F; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5"></path><path d="M15.5 4.6a3.5 3.5 0 0 1 0 6.8"></path><path d="M18 14.8c1.9.7 3.1 2.5 3.5 5.2"></path></svg>Alunos</a>
+          <a href="#" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; font-size: 12px; color: #54656F; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H8l-4 4z"></path><path d="M8 9h8"></path><path d="M8 12.5h5"></path></svg>Mensagens</a>
+          <a href="#" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; font-size: 12px; color: #54656F; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle><path d="m5.6 5.6 3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"></path></svg>Suporte</a>
+          <a href="#" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; font-size: 12px; font-weight: 600; color: #B8004F; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><circle cx="5" cy="12" r="1.8"></circle><circle cx="12" cy="12" r="1.8"></circle><circle cx="19" cy="12" r="1.8"></circle></svg>Mais</a>
+        </nav>
+      </div>
+    </figure>
+    <div style="width: 380px; display: flex; flex-direction: column; gap: 12px; padding-top: 28px">
+      <h2 style="margin: 0; font-size: 18px">O que mudou</h2>
+      <ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.45">
+        <li><b>UX-118</b> · Eixo de contagem só com números inteiros: "Conversaram: 0 alunos" mostra 0, 1 e 2, com linha e rótulo no mesmo valor. Acaba o "0,5 aluno".</li>
+        <li><b>UX-118</b> · As datas do eixo não se atropelam: hoje aparece "20/1025/10"; agora o penúltimo rótulo sai quando não cabe ao lado do último, medido pela largura do texto.</li>
+        <li><b>UX-119</b> · Tocar na curva marca o dia e escreve o valor embaixo do gráfico: "20/10 · Total: 0". Arrastar o dedo para cima e para baixo continua rolando a página.</li>
+        <li><b>UX-119</b> · "Ver como tabela" ao lado de "Como é calculado": a tabela do período, legível no celular sem leitor de tela.</li>
+      </ul>
+      <p style="margin: 4px 0 0; font-size: 13px; line-height: 1.45; color: #475569">Texto da leitura no formato do item U42 do PRD (dia · série: valor). A mesma regra vale para as barras da hora do dia e para os gráficos de Crystal › Acompanhar › Números.</p>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":1060}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

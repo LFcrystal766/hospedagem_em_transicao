@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Perfil · 5 perguntas (primeiro acesso, topo da tela)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#0F5C4A}a:hover{color:#0A4236}
+</style>
+</helmet>
+<div style="width: 1320px; height: 1060px; box-sizing: border-box; padding: 40px; background: #F1F5F9; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #0F172A; display: flex; flex-direction: column; gap: 24px">
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-size: 28px; line-height: 1.2">Perfil · 5 perguntas (primeiro acesso, topo da tela)</h1>
+    <p style="margin: 0; font-size: 15px; color: #475569">Achados UX-13, UX-78, UX-09, UX-08 · PRD U56, U18, U20 · U-ondas 1 e 3</p>
+  </div>
+  <div style="display: flex; gap: 40px; align-items: flex-start">
+    <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px">
+      <figcaption style="font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #475569">Antes · hoje</figcaption>
+      <img src="/_blob/99fa0066388f2fc7043f9a9d98539821" alt="Tela atual do perfil, com o contador 1 de 5 respondidas e perguntas no masculino" style="display: block; width: 390px; height: 844px; object-fit: cover; object-position: top; border-radius: 28px; border: 1px solid #CBD5E1">
+    </figure>
+    <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px">
+      <figcaption style="font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #0F5C4A">Depois · proposta</figcaption>
+      <div style="width: 390px; height: 844px; overflow: hidden; position: relative; box-sizing: border-box; border-radius: 28px; border: 1px solid #CBD5E1; background: #FFFFFF">
+        <div style="width: 100%; height: 100%; background: #f0f2f5; font-family: 'Inter Tight', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #111b21">
+          <header style="display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #e9edef; background: #f0f2f5; padding: 8px 16px 8px 8px">
+            <a href="#" aria-label="Voltar para o início" style="display: flex; width: 44px; height: 44px; align-items: center; justify-content: center; flex: none; color: #111b21">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+            </a>
+            <div style="min-width: 0">
+              <p style="margin: 0; font-size: 18px; line-height: 24px; font-weight: 600; color: #111b21">Seu perfil</p>
+              <p style="margin: 0; font-size: 12px; line-height: 16px; color: #54656f">Todas as respostas são obrigatórias, menos a foto. Dá pra mudar depois.</p>
+            </div>
+          </header>
+
+          <main style="padding: 16px; display: flex; flex-direction: column; gap: 20px">
+            <p role="status" style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; font-weight: 600; color: #54656f">
+              <span>Faltam 4 respostas</span>
+            </p>
+
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+              <div aria-hidden="true" style="display: flex; width: 96px; height: 96px; align-items: center; justify-content: center; border-radius: 9999px; background: rgba(230,10,104,.15); font-size: 38px; font-weight: 600; color: #b8004f">A</div>
+              <button type="button" style="display: inline-flex; min-height: 44px; align-items: center; border-radius: 9999px; border: 1px solid #e9edef; background: #f0f2f5; padding: 0 16px; font-family: inherit; font-size: 16px; font-weight: 500; color: #111b21; cursor: pointer">Trocar foto</button>
+            </div>
+
+            <div>
+              <label for="perfil-nome" style="display: block; font-size: 16px; line-height: 24px; font-weight: 500; color: #111b21">Que nome você quer que eu use?</label>
+              <p id="perfil-nome-help" style="margin: 2px 0 0; font-size: 14px; line-height: 20px; color: #54656f">É o nome que aparece no seu perfil.</p>
+              <input id="perfil-nome" type="text" autocomplete="given-name" value="Ana" placeholder="Seu primeiro nome" aria-describedby="perfil-nome-help" style="margin-top: 4px; width: 100%; box-sizing: border-box; min-height: 44px; border-radius: 10px; border: 1px solid #e9edef; background: #f0f2f5; padding: 10px 12px; font-family: inherit; font-size: 16px; line-height: 24px; color: #111b21; outline: none">
+            </div>
+
+            <div>
+              <label for="perfil-idade" style="display: block; font-size: 16px; line-height: 24px; font-weight: 500; color: #111b21">Quantos anos você tem?</label>
+              <p id="perfil-idade-help" style="margin: 2px 0 0; font-size: 14px; line-height: 20px; color: #54656f">Eu só converso com quem tem 18 anos ou mais.</p>
+              <input id="perfil-idade" type="text" inputmode="numeric" maxlength="3" value="" placeholder="Sua idade" aria-describedby="perfil-idade-help" data-tutorial="proxima" style="margin-top: 4px; width: 100%; box-sizing: border-box; min-height: 44px; border-radius: 10px; border: 1px solid #e60a68; background: #f0f2f5; padding: 10px 12px; font-family: inherit; font-size: 16px; line-height: 24px; color: #111b21; outline: none; box-shadow: 0 0 0 2px #b8004f">
+            </div>
+
+            <fieldset style="margin: 0; padding: 0; border: 0; min-width: 0">
+              <legend style="display: block; padding: 0; font-size: 16px; line-height: 24px; font-weight: 500; color: #111b21">O que você busca agora?</legend>
+              <p id="perfil-objetivo-help" style="margin: 2px 0 0; font-size: 14px; line-height: 20px; color: #54656f">Puxar assunto é começar a conversa. Manter a conversa é não deixar esfriar. Convite é chamar pra sair.</p>
+              <div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px">
+                <label style="position: relative; display: flex; min-height: 44px; box-sizing: border-box; align-items: center; border-radius: 9999px; border: 1px solid #e9edef; background: #f0f2f5; padding: 8px 16px; font-size: 16px; color: #111b21; cursor: pointer"><input type="radio" name="goal_type" value="puxar_assunto" style="position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0)">Puxar assunto</label>
+                <label style="position: relative; display: flex; min-height: 44px; box-sizing: border-box; align-items: center; border-radius: 9999px; border: 1px solid #e9edef; background: #f0f2f5; padding: 8px 16px; font-size: 16px; color: #111b21; cursor: pointer"><input type="radio" name="goal_type" value="manter_conversa" style="position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0)">Manter a conversa</label>
+                <label style="position: relative; display: flex; min-height: 44px; box-sizing: border-box; align-items: center; border-radius: 9999px; border: 1px solid #e9edef; background: #f0f2f5; padding: 8px 16px; font-size: 16px; color: #111b21; cursor: pointer"><input type="radio" name="goal_type" value="convite" style="position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0)">Convite</label>
+              </div>
+            </fieldset>
+
+            <div>
+              <label for="perfil-jeito" style="display: block; font-size: 16px; line-height: 24px; font-weight: 500; color: #111b21">Seu jeito de conversar</label>
+              <p id="perfil-jeito-help" style="margin: 2px 0 0; font-size: 14px; line-height: 20px; color: #54656f">Me conta como você costuma ser quando conversa com alguém.</p>
+              <textarea id="perfil-jeito" rows="3" placeholder="Ex.: no começo fico sem jeito, mas depois solto…" aria-describedby="perfil-jeito-help" style="margin-top: 4px; width: 100%; box-sizing: border-box; border-radius: 10px; border: 1px solid #e9edef; background: #f0f2f5; padding: 10px 12px; font-family: inherit; font-size: 16px; line-height: 24px; color: #111b21; outline: none; resize: vertical"></textarea>
+            </div>
+
+            <div>
+              <label for="perfil-momento" style="display: block; font-size: 16px; line-height: 24px; font-weight: 500; color: #111b21">Descreva seu momento de vida</label>
+              <p id="perfil-momento-help" style="margin: 2px 0 0; font-size: 14px; line-height: 20px; color: #54656f">Me conta como está sua vida hoje: se está sem relacionamento, se saiu de um, o que mudou. Se você busca outra coisa, conta aqui também.</p>
+              <textarea id="perfil-momento" rows="4" placeholder="Ex.: separei faz um ano e quero voltar a sair." aria-describedby="perfil-momento-help" style="margin-top: 4px; width: 100%; box-sizing: border-box; border-radius: 10px; border: 1px solid #e9edef; background: #f0f2f5; padding: 10px 12px; font-family: inherit; font-size: 16px; line-height: 24px; color: #111b21; outline: none; resize: vertical"></textarea>
+            </div>
+
+            <button type="submit" style="display: flex; min-height: 44px; width: 100%; align-items: center; justify-content: center; border-radius: 12px; border: 0; background: #e60a68; padding: 10px 16px; font-family: inherit; font-size: 16px; font-weight: 500; color: #ffffff; cursor: pointer">Salvar</button>
+          </main>
+        </div>
+      </div>
+    </figure>
+    <div style="width: 380px; display: flex; flex-direction: column; gap: 12px; padding-top: 28px">
+      <h2 style="margin: 0; font-size: 18px">O que mudou</h2>
+      <ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.45">
+        <li><b>UX-13</b> · Contador por faltantes, "Faltam 4 respostas" (depois "Falta 1 resposta" e "Tudo respondido!"), no lugar de "1 de 5 respondidas", que contava o nome vindo da compra. O balão da Parte 2 aponta para a primeira pergunta vazia (aqui, a idade, já com o cursor): "Seu nome já veio da compra. Agora responde as outras perguntas, começando por aqui. No fim, toque em Salvar." e "Começar" foca esse campo.</li>
+        <li><b>UX-78</b> · Perguntas sem marca de gênero: "Que nome você quer que eu use?", "Ex.: no começo fico sem jeito, mas depois solto…" e "Me conta como está sua vida hoje: se está sem relacionamento, se saiu de um, o que mudou. Se você busca outra coisa, conta aqui também." Pergunta ao dono; o padrão é a forma neutra.</li>
+        <li><b>UX-09</b> · No primeiro Salvar a aluna vai direto para a conversa, com a pílula "Perfil salvo. Agora é só me contar o que está rolando." acima do estado vazio (some em 4 s ou na primeira mensagem, fora do histórico). Nas edições seguintes, volta ao início com "Perfil salvo." por 3 s na linha de estado.</li>
+        <li><b>UX-08</b> · Abaixo deste recorte, "Ver o tutorial de novo" vira botão de borda e "Excluir minha conta" desce sozinho, depois de um divisor, como pílula de 44 px com lixeira. Na etapa do aceite, o apoio do cabeçalho vira "Primeiro o seu OK; depois, 5 perguntas rápidas." e, abaixo do cartão, "Depois do OK: seu nome, sua idade, o que você busca, seu jeito de conversar e seu momento de vida."</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":1060}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

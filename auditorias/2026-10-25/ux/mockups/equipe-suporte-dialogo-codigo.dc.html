@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Diálogo do código · validade, contagem e teclado</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#0F5C4A}a:hover{color:#0A4236}
+</style>
+</helmet>
+<div style="width: 1320px; height: 1060px; box-sizing: border-box; padding: 40px; background: #F1F5F9; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #0F172A; display: flex; flex-direction: column; gap: 24px">
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-size: 28px; line-height: 1.2">Diálogo do código · validade, contagem e teclado</h1>
+    <p style="margin: 0; font-size: 15px; color: #475569">Achados UX-101, UX-63, UX-58, UX-47 · PRD U33, U03 · U-onda 2</p>
+  </div>
+  <div style="display: flex; gap: 40px; align-items: flex-start">
+    <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px">
+      <figcaption style="font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #475569">Antes · hoje</figcaption>
+      <img src="/_blob/93958295255417d07bc2e440bbf94360" alt="Diálogo de recomeçar a conversa hoje, no iPhone: o código não diz quanto tempo vale nem quantos pedidos restam, e os botões ficam no fim da área que rola" style="display: block; width: 390px; height: 844px; object-fit: cover; object-position: bottom; border-radius: 28px; border: 1px solid #CBD5E1">
+    </figure>
+    <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px">
+      <figcaption style="font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #0F5C4A">Depois · proposta</figcaption>
+      <div style="width: 390px; height: 844px; overflow: hidden; position: relative; box-sizing: border-box; border-radius: 28px; border: 1px solid #CBD5E1; background: #FFFFFF">
+        <div style="width: 100%; height: 100%; background: #ffffff; font-family: 'Inter Tight', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #111b21">
+          <header style="display: flex; align-items: center; gap: 12px; box-sizing: border-box; min-height: 61px; padding: 8px 16px; background: #f0f2f5; border-bottom: 1px solid #e9edef">
+            <svg viewBox="0 0 48 48" width="36" height="36" aria-hidden="true" style="display: block; flex: none"><defs><linearGradient id="cg-dialogo-topo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c20857"></stop><stop offset="1" stop-color="#e60a68"></stop></linearGradient></defs><circle cx="24" cy="24" r="24" fill="url(#cg-dialogo-topo)"></circle><path d="M24 9 36 24 24 39 12 24Z" fill="#ffffff"></path><path d="M24 9 36 24H12Z" fill="#ffffff" opacity=".85"></path><path d="M24 9v30" stroke="#e60a68" stroke-width="1.2" opacity=".5"></path><path d="M12 24h24" stroke="#e60a68" stroke-width="1.2" opacity=".5"></path></svg>
+            <div style="min-width: 0; flex: 1">
+              <p style="margin: 0; font-size: 16px; line-height: 20px; font-weight: 600">Rui Ferreira</p>
+              <p style="margin: 0; font-size: 12px; line-height: 16px; color: #54656f">Admin</p>
+            </div>
+            <span aria-hidden="true" style="display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 9999px; background: #eecfe0; color: #b8004f; font-size: 16px; font-weight: 600">R</span>
+          </header>
+          <div style="padding: 16px">
+            <p style="margin: 0; font-family: 'Blinker', 'Inter Tight', system-ui, sans-serif; font-size: 20px; line-height: 24px; font-weight: 600">Ana Souza</p>
+          </div>
+
+          <div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(17,27,33,.45)"></div>
+
+          <div style="position: absolute; left: 0; right: 0; top: 48px; height: 496px; display: flex; flex-direction: column; box-sizing: border-box; border-radius: 20px 20px 0 0; background: #f0f2f5; box-shadow: 0 24px 60px rgba(0,0,0,.16)">
+            <h2 style="margin: 0; flex: none; padding: 16px 16px 0; font-family: 'Blinker', 'Inter Tight', system-ui, sans-serif; font-size: 18px; line-height: 26px; font-weight: 600; color: #111b21">Recomeçar a conversa deste aluno com a Crystal?</h2>
+            <div style="position: relative; flex: 1; min-height: 0; margin-top: 8px; overflow: hidden">
+              <div style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-end; gap: 12px; padding: 0 16px 12px">
+                <p style="margin: 0; font-size: 14px; line-height: 20px; color: #111b21">A Crystal esquece tudo o que sabe deste aluno e recomeça do zero. A memória do WhatsApp antigo deixa de entrar na conversa dele. A conversa que aparece na tela do aluno continua lá, e ele vê a mensagem de recomeço. Isso não dá para desfazer.</p>
+                <div style="display: flex; flex-direction: column; gap: 4px">
+                  <label for="motivo-recomeco" style="font-size: 14px; line-height: 20px; font-weight: 500; color: #111b21">Motivo</label>
+                  <input id="motivo-recomeco" name="motivo-recomeco" type="text" value="pedido da aluna no suporte" style="min-height: 44px; width: 100%; box-sizing: border-box; border-radius: 10px; border: 1px solid #e9edef; background: #e9edef; padding: 0 12px; font-family: inherit; font-size: 16px; color: #111b21">
+                  <p style="margin: 0; font-size: 12px; line-height: 16px; color: #54656f">Em poucas palavras. O motivo fica na auditoria: não escreva e-mail, CPF nem telefone.</p>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px">
+                  <p style="margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; color: #111b21">Confirme que é você</p>
+                  <p style="margin: 0; font-size: 14px; line-height: 20px; color: #111b21">Para continuar, vamos mandar um código para o e-mail da sua conta. Vale 10 minutos e só para esta ação.</p>
+                </div>
+                <p style="margin: 0; font-size: 14px; line-height: 20px; color: #111b21">Mandamos um código para r***@exemplo.com. Vale 10 minutos. <b style="font-weight: 600">Código 2 de 4.</b></p>
+                <div style="display: flex; flex-direction: column; gap: 4px">
+                  <label for="codigo-reauth" style="font-size: 14px; line-height: 20px; font-weight: 500; color: #111b21">Código</label>
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <input id="codigo-reauth" name="codigo-reauth" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" value="3121" style="flex: 1; min-width: 0; min-height: 44px; box-sizing: border-box; border-radius: 10px; border: 1px solid #e60a68; background: #e9edef; padding: 0 12px; font-family: inherit; font-size: 16px; letter-spacing: 0.08em; color: #111b21; outline: 2px solid #b8004f; outline-offset: 2px">
+                    <button type="button" aria-disabled="true" style="display: inline-flex; min-height: 44px; flex: none; align-items: center; border: 0; background: transparent; padding: 0 8px; font-family: inherit; font-size: 14px; color: #54656f">Reenviar em 42s</button>
+                  </div>
+                </div>
+              </div>
+              <div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; height: 28px; background: linear-gradient(180deg, #f0f2f5, rgba(240,242,245,0))"></div>
+              <div aria-hidden="true" style="position: absolute; right: 4px; bottom: 10px; width: 3px; height: 64px; border-radius: 9999px; background: rgba(17,27,33,.35)"></div>
+            </div>
+            <div style="flex: none; display: flex; flex-direction: column; gap: 8px; padding: 12px 16px 16px; border-top: 1px solid #e9edef">
+              <button type="button" style="display: inline-flex; min-height: 44px; width: 100%; align-items: center; justify-content: center; border-radius: 10px; border: 0; background: #d40003; padding: 0 16px; font-family: inherit; font-size: 14px; font-weight: 500; color: #ffffff">Sim, recomeçar</button>
+              <button type="button" style="display: inline-flex; min-height: 44px; width: 100%; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid #d1d7db; background: #ffffff; padding: 0 16px; font-family: inherit; font-size: 14px; font-weight: 500; color: #111b21">Cancelar</button>
+            </div>
+          </div>
+
+          <div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; height: 300px; background: #d1d4d9; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+            <div style="display: flex; height: 44px; align-items: center; justify-content: space-between; box-sizing: border-box; padding: 0 14px; background: #f2f2f4; border-top: 1px solid #c4c7cc">
+              <div style="display: flex; gap: 18px; color: #6b6e74">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6"></path></svg>
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+              </div>
+              <span style="font-size: 17px; font-weight: 600; color: #111b21">OK</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 6px">
+              <div style="display: flex; height: 46px; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; background: #ffffff; box-shadow: 0 1px 0 #898a8d"><span style="font-size: 25px; line-height: 28px; color: #000000">1</span></div>
+              <div style="display: flex; height: 46px; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; background: #ffffff; box-shadow: 0 1px 0 #898a8d"><span style="font-size: 25px; line-height: 26px; color: #000000">2</span><span style="font-size: 10px; line-height: 12px; font-weight: 700; letter-spacing: 0.12em; color: #000000">ABC</span></div>
+              <div style="display: flex; height: 46px; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; background: #ffffff; box-shadow: 0 1px 0 #898a8d"><span style="font-size: 25px; line-height: 26px; color: #000000">3</span><span style="font-size: 10px; line-height: 12px; font-weight: 700; letter-spacing: 0.12em; color: #000000">DEF</span></div>
+              <div style="display: flex; height: 46px; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; background: #ffffff; box-shadow: 0 1px 0 #898a8d"><span style="font-size: 25px; line-height: 26px; color: #000000">4</span><span style="font-size: 10px; line-height: 12px; font-weight: 700; letter-spacing: 0.12em; color: #000000">GHI</span></div>
+              <div style="display: flex; height: 46px; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; background: #ffffff; box-shadow: 0 1px 0 #898a8d"><span style="font-size: 25px; line-height: 26px; color: #000000">5</span><span style="font-size: 10px; line-height: 12px; font-weight: 700; letter-spacing: 0.12em; color: #000000">JKL</span></div>
+              <div style="display: flex; height: 46px; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; background: #ffffff; box-shadow: 0 1px 0 #898a8d"><span style="font-size: 25px; line-height: 26px; color: #000000">6</span><span style="font-size: 10px; line-height: 12px; font-weight: 700; letter-spacing: 0.12em; color: #000000">MNO</span></div>
+              <div style="display: flex; height: 46px; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; background: #ffffff; box-shadow: 0 1px 0 #898a8d"><span style="font-size: 25px; line-height: 26px; color: #000000">7</span><span style="font-size: 10px; line-height: 12px; font-weight: 700; letter-spacing: 0.12em; color: #000000">PQRS</span></div>
+              <div style="display: flex; height: 46px; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; background: #ffffff; box-shadow: 0 1px 0 #898a8d"><span style="font-size: 25px; line-height: 26px; color: #000000">8</span><span style="font-size: 10px; line-height: 12px; font-weight: 700; letter-spacing: 0.12em; color: #000000">TUV</span></div>
+              <div style="display: flex; height: 46px; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; background: #ffffff; box-shadow: 0 1px 0 #898a8d"><span style="font-size: 25px; line-height: 26px; color: #000000">9</span><span style="font-size: 10px; line-height: 12px; font-weight: 700; letter-spacing: 0.12em; color: #000000">WXYZ</span></div>
+              <div style="height: 46px"></div>
+              <div style="display: flex; height: 46px; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; background: #ffffff; box-shadow: 0 1px 0 #898a8d"><span style="font-size: 25px; line-height: 28px; color: #000000">0</span></div>
+              <div style="display: flex; height: 46px; align-items: center; justify-content: center; color: #000000"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12V5Z"></path><path d="m12 9 6 6m0-6-6 6"></path></svg></div>
+            </div>
+            <div style="position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 9999px; background: #111b21"></div>
+          </div>
+        </div>
+      </div>
+    </figure>
+    <div style="width: 380px; display: flex; flex-direction: column; gap: 12px; padding-top: 28px">
+      <h2 style="margin: 0; font-size: 18px">O que mudou</h2>
+      <ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.45">
+        <li><b>UX-101</b> · A validade aparece antes e depois do envio: "Para continuar, vamos mandar um código para o e-mail da sua conta. Vale 10 minutos e só para esta ação." e "Mandamos um código para r***@exemplo.com. Vale 10 minutos. Código 2 de 4."</li>
+        <li><b>UX-101</b> · No 5.º pedido em 15 minutos, o botão "Enviar código para o meu e-mail" dá lugar a "Dá para pedir outro em 08:41", com contagem regressiva, sem travar o diálogo (abaixo). O teto de 4 códigos não muda.</li>
+        <li><b>UX-63</b> · Com o teclado numérico aberto, a folha fica acima dele e não pula para o topo: só o corpo rola, e "Sim, recomeçar" e "Cancelar" ficam sempre à vista, presos ao rodapé.</li>
+        <li><b>UX-58</b> · "Código" e "Motivo" passam a 16 px no toque: o Safari do iPhone para de ampliar a página quando o campo recebe o foco.</li>
+        <li><b>UX-47</b> · A mesma regra vale no login da equipe e da aluna: nenhum campo abaixo de 16 px, sem tirar o zoom de quem precisa dele.</li>
+      </ul>
+      <h3 style="margin: 8px 0 0; font-size: 15px">No 5.º pedido em 15 minutos</h3>
+      <div style="display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; border-radius: 12px; border: 1px solid #CBD5E1; background: #f0f2f5; padding: 16px; font-family: 'Inter Tight', system-ui, sans-serif; color: #111b21">
+        <p style="margin: 0; font-size: 14px; line-height: 20px; font-weight: 600">Confirme que é você</p>
+        <p style="margin: 0; font-size: 14px; line-height: 20px">Para continuar, vamos mandar um código para o e-mail da sua conta. Vale 10 minutos e só para esta ação.</p>
+        <p style="margin: 0; border-radius: 10px; background: #e8e1d0; padding: 8px 12px; font-size: 14px; line-height: 20px; color: #6b4a00">Você já pediu 4 códigos nos últimos 15 minutos. Dá para pedir outro em 9 min.</p>
+        <p style="margin: 0; display: flex; min-height: 44px; align-items: center; gap: 8px; box-sizing: border-box; border-radius: 10px; background: #e9edef; padding: 0 12px; font-size: 14px; line-height: 20px; color: #111b21">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#54656f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+          <span>Dá para pedir outro em <span style="font-variant-numeric: tabular-nums; font-weight: 600">08:41</span></span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1320,"height":1060}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
