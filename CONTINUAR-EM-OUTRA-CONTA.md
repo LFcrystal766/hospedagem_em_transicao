@@ -916,3 +916,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     https://claude.ai/artifact/Mdq9zQnWcUR8SCYtdH3UDz (25 capturas "antes" já enviadas como assets; artboards entram
     quando os mockups saírem). Depois: crítico de completude, copiar capturas citadas para o repositório, commitar os dois
     repositórios, entregar ao dono.
+    **25/10 ~18:45 UTC:** os créditos da conta acabaram no meio da síntese. Ficaram completos: o relatório (361 linhas,
+    98 achados distintos depois de agrupar 45 IDs repetidos: 10 altos, 65 médios, 23 baixos; notas: app 7/10, painel 6,5/10)
+    e o PRD (2.149 linhas, itens U01–U58 em 3 ondas, todos os 143 IDs cobertos). Dos mockups, só o grupo "aluna-entrada"
+    (6 telas). **26/10 ~02:45 UTC, sessão passou para o Opus 5.5:** relançados os 3 grupos de mockups que faltavam e a
+    conversão do primeiro, agora direto como artboards do canvas (`scratchpad/ux/canvas/project/*.dc.html`, regras em
+    `canvas/REGRAS-ARTBOARD.md`, URLs das capturas em `canvas/assets.json`; 37 capturas já enviadas ao canvas), mais um
+    crítico que alinha relatório e PRD (workflow `wf_7448c2e4-fe4`). Capa do canvas escrita. 43 capturas citadas copiadas
+    para `auditorias/2026-10-25/ux/capturas/` (11 MB). Commits a partir daqui com a linha `Claude Opus 5.5`.
