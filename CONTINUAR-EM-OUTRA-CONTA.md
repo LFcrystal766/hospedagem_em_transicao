@@ -924,3 +924,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `canvas/REGRAS-ARTBOARD.md`, URLs das capturas em `canvas/assets.json`; 37 capturas já enviadas ao canvas), mais um
     crítico que alinha relatório e PRD (workflow `wf_7448c2e4-fe4`). Capa do canvas escrita. 43 capturas citadas copiadas
     para `auditorias/2026-10-25/ux/capturas/` (11 MB). Commits a partir daqui com a linha `Claude Opus 5.5`.
+    **26/10 ~03:40 UTC: CHECK DE UX/UI ENTREGUE.** (1) Relatório revisado: `auditorias/2026-10-25/ux/relatorio-ux-ui.md`
+    (429 linhas; 98 achados distintos: 10 altos, 65 médios, 23 baixos; app 7/10, painel 6,5/10; 40 ganhos rápidos).
+    (2) PRD de execução: `docs/ux/PRD-ux-ui-2026-10-25.md` na branch `docs/prd-ux-2026-10-25` do app (commit `9dde4db`,
+    2.173 linhas) e cópia em `auditorias/2026-10-25/ux/`. U01–U23 (U-onda 1, 2–3 semanas: 7 dos 10 altos, migração aditiva
+    `messages.neutra`), U24–U47 (U-onda 2, painel, 3–4 semanas: rota `POST /staff/tickets`), U48–U58 (U-onda 3, design
+    system, 3 semanas, sem migração). `sha-3c343df` (segurança) tem de ser publicado ANTES ou junto da U-onda 1.
+    14 decisões do dono no fim do PRD, todas com padrão (ex.: botão de entrar continua verde; "Recomeçar a conversa"
+    entra no menu; botão "Falar com o suporte" no passo do código entra; áudio para e espera aos 2:00).
+    (3) Mockups: canvas Design https://claude.ai/artifact/Mdq9zQnWcUR8SCYtdH3UDz, 24 quadros (capa + 6 entrada da aluna +
+    6 conversa/início + 6 painel suporte + 5 painel dados), cada um com a captura real de hoje, a proposta e "O que mudou"
+    com os IDs; fonte em `auditorias/2026-10-25/ux/mockups/`. Privado: o dono precisa compartilhar pelo menu Share para o
+    grupo abrir. Nada foi mudado no código do app; a execução é do Igor, onda a onda, pelo PRD.
