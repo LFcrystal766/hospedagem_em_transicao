@@ -982,4 +982,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     do produto **"Crystal - V10"** (`produto_id 8d919f87-b8c9-4d87-8a3b-f57c2b6c8f4d`, transação `05f00402…`) com ação
     `ignorado_produto`: a V10 não está em `crystal_compras_produtos` (lá estão 7 produtos, até "Oferta Nova - V6").
     Toda compra da V10 é ignorada até cadastrar. Provável que seja a compra do Brunno (pagamento aprovado depois do
-    chamado das 16:17). Decisão pedida ao dono: cadastrar a V10 como produto que libera o app e liberar o Brunno.
+    chamado das 16:17). **Dono decidiu (26/10): a V10 é o app.** Feito às 21:35 UTC: V10 cadastrada em
+    `crystal_compras_produtos` (toda compra nova da V10 libera o app pelo fluxo normal) e o Brunno liberado à mão em
+    `crystal_compras` (produto "Liberação manual", transação `manual-20261026-suporte-v10`, status active);
+    `app_verificar_login_email` devolve `liberado = true`. A compra ignorada das 17:35 não é reprocessada (o evento
+    não guarda o e-mail); se for de outra pessoa, ela aparece no suporte e se libera do mesmo jeito.
