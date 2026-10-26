@@ -974,3 +974,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       --no-ff, portão completo, push) → portão de saída (CI inteiro, docs, `docs/ux/onda-N-conferir-em-aparelho.md`).
     - **Onda 1 (U01–U23) rodando:** workflow `wf_1ed70145-182`. Ondas 2 e 3 depois, em sequência, cada uma sobre a
       anterior. Publicação na VPS continua com o dono (`sha-3c343df` antes ou junto da onda 1).
+
+52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
+    "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
+    e-mail"; Assiny ok): o e-mail não está em nenhuma tabela (customers, assinaturas, `crystal_compras`). O fluxo da
+    Assiny está chegando normalmente (eventos toda hora hoje). **Achado:** às 17:35 BRT entrou um `approved_purchase`
+    do produto **"Crystal - V10"** (`produto_id 8d919f87-b8c9-4d87-8a3b-f57c2b6c8f4d`, transação `05f00402…`) com ação
+    `ignorado_produto`: a V10 não está em `crystal_compras_produtos` (lá estão 7 produtos, até "Oferta Nova - V6").
+    Toda compra da V10 é ignorada até cadastrar. Provável que seja a compra do Brunno (pagamento aprovado depois do
+    chamado das 16:17). Decisão pedida ao dono: cadastrar a V10 como produto que libera o app e liberar o Brunno.
