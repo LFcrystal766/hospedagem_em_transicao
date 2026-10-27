@@ -1080,3 +1080,21 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `crystal_compras` (produto "Liberação manual", transação `manual-20261026-suporte-v10`, status active);
     `app_verificar_login_email` devolve `liberado = true`. A compra ignorada das 17:35 não é reprocessada (o evento
     não guarda o e-mail); se for de outra pessoa, ela aparece no suporte e se libera do mesmo jeito.
+53. **27/10, suporte (Letícia):** (a) **Wilton**: e-mail trocado com `app_aluno_trocar_email` (status "trocado",
+    origem base); o novo entra (`liberado = true`), o antigo não. (b) **Olímpio** ("não consegue acessar"; Assiny ok):
+    o e-mail não estava em nenhuma tabela e nenhum evento foi perdido (fluxo com 417 aprovações em 30 dias). O print
+    da Assiny mostrou a causa: compra **anual de 28/06/2026** (Pix, "CRYSTAL - A NOVA MELHOR AMIGA DOS HOMENS"),
+    de antes do nosso fluxo e que ficou de fora da base da agência. Dono escolheu "liberar já": feito às 14:36 UTC
+    em `crystal_compras` (produto "Liberação manual", transação `manual-20261027-suporte-compra-20260628-3a550af`,
+    status active, nota "vence em 28/06/2027"); login devolve `liberado = true`. **Cortar à mão em 28/06/2027** se não
+    renovar (a liberação manual não recebe reembolso nem cancelamento da Assiny). Se aparecerem mais compras antigas
+    fora da base, vale pedir à Letícia a exportação das assinaturas ativas da Assiny para conferir de uma vez.
+54. **27/10 ~14:35 UTC, publicação da onda 1 de UX: o `app-subir sha-c71b41c` parou** (duas vezes) em `open
+    /root/crystal/app/redis.env: no such file or directory`, na etapa "== stack", **antes do deploy: nada mudou no ar**
+    (continua `sha-088d07d`). Causa: o `bootstrap-vps.sh` da VPS é o antigo (`97b5ad2`, de antes da segurança); sem
+    `REF` ele baixa o `10-crystal-app.yaml` da ponta da branch, que já é o da segurança (Redis com senha em
+    `redis.env`, redes novas) e que só o script novo sabe montar. Correção sem mexer em nada da infra:
+    `REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-c71b41c` (o yaml desse commit é
+    igual ao que está no ar desde 05/10, `ee6c9ff`; conferido que o raw responde 200). Até a madrugada da segurança,
+    **todo comando do script antigo que sobe stack (app-subir, atendimento-subir, n8n, painel…) leva esse `REF`**.
+    Roteiro (`publicar-onda-1.md`) e passo 2 do resumo de segurança corrigidos.

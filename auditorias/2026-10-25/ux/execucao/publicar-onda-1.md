@@ -4,7 +4,8 @@ Tag: **`sha-c71b41c`** (branch `painel/ux-onda-1` do app, CI verde em 27/10; ima
 Ela **já contém** a revisão de segurança de 24/10 (`sha-3c343df`), que ainda não subiu: publicar esta tag publica
 as duas coisas de uma vez. Não é preciso subir a `sha-3c343df` antes.
 
-Volta: `bash bootstrap-vps.sh app-subir sha-088d07d` (a tag no ar hoje). As duas migrações novas só acrescentam
+Volta: `REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-088d07d` (a tag no ar hoje;
+o `REF` está explicado em "Subir"). As duas migrações novas só acrescentam
 (`pa23_01_sessoes_rotacao_refresh` e `ux1_01_messages_neutra`, uma coluna `messages.neutra` com padrão falso): a
 imagem anterior sobe com elas no lugar, sem volta de banco. Não usar `sha-d5126c0`.
 
@@ -23,8 +24,14 @@ depois. A madrugada da VPS (passo 8 de lá) também é separada.
 
 ## Subir
 
+**Atenção (27/10):** o `bootstrap-vps.sh` que está na VPS é o de antes da revisão de segurança (`97b5ad2`). Sem `REF`,
+ele baixa o yaml do app da ponta da branch, que já é o da segurança (Redis com senha, redes novas) e pede o
+`redis.env` que esse script antigo não cria: o deploy para em `open /root/crystal/app/redis.env: no such file or
+directory`, antes de mexer em qualquer coisa (aconteceu em 27/10; nada mudou no ar). Até a madrugada da segurança
+(que troca o script), **todo comando do script antigo que sobe stack leva o `REF` do commit dele**:
+
 ```bash
-bash bootstrap-vps.sh app-subir sha-c71b41c   # API, web e Crystal na mesma tag; as migrações rodam sozinhas
+REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-c71b41c   # yaml igual ao que está no ar; migrações sozinhas
 bash bootstrap-vps.sh app-status              # as três em sha-c71b41c, API e web respondendo
 bash bootstrap-vps.sh crystal-conferir        # TUDO LIGADO
 ```
@@ -44,4 +51,8 @@ Quedas: a API e o web trocam em 1 a 2 minutos; a conversa volta sozinha. Hora ca
 
 ## Se algo der errado
 
-`bash bootstrap-vps.sh app-subir sha-088d07d` e avisar com o que apareceu na tela (print). Nada de banco a desfazer.
+`REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-088d07d` e avisar com o que
+apareceu na tela (print). Nada de banco a desfazer.
+
+Depois da madrugada da segurança (o script novo, do commit `fcd8955`, com `STACKS_COMMIT` fixo), o `REF` não é mais
+usado: lá o passo 6 é `app-subir` da tag que estiver no ar.
