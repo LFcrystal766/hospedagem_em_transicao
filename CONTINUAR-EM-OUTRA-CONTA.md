@@ -1051,6 +1051,19 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       e as pendências da onda 1", porta0 4400. Retomada, se cair: mesmo `scriptPath`
       (`workflows/scripts/ux-prd-onda-wf_1ed70145-182.js`) com `resumeFromRunId: "wf_ca330f41-fa3"` e os mesmos args
       (estão no lembrete das 14:30 UTC). O CI de `c71b41c` (onda 1) ainda rodando; imagens depois dele.
+    - **27/10 ~13:00 UTC: onda 1 pronta para subir.** CI de `c71b41c` **verde** (gate, audit, e2e com WebKit, e2e do
+      login só com e-mail; a instalação dos navegadores no GitHub levou 47 min desta vez, não é nosso). `imagens-vps`
+      (run 40505357652) construiu as 3 imagens **`sha-c71b41c`**. Roteiro do dono:
+      `auditorias/2026-10-25/ux/execucao/publicar-onda-1.md` (`674768b`): conferir senhas da equipe (psql do item 48),
+      `app-status` (anotar a tag), `backup`, `app-subir sha-c71b41c`, `crystal-conferir`, lista do iPhone. Volta:
+      `app-subir sha-088d07d`, sem volta de banco. A tag já leva a segurança de 24/10 (não precisa subir a
+      `sha-3c343df` antes); SQL/n8n/madrugada da segurança seguem separados. Modo backup: padrão agora "Desligado".
+    - **Plano da onda 2 (22 pacotes em 4 camadas):** (1) `cliente-varredura` (U59 + "Entrar como aluno"),
+      `seguranca-login` (3 baixos); (2) `moldura-carregando` (U24–U26, textarea 12 px), `kit-dialogos` (U27, U31,
+      U33), `modelo-custo` (U38), `graficos` (U42), `codigos-erro` (C01 → C02/C03); (3) `lista-inicio` (U28, U32,
+      U44), `equipe-papeis` (U36, U45), `configuracoes` (U40, rolagem suave), `subrotas` (U30, U46), `mensagens`
+      (U34); (4) `ficha-suporte` (U29, U35), `crystal` (U37), `laboratorio` (U39, ghostBtn vermelho), `jargao` (U41),
+      `financeiro-auditoria` (U43, U47). Camada 1 em implementação.
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
