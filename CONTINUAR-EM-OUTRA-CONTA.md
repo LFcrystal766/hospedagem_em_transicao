@@ -1120,3 +1120,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Pedido UM rerun do job (run 40565072746, tentativa 2): se falhar de novo, é real e vai ser achado e corrigido.
     `REGRAS.md` ganhou a pendência 5: reporter `github` no Playwright com `CI=true`, para a falha virar anotação
     legível pela API. Lembrete às 00:45 UTC.
+59. **27/10 ~22:47 UTC: o contêiner reiniciou** (4.º reinício do dia) e derrubou o workflow da onda 2 na verificação da
+    camada 3. Os 5 pacotes da camada 3 estavam todos commitados e empurrados (`equipe-papeis` e `configuracoes` já
+    verificados; `lista-inicio` e `subrotas` em verificação, `subrotas` com 2 edições sem commit; `mensagens` sem
+    verificar). Retomado às 22:50 UTC (tarefa `wu3p7xu8j`, mesmo `resumeFromRunId`). O rerun do CI de `03dadeb`
+    (tentativa 2) continua no GitHub; vigia refeita.
