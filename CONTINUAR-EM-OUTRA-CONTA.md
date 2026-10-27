@@ -993,6 +993,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       de fila sai depois da 1.ª; B05: lembrete de 72 h não depende mais da hora do dia), portão completo verde,
       `painel/ux-onda-1` em `9e955c3` com **CI verde** no GitHub. Worktrees da camada 1 removidos. Camada 2 em
       implementação (`login`, `bolha`; depois `movimento-faixa`).
+    - **27/10 02:22 UTC: camada 2 juntada e empurrada** (`painel/ux-onda-1` em `34f5d00`: login U09–U12, bolha U06/U08/U17,
+      movimento e faixa U16/U22); CI rodando. 15 dos 23 itens da onda 1 já na branch. Camada 3 (`menu-leitor-textos`:
+      U04, U15, U18, U20) em implementação; depois a camada 4 (U05, U13, U19, U23) e o portão de saída.
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
