@@ -1064,6 +1064,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       U44), `equipe-papeis` (U36, U45), `configuracoes` (U40, rolagem suave), `subrotas` (U30, U46), `mensagens`
       (U34); (4) `ficha-suporte` (U29, U35), `crystal` (U37), `laboratorio` (U39, ghostBtn vermelho), `jargao` (U41),
       `financeiro-auditoria` (U43, U47). Camada 1 em implementação.
+    - **27/10 14:32 UTC:** camada 1 da onda 2 implementada e verificada (U59 "cliente" com guarda de teste em todo o
+      código do web, da API e do shared; os 3 baixos de segurança só na API); junção em andamento
+      (`603760a`, `5083c20` em `painel/ux-onda-2`, portão completo rodando). Lembrete às 17:02 UTC.
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
