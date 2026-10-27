@@ -1008,6 +1008,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       cancelado pelo push seguinte, não falhou). Branch do pacote avançada para `141a98f` (para ler o PRD novo) e
       empurrada; workflow retomado (tarefa `w2rzql08g`). Próximo lembrete automático às 05:54 UTC, com o mesmo comando
       de retomada.
+    - **27/10 05:55 UTC: camada 3 juntada** (`painel/ux-onda-1` em `3a2a7d0`, **CI verde**: menu, leitor de tela e
+      textos U04, U15, U18, U20). 19 dos 23 itens da onda 1 na branch. Camada 4 em implementação: `erro-critico` (U19)
+      com commit `33a6bea`; `erros-conversa-audio` (U05 com código, U13) com edições ainda sem commit; `rede-testes`
+      (U23) começando. Depois: verificação, junção e portão de saída. Lembrete automático às 08:25 UTC.
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
