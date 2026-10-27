@@ -1098,3 +1098,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     igual ao que está no ar desde 05/10, `ee6c9ff`; conferido que o raw responde 200). Até a madrugada da segurança,
     **todo comando do script antigo que sobe stack (app-subir, atendimento-subir, n8n, painel…) leva esse `REF`**.
     Roteiro (`publicar-onda-1.md`) e passo 2 do resumo de segurança corrigidos.
+55. **27/10 ~16:15 UTC: a sessão reiniciou e derrubou o workflow da onda 2** (a máquina não reiniciou; nenhum processo
+    sobrou). Estado: camada 1 juntada em `painel/ux-onda-2` **`52f8ffa`, CI verde** (U59 "cliente", P2a–P2c, P3b).
+    Camada 2: `moldura-carregando` (U24–U26, P3a) e `kit-dialogos` (U27, U31, U33) implementados e empurrados;
+    `modelo-custo` (U38) com 1 commit e edições sem commit; `graficos` (U42) só com edições sem commit; `codigos-erro`
+    (P1) não começou. Retomado com `resumeFromRunId: "wf_ca330f41-fa3"` (tarefa `wg93h9moy`); os agentes que não
+    tinham terminado recomeçam com as edições no lugar. Lembrete das 17:03 UTC com o mesmo comando de retomada.
