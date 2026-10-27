@@ -996,6 +996,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **27/10 02:22 UTC: camada 2 juntada e empurrada** (`painel/ux-onda-1` em `34f5d00`: login U09–U12, bolha U06/U08/U17,
       movimento e faixa U16/U22); CI rodando. 15 dos 23 itens da onda 1 já na branch. Camada 3 (`menu-leitor-textos`:
       U04, U15, U18, U20) em implementação; depois a camada 4 (U05, U13, U19, U23) e o portão de saída.
+    - **27/10, decisões do dono:** (1) **"cliente", nunca "aluna"**, em todo texto visível e nas mensagens à equipe;
+      URLs, código e banco não mudam; varredura dos textos existentes = item novo **U59** (onda 2, primeira camada).
+      (2) **Erro da conversa nunca mostra a causa:** a cliente vê "Não consegui te responder agora." + "Código Cxx";
+      a tabela código → causa fica em `packages/shared/src/codigos-erro.ts`, `docs/equipe.md` e no painel. **U05
+      reescrito** no PRD da onda (`141a98f`, cópia em `auditorias/2026-10-25/ux/`); U06 (resposta neutra da trava)
+      fica como está. Regras dos agentes atualizadas (`harness/REGRAS.md`). Telas finais com textos de causa
+      (a3-erro-fora-do-ar etc.) ficaram desatualizadas: valem o PRD e o código.
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
