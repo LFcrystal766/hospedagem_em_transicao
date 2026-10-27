@@ -1125,3 +1125,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     verificados; `lista-inicio` e `subrotas` em verificação, `subrotas` com 2 edições sem commit; `mensagens` sem
     verificar). Retomado às 22:50 UTC (tarefa `wu3p7xu8j`, mesmo `resumeFromRunId`). O rerun do CI de `03dadeb`
     (tentativa 2) continua no GitHub; vigia refeita.
+60. **27/10 23:05 UTC:** o rerun do CI de `03dadeb` (tentativa 2) deu **tudo verde** (gate, audit, e2e, e2e do login
+    só com e-mail). A 1.ª tentativa (44 min, vermelha) não se repetiu e não reproduziu local: fica registrada como
+    falha do GitHub sem causa conhecida; a pendência 5 do `REGRAS.md` (reporter `github`) faz a próxima falha dizer
+    o teste. Worktree de conferência `/home/user/cwux/ci-03dadeb` removido.
