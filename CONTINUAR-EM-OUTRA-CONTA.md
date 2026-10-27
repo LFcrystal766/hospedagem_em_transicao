@@ -989,6 +989,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       `painel/ux-onda-1` em `e19ea33`. No portão completo só 2 testes da API estavam vermelhos (U07 ordem das respostas
       em `messages.test.ts` e um de `staff-eventos.test.ts`), com correção em andamento sem commit no worktree de
       integração. Retomado de novo (tarefa `wf6lpgtlk`); o integrador recomeça com essas edições no lugar.
+    - **27/10 00:48 UTC: camada 1 da onda 1 FECHADA.** Integrador corrigiu os 2 testes (U07: a 2.ª mensagem do teste
+      de fila sai depois da 1.ª; B05: lembrete de 72 h não depende mais da hora do dia), portão completo verde,
+      `painel/ux-onda-1` em `9e955c3` com **CI verde** no GitHub. Worktrees da camada 1 removidos. Camada 2 em
+      implementação (`login`, `bolha`; depois `movimento-faixa`).
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
