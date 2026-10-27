@@ -203,7 +203,9 @@ Ordem:
    webhook da Assiny, o que o comprador recebe depois de pagar).
 3. WhatsApp ENCERRADO (decisão do dono em 09/10: "tirar o webhook do whatsapp e mandar direto pro
    app sempre a partir de agora"). Todo mundo no app: desligar o portão de lotes (Operação,
-   "Liberação em lotes"), tirar o webhook da Crystal no LendChat (conta `crystal`) e deixar uma
+   "Liberação em lotes"); no painel, Integrações › Canal → **Desligado** e conferir Configurações ›
+   Produto › "Aviso do modo reserva" (se ainda tiver a frase antiga do WhatsApp, trocar; pedido da
+   onda 1 de UX, U22, 27/10); tirar o webhook da Crystal no LendChat (conta `crystal`) e deixar uma
    resposta automática apontando para o app, avisar a base por e-mail. O histórico e a memória
    do WhatsApp já chegam ao app (memória de chegada e memória única) e ficam congelados no corte.
    Na transição em levas, o silêncio no WhatsApp (`app_whatsapp_silencio.sql`) desliga a Crystal do
