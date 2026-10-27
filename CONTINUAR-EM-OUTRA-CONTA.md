@@ -1104,3 +1104,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     `modelo-custo` (U38) com 1 commit e edições sem commit; `graficos` (U42) só com edições sem commit; `codigos-erro`
     (P1) não começou. Retomado com `resumeFromRunId: "wf_ca330f41-fa3"` (tarefa `wg93h9moy`); os agentes que não
     tinham terminado recomeçam com as edições no lugar. Lembrete das 17:03 UTC com o mesmo comando de retomada.
+56. **27/10 17:05 UTC, onda 2:** os 5 pacotes da camada 2 implementados e empurrados: `moldura-carregando` (U24–U26,
+    P3a), `kit-dialogos` (U27, U31, U33), `modelo-custo` (U38, 3 commits), `graficos` (U42, 2 commits) e
+    `codigos-erro` (P1: crédito zerado e chave recusada viram **C02**, prazo do modelo vira **C03**). Verificação
+    adversarial começando. Lembrete às 19:35 UTC.
