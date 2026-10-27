@@ -1017,6 +1017,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       liberar; 5 commits) já verificados; `rede-testes` (U23, 6 commits: seed demo, auditoria mobile 360–412, axe) em
       verificação. Faltam a junção da camada 4 e o portão de saída. O script do workflow agora lê `base-onda<N>.log`
       (pronto para a onda 2). Lembrete automático às 10:27 UTC.
+    - **27/10 10:10 UTC:** verificação de `rede-testes` (U23) ainda rodando, com 5 correções já empurradas (o projeto
+      WebKit do e2e passa de verdade, foto da bolha com 44 × 44 de toque, axe com as quatro tags também na Alma,
+      Mensagens, Banners, Laboratório e #reset, auditoria com o diálogo Desligar) e o e2e da auditoria mobile rodando.
+      `painel/ux-onda-1` segue em `3a2a7d0` com CI verde; contêiner sem reinício desde 03:20.
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
