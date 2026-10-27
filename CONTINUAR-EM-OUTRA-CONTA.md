@@ -1108,3 +1108,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     P3a), `kit-dialogos` (U27, U31, U33), `modelo-custo` (U38, 3 commits), `graficos` (U42, 2 commits) e
     `codigos-erro` (P1: crédito zerado e chave recusada viram **C02**, prazo do modelo vira **C03**). Verificação
     adversarial começando. Lembrete às 19:35 UTC.
+57. **27/10 19:38 UTC, onda 2:** camada 2 verificada e **juntada** (`painel/ux-onda-2` em `03dadeb`, portão completo
+    verde; no GitHub, gate, audit e e2e do login só com e-mail verdes, e2e principal rodando). Itens já na branch:
+    U59, P2a–P2c, P3a, P3b, U24–U27, U31, U33, U38, U42 e P1 (C02/C03). Camada 3 em implementação (`lista-inicio`
+    U28/U32/U44, `equipe-papeis` U36/U45; depois `configuracoes`, `subrotas`, `mensagens`). Lembrete às 22:08 UTC.
