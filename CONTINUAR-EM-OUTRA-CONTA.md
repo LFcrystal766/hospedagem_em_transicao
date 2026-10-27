@@ -1112,3 +1112,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     verde; no GitHub, gate, audit e e2e do login só com e-mail verdes, e2e principal rodando). Itens já na branch:
     U59, P2a–P2c, P3a, P3b, U24–U27, U31, U33, U38, U42 e P1 (C02/C03). Camada 3 em implementação (`lista-inicio`
     U28/U32/U44, `equipe-papeis` U36/U45; depois `configuracoes`, `subrotas`, `mensagens`). Lembrete às 22:08 UTC.
+58. **27/10 22:45 UTC, onda 2:** camada 3 implementada (5 pacotes) e em verificação. **CI de `03dadeb` (camada 2): e2e
+    vermelho no GitHub** (44 min, sem anotação de qual teste; o log do GitHub não se baixa desta máquina). Local tudo
+    verde no mesmo commit: Chromium 190/190 (portão do integrador) e WebKit 11/11 (worktree `/home/user/cwux/ci-03dadeb`;
+    o WebKit local precisa de `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1` e `LD_LIBRARY_PATH` com
+    `scratchpad/webkit-root/usr/lib/x86_64-linux-gnu:…/lib/x86_64-linux-gnu`, `PLAYWRIGHT_BROWSERS_PATH=scratchpad/pw-browsers`).
+    Pedido UM rerun do job (run 40565072746, tentativa 2): se falhar de novo, é real e vai ser achado e corrigido.
+    `REGRAS.md` ganhou a pendência 5: reporter `github` no Playwright com `CI=true`, para a falha virar anotação
+    legível pela API. Lembrete às 00:45 UTC.
