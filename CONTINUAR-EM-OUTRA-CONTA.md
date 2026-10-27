@@ -1021,6 +1021,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       WebKit do e2e passa de verdade, foto da bolha com 44 × 44 de toque, axe com as quatro tags também na Alma,
       Mensagens, Banners, Laboratório e #reset, auditoria com o diálogo Desligar) e o e2e da auditoria mobile rodando.
       `painel/ux-onda-1` segue em `3a2a7d0` com CI verde; contêiner sem reinício desde 03:20.
+    - **27/10 10:28 UTC:** os 3 pacotes da camada 4 verificados (`rede-testes` empurrado em `d9f1b83`); junção da
+      camada 4 com o portão completo rodando; depois o portão de saída da onda. Lembrete automático às 12:28 UTC.
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
