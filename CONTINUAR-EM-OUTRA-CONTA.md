@@ -1003,6 +1003,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       reescrito** no PRD da onda (`141a98f`, cópia em `auditorias/2026-10-25/ux/`); U06 (resposta neutra da trava)
       fica como está. Regras dos agentes atualizadas (`harness/REGRAS.md`). Telas finais com textos de causa
       (a3-erro-fora-do-ar etc.) ficaram desatualizadas: valem o PRD e o código.
+    - **Terceiro reinício (27/10 ~03:20 UTC):** caiu logo no começo da camada 3; o pacote `menu-leitor-textos` não
+      tinha nenhuma edição. Nada perdido: `painel/ux-onda-1` em `141a98f` com **CI verde** (o e2e de `34f5d00` foi
+      cancelado pelo push seguinte, não falhou). Branch do pacote avançada para `141a98f` (para ler o PRD novo) e
+      empurrada; workflow retomado (tarefa `w2rzql08g`). Próximo lembrete automático às 05:54 UTC, com o mesmo comando
+      de retomada.
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
