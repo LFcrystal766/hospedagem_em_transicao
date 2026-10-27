@@ -1046,6 +1046,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       repetido, `SET XX` no 409 do aceite, `backup-mode` antigo gravando `auto`; ghostBtn sem vermelho; "Entrar como
       aluno" no login da equipe; 2 textarea de 12 px; rolagem suave sem "Reduzir movimento"; PENDENCIAS U30/U34/U39/U43
       do U23).
+    - **27/10 ~11:50 UTC: base da onda 2 VERDE** (`base-onda2.log`: tudo OK, e2e 168 passaram e 7 pulados) e **onda 2
+      lançada**: workflow `wf_ca330f41-fa3` (tarefa `wu35e3hnq`), args onda 2, itens "U24 a U47, U59 (primeira camada)
+      e as pendências da onda 1", porta0 4400. Retomada, se cair: mesmo `scriptPath`
+      (`workflows/scripts/ux-prd-onda-wf_1ed70145-182.js`) com `resumeFromRunId: "wf_ca330f41-fa3"` e os mesmos args
+      (estão no lembrete das 14:30 UTC). O CI de `c71b41c` (onda 1) ainda rodando; imagens depois dele.
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
