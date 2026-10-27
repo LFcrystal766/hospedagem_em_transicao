@@ -1023,6 +1023,29 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       `painel/ux-onda-1` segue em `3a2a7d0` com CI verde; contêiner sem reinício desde 03:20.
     - **27/10 10:28 UTC:** os 3 pacotes da camada 4 verificados (`rede-testes` empurrado em `d9f1b83`); junção da
       camada 4 com o portão completo rodando; depois o portão de saída da onda. Lembrete automático às 12:28 UTC.
+    - **27/10 ~11:25 UTC: ONDA 1 PRONTA (U01–U23, nenhum faltando).** `painel/ux-onda-1` em **`c71b41c`**. Portão
+      completo verde: 352 + 1.782 + 1.323 + 704 testes, build, safari, audit sem vulnerabilidade, e2e 168 passaram e
+      7 pulados (os da base), login só com e-mail 10/10, WebKit 18/18. Migração única e aditiva
+      `ux1_01_messages_neutra` (coluna `messages.neutra`, padrão falso; a volta da imagem não precisa de volta de
+      banco); nenhuma variável nova em produção; API, web e Crystal na mesma tag; `backup_mode` nasce `off`; cache do
+      service worker v4 → v5. Prompt da Crystal intocado (o serviço só devolve o sinal `neutra` do U06; o `alma.md` do
+      web é o guia de textos da interface e ganhou a frase nova da faixa de reserva do U22).
+      - Lista do iPhone: `docs/ux/onda-1-conferir-em-aparelho.md` no app, cópia em
+        `auditorias/2026-10-25/ux/execucao/`. PRD com a seção "Execução" (desvios) copiado para
+        `auditorias/2026-10-25/ux/` (`b18199d`). `PROXIMOS-PASSOS.md` › Ordem › 3 ganhou "Integrações › Canal →
+        Desligado" e conferir o "Aviso do modo reserva" antes de encerrar o WhatsApp.
+      - Para o dono responder (nada trava a subida): OK do tom novo do toque no rosa `#c20857`; rótulo de voz do CVV;
+        texto do limite de recomeços; depois do teste no iPhone instalado, ligar ou não
+        `MICROFONE_IPHONE_INSTALADO_USA_RESERVA`. Perguntas 1–7 do PRD aplicadas no padrão (tabela no fim da lista do
+        iPhone).
+      - Publicação: depois do CI verde de `c71b41c`, disparar `imagens-vps` em `painel/ux-onda-1` → `sha-c71b41c`. Ela
+        já contém o `sha-3c343df` (segurança de 24/10), então o SQL e o n8n da segurança vêm antes ou junto.
+    - **Onda 2 preparada:** `painel/ux-onda-2` criada de `c71b41c` (worktree `/home/user/cw-ux-onda2`, empurrada);
+      portão completo da base rodando para `harness/base-onda2.log`; `REGRAS.md` ganhou "Pendências da onda 1 que
+      entram na onda 2" (C01 separado em C02/C03 pelo `NO_CREDIT`/`TIMEOUT`; 3 baixos de segurança: `challenge_id`
+      repetido, `SET XX` no 409 do aceite, `backup-mode` antigo gravando `auto`; ghostBtn sem vermelho; "Entrar como
+      aluno" no login da equipe; 2 textarea de 12 px; rolagem suave sem "Reduzir movimento"; PENDENCIAS U30/U34/U39/U43
+      do U23).
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
