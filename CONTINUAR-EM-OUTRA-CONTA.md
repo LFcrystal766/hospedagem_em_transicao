@@ -1012,6 +1012,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       textos U04, U15, U18, U20). 19 dos 23 itens da onda 1 na branch. Camada 4 em implementação: `erro-critico` (U19)
       com commit `33a6bea`; `erros-conversa-audio` (U05 com código, U13) com edições ainda sem commit; `rede-testes`
       (U23) começando. Depois: verificação, junção e portão de saída. Lembrete automático às 08:25 UTC.
+    - **27/10 08:27 UTC: camada 4 implementada.** `erro-critico` (U19, 2 commits) e `erros-conversa-audio` (U05 erro só
+      com a frase neutra e o código, a causa na ficha da equipe; U13 áudio para aos 2:00 e microfone recusado diz onde
+      liberar; 5 commits) já verificados; `rede-testes` (U23, 6 commits: seed demo, auditoria mobile 360–412, axe) em
+      verificação. Faltam a junção da camada 4 e o portão de saída. O script do workflow agora lê `base-onda<N>.log`
+      (pronto para a onda 2). Lembrete automático às 10:27 UTC.
 
 52. **26/10, suporte (Letícia):** (a) **Ivan**: e-mail trocado no Supabase com `app_aluno_trocar_email` (status
     "trocado", origem base); o novo entra (`liberado = true`), o antigo não. (b) **Brunno** ("não tem cadastro nesse
