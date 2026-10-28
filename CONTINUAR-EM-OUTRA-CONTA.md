@@ -1240,3 +1240,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **Onda 3 relançada** às 22:50 UTC: workflow `wf_3b46c5ea-941` (tarefa `w93lw0z2e`) com plano fixo: camada 1
       `campo-interruptor` + `icones` (continuar das branches), camada 2 `dialogo-tokens` + `titulos-marca`, camada 3
       `primeiro-acesso-letra`. O lembrete das 01:09 UTC tem o roteiro para os dois casos (zerou de novo ou só a sessão).
+76. **28/10 ~23:05 UTC: o contêiner reiniciou** (desta vez os arquivos ficaram: clone, worktrees, harness, journal).
+    O workflow da onda 3 caiu com a camada 1 em implementação (`campo-interruptor` e `icones`, com tudo commitado e
+    empurrado e 1 arquivo sem commit cada). Retomado às 23:08 UTC com `resumeFromRunId: "wf_3b46c5ea-941"` e o mesmo
+    `scriptPath` do repositório (o plano volta do cache). Os agentes instalaram no scratchpad o Chromium que o
+    Playwright 1.62.1 do app pede (`chromium-1234`; o de `/opt` é o 1243).
