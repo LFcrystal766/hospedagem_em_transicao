@@ -1201,3 +1201,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     pacote, `botao-aviso`, ainda sem nenhuma edição). Plano da onda 3: (1) `botao-aviso` (U48 Button, U50 aviso);
     (2) `campo-interruptor` (U49, U52, U57), `icones` (U53); (3) `dialogo-tokens` (U51, U55), `titulos-marca` (U54);
     (4) `primeiro-acesso-letra` (U56, U58). Retomado com `resumeFromRunId: "wf_d167c4b5-a39"` (o plano volta do cache).
+71. **28/10, suporte (Letícia), 4 casos, todos conferidos com `app_verificar_login_email` (o novo entra com
+    `liberado = true`, o antigo não acha nada):**
+    - **Wagner:** na base o e-mail estava `…@gmai.com` (faltava o "l", não o `@gmail.com` que a Letícia mandou);
+      trocado para o Hotmail novo com `app_aluno_trocar_email` (origem base).
+    - **Valdinez:** e-mail errado na base (o `@` no lugar errado); trocado para o certo (origem base).
+    - **Edson:** a base tinha o e-mail com "serafin" (com **n**) e ele usa "serafim" (com **m**): o código ia para
+      uma caixa que não é dele. Trocado na base (`app_aluno_trocar_email`) e, à mão, na liberação manual de 22/10
+      (`crystal_compras`, transação `manual-20261022-pedido-do-dono-assinatura-agencia-25575-pendente`), para as
+      duas continuarem juntas.
+    - **Gastor:** o e-mail está na base desde 01/06 e o login responde `liberado = true` hoje; nada a trocar. Pedir
+      para digitar exatamente o e-mail da compra (minúsculo, sem espaço, sem `.br`) e olhar o lixo eletrônico
+      (Hotmail atrasa o código).
