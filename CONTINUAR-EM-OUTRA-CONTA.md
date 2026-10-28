@@ -1220,3 +1220,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     do `botao-aviso` já estava feito no worktree de integração (`0256bdc`, ainda não empurrado; o portão não tinha
     terminado). Retomado às 17:27 UTC (tarefa `ww2hfao76`, mesmo `resumeFromRunId`); o integrador refaz o portão e
     empurra. Lembrete às 19:58 UTC.
+74. **28/10 19:59 UTC, onda 3:** camada 1 juntada e **empurrada** (`painel/ux-onda-3` em `0256bdc`; portão completo
+    verde menos o teste de tempo conhecido). Camada 2: `icones` (U53) implementado e em verificação;
+    `campo-interruptor` (U49, U52, U57) em implementação. Actions continua bloqueado (o run de `0256bdc` falhou na
+    hora). Lembrete às 22:29 UTC.
