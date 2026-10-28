@@ -1172,3 +1172,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 66. **28/10 07:58 UTC:** os 5 pacotes da camada 4 da onda 2 verificados (com correções dos verificadores); a junção da
     camada 4 está rodando e depois vem o portão de saída da onda 2. Actions sem run novo desde 04:59 (bloqueio de
     cobrança). Lembrete às 10:28 UTC, já com o roteiro da onda 3 (U48–U58, porta0 5400).
+67. **28/10 10:30 UTC:** camada 4 da onda 2 **juntada** (`painel/ux-onda-2` em `3d2930b`, portão completo verde menos o
+    teste de tempo já conhecido); **portão de saída da onda 2 rodando** (já fez `76c8ae1` foco atrás da barra fixa no
+    celular, `9254e0d` contraste ampliado, `3475aa4` documentos e lista do iPhone). Actions ainda bloqueado por
+    cobrança (o CI de `3d2930b` morreu em 2 s). Depois do portão: onda 3 (U48–U58).
