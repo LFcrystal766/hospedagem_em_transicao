@@ -1132,3 +1132,16 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 61. **28/10 00:22 UTC, onda 2:** camada 3 verificada (5 pacotes: `lista-inicio` U28/U32/U44, `equipe-papeis` U36/U45,
     `configuracoes` U40/P3d, `subrotas` U30/U46/P4, `mensagens` U34/P4) e em junção (`9390461`, `2c5b5b9` em
     `painel/ux-onda-2`, portão completo rodando). Depois: camada 4 e o portão de saída. Lembrete às 02:52 UTC.
+62. **28/10 ~03:00 UTC, onda 2:** camada 3 **juntada** (`painel/ux-onda-2` em `3d93bed`; portão local verde, e2e 222
+    passaram, WebKit 13/13, login só com e-mail 10/10; só o teste de tempo do `vazamento-camadas`, 5,3–5,7 ms, falha,
+    e falha igual na base `c71b41c` nesta máquina). Camada 4 em implementação (`ficha-suporte`, `crystal`, depois
+    `laboratorio`, `jargao`, `financeiro-auditoria`).
+    - **CI de `3d93bed`: e2e vermelho de novo no GitHub** (35 min; local verde). Suspeita: no GitHub os dois projetos
+      (Chromium e WebKit) rodam juntos no mesmo servidor de teste e um deixa estado para o outro (limites de código por
+      e-mail, recomeços por dia…); local o WebKit rodava à parte. Rodando local exatamente como o CI no worktree
+      `/home/user/cwux/diag` (branch `painel/ux-onda-2-diag` = `3d93bed` + reporter `github`), log
+      `scratchpad/ci-like-3d93bed.log`.
+    - **GitHub Actions BLOQUEADO por cobrança** desde ~02:54 UTC: o run da branch de diagnóstico não começou ("The job
+      was not started because recent account payments have failed or your spending limit needs to be increased").
+      **Dono:** GitHub › Settings › Billing & plans (pagamento ou limite de gasto do Actions). Sem isso não há CI nem
+      `imagens-vps` (a onda 1, `sha-c71b41c`, já tem imagem pronta e não depende disso).
