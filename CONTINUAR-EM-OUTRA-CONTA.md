@@ -1239,4 +1239,4 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       as duas branches estão no origin com 4 e 8 commits.
     - **Onda 3 relançada** às 22:50 UTC: workflow `wf_3b46c5ea-941` (tarefa `w93lw0z2e`) com plano fixo: camada 1
       `campo-interruptor` + `icones` (continuar das branches), camada 2 `dialogo-tokens` + `titulos-marca`, camada 3
-      `primeiro-acesso-letra`. O lembrete das 01:20 UTC tem o roteiro para os dois casos (zerou de novo ou só a sessão).
+      `primeiro-acesso-letra`. O lembrete das 01:09 UTC tem o roteiro para os dois casos (zerou de novo ou só a sessão).
