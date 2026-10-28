@@ -1169,3 +1169,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 65. **28/10 05:27 UTC:** camada 4 da onda 2 com os 5 pacotes implementados (`ficha-suporte` U29/U35, `crystal` U37,
     `laboratorio` U39/P3c/P4, `jargao` U41, `financeiro-auditoria` U43/U47/P4) e a verificação começando. O push de
     `1c24d21` disparou o CI, que morreu em 2 s: **GitHub Actions continua bloqueado por cobrança**. Lembrete às 07:57 UTC.
+66. **28/10 07:58 UTC:** os 5 pacotes da camada 4 da onda 2 verificados (com correções dos verificadores); a junção da
+    camada 4 está rodando e depois vem o portão de saída da onda 2. Actions sem run novo desde 04:59 (bloqueio de
+    cobrança). Lembrete às 10:28 UTC, já com o roteiro da onda 3 (U48–U58, porta0 5400).
