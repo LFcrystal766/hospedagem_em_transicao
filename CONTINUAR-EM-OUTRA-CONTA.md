@@ -1159,3 +1159,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Commits `26947d2`, `2fece12`, `5ca07fb` na branch `painel/ux-onda-2-diag` (sobre `3d93bed`, com o reporter
     `github` em `4593c59`); portão rápido verde; e2e no modo do CI rodando de novo (`scratchpad/ci-like-diag2.log`).
     Entram em `painel/ux-onda-2` quando nenhum integrador estiver rodando.
+64. **28/10 ~05:20 UTC: correções do e2e do GitHub na branch da onda.** O e2e no modo do CI com as 3 correções deu
+    234 passaram e 1 instável novo (U24, leitura do marcador da equipe logo depois do login; corrigido com espera:
+    6 de 6 seguidas, `1c24d21`). `painel/ux-onda-2` avançada para **`1c24d21`** (fast-forward com a branch
+    `painel/ux-onda-2-diag`: reporter `github` + login antes da hidratação + título da aba + tempo do U59 + U24) e
+    empurrada, com a camada 4 ainda em implementação (o integrador da camada 4 junta por cima). Worktree de diagnóstico
+    removido. O defeito do login antes da hidratação também está na onda 1 (`sha-c71b41c`) e provavelmente em
+    produção; a correção sai com a onda 2 (o GitHub Actions está bloqueado por cobrança, sem imagem nova agora).
