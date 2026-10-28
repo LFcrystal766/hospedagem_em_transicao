@@ -1166,3 +1166,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     empurrada, com a camada 4 ainda em implementação (o integrador da camada 4 junta por cima). Worktree de diagnóstico
     removido. O defeito do login antes da hidratação também está na onda 1 (`sha-c71b41c`) e provavelmente em
     produção; a correção sai com a onda 2 (o GitHub Actions está bloqueado por cobrança, sem imagem nova agora).
+65. **28/10 05:27 UTC:** camada 4 da onda 2 com os 5 pacotes implementados (`ficha-suporte` U29/U35, `crystal` U37,
+    `laboratorio` U39/P3c/P4, `jargao` U41, `financeiro-auditoria` U43/U47/P4) e a verificação começando. O push de
+    `1c24d21` disparou o CI, que morreu em 2 s: **GitHub Actions continua bloqueado por cobrança**. Lembrete às 07:57 UTC.
