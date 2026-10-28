@@ -1176,3 +1176,20 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     teste de tempo já conhecido); **portão de saída da onda 2 rodando** (já fez `76c8ae1` foco atrás da barra fixa no
     celular, `9254e0d` contraste ampliado, `3475aa4` documentos e lista do iPhone). Actions ainda bloqueado por
     cobrança (o CI de `3d2930b` morreu em 2 s). Depois do portão: onda 3 (U48–U58).
+68. **28/10 ~11:30 UTC: ONDA 2 PRONTA (U24–U47, U59 e todas as pendências da onda 1, nenhum faltando).**
+    `painel/ux-onda-2` em **`bad27a7`**. Portão de saída: shared 364, api 1.845, web 1.752, crystal 704 (+ o teste de
+    tempo conhecido vermelho, igual na base), build, safari, audit, e2e 249 passaram e 7 pulados (os da base), login
+    só com e-mail 10/10, WebKit 14/14. O portão ainda corrigiu: U32 plurais e `formatUsd` único (`0cb4180`), U26 seis
+    "Carregando…" soltos viram esqueleto (`bb6c392`), U25 foco atrás da barra fixa no celular (`76c8ae1`), contraste
+    ampliado (`9254e0d`). Sem migração e sem variável nova; API, web e Crystal na mesma tag (contrato do shared mudou;
+    rota nova `POST /staff/tickets`); `CACHE_VERSION` continua v5.
+    - Lista do iPhone: `auditorias/2026-10-25/ux/execucao/onda-2-conferir-em-aparelho.md`; PRD com "Execução › U-onda 2"
+      copiado para `auditorias/2026-10-25/ux/`.
+    - Para o dono decidir (nada trava): crédito zerado/chave recusada (C02) acendem a faixa "fora do ar"?; o nome
+      provisório "Aluno" gravado no banco; o mapa de calor das coortes que rola de lado no celular; CSVs renomeados
+      (`clientes.csv`, coluna "cliente"). Perguntas 8–12 no padrão.
+    - **Sem imagem:** o GitHub Actions está bloqueado por cobrança; quando voltar: CI de `bad27a7` e `imagens-vps` em
+      `painel/ux-onda-2` (a tag vai levar onda 1 + onda 2 + segurança).
+    - **Onda 3 preparada:** `painel/ux-onda-3` criada de `bad27a7` (worktree `/home/user/cw-ux-onda3`, empurrada);
+      portão da base rodando para `harness/base-onda3.log` (porta 5300); `REGRAS.md` com as notas da onda 3 (teste de
+      tempo, WebKit local, e2e como o CI no portão de saída, Actions bloqueado).
