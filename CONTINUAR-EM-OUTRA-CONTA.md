@@ -1193,3 +1193,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **Onda 3 preparada:** `painel/ux-onda-3` criada de `bad27a7` (worktree `/home/user/cw-ux-onda3`, empurrada);
       portão da base rodando para `harness/base-onda3.log` (porta 5300); `REGRAS.md` com as notas da onda 3 (teste de
       tempo, WebKit local, e2e como o CI no portão de saída, Actions bloqueado).
+69. **28/10 ~12:15 UTC: onda 3 lançada** (U48–U58). Base `base-onda3.log` verde (e2e 249 passaram, 7 pulados) menos o
+    teste de tempo conhecido. Workflow `wf_d167c4b5-a39` (tarefa `w3q0em2o2`), args onda 3, itens "U48 a U58 (na
+    ordem do PRD…)", porta0 5400. Retomada, se cair: mesmo `scriptPath` com `resumeFromRunId: "wf_d167c4b5-a39"`
+    (está no lembrete das 14:50 UTC).
