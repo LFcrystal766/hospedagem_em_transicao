@@ -1129,3 +1129,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     só com e-mail). A 1.ª tentativa (44 min, vermelha) não se repetiu e não reproduziu local: fica registrada como
     falha do GitHub sem causa conhecida; a pendência 5 do `REGRAS.md` (reporter `github`) faz a próxima falha dizer
     o teste. Worktree de conferência `/home/user/cwux/ci-03dadeb` removido.
+61. **28/10 00:22 UTC, onda 2:** camada 3 verificada (5 pacotes: `lista-inicio` U28/U32/U44, `equipe-papeis` U36/U45,
+    `configuracoes` U40/P3d, `subrotas` U30/U46/P4, `mensagens` U34/P4) e em junção (`9390461`, `2c5b5b9` em
+    `painel/ux-onda-2`, portão completo rodando). Depois: camada 4 e o portão de saída. Lembrete às 02:52 UTC.
