@@ -1224,3 +1224,19 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     verde menos o teste de tempo conhecido). Camada 2: `icones` (U53) implementado e em verificação;
     `campo-interruptor` (U49, U52, U57) em implementação. Actions continua bloqueado (o run de `0256bdc` falhou na
     hora). Lembrete às 22:29 UTC.
+75. **28/10 ~22:30 UTC: o contêiner ZEROU** (não foi só reinício): voltou com uma cópia antiga deste repositório
+    (de 13/09), sem o clone do app, sem os worktrees e sem o scratchpad (harness, logs, WebKit) e sem o journal dos
+    workflows. **Nada pushado se perdeu.** Recuperação (22:30–22:50 UTC):
+    - Este repositório: `git merge --ff-only origin/claude/gracious-shannon-6x9l5j` (estava 475 commits atrás).
+    - App clonado de novo em `/home/user/crystal-web-chat`; worktree `/home/user/cw-ux-onda3` de
+      `origin/painel/ux-onda-3` (`0256bdc`); `pnpm install` ok; push para o app ok.
+    - **Harness agora no repositório** (`crystal-em-casa/ux-harness/`, commit `4a1e487`): `gate.sh` (com o modo novo
+      `ci`: Chromium e WebKit juntos como o GitHub, teste instável conta como falha), `REGRAS.md` (refeito, com as
+      lições das ondas 1 e 2), `ux-prd-onda.js` (o roteiro dos agentes, refeito; aceita `plano` fixo para retomar sem
+      journal), `webkit-local.sh` (WebKit no scratchpad com `--with-deps`; 3/3 no `onda6-iphone` conferido) e
+      `base-onda3.log` (resumo da base).
+    - Perdido: só trabalho sem push dos agentes que rodavam (a verificação do `icones` e o fim do `campo-interruptor`);
+      as duas branches estão no origin com 4 e 8 commits.
+    - **Onda 3 relançada** às 22:50 UTC: workflow `wf_3b46c5ea-941` (tarefa `w93lw0z2e`) com plano fixo: camada 1
+      `campo-interruptor` + `icones` (continuar das branches), camada 2 `dialogo-tokens` + `titulos-marca`, camada 3
+      `primeiro-acesso-letra`. O lembrete das 01:20 UTC tem o roteiro para os dois casos (zerou de novo ou só a sessão).
