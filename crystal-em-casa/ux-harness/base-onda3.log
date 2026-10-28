@@ -1,0 +1,17 @@
+# Portão completo da base da onda 3 (painel/ux-onda-3 em bad27a7, fim da onda 2), 28/10/2026 ~11:20 UTC, porta 5300.
+# O log original ficou no scratchpad, que o contêiner zerou às 22:30 UTC; este é o resumo que foi lido dele.
+OK prisma
+OK tipos-shared
+OK tipos-api
+OK tipos-web
+OK tipos-crystal
+OK lint
+OK testes-shared
+OK testes-api
+OK testes-web
+FALHOU testes-crystal   (só src/vazamento-camadas.test.ts › "menos de ~5 ms por resposta típica": o teste de tempo conhecido)
+OK build-web
+OK safari
+OK audit
+OK e2e-completo         (249 passaram, 7 pulados: alma.spec sem E2E_ALMA_REAL e mensagens-chatwoot sem E2E_CHAT_TRANSPORT)
+PORTÃO VERMELHO: testes-crystal
