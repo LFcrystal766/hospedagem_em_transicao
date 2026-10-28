@@ -1197,3 +1197,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     teste de tempo conhecido. Workflow `wf_d167c4b5-a39` (tarefa `w3q0em2o2`), args onda 3, itens "U48 a U58 (na
     ordem do PRD…)", porta0 5400. Retomada, se cair: mesmo `scriptPath` com `resumeFromRunId: "wf_d167c4b5-a39"`
     (está no lembrete das 14:50 UTC).
+70. **28/10 ~11:45 UTC: o contêiner reiniciou** logo no começo da onda 3 (o planejador tinha terminado; o primeiro
+    pacote, `botao-aviso`, ainda sem nenhuma edição). Plano da onda 3: (1) `botao-aviso` (U48 Button, U50 aviso);
+    (2) `campo-interruptor` (U49, U52, U57), `icones` (U53); (3) `dialogo-tokens` (U51, U55), `titulos-marca` (U54);
+    (4) `primeiro-acesso-letra` (U56, U58). Retomado com `resumeFromRunId: "wf_d167c4b5-a39"` (o plano volta do cache).
