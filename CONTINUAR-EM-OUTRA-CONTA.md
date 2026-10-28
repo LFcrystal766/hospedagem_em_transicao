@@ -1213,3 +1213,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **Gastor:** o e-mail está na base desde 01/06 e o login responde `liberado = true` hoje; nada a trocar. Pedir
       para digitar exatamente o e-mail da compra (minúsculo, sem espaço, sem `.br`) e olhar o lixo eletrônico
       (Hotmail atrasa o código).
+72. **28/10 14:53 UTC, onda 3:** camada 1 (`botao-aviso`: U48 um Button para os dois lados, U50 um Notice; amarelo é
+    aviso, vermelho é erro) implementada, verificada e em junção (`0256bdc` em `painel/ux-onda-3`). Depois: camada 2
+    (`campo-interruptor` U49/U52/U57, `icones` U53). Actions ainda bloqueado. Lembrete às 17:23 UTC.
