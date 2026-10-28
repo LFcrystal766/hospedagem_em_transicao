@@ -1145,3 +1145,17 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       was not started because recent account payments have failed or your spending limit needs to be increased").
       **Dono:** GitHub › Settings › Billing & plans (pagamento ou limite de gasto do Actions). Sem isso não há CI nem
       `imagens-vps` (a onda 1, `sha-c71b41c`, já tem imagem pronta e não depende disso).
+63. **28/10 ~04:30 UTC: causa do e2e vermelho no GitHub achada** (rodando local exatamente como o CI, os dois
+    projetos juntos, `scratchpad/ci-like-3d93bed.log`): 3 testes instáveis, cada um caiu uma vez e passou na
+    repetição; no GitHub, uma segunda queda vira vermelho. Dois eram **defeitos reais do app**:
+    - **Login da equipe (e da cliente):** campo preenchido antes de a página terminar de carregar (gerenciador de
+      senhas do iPhone numa página lenta) ficava fora do estado do React: na equipe o "Continuar" travava com e-mail e
+      senha à vista; na cliente o envio diria "Digite o e-mail". Corrigido com `useLerCampoNaMontagem`
+      (`apps/web/lib/campo-pre-hidratacao.ts`), teste com `renderToString` + `hydrateRoot` que falha sem a correção.
+      O defeito já existia na onda 1 (`sha-c71b41c`) e provavelmente em produção: só aparece com página lenta.
+    - **Título da aba da ficha (U30):** o título do metadata do Next ("Crystal") às vezes chegava depois e apagava
+      "Ana · Clientes · Crystal". Guarda na moldura do painel (`apps/web/lib/titulo-da-aba.ts`), com teste.
+    - E a varredura do U59 (mais de 300 arquivos) caía nos 5 s padrão do vitest com a máquina ocupada: tempo próprio.
+    Commits `26947d2`, `2fece12`, `5ca07fb` na branch `painel/ux-onda-2-diag` (sobre `3d93bed`, com o reporter
+    `github` em `4593c59`); portão rápido verde; e2e no modo do CI rodando de novo (`scratchpad/ci-like-diag2.log`).
+    Entram em `painel/ux-onda-2` quando nenhum integrador estiver rodando.
