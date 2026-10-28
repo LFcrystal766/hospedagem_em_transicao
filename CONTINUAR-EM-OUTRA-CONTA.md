@@ -1216,3 +1216,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 72. **28/10 14:53 UTC, onda 3:** camada 1 (`botao-aviso`: U48 um Button para os dois lados, U50 um Notice; amarelo é
     aviso, vermelho é erro) implementada, verificada e em junção (`0256bdc` em `painel/ux-onda-3`). Depois: camada 2
     (`campo-interruptor` U49/U52/U57, `icones` U53). Actions ainda bloqueado. Lembrete às 17:23 UTC.
+73. **28/10 ~17:25 UTC: o contêiner reiniciou de novo** (o 6.º desde 26/10), na junção da camada 1 da onda 3. O merge
+    do `botao-aviso` já estava feito no worktree de integração (`0256bdc`, ainda não empurrado; o portão não tinha
+    terminado). Retomado às 17:27 UTC (tarefa `ww2hfao76`, mesmo `resumeFromRunId`); o integrador refaz o portão e
+    empurra. Lembrete às 19:58 UTC.
