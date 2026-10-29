@@ -1267,3 +1267,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     títulos e marca, U55 tokens; portão verde menos o teste de tempo conhecido). Camada 3 (`primeiro-acesso-letra`):
     U56 feito, U58 (selo da foto e tamanho da letra) em andamento. Depois: verificação, junção e o portão de saída com
     o modo `ci`. Actions ainda bloqueado. Lembrete às 13:58 UTC.
+83. **29/10 14:05 UTC, onda 3:** camada 3 (`primeiro-acesso-letra`: U56 itens 3–7 e U58 itens 1–2; perguntas 13 e 14
+    no padrão) verificada e em junção (merge `816262e`). Falta só o portão de saída da onda 3 (com o modo `ci`), que
+    fecha o PRD inteiro. Actions ainda bloqueado. Lembrete às 16:35 UTC.
