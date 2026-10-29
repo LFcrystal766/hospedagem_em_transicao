@@ -1258,3 +1258,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     tudo empurrado. Retomado às 05:50 UTC (mesmo `resumeFromRunId`). Corrigido no `gate.sh`: o `.gate/` ia para o
     exclude do worktree, que o git não lê (os logs entraram num commit do U53, depois tirados); agora vai para o
     exclude comum.
+80. **29/10 06:15 UTC, onda 3:** camada 2 em andamento (`titulos-marca` U54 em verificação, `dialogo-tokens` U51/U55
+    terminando a implementação). Actions ainda bloqueado (o run de `a698d52` falhou na hora). Lembrete às 08:45 UTC.
