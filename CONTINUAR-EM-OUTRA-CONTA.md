@@ -1248,3 +1248,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 77. **29/10 01:10 UTC, onda 3:** sem reinício desde 23:05. Camada 1: `icones` (U53) implementado e em verificação;
     `campo-interruptor` (U49, U52, U57) terminando a implementação. Actions ainda bloqueado (nenhum run novo).
     Lembrete às 03:40 UTC.
+78. **29/10 03:42 UTC, onda 3:** camada 1 verificada (`campo-interruptor` U49/U52/U57 e `icones` U53) e em junção
+    (merges `6604a8f` e `e608862` no worktree de integração; portão completo rodando). Depois: camada 2
+    (`dialogo-tokens` U51/U55, `titulos-marca` U54), camada 3 (`primeiro-acesso-letra` U56/U58) e o portão de saída
+    com o modo `ci`. Actions ainda bloqueado. Lembrete às 06:12 UTC.
