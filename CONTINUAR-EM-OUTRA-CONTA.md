@@ -1296,3 +1296,17 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       texto em telas do painel; a branch `uxp/onda3-portao-saida` ficou no origin (o proxy recusou apagar).
     - `gate.sh` agora acha sozinho o Chromium da revisão do Playwright do app no scratchpad.
     - **Bloqueio que resta: GitHub Actions por cobrança** (sem CI e sem imagem das ondas 2 e 3).
+86. **29/10 ~18:55 UTC, suporte (Letícia): Rilzo, Android, áudio com "Não consegui enviar. Tentar de novo"** (dois
+    áudios de 0:01, às 09:56 e 09:57 de Brasília, no 4G; o texto das 09:42 foi). Diagnóstico no código da `088d07d`:
+    - Cadastro certo: `app_verificar_login_email` volta liberado (`t`).
+    - Essa frase é a falha **genérica** do envio: rede, limite (10/min por sessão, 20/min por IP, 200/dia por
+      pessoa), sessão que não renovou ou erro 5xx. Tipo e tamanho errados (413/415) mostram outra frase, então não é
+      o formato do áudio do Android.
+    - A transcrição roda depois do 201 e não causa esse aviso. O app não reenvia áudio sozinho.
+    - O gesto de segurar o microfone não manda sozinho: os 0:01 são ele soltando cedo.
+    - O envio de arquivo é igual na `c71b41c` e na `466886d`.
+    - **Falta o log da VPS** para cravar a causa: comando e tabela de leitura em
+      `crystal-em-casa/suporte-envio-de-midia.md` (testado no `mawk`; mostra hora, rota e código, sem e-mail nem IP;
+      o log guarda 30 MB por contêiner).
+    - Ideia para depois, decisão do dono: código também na bolha do envio que falhou (hoje C01–C09 só nas respostas
+      da Crystal), para a Letícia passar o código e a gente saber a causa sem log.
