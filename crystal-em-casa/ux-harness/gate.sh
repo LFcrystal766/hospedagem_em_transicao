@@ -29,8 +29,9 @@ done
 
 cd "$WT" || { echo "worktree não existe: $WT"; exit 2; }
 mkdir -p .gate
-if [ -f .git ]; then gitdir=$(sed 's/^gitdir: //' .git); else gitdir=.git; fi
-mkdir -p "$gitdir/info" 2>/dev/null; grep -qx '.gate/' "$gitdir/info/exclude" 2>/dev/null || echo '.gate/' >> "$gitdir/info/exclude" 2>/dev/null
+# O exclude que vale para todos os worktrees fica no diretório comum do git (não no .git/worktrees/<nome>).
+comum=$(git rev-parse --git-common-dir 2>/dev/null || echo .git)
+mkdir -p "$comum/info" 2>/dev/null; grep -qx '.gate/' "$comum/info/exclude" 2>/dev/null || echo '.gate/' >> "$comum/info/exclude" 2>/dev/null
 
 FALHAS=()
 etapa() { # etapa <nome> <comando…>

@@ -1252,3 +1252,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     (merges `6604a8f` e `e608862` no worktree de integração; portão completo rodando). Depois: camada 2
     (`dialogo-tokens` U51/U55, `titulos-marca` U54), camada 3 (`primeiro-acesso-letra` U56/U58) e o portão de saída
     com o modo `ci`. Actions ainda bloqueado. Lembrete às 06:12 UTC.
+79. **29/10 ~05:45 UTC: o contêiner reiniciou** (arquivos preservados). Camada 1 da onda 3 já estava **juntada e
+    empurrada** (`painel/ux-onda-3` em `a698d52`, portão verde; o integrador ainda corrigiu um teste instável do U24).
+    Camada 2: `titulos-marca` (U54, 4 commits) em verificação; `dialogo-tokens` (U51, U55, 5 commits) na implementação;
+    tudo empurrado. Retomado às 05:50 UTC (mesmo `resumeFromRunId`). Corrigido no `gate.sh`: o `.gate/` ia para o
+    exclude do worktree, que o git não lê (os logs entraram num commit do U53, depois tirados); agora vai para o
+    exclude comum.
