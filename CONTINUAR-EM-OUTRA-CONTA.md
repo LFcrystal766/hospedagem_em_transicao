@@ -1245,3 +1245,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     empurrado e 1 arquivo sem commit cada). Retomado às 23:08 UTC com `resumeFromRunId: "wf_3b46c5ea-941"` e o mesmo
     `scriptPath` do repositório (o plano volta do cache). Os agentes instalaram no scratchpad o Chromium que o
     Playwright 1.62.1 do app pede (`chromium-1234`; o de `/opt` é o 1243).
+77. **29/10 01:10 UTC, onda 3:** sem reinício desde 23:05. Camada 1: `icones` (U53) implementado e em verificação;
+    `campo-interruptor` (U49, U52, U57) terminando a implementação. Actions ainda bloqueado (nenhum run novo).
+    Lembrete às 03:40 UTC.
