@@ -1270,3 +1270,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 83. **29/10 14:05 UTC, onda 3:** camada 3 (`primeiro-acesso-letra`: U56 itens 3–7 e U58 itens 1–2; perguntas 13 e 14
     no padrão) verificada e em junção (merge `816262e`). Falta só o portão de saída da onda 3 (com o modo `ci`), que
     fecha o PRD inteiro. Actions ainda bloqueado. Lembrete às 16:35 UTC.
+84. **29/10 16:37 UTC, onda 3:** as 3 camadas juntadas e empurradas (`painel/ux-onda-3` em `816262e`). **Portão de
+    saída da onda 3 rodando**: já fez `8715a4e` ("Ver inscritos" com o nome acessível começando pelo texto à vista),
+    `ae45afd` (contraste com as cores da onda 3) e `37d4785` (documentos e lista do iPhone); está no 2.º e2e no modo
+    `ci` (Chromium e WebKit juntos). Lembrete às 18:37 UTC.
