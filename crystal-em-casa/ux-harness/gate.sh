@@ -75,8 +75,15 @@ fi
 
 export E2E_PORT="$PORTA" E2E_API_PORT="$((PORTA + 1))" E2E_CHATWOOT_PORT="$((PORTA + 2))" CI=true
 if [ "$MODO" = e2e ] || [ "$MODO" = completo ]; then
-  # Navegador: o Playwright do repositório acha o Chromium por PLAYWRIGHT_BROWSERS_PATH (/opt/pw-browsers).
-  export PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-/opt/pw-browsers}"
+  # Navegador: o Playwright do app (1.62.1) quer um Chromium de revisão própria. Se o scratchpad tiver uma pasta
+  # chromium-* (montada por webkit-local.sh ou por um agente), usa ela; senão, /opt/pw-browsers. Porta 6000 não serve
+  # (o Next recusa: reservada ao X11).
+  S="${UX_SCRATCH:-/tmp/claude-0/-home-user-hospedagem-em-transicao/a2a2bc38-c612-550a-a226-1af1e7b739be/scratchpad}"
+  if [ -z "${PLAYWRIGHT_BROWSERS_PATH:-}" ] && ls -d "$S"/pw-browsers/chromium-[0-9]* >/dev/null 2>&1; then
+    export PLAYWRIGHT_BROWSERS_PATH="$S/pw-browsers"
+  else
+    export PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-/opt/pw-browsers}"
+  fi
   if [ "${#SPECS[@]}" -gt 0 ]; then
     etapa "e2e" pnpm exec playwright test "${SPECS[@]}" --reporter=line
   else

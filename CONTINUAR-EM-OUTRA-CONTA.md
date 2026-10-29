@@ -1274,3 +1274,25 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     saída da onda 3 rodando**: já fez `8715a4e` ("Ver inscritos" com o nome acessível começando pelo texto à vista),
     `ae45afd` (contraste com as cores da onda 3) e `37d4785` (documentos e lista do iPhone); está no 2.º e2e no modo
     `ci` (Chromium e WebKit juntos). Lembrete às 18:37 UTC.
+85. **29/10 ~18:20 UTC: PRD DE UX/UI INTEIRO PRONTO (U01–U59).** Onda 3 fechada: `painel/ux-onda-3` em **`466886d`**
+    (contém segurança de 24/10 + ondas 1, 2 e 3). Portão de saída:
+    - `completo`: shared 364, api 1.845, web 2.075, crystal 705; build, safari, audit; e2e Chromium 285 passaram, 7
+      pulados, nenhum instável.
+    - `ci` (Chromium e WebKit juntos, como o GitHub): 301 passaram, 7 pulados, nenhum instável. Login só com e-mail
+      10/10.
+    - Corrigiu ainda: `e3f95f7` "×" escrito virou o ícone "fechar" (com guarda de teste), `8715a4e` "Ver inscritos"
+      (WCAG 2.5.3), `ae45afd` contraste com as cores da onda 3.
+    - Sem migração, sem variável nova, sem mudança na API, no shared ou na Crystal; `CACHE_VERSION` continua v5.
+    - Perguntas 13 e 14 no padrão.
+    - Lista do iPhone: `auditorias/2026-10-25/ux/execucao/onda-3-conferir-em-aparelho.md`. PRD final (com "Execução"
+      das três ondas) copiado para `auditorias/2026-10-25/ux/`.
+    - **Roteiro único de publicação:** `auditorias/2026-10-25/ux/execucao/publicar-prd-completo.md` (tag
+      `sha-466886d` depois do CI e do `imagens-vps`; migrações só as de antes: `pa23_01` e `ux1_01`; volta
+      `sha-088d07d` com o `REF`).
+    - Para depois: os testes do Laboratório (`onda6-laboratorio.spec.ts`, `lab-fake.ts`, de antes das ondas) usam
+      identificadores reais de modelo de IA, contra a regra do harness; o rosa do interruptor ligado dá 2,6:1 sobre
+      `surface-2` no escuro (hoje não acontece na tela); "Ver o tutorial de novo" pelo `/suporte` mostra a Parte 3
+      antes da 1 (o PRD manda assim); setas e marcas de texto ("›", "←", "✓") ainda aparecem como ícone ao lado de
+      texto em telas do painel; a branch `uxp/onda3-portao-saida` ficou no origin (o proxy recusou apagar).
+    - `gate.sh` agora acha sozinho o Chromium da revisão do Playwright do app no scratchpad.
+    - **Bloqueio que resta: GitHub Actions por cobrança** (sem CI e sem imagem das ondas 2 e 3).
