@@ -1260,3 +1260,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     exclude comum.
 80. **29/10 06:15 UTC, onda 3:** camada 2 em andamento (`titulos-marca` U54 em verificação, `dialogo-tokens` U51/U55
     terminando a implementação). Actions ainda bloqueado (o run de `a698d52` falhou na hora). Lembrete às 08:45 UTC.
+81. **29/10 08:46 UTC, onda 3:** sem reinício desde 05:45. Camada 2: `titulos-marca` (U54) verificado;
+    `dialogo-tokens` (U51, U55, e o nome do botão da linha do Financeiro, WCAG 2.5.3) implementado e em verificação.
+    Depois: junção da camada 2, camada 3 (U56, U58) e o portão de saída com o modo `ci`. Lembrete às 11:16 UTC.
