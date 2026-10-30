@@ -1340,3 +1340,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       encarregado de dados; os textos de sistema novos passam pela Letícia antes da promoção; M13 é promoção pelo dono
       no painel; M14 só 30 dias depois e com pedido. Pendência 3 do PRD (exportar `GET /v1/uso?dias=7` e confirmar o
       modelo em produção) é do dono, sem travar o código.
+    - **Check-in 30/10 23:51 UTC** (workflow vivo; `painel/motor2` em `9b38dee`):
+      - **M01:** feito (`f4c5b44`). Verificador: segurança APROVADO e 2 achados baixos com prova; corrigidos em
+        `8d43b2e`/`324d9ba`, portão verde.
+      - **M02:** feito (`9c67977`). Verificador: 3 achados, o principal médio: a regra de "pedido de roteiro" ficou mais
+        estreita que a do PRD. Eles vão para o corretor depois do M03.
+      - **M03:** em implementação.
