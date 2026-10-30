@@ -1314,3 +1314,29 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     base e liberado; o novo (Yahoo) não existia. `app_aluno_trocar_email` → `trocado` (origem `base`). Conferido: o
     novo entra no mesmo contato, liberado (`t`); o antigo não entra mais. O caso do áudio (item 86) ainda espera o log
     da VPS.
+88. **30/10 ~21:50 UTC: PRD do Motor 2.0 em execução** (pedido do dono: "colocar esse PRD pra rodar, use agentes… e
+    harness por tarefa de acordo com os últimos benchmarks"). PRD v3 (14 itens, 3 fases) guardado em
+    `auditorias/2026-10-30/motor2/` e no app em `docs/motor2/` (`c7e77a6`).
+    - **Branch de integração:** `painel/motor2` do app, worktree `/home/user/cw-motor2`, a partir de `466886d`.
+    - **Harness:** `crystal-em-casa/motor2-harness/`:
+      - `REGRAS.md`, com os perfis N (núcleo), D (dados e LGPD) e T (tela) e o porquê de cada regra (Terminal-Bench
+        2.0 e SWE-bench Pro: o harness muda 5 a 17 pontos; UTBoost e SWE-ABS: teste fraco aprova correção errada;
+        METR: teste verde não é código pronto);
+      - `motor2-fase.js` (workflow) e `fase-1-args.json`;
+      - `pg-descartavel.sh`: Postgres 16 local para os `*.pg.test.ts`, que antes eram pulados; testado com
+        `onda5.pg.test.ts`, 3 de 3.
+      - O portão é o mesmo `ux-harness/gate.sh`.
+    - **Fluxo da fase:**
+      - um item por vez, como o PRD manda: mapa do código, depois testes que falham antes, depois o código;
+      - um verificador independente roda em paralelo ao item seguinte. Ele recebe só o diff e o PRD e faz quatro
+        coisas: confere que os testes falhavam antes, mutação em 3 linhas, testes adversariais na branch `m2v/<item>`
+        e rubrica holística; nos itens marcados, também a segurança;
+      - o corretor aplica só o que o verificador provou;
+      - no fechamento, revisão de segurança e revisão holística em paralelo, depois o portão `completo`.
+      - A máquina tem 4 CPUs: 2 agentes por vez.
+    - **Fase 1 (M01–M06) lançada:** workflow `wf_20561e77-3b0`, script salvo; para retomar, Workflow com `scriptPath` do
+      `motor2-fase.js` e `resumeFromRunId`. Linha de base das suítes na `466886d`: `motor2-harness/base-motor2.log`.
+    - **Bloqueios para depois:** M10 (avaliação automática) só depois do agente `seguranca` e da decisão do dono como
+      encarregado de dados; os textos de sistema novos passam pela Letícia antes da promoção; M13 é promoção pelo dono
+      no painel; M14 só 30 dias depois e com pedido. Pendência 3 do PRD (exportar `GET /v1/uso?dias=7` e confirmar o
+      modelo em produção) é do dono, sem travar o código.
