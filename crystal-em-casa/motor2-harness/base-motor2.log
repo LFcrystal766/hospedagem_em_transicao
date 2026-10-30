@@ -1,0 +1,17 @@
+# Linha de base do Motor 2.0: portão 'rapido' com todas as suítes na 466886d (sem mudança nenhuma), 30/10/2026
+OK prisma
+OK tipos-shared
+OK tipos-api
+OK tipos-web
+OK tipos-crystal
+OK lint
+OK testes-shared
+OK testes-api
+OK testes-web
+FALHOU testes-crystal (log: /home/user/cw-motor2/.gate/testes-crystal.log)
+    | ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+    |  FAIL  src/vazamento-camadas.test.ts > desempenho: roda em toda resposta > menos de ~5 ms por resposta típica, com trechos da base novos a cada turno
+    |  Test Files  1 failed | 29 passed | 1 skipped (31)
+    |       Tests  1 failed | 704 passed | 3 skipped (708)
+    |  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @crystal/agente@0.1.0 test: `vitest run -- --testTimeout=30000`
+PORTÃO VERMELHO: testes-crystal
