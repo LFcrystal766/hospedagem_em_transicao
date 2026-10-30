@@ -1310,3 +1310,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       o log guarda 30 MB por contêiner).
     - Ideia para depois, decisão do dono: código também na bolha do envio que falhou (hoje C01–C09 só nas respostas
       da Crystal), para a Letícia passar o código e a gente saber a causa sem log.
+87. **30/10 16:51 BRT, suporte (Letícia): Eduardo, troca de e-mail.** O antigo (domínio da empresa dele) estava na
+    base e liberado; o novo (Yahoo) não existia. `app_aluno_trocar_email` → `trocado` (origem `base`). Conferido: o
+    novo entra no mesmo contato, liberado (`t`); o antigo não entra mais. O caso do áudio (item 86) ainda espera o log
+    da VPS.
