@@ -1386,3 +1386,35 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - **Irwing e Victor:** não estão em lugar nenhum e não há e-mail parecido. São compras de setembro para trás,
         como o Olímpio (fora da base da agência). **Decisão do dono:** liberar à mão como o Olímpio, ou pedir antes o
         print ou a exportação das assinaturas ativas da Assiny.
+90. **31/10, lista de ativos da Assiny (10.053 linhas: nome, telefone, e-mail, CPF; sem data de pagamento nem plano).**
+    Dono: "confira se tem mais fora da base, caso tenha coloque"; depois "autoriza geral" e "subir todas no final, só
+    não quero ficar aprovando a cada 5 min".
+    - **Método, sem e-mail trafegando para conferir:**
+      - cada e-mail virou um código (md5 em base64, 7 caracteres), calculado igual aqui e no Supabase;
+      - o Supabase devolveu só os códigos de quem NÃO entra, pela mesma regra do `app_verificar_login_email` (base com
+        acesso ou assinatura ativa, ou `crystal_compras` ativa; bloqueio de reembolso vence).
+      - A conferência foi em 4 lotes de 1.000 e mais 2 de cerca de 3.000. A primeira versão da consulta passou de 60
+        s; com junção agrupada foi rápida.
+    - **Resultado:** 81 não entravam.
+      - 65 sem cadastro nenhum (muitos são o e-mail da compra diferente do que a base tem: erros de digitação ou
+        outro e-mail da mesma pessoa, com o mesmo telefone);
+      - 1 com acesso vencido na base;
+      - 15 bloqueados por reembolso ou cancelamento entre 26 e 31/10. A lista saiu antes desses eventos.
+    - **Gravado em `crystal_compras`:** 66 liberações manuais (produto "Liberação manual", transação
+      `manual-20261031-lista-ativos-assiny`, nota "data de pagamento e plano a conferir"); conferido: **66 entram**.
+      - Entram também e-mails antigos da Assiny de quem já trocamos no suporte (Wilton, Wagner, Edson, Eduardo,
+        Ramires, Valdinez). Os com erro de digitação não recebem código; os outros entram como conta separada.
+    - **Erro meu, desfeito:** na primeira parte reativei 4 reembolsados (status anterior gravado na nota). Voltaram a
+      `refunded`, com o `liberado_em` original tirado do evento de liberação; nenhuma linha ficou com a nota.
+    - **Decisões do dono pendentes:**
+      - os 15 reembolsados ou cancelados (3 são cancelamento de assinatura: em geral o acesso vale até o fim do
+        período pago);
+      - as datas de pagamento e o plano dos 66, para dar prazo ao acesso (hoje é sem prazo). A liberação manual não
+        recebe cancelamento da Assiny, porque não tem o id da assinatura. Melhor caminho: exportação da Assiny com data,
+        plano e id da assinatura.
+    - Os arquivos com dados pessoais foram apagados da máquina; no repositório não entrou nenhum.
+91. **31/10 ~10:30 UTC, Motor 2.0:** o workflow tinha morrido às 03:28 UTC num reinício.
+    - Estado: M01–M06 implementados; correções de M01–M04 feitas; a correção do M05 estava pela metade (2 commits
+      locais, agora enviados: `6757f71`, `2d23d3f`; o andamento parcial foi para `m2wip/M05-correcao`).
+    - Retomado com o mesmo `wf_20561e77-3b0` e o mesmo `fase-1-args.json`. Faltam a verificação do M06, a correção do
+      M05 e o fechamento da fase.
