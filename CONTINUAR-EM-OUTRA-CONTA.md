@@ -1521,3 +1521,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         - Caminhos: liberar a cobrança, ou `app-construir` na VPS com um token só de leitura do código.
         - A publicação leva junto a segurança de 24/10 e as 3 ondas de UX.
         - **Decisão pendente:** o teto do M12 entra em US$ 1,00 (padrão do PRD) ou em US$ 10 até o dono decidir.
+    - **22:29 UTC:**
+      - **Laboratório pronto** (`painel/motor2` em `d12702d`). Os verificadores de M07 (2 médios) e M08 (1 baixo) só
+        acharam falta de teste: o código estava certo, e os testes deles entraram (`b9fac2b`, `0c58e13`, `9dc5ea2`,
+        `d12702d`). Portão verde, só o teste de tempo conhecido caiu.
+      - Risco anotado pelo M07: com regras e exemplos na trava, uma resposta legítima muito parecida com um exemplo
+        pode ser barrada; calibrar no Laboratório.
+      - M13 implementado em `m2t/M13` (`20367c3`, `37da216`); a sessão filha está nas verificações de A01 e M13.
+      - `fase-23-fechamento-args.json` ajustado para **integrar só `m2t/M13`**, com os itens M07, M08, M09, M12, A01 e
+        M13. M10 e M11 entram depois, se o dono autorizar a sessão filha.
