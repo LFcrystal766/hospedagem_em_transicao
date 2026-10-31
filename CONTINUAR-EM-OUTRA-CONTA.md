@@ -1457,3 +1457,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         Ele junta os trilhos em `painel/motor2` e roda segurança, revisão holística e o portão completo.
       - O `motor2-fase.js` ganhou `branch`, `semFechamento`, `somenteFechamento`, `inicioFase` e `integrar`.
       - Check-in agendado para 18:35 UTC.
+    - **18:36 UTC:**
+      - (a) M07 feito (`7b49ef8`, `e4a1980`); a verificação do M07 e a implementação do M08 estão rodando.
+      - (b) M09 implementado em `m2t/M09` (`3c7bf3f`, `35bccee`); o verificador da sessão filha está rodando.
+      - (c) **M12 pronto** em `m2t/M12` (`8dce269`, `f132520`, `fa40505`). O verificador achou 1 problema, já corrigido
+        (dois tetos possíveis; ficou um só, o do painel). Só cai o teste de tempo conhecido.
+      - Próximo check-in às 20:05 UTC.
