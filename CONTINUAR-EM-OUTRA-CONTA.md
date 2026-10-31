@@ -1538,3 +1538,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - **Fechamento único lançado:** workflow `wf_57b5ca4a-95d`, `fase-23-fechamento-args.json`. Ele integra
         `m2t/M13` (que já traz M09 e M12) em `painel/motor2` (que já traz M07 e M08) e roda segurança, revisão holística
         e o portão completo. Check-in às 00:40 UTC.
+    - **23:44 UTC:** a integração terminou. **`painel/motor2` em `31c3a61` já tem todo o código das fases 2 e 3**
+      (M07, M08, M09, M12, A01, M13); no `rapido`, só o teste de tempo conhecido caiu. A revisão de segurança e a
+      holística estão rodando; depois vêm as correções e o portão `completo`.
