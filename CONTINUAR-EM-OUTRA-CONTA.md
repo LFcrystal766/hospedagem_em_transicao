@@ -1356,3 +1356,23 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **Check-in 31/10 01:54 UTC:** workflow vivo; o M05 retomado (a partir da `m2wip/M05`) está em andamento.
     - **31/10 02:25 UTC:** M05 feito (`5b51381`, portão verde); o verificador do M05 (com segurança) e o corretor do M04
       estão rodando. Falta o M06 e o fechamento da fase.
+89. **31/10 ~03:05 UTC (00:05 BRT): dono avisa "Não consegui terminar minha resposta. Tentar de novo" na Crystal,
+    URGENTE.**
+    - De fora: `GET https://api.crystalnowpp.com.br/health/channel` devolve `"crystal":"down"` (API no ar, `/healthz`
+      ok). O "down" vem da última resposta real que falhou com `CRYSTAL_UNAVAILABLE`, `REPLY_TIMEOUT` ou
+      `CHANNEL_UNAVAILABLE`, ou da sonda.
+    - Chatwoot (`atendimento./api`) responde 4.18.0 com filas e dados "ok"; a API do OpenRouter responde.
+    - Suspeitos: saldo ou chave do OpenRouter, serviço `app_crystal` parado, ou modelo fora do catálogo.
+    - Passados ao dono `app-status`, `app-custo 1` (o script mostra o saldo do OpenRouter e se o `app_crystal` roda) e o
+      resumo dos avisos dos logs da Crystal e da API (só mensagens fixas e códigos, sem conteúdo). **Esperando o
+      resultado.**
+    - **Suporte (Letícia, 30–31/10), 7 e-mails conferidos:**
+      - **Tadeu, Rafael e Joseli:** já entram, liberados (o Joseli tem compra de 24/10 em `crystal_compras`). Pedir
+        para digitar o e-mail exato e olhar o lixo eletrônico (Outlook e Hotmail atrasam o código).
+      - **Ramires:** a base tinha "homail.com" (sem o "t"); trocado para hotmail.com com `app_aluno_trocar_email`
+        (origem base). O novo entra liberado, o antigo não.
+      - **Amauri (compra de 26/10):** não está em lugar nenhum. O fluxo do n8n está vivo (15 a 49 compras novas por
+        dia até 30/10), então ele deve ter comprado com outro e-mail: pedir o print da Assiny com o e-mail da compra.
+      - **Irwing e Victor:** não estão em lugar nenhum e não há e-mail parecido. São compras de setembro para trás,
+        como o Olímpio (fora da base da agência). **Decisão do dono:** liberar à mão como o Olímpio, ou pedir antes o
+        print ou a exportação das assinaturas ativas da Assiny.
