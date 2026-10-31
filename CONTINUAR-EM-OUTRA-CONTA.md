@@ -1472,3 +1472,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         recebe o 2.0 pelo telefone do webhook assinado, só quando o número casa com exatamente uma conta de cliente
         ativa. A opção (b) seria "WhatsApp só pelo interruptor global" (`contaDaConversa` volta a `null` sem vínculo).
       - (c) M12 pronto.
+    - **20:00 UTC, dono: "foco no motor, me dê o horário de conclusão".** Estimativa passada (em Brasília):
+      - fase 2 fechada por volta das **22h de hoje (31/10)**, com margem até 23h: verificador do M08 e corretores do
+        M07 e do M08 até ~18h30; junção dos trilhos ~19h; segurança e revisão holística ~20h30; portão `completo` ~22h;
+      - fase 3 parte de código (M13: aba Motor 2.0, portão e interruptor), emendada logo depois: por volta das **6h
+        de amanhã (01/11)**;
+      - M10/M11 dependem da decisão do dono; se ela vier, rodam em paralelo numa sessão na nuvem e fecham junto com o
+        M13;
+      - M14 só 30 dias depois da promoção, pelo próprio PRD. A promoção é do dono, depois do portão de 7 dias.
