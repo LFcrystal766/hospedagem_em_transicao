@@ -1366,6 +1366,16 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - Passados ao dono `app-status`, `app-custo 1` (o script mostra o saldo do OpenRouter e se o `app_crystal` roda) e o
       resumo dos avisos dos logs da Crystal e da API (só mensagens fixas e códigos, sem conteúdo). **Esperando o
       resultado.**
+    - **03:09 UTC:** continua `down` em três leituras seguidas. A sonda da API só faz GET na URL base da Crystal (sem
+      chave): "down" persistente aponta para o serviço `app_crystal` fora, ou para respostas reais falhando sem parar.
+    - **Plano paliativo passado ao dono:**
+      1. Painel › Operação › "Aviso e manutenção" › Modo manutenção: a cliente vê "A Crystal está em manutenção
+         rapidinho. Volta daqui a pouco." no lugar do erro; a equipe continua conversando.
+      2. Na VPS: `app-status` e `app-custo 1`.
+      3. Conforme o resultado: `docker service update --force crystal_app_app_crystal` (serviço parado), recarga no
+         OpenRouter (saldo ou 402), troca do modelo no painel (Operação › Modelo, com o teste de modelo do painel) ou
+         `REF=97b5ad2… app-canal crystal` (tira o Chatwoot do meio).
+      4. Desligar a manutenção depois do teste com a conta dele.
     - **Suporte (Letícia, 30–31/10), 7 e-mails conferidos:**
       - **Tadeu, Rafael e Joseli:** já entram, liberados (o Joseli tem compra de 24/10 em `crystal_compras`). Pedir
         para digitar o e-mail exato e olhar o lixo eletrônico (Outlook e Hotmail atrasam o código).
