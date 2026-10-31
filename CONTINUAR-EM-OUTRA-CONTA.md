@@ -1445,3 +1445,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **Fase 2 lançada:** M07, M08, M09 e M12, workflow `wf_ef439524-856`, args em `motor2-harness/fase-2-args.json`.
       **M10/M11 esperam a decisão do dono como encarregado de dados** (avaliação automática das conversas) e o
       `seguranca` antes do código.
+    - **17:05 UTC, dono: "acelere isso".** A máquina roda só 2 agentes por vez (4 CPUs), então a fase 2 virou 3
+      trilhos paralelos:
+      - (a) aqui: Laboratório, M07 e depois M08, em `painel/motor2` (workflow `wf_734174e3-d91`,
+        `fase-2-trilho-lab-args.json`);
+      - (b) sessão na nuvem `session_01Hj4P7ACBisRvqCemDMavHR`: M09 em `m2t/M09`;
+      - (c) sessão na nuvem `session_01Hj4P7AJHaVowve9JJ2hLN4`: M12 em `m2t/M12`.
+      - As duas filhas nascem de `1b30a27`, usam o mesmo harness (workflow com verificador e corretor, `semFechamento`)
+        e não mexem na hospedagem nem no CONTINUAR.
+      - **Fechamento único no fim:** `fase-2-fechamento-args.json` (`somenteFechamento`, `integrar` m2t/M09 e m2t/M12).
+        Ele junta os trilhos em `painel/motor2` e roda segurança, revisão holística e o portão completo.
+      - O `motor2-fase.js` ganhou `branch`, `semFechamento`, `somenteFechamento`, `inicioFase` e `integrar`.
+      - Check-in agendado para 18:35 UTC.
