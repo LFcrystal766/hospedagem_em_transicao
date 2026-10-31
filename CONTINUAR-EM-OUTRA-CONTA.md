@@ -1506,3 +1506,18 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Recomendação passada: pausar o trilho M10/M11 até a renovação (ele só tem utilidade depois de 7 dias de teste
         dos admins) e garantir hoje A01, M13 e o fechamento. A alternativa é ligar o uso extra na conta (pago à
         parte).
+    - **21:36 UTC, check-in:**
+      - (a) o contêiner reiniciou (uptime 0) e o Laboratório parou às 20:00. Enviado o commit local `b9fac2b` (testes do
+        verificador do M07); o andamento parcial do corretor foi para `m2wip/M07-correcao`; o worktree antigo
+        `cwm2/verif-M08` foi removido. Retomado com o mesmo `wf_734174e3-d91`.
+      - (d) A01 feito em `m2t/M13` (`0128954`, `8f075d4`), sobre a junção de M09 e M12 (portão verde); M13 em
+        andamento.
+      - (e) a sessão do M10/M11 **não começou**: pede ao dono, na própria sessão, a frase "pode rodar o trilho M10 com
+        o workflow e empurrar para m2t/M10". Fica parada, o que poupa o limite semanal. Se ela não rodar, o fechamento
+        sai sem M10a, M10 e M11 (ajustar `fase-23-fechamento-args.json`).
+      - Respondido ao dono "já está pronto pra testar?": ainda não.
+        - Para testar é preciso publicar na VPS, e o GitHub Actions segue bloqueado por cobrança (as execuções morrem
+          em 4 s).
+        - Caminhos: liberar a cobrança, ou `app-construir` na VPS com um token só de leitura do código.
+        - A publicação leva junto a segurança de 24/10 e as 3 ondas de UX.
+        - **Decisão pendente:** o teto do M12 entra em US$ 1,00 (padrão do PRD) ou em US$ 10 até o dono decidir.
