@@ -1354,3 +1354,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - A nota do M05 em `fase-1-args.json` manda partir da `m2wip/M05` e conferir tudo.
       - Para retomar de novo, igual: `scriptPath` do `motor2-fase.js` + `resumeFromRunId` + o `fase-1-args.json` atual.
     - **Check-in 31/10 01:54 UTC:** workflow vivo; o M05 retomado (a partir da `m2wip/M05`) está em andamento.
+    - **31/10 02:25 UTC:** M05 feito (`5b51381`, portão verde); o verificador do M05 (com segurança) e o corretor do M04
+      estão rodando. Falta o M06 e o fechamento da fase.
