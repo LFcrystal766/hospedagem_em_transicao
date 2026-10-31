@@ -1499,3 +1499,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - `session_01Hj4P7977bQPtndrcJR9kog`: M10a, M10 e M11 em `m2t/M10`, a partir de `m2t/M09`.
     - **Fechamento único das fases 2 e 3:** `fase-23-fechamento-args.json`, que integra `m2t/M13` e `m2t/M10`.
     - **Nova previsão: ~2h de Brasília de 01/11** (margem até 4h). Check-in às 21:35 UTC.
+    - **20:08 UTC, dono: "os nossos tokens vão aguentar?"**
+      - As sessões mostram o limite SEMANAL da conta em **aviso** ("allowed_warning", sem uso extra ligado), com
+        renovação na **segunda, 02/11, às 17h de Brasília**. O percentual exato não aparece.
+      - Se bater, todas as sessões param até a renovação; o trabalho fica salvo nas branches e retoma do ponto.
+      - Recomendação passada: pausar o trilho M10/M11 até a renovação (ele só tem utilidade depois de 7 dias de teste
+        dos admins) e garantir hoje A01, M13 e o fechamento. A alternativa é ligar o uso extra na conta (pago à
+        parte).
