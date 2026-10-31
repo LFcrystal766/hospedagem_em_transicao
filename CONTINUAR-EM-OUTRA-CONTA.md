@@ -1413,6 +1413,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         recebe cancelamento da Assiny, porque não tem o id da assinatura. Melhor caminho: exportação da Assiny com data,
         plano e id da assinatura.
     - Os arquivos com dados pessoais foram apagados da máquina; no repositório não entrou nenhum.
+    - **Dono, 31/10: "A parte da lista tá concluída."** Os 15 reembolsados e as datas de pagamento ficam para
+      depois ("depois vemos isso").
 91. **31/10 ~10:30 UTC, Motor 2.0:** o workflow tinha morrido às 03:28 UTC num reinício.
     - Estado: M01–M06 implementados; correções de M01–M04 feitas; a correção do M05 estava pela metade (2 commits
       locais, agora enviados: `6757f71`, `2d23d3f`; o andamento parcial foi para `m2wip/M05-correcao`).
