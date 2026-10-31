@@ -9,15 +9,16 @@ export const meta = {
   ],
 }
 
-// Guardado em crystal-em-casa/motor2-harness/motor2-fase.js (hospedagem). Args: { fase, harness, gate, itens: [{ id, esforco, perfil, seguranca, nota }] }
+// Guardado em crystal-em-casa/motor2-harness/motor2-fase.js (hospedagem). Args: { fase, harness, gate, itens: [{ id, esforco, perfil, seguranca, nota }],
+//   branch? (padrão painel/motor2), semFechamento? (trilho paralelo: só os itens), somenteFechamento? + inicioFase + integrar? (junta as branches dos trilhos e fecha) }
 const F = args.fase
 const ITENS = args.itens
 const H = args.harness
 const G = args.gate
 const WT = '/home/user/cw-motor2'
-const BR = 'painel/motor2'
+const BR = args.branch || 'painel/motor2'
 const PRD = `${WT}/docs/motor2/PRD-motor-2.0-crystal.md`
-const BASE = `Você trabalha na execução do PRD do Motor 2.0 da Crystal, FASE ${F} (itens ${ITENS.map((i) => i.id).join(', ')}). LEIA PRIMEIRO E SIGA À RISCA ${H}/REGRAS.md (fonte da verdade, worktrees, portas, portão, perfis de harness, commits, o que nunca fazer). PRD: ${PRD}. Branch de integração: ${BR} no worktree ${WT}. Portão: ${G}.`
+const BASE = `Você trabalha na execução do PRD do Motor 2.0 da Crystal, FASE ${F} (itens ${ITENS.map((i) => i.id).join(', ')}). LEIA PRIMEIRO E SIGA À RISCA ${H}/REGRAS.md (fonte da verdade, worktrees, portas, portão, perfis de harness, commits, o que nunca fazer). PRD: ${PRD}. Branch de integração: ${BR} no worktree ${WT}${BR !== 'painel/motor2' ? ` (onde o REGRAS.md diz painel/motor2, aqui vale ${BR}; nunca mexa em painel/motor2)` : ''}. Portão: ${G}.`
 
 const IMPL = {
   type: 'object',
@@ -137,7 +138,8 @@ Devolva o relatório no formato pedido.`, { label: `corrigir:${it.id}`, phase: '
 const relatorios = []
 const resultados = []
 let anterior = null
-for (const it of ITENS) {
+let integracao = null
+for (const it of (args.somenteFechamento ? [] : ITENS)) {
   const imp = await implementar(it)
   if (!imp) {
     log(`${it.id}: implementador sem resposta; a fase para aqui (os itens seguintes dependem dele)`)
@@ -151,9 +153,19 @@ for (const it of ITENS) {
   anterior = { it, imp, verP }
 }
 if (anterior) resultados.push(await corrigir(anterior.it, anterior.imp, anterior.verP))
+if (args.semFechamento) return { fase: F, branch: BR, relatorios, resultados }
 
 phase('Fechamento')
-const inicioFase = relatorios[0].inicio
+const inicioFase = args.somenteFechamento ? args.inicioFase : relatorios[0].inicio
+if (args.integrar && args.integrar.length) {
+  integracao = await agent(`${BASE}
+Você é o INTEGRADOR da fase ${F}. Junte em ${BR} (worktree ${WT}) as branches dos trilhos paralelos: ${args.integrar.join(', ')}. Cada uma nasceu de ${inicioFase} e traz itens já verificados e corrigidos, com o bloco deles em docs/motor2/andamento.md.
+1. git fetch origin; para cada branch, git merge --no-ff origin/<branch> -m "Merge: fase ${F}, trilho <branch>" (mensagem com as duas linhas de autoria do REGRAS.md).
+2. Conflito: resolva mantendo o comportamento dos dois lados (os testes de cada trilho têm de continuar passando); no andamento, mantenha os blocos de todos os itens, na ordem do PRD.
+3. BASE=${inicioFase} bash ${G} ${WT} rapido VERDE (Postgres descartável 6250 para os .pg tocados) e o e2e das specs que os trilhos tocaram (--porta 6200).
+4. git push origin ${BR}.
+Devolva: merges feitos, conflitos e como resolveu, resultado do portão, HEAD empurrado.`, { label: `integrar:fase${F}`, phase: 'Fechamento', effort: 'xhigh' })
+}
 const lista = ITENS.map((i) => i.id).join(', ')
 const [seg, hol] = await parallel([
   () => agent(`${BASE}
@@ -190,4 +202,4 @@ if (seg && seg.veredito === 'REPROVADO') {
 Você é o REVISOR DE SEGURANÇA, segunda leitura do fechamento da fase ${F}. O parecer anterior foi REPROVADO: ${JSON.stringify(seg.achados)}. Confira na ponta atual de origin/${BR} (worktree solto /home/user/cwm2/fech-seg2, portas 6400) se cada achado foi resolvido de verdade e se a correção não abriu outro problema. Remova o worktree no fim. Veredito APROVADO ou REPROVADO.`, { label: `seguranca2:fase${F}`, phase: 'Fechamento', schema: REVISAO })
 }
 
-return { fase: F, relatorios, resultados, seguranca: seg, holistica: hol, saida, seguranca2: seg2 }
+return { fase: F, integracao, relatorios, resultados, seguranca: seg, holistica: hol, saida, seguranca2: seg2 }
