@@ -1463,3 +1463,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - (c) **M12 pronto** em `m2t/M12` (`8dce269`, `f132520`, `fa40505`). O verificador achou 1 problema, já corrigido
         (dois tetos possíveis; ficou um só, o do painel). Só cai o teste de tempo conhecido.
       - Próximo check-in às 20:05 UTC.
+    - **19:56 UTC:**
+      - (a) M08 implementado (`cadd91b`, `42a3c2e`); o verificador do M08 está rodando. O verificador do M07 achou 2
+        problemas médios: a triagem do Laboratório 2.0 pode ignorar o histórico enviado, e os diálogos-modelo podem
+        escapar da trava de saída; nos dois casos, nenhum teste percebia. O corretor do M07 está rodando.
+      - (b) **M09 pronto** em `m2t/M09` (`a50c6e6`): 2 achados do verificador corrigidos; testes e e2e verdes.
+        **Decisão do dono, aplicada no padrão do PRD (opção a):** no WhatsApp (sem vínculo com o app), a conta marcada
+        recebe o 2.0 pelo telefone do webhook assinado, só quando o número casa com exatamente uma conta de cliente
+        ativa. A opção (b) seria "WhatsApp só pelo interruptor global" (`contaDaConversa` volta a `null` sem vínculo).
+      - (c) M12 pronto.
