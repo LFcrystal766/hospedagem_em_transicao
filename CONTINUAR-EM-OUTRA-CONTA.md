@@ -1530,3 +1530,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - M13 implementado em `m2t/M13` (`20367c3`, `37da216`); a sessão filha está nas verificações de A01 e M13.
       - `fase-23-fechamento-args.json` ajustado para **integrar só `m2t/M13`**, com os itens M07, M08, M09, M12, A01 e
         M13. M10 e M11 entram depois, se o dono autorizar a sessão filha.
+    - **23:09 UTC:**
+      - **A01 e M13 prontos** em `m2t/M13` (`fbd5b26`). A01 sem achados; no M13, o verificador achou que o servidor não
+        conferia o portão ao gravar o 2.0, corrigido em `ca7aa3e`. Portão verde.
+      - Decisão anotada (padrão aplicado): no "Lado a lado", o 2.0 precisa de pelo menos 20 comparações e de 60% delas
+        (12 de 20, 15 de 25), e não de 12 em qualquer total.
+      - **Fechamento único lançado:** workflow `wf_57b5ca4a-95d`, `fase-23-fechamento-args.json`. Ele integra
+        `m2t/M13` (que já traz M09 e M12) em `painel/motor2` (que já traz M07 e M08) e roda segurança, revisão holística
+        e o portão completo. Check-in às 00:40 UTC.
