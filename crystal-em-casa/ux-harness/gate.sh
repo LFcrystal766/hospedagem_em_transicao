@@ -79,7 +79,8 @@ if [ "$MODO" = e2e ] || [ "$MODO" = completo ]; then
   # chromium-* (montada por webkit-local.sh ou por um agente), usa ela; senão, /opt/pw-browsers. Porta 6000 não serve
   # (o Next recusa: reservada ao X11).
   S="${UX_SCRATCH:-/tmp/claude-0/-home-user-hospedagem-em-transicao/a2a2bc38-c612-550a-a226-1af1e7b739be/scratchpad}"
-  if [ -z "${PLAYWRIGHT_BROWSERS_PATH:-}" ] && ls -d "$S"/pw-browsers/chromium-[0-9]* >/dev/null 2>&1; then
+  # O ambiente pode já trazer PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers (revisão errada): o scratchpad vence quando tem.
+  if ls -d "$S"/pw-browsers/chromium-[0-9]* >/dev/null 2>&1; then
     export PLAYWRIGHT_BROWSERS_PATH="$S/pw-browsers"
   else
     export PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-/opt/pw-browsers}"

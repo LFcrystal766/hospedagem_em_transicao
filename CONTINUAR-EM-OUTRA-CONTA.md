@@ -1425,3 +1425,23 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - M06: 1 achado baixo, corrigido em `02d3854` (a reserva que "pensa" recebia o teto do nível, abaixo do piso de
         1.500).
       - **Fechamento rodando:** revisão de segurança e revisão holística em paralelo; depois, o portão `completo`.
+92. **31/10 ~17:00 UTC.**
+    - **Dono: "pode subir os 15"** (os reembolsados ou cancelados da lista de ativos). Liberados em `crystal_compras`:
+      status `active`, com a nota "liberado pelo dono apesar de <status> em <data>". Conferido: os 15 entram.
+      - O webhook de reembolso também desliga a conta no app. Quem tinha conta pode precisar ser reativado no
+        painel (Clientes › reativar) se reclamar.
+    - **Motor 2.0, fase 1 FECHADA** (`painel/motor2` em `1b30a27`):
+      - **Fechamento:**
+        - segurança REPROVADO na primeira leitura, com 2 achados: ReDoS na triagem ("hahaha" repetido travava a
+          Crystal) e o motor atual alterado pela correção do M06. Os dois foram corrigidos em `0b090b5`/`cbeaaa1`, e a
+          segunda leitura deu **APROVADO**;
+        - holística COM_ACHADOS (1 médio, 4 baixos), todos corrigidos (`5308be4`, `5209b9e`).
+      - **Portão `completo`:** tudo verde, inclusive o e2e (285 passaram, 0 instáveis). Só falhou o teste de tempo
+        conhecido, que também falha na base. Os `.pg` da Crystal (10 arquivos, 25 testes) passaram no Postgres
+        descartável.
+      - O que o dono confere: bloco "Fase 1 fechada" em `docs/motor2/andamento.md`.
+      - `ux-harness/gate.sh` agora prefere o Chromium do scratchpad mesmo com `PLAYWRIGHT_BROWSERS_PATH=/opt/...` no
+        ambiente (revisão errada).
+    - **Fase 2 lançada:** M07, M08, M09 e M12, workflow `wf_ef439524-856`, args em `motor2-harness/fase-2-args.json`.
+      **M10/M11 esperam a decisão do dono como encarregado de dados** (avaliação automática das conversas) e o
+      `seguranca` antes do código.
