@@ -1345,4 +1345,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         `8d43b2e`/`324d9ba`, portão verde.
       - **M02:** feito (`9c67977`). Verificador: 3 achados, o principal médio: a regra de "pedido de roteiro" ficou mais
         estreita que a do PRD. Eles vão para o corretor depois do M03.
-      - **M03:** em implementação.
+      - **M03:** feito (`633b47d`); 2 achados baixos, corrigidos (`fab6e5f`, `2cd36a5`).
+      - **M04:** feito (`b98479f`). 3 achados: o médio é "a RPC da agência que muda a forma da resposta passa como
+        'zero acima do corte' e o `/healthz` mostra sucesso". O corretor entra depois do M05.
+    - **31/10, reinício do contêiner no meio do M05** (os arquivos ficaram):
+      - O trabalho parcial foi salvo na branch `m2wip/M05` (`e271dd8`, não verificado) e o worktree foi limpo.
+      - O workflow foi retomado com o mesmo `wf_20561e77-3b0`: os 11 agentes prontos vieram do cache.
+      - A nota do M05 em `fase-1-args.json` manda partir da `m2wip/M05` e conferir tudo.
+      - Para retomar de novo, igual: `scriptPath` do `motor2-fase.js` + `resumeFromRunId` + o `fase-1-args.json` atual.
