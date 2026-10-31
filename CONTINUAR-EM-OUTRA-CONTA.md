@@ -1420,3 +1420,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       locais, agora enviados: `6757f71`, `2d23d3f`; o andamento parcial foi para `m2wip/M05-correcao`).
     - Retomado com o mesmo `wf_20561e77-3b0` e o mesmo `fase-1-args.json`. Faltam a verificação do M06, a correção do
       M05 e o fechamento da fase.
+    - **31/10 11:19 UTC:** os 6 itens estão feitos, verificados e corrigidos (`painel/motor2` em `9407c4f`).
+      - M05: sem achado de código; só o conflito com o M06, resolvido mantendo os dois.
+      - M06: 1 achado baixo, corrigido em `02d3854` (a reserva que "pensa" recebia o teto do nível, abaixo do piso de
+        1.500).
+      - **Fechamento rodando:** revisão de segurança e revisão holística em paralelo; depois, o portão `completo`.
