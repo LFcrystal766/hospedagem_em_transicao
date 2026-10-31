@@ -1480,3 +1480,22 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - M10/M11 dependem da decisão do dono; se ela vier, rodam em paralelo numa sessão na nuvem e fecham junto com o
         M13;
       - M14 só 30 dias depois da promoção, pelo próprio PRD. A promoção é do dono, depois do portão de 7 dias.
+    - **20:00–20:05 UTC, decisões do dono:**
+      - "acelere isso";
+      - **"autorizo m10 e 11"** (como encarregado de dados);
+      - **"não pode ser padrão ainda, será para testes, somente admins e superadmins terão acesso ao motor"**.
+    - Viraram:
+      - **A01** (fora do PRD, decisão do dono): só contas admin, e superadmin é admin, recebem o 2.0. Cliente, support e
+        tech nunca recebem. A marcação vale só para contas admin (sai o interruptor da ficha do cliente). WhatsApp nunca
+        2.0 (sai o caminho pelo telefone do M09). Promoção travada no servidor: `op_crystal_motor=2.0` recusado sem
+        `MOTOR2_PROMOCAO_LIBERADA=true`.
+      - **M13** com o botão de tornar padrão TRAVADO, com a ajuda literal "Travado por decisão do dono: o Motor 2.0
+        está em teste, só para admins e superadmins."
+      - **M10a** (sem código): desenho, autorização do dono registrada em `docs/crystal-api.md`, rascunho do texto de
+        privacidade para revisão e parecer de segurança antes do código. Depois **M10** e **M11**.
+    - Trilhos novos:
+      - `session_01Hj4P77b2pkzf5Cv7wNTHDx`: junta M09 e M12 sobre o Laboratório (conflitos reais em `chatwoot-bot.ts`,
+        `crystal.ts` e `operacao-config.ts`; não resolvi na pressa aqui) e faz A01 e M13 em `m2t/M13`;
+      - `session_01Hj4P7977bQPtndrcJR9kog`: M10a, M10 e M11 em `m2t/M10`, a partir de `m2t/M09`.
+    - **Fechamento único das fases 2 e 3:** `fase-23-fechamento-args.json`, que integra `m2t/M13` e `m2t/M10`.
+    - **Nova previsão: ~2h de Brasília de 01/11** (margem até 4h). Check-in às 21:35 UTC.
