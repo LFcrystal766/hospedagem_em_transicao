@@ -1353,3 +1353,4 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - O workflow foi retomado com o mesmo `wf_20561e77-3b0`: os 11 agentes prontos vieram do cache.
       - A nota do M05 em `fase-1-args.json` manda partir da `m2wip/M05` e conferir tudo.
       - Para retomar de novo, igual: `scriptPath` do `motor2-fase.js` + `resumeFromRunId` + o `fase-1-args.json` atual.
+    - **Check-in 31/10 01:54 UTC:** workflow vivo; o M05 retomado (a partir da `m2wip/M05`) está em andamento.
