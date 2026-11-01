@@ -1541,3 +1541,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **23:44 UTC:** a integração terminou. **`painel/motor2` em `31c3a61` já tem todo o código das fases 2 e 3**
       (M07, M08, M09, M12, A01, M13); no `rapido`, só o teste de tempo conhecido caiu. A revisão de segurança e a
       holística estão rodando; depois vêm as correções e o portão `completo`.
+    - **00:42 UTC (01/11):** a segurança terminou com **2 achados baixos**, que a etapa de saída corrige: (1) o técnico
+      consegue gravar o teto de gasto por cliente (M12), que vale para todos, sem senha nem palavra de confirmação;
+      (2) o cartão "Clientes no teto hoje" devolve o nome das clientes numa rota do painel. O resto saiu limpo (pedido
+      de cliente comum igual byte a byte ao de hoje, risco à vida ignora o teto, `TETO_CLIENTE` não chega à cliente).
+      A holística ainda roda; depois vêm saída (correções + portão `completo`) e, se precisar, a segunda leitura de
+      segurança. Próximo check-in às 02:15 UTC.
