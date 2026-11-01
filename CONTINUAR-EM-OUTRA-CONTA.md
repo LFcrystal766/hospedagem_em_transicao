@@ -1577,3 +1577,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - **Próximo:** o roteiro de publicação da pilha inteira (segurança de 24/10 + ondas de UX + Motor 2.0; migrações
         `vm2_07`, `vm2_09` e o índice do M12). M10 e M11 continuam parados até o dono liberar na sessão
         `session_01Hj4P7977bQPtndrcJR9kog`.
+    - **12:30 UTC (01/11):** o dono pediu o status. Nada mudou desde o fechamento: `painel/motor2` continua em `2826c7d`,
+      não existe `m2t/M10` e a sessão do M10 segue esperando a frase do dono. O limite de 7 dias renova em
+      02/11 às 20:00 UTC (17h BRT).
