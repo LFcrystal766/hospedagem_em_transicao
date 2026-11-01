@@ -1547,3 +1547,33 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       de cliente comum igual byte a byte ao de hoje, risco à vida ignora o teto, `TETO_CLIENTE` não chega à cliente).
       A holística ainda roda; depois vêm saída (correções + portão `completo`) e, se precisar, a segunda leitura de
       segurança. Próximo check-in às 02:15 UTC.
+    - **02:10 UTC (01/11): FASES 2 E 3 FECHADAS.** O workflow `wf_57b5ca4a-95d` terminou (4 agentes, 2h54). A ponta
+      **`painel/motor2` está em `2826c7d`** (o código é o de `96e12ff`; depois dele só entrou documento).
+      - Os 7 achados foram corrigidos (`89ce1ff`, `5635ce1`), todos baixos:
+        - os 2 da segurança: só o admin grava o teto; a rota do cartão não leva mais o nome, só "Ficha 1…n";
+        - os 5 da holística: o portão compara os valores exatos; as caixas do portão travadas contra gravação ao
+          mesmo tempo; o vínculo do Chatwoot é lido uma vez por turno; código morto apagado; comentários corrigidos.
+      - Portão `completo` (porta 6400): tudo verde, com e2e 302/0, safari e audit. Só caiu o teste de tempo conhecido
+        (`vazamento-camadas` › "menos de ~5 ms"). Os `.pg` dão 28/28.
+      - Segunda leitura de segurança (eu, sobre `31c3a61..96e12ff`, com o checklist do agente): **APROVADO**, anotada
+        no `andamento.md` (`2826c7d`).
+      - Testes da revisão: `m2v/fase23-seguranca` e `m2v/fase23-holistica`. Os testes que vieram por cherry-pick estão
+        em `painel/motor2`.
+      - **Decisões do dono que ficaram (por escrito):**
+        - Lado a lado: contar por proporção (60%) ou o literal do PRD (≥ 20 e ≥ 12)?
+        - Conversa do app que passa pelo Chatwoot com vínculo: leva o 2.0 para o admin marcado. Fica assim?
+        - A lista "Contas no Motor 2.0" está sem a data e sem o botão "Tirar" do PRD.
+        - Com `MOTOR2_PROMOCAO_LIBERADA=true`, o aviso do Início diria "no ar".
+        - Teto: US$ 1,00 ou US$ 10?
+        - Imagens: liberar a cobrança do GitHub ou rodar `app-construir` na VPS.
+      - **No iPhone, depois de publicar:**
+        - M07: Laboratório no Safari.
+        - M08: Lado a lado.
+        - M09/A01: conta admin marcada, com texto, foto e áudio.
+        - M13: aba Motor 2.0 a 390 px.
+        - M12 (só admin): teto em 0,20, conversar até passar, conferir a frase, o push e "Ficha 1", mandar uma mensagem
+          de risco e voltar o teto a 1,00.
+      - **Letícia:** aprovar a frase do teto e os textos de sistema do 2.0.
+      - **Próximo:** o roteiro de publicação da pilha inteira (segurança de 24/10 + ondas de UX + Motor 2.0; migrações
+        `vm2_07`, `vm2_09` e o índice do M12). M10 e M11 continuam parados até o dono liberar na sessão
+        `session_01Hj4P7977bQPtndrcJR9kog`.
