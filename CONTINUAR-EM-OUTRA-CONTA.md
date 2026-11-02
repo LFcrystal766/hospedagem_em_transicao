@@ -1580,3 +1580,22 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **12:30 UTC (01/11):** o dono pediu o status. Nada mudou desde o fechamento: `painel/motor2` continua em `2826c7d`,
       não existe `m2t/M10` e a sessão do M10 segue esperando a frase do dono. O limite de 7 dias renova em
       02/11 às 20:00 UTC (17h BRT).
+93. **02/11 ~20:20 UTC: decisões do dono e roteiro único de publicação.**
+    - **Decisões (AskUserQuestion):**
+      - teto por cliente **US$ 1,00** (o padrão);
+      - Lado a lado pelo **literal do PRD** (≥ 20 comparações e ≥ 12 vitórias, em qualquer total);
+      - Chatwoot com vínculo **leva o 2.0** para o admin marcado (fica como está);
+      - publicação **tudo junto, numa janela**.
+    - **Lado a lado mudado** no app em `20da7ee` (`painel/motor2`): teste primeiro (12/25 falhava antes), portão
+      `rapido` verde (só o teste de tempo conhecido caiu) e andamento com as decisões.
+    - **GitHub Actions voltou** (cobrança normalizada): o CI de `2826c7d` passou; o `imagens-vps` gerou `sha-2826c7d`
+      em 01/11 e foi disparado de novo em `20da7ee` (02/11 20:15 UTC) para gerar **`sha-20da7ee`**.
+    - **Roteiro único:** `crystal-em-casa/publicar-tudo-motor2.md` (segurança 24/10 + UX 1–3 + Motor 2.0).
+      - Subida: `REF=97b5ad2… app-subir sha-20da7ee`.
+      - Volta: `sha-088d07d`, sem volta de banco.
+      - Migrações só aditivas: as 4 do Prisma (`pa23_01`, `ux1_01`, `vm2_07`, `vm2_09`) e as da Crystal (`uso_turnos`,
+        `resumos`, índices).
+      - Nenhuma variável nova; **não** pôr `MOTOR2_PROMOCAO_LIBERADA`.
+      - Inclui a conferência de 10 minutos (cliente, painel, ligar o 2.0 na conta admin) e as listas do iPhone.
+    - **Esperando o dono:** escolher o horário e rodar o roteiro. O M10/M11 pode ser liberado depois das 17h BRT de
+      hoje (o limite renovou).
