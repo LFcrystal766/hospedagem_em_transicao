@@ -1599,3 +1599,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Inclui a conferência de 10 minutos (cliente, painel, ligar o 2.0 na conta admin) e as listas do iPhone.
     - **Esperando o dono:** escolher o horário e rodar o roteiro. O M10/M11 pode ser liberado depois das 17h BRT de
       hoje (o limite renovou).
+    - **20:27 UTC:** imagens **`sha-20da7ee` prontas** (run 41517525847: `api`, `web` e `crystal` verdes, audit limpo).
+      O roteiro `crystal-em-casa/publicar-tudo-motor2.md` está liberado para o dono rodar.
