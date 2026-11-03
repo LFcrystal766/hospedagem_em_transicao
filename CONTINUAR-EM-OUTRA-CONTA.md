@@ -1730,3 +1730,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       Crystal para 2560M com heap de 2048, e o teste de Métricas.
     - **03/11:** `free -h` dá 15 GiB no total, 3,2 GiB usados e 12 GiB disponíveis (sem swap). Liberado subir a Crystal
       para 2560M.
+    - **03/11: Crystal em 2,5 GiB** (`--limit-memory 2560M`, heap de 2048, CPU 1), convergiu, 88 MB em repouso; API em
+      2 GiB. Nenhum `Failed` novo. Falta abrir Métricas para provar e fazer os testes no iPhone.
