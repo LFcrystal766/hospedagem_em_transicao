@@ -68,6 +68,9 @@ REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha
 
 ## Antes de subir (dono, uma vez)
 
+0. **Abrir o terminal da VPS.** Hostinger › VPS (KVM 4, `177.7.61.136`) › Terminal (o do navegador), como root.
+   Depois `cd /root && ls -l bootstrap-vps.sh`: o arquivo tem de aparecer. Todos os comandos abaixo rodam ali,
+   um por vez, esperando cada um terminar.
 1. **Toda conta da equipe tem senha.** Depois da segurança, a porta da cliente não abre mais o painel. Este comando tem
    de voltar `(0 rows)`:
 

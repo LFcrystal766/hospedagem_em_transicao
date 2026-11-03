@@ -1601,3 +1601,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       hoje (o limite renovou).
     - **20:27 UTC:** imagens **`sha-20da7ee` prontas** (run 41517525847: `api`, `web` e `crystal` verdes, audit limpo).
       O roteiro `crystal-em-casa/publicar-tudo-motor2.md` está liberado para o dono rodar.
+    - **03/11:** o dono pediu o passo a passo exato da subida. Mandei na conversa e acrescentei ao roteiro o passo 0
+      (abrir o terminal do navegador da Hostinger, `cd /root`). O script da VPS ainda é o antigo (`97b5ad2`), então o
+      `app-subir` leva o `REF`.
