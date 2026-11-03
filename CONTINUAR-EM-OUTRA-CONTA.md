@@ -1610,3 +1610,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       `crystal-web-chat-api:sha-20da7ee`. A causa mais provável é o login do Docker no ghcr.io vencido (token
       `read:packages`). Pedi ao dono `docker pull ... 2>&1 | tail -3`. Se der unauthorized/denied: token clássico novo,
       só com `read:packages` e 90 dias, `bash bootstrap-vps.sh app-ghcr` e rodar o passo 4 de novo.
+    - **03/11:** o `docker pull` deu `error from registry: denied`, então é o **login do ghcr.io vencido** na VPS.
+      Passei ao dono o token clássico novo (só `read:packages`, 90 dias), depois `app-ghcr` e o passo 4 de novo.
