@@ -1809,3 +1809,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       mandado**; pode ter sido o "não chegou nada" de antes.
     - **03/11:** o dono pediu a URL do login com e-mail e senha: `https://app.crystalnowpp.com.br/login/equipe`
       (título "Acesso da equipe"; a página não redireciona quem já está logado como cliente).
+    - **03/11: o dono entrou com o `+equipe` (admin e superadmin).** Pediu o mesmo para a Letícia, num e-mail Gmail
+      dela. Passei:
+      - conferir em `users` se o e-mail já existe; se for cliente, usar o apelido `+equipe` do Gmail, que o Gmail
+        aceita;
+      - criar o admin pelo painel e definir a senha (logado com o `+equipe`, que é superadmin, então o
+        `alvoProtegido` não barra);
+      - acrescentar o e-mail na lista de superadmins (`--env-add` e `app-definir`, as 3 contas).
