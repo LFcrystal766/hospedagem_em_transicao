@@ -1668,3 +1668,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       diagnóstico.
       - Suspeitas: memória das métricas e do uso na versão nova (yaml antigo: Crystal 384M, API 1024M), ou a imagem
         base presa em `node:22.22.2-alpine` (INF-14).
+      - Os erros de nível 50 da API ("Server has closed the connection", "Can't reach database server") são de
+        **00:29:42 UTC**, a troca do Postgres no próprio `app-subir`: passageiros, não a causa. O abort 134 não sai
+        em JSON. Pedi as linhas de texto (fora do JSON) dos logs guardados, depois da volta.
