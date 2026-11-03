@@ -1738,3 +1738,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Depois: a correção no código (tarefa de agregar no SQL ou em lotes, com uma leitura por período) para tirar o
         passo 4b e a trava de ~6 s.
       - O Bearer no `crystal-conferir` continua pendente.
+    - **03/11: "os e-mails não estão chegando" (Giseli, código de login).**
+      - DNS do envio OK: DKIM `resend._domainkey` presente, `send.` com SPF e MX de retorno, DMARC `p=none`.
+      - O código só não é mandado quando a conta não está liberada (desafio fantasma); o João Paulo está liberado.
+      - Se o Resend recusa, a API loga `"e-mail: envio falhou"` com status e nome, e o app mostra erro de envio.
+      - **Hipótese principal:** pico de logins depois da 1ª subida que caiu. Com a rotação do refresh (A5), uma
+        renovação cuja resposta se perdeu durante as quedas derruba a sessão (reuso fora da tolerância), então muita
+        gente entrou de novo ao mesmo tempo e pode ter batido no limite do Resend (429 ou cota do plano).
+      - Alternativa: Hotmail/Outlook filtrando (spam) ou endereço suprimido no Resend por bounce anterior.
+      - Pedi ao dono: a contagem das falhas de envio por tipo e status nos logs de 24 h, e o painel do Resend (Emails,
+        busca pelo destinatário, status; e o uso/cota do plano).
