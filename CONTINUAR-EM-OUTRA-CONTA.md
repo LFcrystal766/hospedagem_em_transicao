@@ -1629,3 +1629,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       só o hash scrypt, que não volta a ser a senha. Mandei a consulta que lista a equipe com "tem senha" e a data da
       última definição (`audit_log`, `user.password_set`), sem mostrar o hash. Quem esqueceu a senha recebe uma nova pelo
       "Redefinir senha".
+    - **03/11:** o dono perguntou se existe redefinição de senha. Existe, nas duas versões:
+      - o admin redefine a de qualquer conta da equipe (Equipe › conta › "Definir/Redefinir senha");
+      - cada pessoa troca a própria em `/equipe/senha`, com a senha atual.
+      - **Não existe "Esqueci minha senha"** por e-mail. Se o único admin perder a senha, não há comando na VPS para o
+        app (o `atendimento-configurar --nova-senha` é só do Chatwoot). Recomendei ter pelo menos 2 admins com senha.
