@@ -1711,3 +1711,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - **Carlos:** troca de e-mail pedida (o errado está na base, liberado; o novo ainda não existe). O telefone da
         base é de outro país e não bate com o que a Giseli mandou. Pedi a confirmação antes de trocar, porque trocar o
         e-mail entrega a conta.
+    - **03/11: volume real e medição.**
+      - `uso_turnos`: **398.126 linhas em 30 dias** e 176.389 em 7.
+      - Rodei o `agregarUso`/`agregarMotores` de verdade (tsx) sobre 400 mil linhas sintéticas: **pico de ~370 MB de heap
+        por pedido de 30 dias** e **6,5 s de CPU** no `agregarUso`. A conversa da Crystal espera nesse tempo; já era
+        assim na 088d07d.
+      - As 7 colunas novas empurraram o pico acima do contêiner de 384M.
+      - Folga ajustada: Crystal com **2560M e heap de 2048M**, CPU 1; API com 2048M e heap de 1536M. Antes, `free -h` na
+        VPS.
+      - **Correção no código depois da subida:** agregar no SQL (ou em lotes) e uma leitura por período ao mesmo tempo,
+        para tirar os 6,5 s de trava e a memória.

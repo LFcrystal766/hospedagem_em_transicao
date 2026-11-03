@@ -94,7 +94,10 @@ antigo não muda sem o script novo). O próximo `app-subir` volta aos limites do
 de cada `app-subir`, até a correção no código (agregar sem carregar tudo) e a troca do yaml.
 
 Antes, conferir o volume: `select count(*) filter (where em > now() - interval '30 days') from uso_turnos;` no banco
-`crystal_agente`. Até uns 300 mil, a folga abaixo sobra; acima disso, esperar a correção no código.
+`crystal_agente`. Em 03/11 deu **398 mil** em 30 dias (176 mil em 7). Medido aqui com o `agregarUso` de verdade sobre 400 mil
+linhas: **pico de ~370 MB de heap por pedido de 30 dias e 6,5 s de CPU** (a conversa espera nesse tempo; isso já era
+assim na 088d07d). Por isso a folga é de 2 GB de heap (até ~5 pedidos de 30 dias ao mesmo tempo); antes, conferir com
+`free -h` que a VPS tem memória livre.
 
 ## Subir
 
@@ -110,7 +113,7 @@ bash bootstrap-vps.sh crystal-conferir
 **4b. Folga de memória (logo em seguida, um por vez):**
 
 ```bash
-docker service update --limit-cpu 1 --limit-memory 1536M --env-add NODE_OPTIONS=--max-old-space-size=1024 crystal_app_app_crystal
+docker service update --limit-cpu 1 --limit-memory 2560M --env-add NODE_OPTIONS=--max-old-space-size=2048 crystal_app_app_crystal
 docker service update --limit-memory 2048M --env-add NODE_OPTIONS=--max-old-space-size=1536 crystal_app_app_api
 ```
 
