@@ -1671,3 +1671,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Os erros de nível 50 da API ("Server has closed the connection", "Can't reach database server") são de
         **00:29:42 UTC**, a troca do Postgres no próprio `app-subir`: passageiros, não a causa. O abort 134 não sai
         em JSON. Pedi as linhas de texto (fora do JSON) dos logs guardados, depois da volta.
+    - **03/11: causa confirmada na Crystal:** `FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out
+      of memory`.
+      - `/v1/uso` e `/v1/uso/motores` carregam **todas** as linhas de `uso_turnos` do período na memória
+        (`d.uso.linhas(de, ate)` → `agregarUso`/`agregarMotores`). A 088d07d já fazia assim. A versão nova traz 7 colunas
+        a mais por linha e chama esses endpoints mais vezes, inclusive em paralelo (métricas e painel), e estoura o
+        heap do contêiner de 384M.
+      - A API também saiu com 134; a causa dela ainda falta (linhas de texto do `/root/crash-api.log`).
+      - Pedi a volta já e a contagem de `uso_turnos` (7 e 30 dias, total) no banco `crystal_agente`.
+      - **Correção a fazer:** agregar sem carregar tudo (SQL ou lotes, e uma leitura só por período ao mesmo tempo) e
+        folga de memória para a Crystal. O yaml só muda por um commit com o yaml antigo + memória, porque o script
+        antigo usa o `REF`.
