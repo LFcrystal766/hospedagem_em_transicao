@@ -1612,3 +1612,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       só com `read:packages` e 90 dias, `bash bootstrap-vps.sh app-ghcr` e rodar o passo 4 de novo.
     - **03/11:** o `docker pull` deu `error from registry: denied`, então é o **login do ghcr.io vencido** na VPS.
       Passei ao dono o token clássico novo (só `read:packages`, 90 dias), depois `app-ghcr` e o passo 4 de novo.
+    - **03/11:** mandei ao dono o link já preenchido para criar o token
+      (`github.com/settings/tokens/new?scopes=read:packages&description=VPS%20Crystal%20imagens`, validade de 90 dias).
