@@ -1803,3 +1803,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **03/11: superadmin devolvido.** `SUPERADMIN_EMAILS` = Letícia + `+equipe`, valendo na API (`--env-add`) e
       gravado em `.externos` (próximas subidas). Falta conferir `tem_senha = t`, ver se a folga de memória da API
       continua (o `--env-add` não mexe nos limites) e o dono testar o login em `/login/equipe`.
+    - **03/11:** o dono disse que o login "vai direto para o código". Em `/login/equipe` está certo: a 1ª tela pede o
+      e-mail **e a senha** juntos; depois vem o código. Se a 1ª tela pediu só o e-mail, é a porta da cliente
+      (`/login`). Por ela, conta de equipe recebe a mesma resposta de e-mail desconhecido (A2) e **o código nunca é
+      mandado**; pode ter sido o "não chegou nada" de antes.
