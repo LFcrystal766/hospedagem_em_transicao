@@ -1807,3 +1807,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       e-mail **e a senha** juntos; depois vem o código. Se a 1ª tela pediu só o e-mail, é a porta da cliente
       (`/login`). Por ela, conta de equipe recebe a mesma resposta de e-mail desconhecido (A2) e **o código nunca é
       mandado**; pode ter sido o "não chegou nada" de antes.
+    - **03/11:** o dono pediu a URL do login com e-mail e senha: `https://app.crystalnowpp.com.br/login/equipe`
+      (título "Acesso da equipe"; a página não redireciona quem já está logado como cliente).
