@@ -1642,3 +1642,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         HTTPS 200 e base do Supabase 200.
       - Volta: `REF=97b5ad2… app-subir sha-088d07d`, sem volta de banco.
       - Faltam `crystal-conferir`, a conferência das migrações e o teste no iPhone (cliente e admin com o 2.0).
+    - **03/11, `crystal-conferir`:** serviços 1/1, o painel em `google/gemini-3.1-flash-lite`, canal `crystal`, a
+      pergunta de teste respondida pelo modelo do painel (2,2 s, 6 trechos da base), OpenRouter com saldo US$ 46,50 e
+      Supabase OK.
+      - Os 3 "!" (sem chave do OpenRouter, busca desligada, memória sem banco) são **alarme falso**. Desde a segurança
+        de 24/10 (C-13), o `/healthz` da Crystal sem o Bearer diz só `{ok:true}`, e o `crystal_conferir` do script
+        chama `/healthz` sem o Bearer. Isso vale no script da VPS (`97b5ad2`) e também no do repositório (linha
+        ~3434).
+      - **Pendência:** mandar `{ headers: auth }` nesse `pegar(base + "/healthz")` antes da madrugada da segurança.
+        Isso muda o sha256 do bootstrap; atualizar onde ele aparece.
+      - Passei ao dono uma conferência com o Bearer, de dentro da API, que só imprime os booleanos.
