@@ -1762,3 +1762,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Recomendei criar o admin com um apelido do mesmo e-mail (`+equipe`), que chega na mesma caixa se o Outlook.com
         aceitar o `+` (ele confere pelo código), ou com outro e-mail. A conta de cliente fica para testar como cliente.
       - Não sugeri trocar o papel por SQL: fura essa regra e não deixa auditoria.
+    - **03/11: o dono pediu superadmin nessa conta admin nova.** Superadmin = conta **admin** cujo e-mail está em
+      `SUPERADMIN_EMAILS` (api.env, via `.externos`), então vale para o apelido, não para a conta de cliente.
+      - Passei os comandos: ler a lista atual de `.externos`, acrescentar o e-mail novo, gravar com
+        `app-definir SUPERADMIN_EMAILS` (vale na próxima subida) e aplicar já com
+        `docker service update --env-add SUPERADMIN_EMAILS=... crystal_app_app_api`.
+      - Esse caminho evita um `app-subir`, que zeraria a folga de memória.
