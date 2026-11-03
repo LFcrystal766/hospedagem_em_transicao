@@ -1816,3 +1816,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - criar o admin pelo painel e definir a senha (logado com o `+equipe`, que é superadmin, então o
         `alvoProtegido` não barra);
       - acrescentar o e-mail na lista de superadmins (`--env-add` e `app-definir`, as 3 contas).
+    - **03/11:** o Gmail da Letícia não existe em `users` (0 rows): segue com ele direto. Passei os comandos com o
+      e-mail preenchido.
