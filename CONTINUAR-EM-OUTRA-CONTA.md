@@ -1617,3 +1617,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **03/11:** token novo e `app-ghcr` feitos. O `docker pull` da API baixou, com o digest `sha256:31817f67…`, o
       mesmo do push no GitHub. Falta o dono rodar os passos 1 a 3 (senhas, `app-status` e `backup`), se ainda não
       rodou, e depois o `app-subir sha-20da7ee`.
+    - **03/11, passos 1 e 2:**
+      - Senhas: **1 conta admin ativa sem senha**. Depois da subida ela não entraria no painel, porque a porta da
+        cliente fecha para a equipe.
+      - `app-status`: tudo em `sha-088d07d`, com HTTPS 200.
+      - Pedi ao dono para parar antes de subir: ver de quem é a conta (nome e e-mail só no terminal dele), definir a
+        senha no painel atual (Equipe › abrir a conta › "Definir senha"; o `PUT /staff/users/:id/password` da 088d07d
+        aceita o admin definir a senha de qualquer conta da equipe, inclusive a dele), conferir `(0 rows)`, e depois
+        `backup` e `app-subir`.
