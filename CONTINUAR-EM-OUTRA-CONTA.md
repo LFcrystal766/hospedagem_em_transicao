@@ -1728,3 +1728,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         Antes, `free -h`. Depois, abrir Métricas e repetir a conferência.
     - **03/11:** o dono reenviou o mesmo print (Crystal ainda em 1,5 GiB). Repeti os 3 passos que faltam: `free -h`,
       Crystal para 2560M com heap de 2048, e o teste de Métricas.
+    - **03/11:** `free -h` dá 15 GiB no total, 3,2 GiB usados e 12 GiB disponíveis (sem swap). Liberado subir a Crystal
+      para 2560M.
