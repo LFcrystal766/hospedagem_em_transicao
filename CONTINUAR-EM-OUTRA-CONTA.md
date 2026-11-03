@@ -1774,3 +1774,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         `.externos` sem aparecer, e a resposta mostra o id ou o erro (cota, domínio, chave).
       - Também pedi as falhas de envio nos logs dos últimos 30 min e o que existe em `users` com o e-mail do dono.
       - Depois, a conta admin com um e-mail que chegue de verdade.
+    - **03/11, resultado dos 3 testes:**
+      - **O envio pelo Resend funciona:** `HTTP 200` com id, a partir da VPS com a chave e o remetente do app. Falta o
+        dono dizer se o teste chegou no Hotmail (caixa de entrada ou spam).
+      - **Nenhuma falha de envio** nos logs da API em 30 min.
+      - **A conta admin `+equipe` existe (admin, ativa) mas SEM SENHA.** O login da equipe pede a senha antes de
+        mandar o código, então o código nunca saiu: era isso. Pedi para definir a senha (Equipe › conta › "Definir
+        senha") e tentar de novo.
+      - Para a Giseli: como o app não registra falha, os códigos dos clientes saem. Se o teste não chegou no Hotmail,
+        o problema é a entrega para Hotmail/Outlook (spam ou bloqueio): ver no Resend o status do id do teste.
