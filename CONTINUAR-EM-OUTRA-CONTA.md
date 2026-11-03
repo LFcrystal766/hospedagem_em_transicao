@@ -1732,3 +1732,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       para 2560M.
     - **03/11: Crystal em 2,5 GiB** (`--limit-memory 2560M`, heap de 2048, CPU 1), convergiu, 88 MB em repouso; API em
       2 GiB. Nenhum `Failed` novo. Falta abrir Métricas para provar e fazer os testes no iPhone.
+    - **03/11: o teste que derrubou passou.** O dono abriu Métricas: API e Crystal `Running`, sem `Failed` novo, e a
+      Crystal em 97 MB depois das contas. **`sha-20da7ee` estável no ar.** Próximo: testes no iPhone (cliente, painel e
+      Motor 2.0 na conta admin).
+      - Depois: a correção no código (tarefa de agregar no SQL ou em lotes, com uma leitura por período) para tirar o
+        passo 4b e a trava de ~6 s.
+      - O Bearer no `crystal-conferir` continua pendente.
