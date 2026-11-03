@@ -1768,3 +1768,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         `app-definir SUPERADMIN_EMAILS` (vale na próxima subida) e aplicar já com
         `docker service update --env-add SUPERADMIN_EMAILS=... crystal_app_app_api`.
       - Esse caminho evita um `app-subir`, que zeraria a folga de memória.
+    - **03/11: "não chegou nada, vamos do 0".** O código do login da equipe não chegou no apelido `+equipe`. Junto com
+      a queixa da Giseli, o envio de e-mail pode estar quebrado para todos.
+      - Recomecei pelo envio. Passei um teste direto no Resend a partir da VPS: a chave e o remetente saem de
+        `.externos` sem aparecer, e a resposta mostra o id ou o erro (cota, domínio, chave).
+      - Também pedi as falhas de envio nos logs dos últimos 30 min e o que existe em `users` com o e-mail do dono.
+      - Depois, a conta admin com um e-mail que chegue de verdade.
