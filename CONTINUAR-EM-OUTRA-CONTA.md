@@ -1794,3 +1794,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Passei: ler o valor que está valendo (`docker service inspect`, só a linha `SUPERADMIN_EMAILS`); tirar por uns
         minutos (`--env-rm`); definir a senha; pôr de volta (`--env-add` com o mesmo valor).
       - Se a lista estiver vazia, a causa é outra e vou aos logs.
+    - **03/11: confirmado.** `SUPERADMIN_EMAILS` valendo na API: Letícia + `+equipe`. É o `alvoProtegido`. Ajustei o
+      passo 2 para tirar só o `+equipe` por uns minutos (`T` = a lista sem ele), para a Letícia continuar
+      superadmin. Depois, definir a senha e voltar com `$S`.
