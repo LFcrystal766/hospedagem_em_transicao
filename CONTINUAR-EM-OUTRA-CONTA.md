@@ -1682,3 +1682,16 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - **Correção a fazer:** agregar sem carregar tudo (SQL ou lotes, e uma leitura só por período ao mesmo tempo) e
         folga de memória para a Crystal. O yaml só muda por um commit com o yaml antigo + memória, porque o script
         antigo usa o `REF`.
+    - **03/11 ~01:40 UTC: VOLTA FEITA, `sha-088d07d` no ar de novo** (confirmado pelo dono). O `CLAUDE.md` foi corrigido.
+      `docker stats` antes da volta: Crystal 98 MB de 384 MB em repouso, então o pico é o da agregação.
+    - **03/11: pedido novo do dono:** "colocar uma atualização para a Crystal entender e responder em espanhol e
+      inglês". O que isso envolve:
+      - **A alma manda PT-BR 100%** (`prompt/crystal.md` linhas 23 e 62: "responda 100% em Português do Brasil",
+        "IDIOMA OBRIGATÓRIO: Português do Brasil"). Mudar isso **é mexer na alma**, o que a regra do dono proíbe; precisa do
+        OK explícito dele e da Letícia.
+      - **A detecção de risco (`packages/shared/src/risco.ts`) só conhece português**: "quiero morirme" ou "I want to
+        kill myself" não acendem o CVV. Isso é obrigatório antes de responder em outra língua.
+      - A trava de vazamento é mais rígida em inglês e espanhol (5-gramas da alma com metade do piso): pode barrar
+        resposta legítima, então precisa de teste.
+      - Os contatos de ajuda (188, 180, 190, 192) são do Brasil.
+      - Recomendei fazer depois da correção da memória, como entrega separada.
