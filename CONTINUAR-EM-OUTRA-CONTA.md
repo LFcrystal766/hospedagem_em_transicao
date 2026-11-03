@@ -1695,3 +1695,19 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         resposta legítima, então precisa de teste.
       - Os contatos de ajuda (188, 180, 190, 192) são do Brasil.
       - Recomendei fazer depois da correção da memória, como entrega separada.
+    - **03/11: o dono desistiu do espanhol/inglês ("Ignora") e pediu para subir o PRD agora.**
+      - Medi a memória por linha de `uso_turnos`: ~500 B na linha do pg e ~250 B na mapeada, uns 750 B no pico.
+      - Plano para subir já:
+        - `app-subir sha-20da7ee` (com o `REF`);
+        - logo depois, `docker service update`: Crystal com CPU 1, 1536M e `NODE_OPTIONS=--max-old-space-size=1024`; API
+          com 2048M e `--max-old-space-size=1536`.
+      - Antes, conferir a contagem de 30 dias (até ~300 mil, a folga sobra).
+      - O roteiro ganhou a seção "03/11" e o passo 4b.
+      - **O passo 4b tem de ser repetido a cada `app-subir`** até a correção no código (agregar no SQL ou em lotes,
+        uma leitura por período) e o yaml novo.
+    - **03/11, suporte (Giseli):**
+      - **João Paulo:** o login no Supabase volta liberado (`t`), mas ele "segue sem conseguir". Pedi o print e o
+        passo em que trava (o código chega? em que tela?).
+      - **Carlos:** troca de e-mail pedida (o errado está na base, liberado; o novo ainda não existe). O telefone da
+        base é de outro país e não bate com o que a Giseli mandou. Pedi a confirmação antes de trocar, porque trocar o
+        e-mail entrega a conta.

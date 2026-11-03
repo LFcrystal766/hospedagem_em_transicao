@@ -82,6 +82,20 @@ REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha
 2. `bash bootstrap-vps.sh app-status`: anote a tag no ar (deve ser `sha-088d07d`) e confira que o canal é `crystal`.
 3. `bash bootstrap-vps.sh backup`.
 
+## 03/11: a 1ª subida caiu por falta de memória (ler antes)
+
+Em 03/11 a `sha-20da7ee` subiu e, minutos depois, a Crystal (e a API) saíram com `134`, `JavaScript heap out of
+memory`. O motivo: `/v1/uso` e `/v1/uso/motores` carregam todas as linhas de `uso_turnos` do período para fazer as
+contas; a versão nova guarda mais colunas e pede mais vezes. A volta para `sha-088d07d` resolveu.
+
+Medido aqui: cerca de 750 bytes por linha no pico (a linha do pg e a mapeada juntas). O contêiner da Crystal tem 384M.
+**Nova regra desta subida:** logo depois do `app-subir`, dar folga de memória e CPU com `docker service update` (o yaml
+antigo não muda sem o script novo). O próximo `app-subir` volta aos limites do yaml, então repita o passo 4b depois
+de cada `app-subir`, até a correção no código (agregar sem carregar tudo) e a troca do yaml.
+
+Antes, conferir o volume: `select count(*) filter (where em > now() - interval '30 days') from uso_turnos;` no banco
+`crystal_agente`. Até uns 300 mil, a folga abaixo sobra; acima disso, esperar a correção no código.
+
 ## Subir
 
 Escolha um horário de pouco movimento. O app fica alguns segundos sem responder enquanto troca. Não precisa ser a
@@ -93,7 +107,14 @@ bash bootstrap-vps.sh app-status
 bash bootstrap-vps.sh crystal-conferir
 ```
 
-Tem de aparecer:
+**4b. Folga de memória (logo em seguida, um por vez):**
+
+```bash
+docker service update --limit-cpu 1 --limit-memory 1536M --env-add NODE_OPTIONS=--max-old-space-size=1024 crystal_app_app_crystal
+docker service update --limit-memory 2048M --env-add NODE_OPTIONS=--max-old-space-size=1536 crystal_app_app_api
+```
+
+Cada um reinicia o serviço dele (alguns segundos). Tem de aparecer:
 
 - os três serviços em `sha-20da7ee`;
 - as migrações aplicadas;
