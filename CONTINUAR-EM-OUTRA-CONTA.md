@@ -1652,3 +1652,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - **Pendência:** mandar `{ headers: auth }` nesse `pegar(base + "/healthz")` antes da madrugada da segurança.
         Isso muda o sha256 do bootstrap; atualizar onde ele aparece.
       - Passei ao dono uma conferência com o Bearer, de dentro da API, que só imprime os booleanos.
+    - **03/11: PROBLEMA depois da subida.** O dono abre Métricas no painel e aparece "Não consegui abrir o painel
+      agora." Esse texto é do `StaffLayout`: o `GET /me` falhou com um erro que não é 401. Pelo relato, "o app sai do
+      ar".
+      - A rota e o serviço das métricas da API (`staff-metrics.ts`, `services/metrics.ts`) **não mudaram** entre
+        `088d07d` e `20da7ee`; na tela, só formatação.
+      - Hipóteses: a API ou a Crystal caindo por memória (limites do yaml antigo: API 1024M, Crystal 384M, web 512M) ou
+        um erro da API.
+      - Pedi ao dono: `docker service ps` dos serviços (reinícios e motivo), as linhas de erro (level 50/60) da API e
+        da Crystal nos últimos 30 min, `docker stats` e se o chat dos clientes também cai. Até lá, não abrir Métricas.
+        A volta (`sha-088d07d`) fica pronta se os clientes forem afetados.
