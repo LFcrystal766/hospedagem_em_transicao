@@ -1756,3 +1756,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       3. Se já existe como cliente, a API recusa ("Já existe uma conta com esse e-mail"): ou usar um apelido com `+`,
          ou passar a conta para admin por SQL e definir a senha. Decisão dele.
       - Superadmin (gravar alma, base e bateria) é à parte: `app-definir SUPERADMIN_EMAILS`, o script da VPS aceita.
+    - **03/11:** o e-mail pessoal do dono já é uma **conta de cliente** (`user`, ativa, sem senha). O app impede de
+      propósito que um cliente vire equipe (A05 item 7: `ROLE_CHANGE_FORBIDDEN`) e que se crie outra conta com o mesmo
+      e-mail (`EMAIL_EXISTS`); a porta da cliente não aceita equipe (A2).
+      - Recomendei criar o admin com um apelido do mesmo e-mail (`+equipe`), que chega na mesma caixa se o Outlook.com
+        aceitar o `+` (ele confere pelo código), ou com outro e-mail. A conta de cliente fica para testar como cliente.
+      - Não sugeri trocar o papel por SQL: fura essa regra e não deixa auditoria.
