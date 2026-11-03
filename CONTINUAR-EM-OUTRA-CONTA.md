@@ -1797,3 +1797,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **03/11: confirmado.** `SUPERADMIN_EMAILS` valendo na API: Letícia + `+equipe`. É o `alvoProtegido`. Ajustei o
       passo 2 para tirar só o `+equipe` por uns minutos (`T` = a lista sem ele), para a Letícia continuar
       superadmin. Depois, definir a senha e voltar com `$S`.
+    - **03/11: senha do `+equipe` definida.** Faltam: devolver o superadmin (`--env-add` com a lista inteira, escrita
+      por extenso caso o `$S` tenha sumido), gravar a lista em `.externos` (`app-definir`, vale nas próximas subidas),
+      conferir `tem_senha = t` e testar o login em `/login/equipe`.
