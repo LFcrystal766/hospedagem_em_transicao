@@ -1721,3 +1721,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         VPS.
       - **Correção no código depois da subida:** agregar no SQL (ou em lotes) e uma leitura por período ao mesmo tempo,
         para tirar os 6,5 s de trava e a memória.
+    - **03/11 ~14:35 UTC: `sha-20da7ee` NO AR de novo.** `app-subir` OK. O dono rodou a folga **antiga**: Crystal com
+      1536M e heap de 1024, API com 2048M e heap de 1536. Os dois convergiram, sem `Failed` novo (os 134 da lista são
+      de 14 h atrás); Crystal com 95 MB em repouso.
+      - Pedi para subir a Crystal para 2560M e heap de 2048, porque 3 pedidos de 30 dias ao mesmo tempo passam de 1 GB.
+        Antes, `free -h`. Depois, abrir Métricas e repetir a conferência.
