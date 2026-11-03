@@ -1787,3 +1787,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       senha" (mínimo de 10 caracteres, com letras e números) › "Salvar senha".
       - Desde a segurança de 24/10 (A12), definir a senha de **outra** conta pede "Confirme que é você": um código vai
         para o e-mail do **admin logado**, não para o da conta nova. Pode ter sido esse o código que "não chegou".
+    - **03/11: "Não encontrei o que você procurou" ao salvar a senha, depois do código.** É o 404 do
+      `PUT /staff/users/:id/password`. A causa provável é `alvoProtegido`: se o `+equipe` já está em
+      `SUPERADMIN_EMAILS`, um admin que não é superadmin não mexe numa conta superadmin, e a API responde 404 de
+      propósito. O diálogo pede o código antes, por isso o erro aparece depois dele.
+      - Passei: ler o valor que está valendo (`docker service inspect`, só a linha `SUPERADMIN_EMAILS`); tirar por uns
+        minutos (`--env-rm`); definir a senha; pôr de volta (`--env-add` com o mesmo valor).
+      - Se a lista estiver vazia, a causa é outra e vou aos logs.
