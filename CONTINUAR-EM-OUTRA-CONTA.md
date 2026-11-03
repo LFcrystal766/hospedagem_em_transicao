@@ -1783,3 +1783,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         senha") e tentar de novo.
       - Para a Giseli: como o app não registra falha, os códigos dos clientes saem. Se o teste não chegou no Hotmail,
         o problema é a entrega para Hotmail/Outlook (spam ou bloqueio): ver no Resend o status do id do teste.
+    - **03/11:** o dono perguntou como definir a senha. Passei o caminho na versão nova: Equipe › conta › "Definir
+      senha" (mínimo de 10 caracteres, com letras e números) › "Salvar senha".
+      - Desde a segurança de 24/10 (A12), definir a senha de **outra** conta pede "Confirme que é você": um código vai
+        para o e-mail do **admin logado**, não para o da conta nova. Pode ter sido esse o código que "não chegou".
