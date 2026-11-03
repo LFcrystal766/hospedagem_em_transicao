@@ -1604,3 +1604,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **03/11:** o dono pediu o passo a passo exato da subida. Mandei na conversa e acrescentei ao roteiro o passo 0
       (abrir o terminal do navegador da Hostinger, `cd /root`). O script da VPS ainda é o antigo (`97b5ad2`), então o
       `app-subir` leva o `REF`.
+    - **03/11, 1ª tentativa de subida:** `app-subir sha-20da7ee` parou em `== imagens`: "não baixou
+      ...-api:sha-20da7ee". Parou antes de mexer em qualquer coisa (o script antigo baixa as 3 imagens antes do
+      deploy), então **nada mudou no ar**. A imagem existe no ghcr.io: o log do job confirma o push de
+      `crystal-web-chat-api:sha-20da7ee`. A causa mais provável é o login do Docker no ghcr.io vencido (token
+      `read:packages`). Pedi ao dono `docker pull ... 2>&1 | tail -3`. Se der unauthorized/denied: token clássico novo,
+      só com `read:packages` e 90 dias, `bash bootstrap-vps.sh app-ghcr` e rodar o passo 4 de novo.
