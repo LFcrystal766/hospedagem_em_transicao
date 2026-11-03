@@ -1625,3 +1625,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         senha no painel atual (Equipe › abrir a conta › "Definir senha"; o `PUT /staff/users/:id/password` da 088d07d
         aceita o admin definir a senha de qualquer conta da equipe, inclusive a dele), conferir `(0 rows)`, e depois
         `backup` e `app-subir`.
+    - **03/11:** o dono perguntou se dá para puxar as contas e as senhas. Respondi que as senhas não dá: o banco guarda
+      só o hash scrypt, que não volta a ser a senha. Mandei a consulta que lista a equipe com "tem senha" e a data da
+      última definição (`audit_log`, `user.password_set`), sem mostrar o hash. Quem esqueceu a senha recebe uma nova pelo
+      "Redefinir senha".
