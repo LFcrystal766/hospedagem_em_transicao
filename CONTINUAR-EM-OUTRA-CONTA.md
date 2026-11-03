@@ -1826,3 +1826,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         - Pedi que ele tente de novo **agora**, pela porta da cliente, com o mesmo e-mail, olhando spam e "Outros".
       - **Carlos:** continua esperando a confirmação da Giseli (o telefone da base não bate) para trocar o e-mail; o
         novo ainda não existe.
+    - **03/11, João Paulo:** a conta no app está certa (`user`, `active`, `crystal_contact_id` igual ao da base). Passei a
+      consulta do último login e da última mensagem dele (UTC), para saber se ele já conseguiu entrar depois do aviso
+      da Giseli.
