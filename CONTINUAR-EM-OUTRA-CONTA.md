@@ -1748,3 +1748,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Alternativa: Hotmail/Outlook filtrando (spam) ou endereço suprimido no Resend por bounce anterior.
       - Pedi ao dono: a contagem das falhas de envio por tipo e status nos logs de 24 h, e o painel do Resend (Emails,
         busca pelo destinatário, status; e o uso/cota do plano).
+    - **03/11: o dono pediu uma conta admin no e-mail pessoal dele.** Não tenho acesso ao banco da VPS nem ao painel,
+      então passei o caminho a ele:
+      1. Conferir se o e-mail já existe (`psql` em `users`, só papel, situação e se tem senha).
+      2. Se não existe: Painel › Equipe › "Nova conta de equipe", papel admin, depois "Definir senha" e entrar por
+         `/login/equipe`.
+      3. Se já existe como cliente, a API recusa ("Já existe uma conta com esse e-mail"): ou usar um apelido com `+`,
+         ou passar a conta para admin por SQL e definir a senha. Decisão dele.
+      - Superadmin (gravar alma, base e bateria) é à parte: `app-definir SUPERADMIN_EMAILS`, o script da VPS aceita.
