@@ -1614,3 +1614,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       Passei ao dono o token clássico novo (só `read:packages`, 90 dias), depois `app-ghcr` e o passo 4 de novo.
     - **03/11:** mandei ao dono o link já preenchido para criar o token
       (`github.com/settings/tokens/new?scopes=read:packages&description=VPS%20Crystal%20imagens`, validade de 90 dias).
+    - **03/11:** token novo e `app-ghcr` feitos. O `docker pull` da API baixou, com o digest `sha256:31817f67…`, o
+      mesmo do push no GitHub. Falta o dono rodar os passos 1 a 3 (senhas, `app-status` e `backup`), se ainda não
+      rodou, e depois o `app-subir sha-20da7ee`.
