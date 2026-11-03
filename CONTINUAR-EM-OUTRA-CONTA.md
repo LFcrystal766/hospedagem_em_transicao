@@ -1662,3 +1662,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Pedi ao dono: `docker service ps` dos serviços (reinícios e motivo), as linhas de erro (level 50/60) da API e
         da Crystal nos últimos 30 min, `docker stats` e se o chat dos clientes também cai. Até lá, não abrir Métricas.
         A volta (`sha-088d07d`) fica pronta se os clientes forem afetados.
+    - **03/11: API e Crystal em laço de queda** (`task: non-zero exit (134)`, SIGABRT, o típico "JavaScript heap out of
+      memory" do Node), a API às -3 min e -9 s, a Crystal às -5 s. Os clientes também são afetados. **Mandei voltar já
+      para `sha-088d07d`**, guardando antes os logs em `/root/crash-api.log` e `/root/crash-crystal.log` para o
+      diagnóstico.
+      - Suspeitas: memória das métricas e do uso na versão nova (yaml antigo: Crystal 384M, API 1024M), ou a imagem
+        base presa em `node:22.22.2-alpine` (INF-14).
