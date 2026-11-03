@@ -1726,3 +1726,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       de 14 h atrás); Crystal com 95 MB em repouso.
       - Pedi para subir a Crystal para 2560M e heap de 2048, porque 3 pedidos de 30 dias ao mesmo tempo passam de 1 GB.
         Antes, `free -h`. Depois, abrir Métricas e repetir a conferência.
+    - **03/11:** o dono reenviou o mesmo print (Crystal ainda em 1,5 GiB). Repeti os 3 passos que faltam: `free -h`,
+      Crystal para 2560M com heap de 2048, e o teste de Métricas.
