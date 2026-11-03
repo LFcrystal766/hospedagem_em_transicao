@@ -1818,3 +1818,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - acrescentar o e-mail na lista de superadmins (`--env-add` e `app-definir`, as 3 contas).
     - **03/11:** o Gmail da Letícia não existe em `users` (0 rows): segue com ele direto. Passei os comandos com o
       e-mail preenchido.
+    - **03/11, situação dos casos da manhã (Giseli):**
+      - **João Paulo:** continua liberado na base (`t`). O envio do app funciona (Resend 200, nenhuma falha no log), e
+        o código do `+equipe` do dono chegou no Hotmail, então o Hotmail recebe os nossos e-mails.
+        - Passei a conferência da conta dele no app (`users`: papel, situação e `crystal_contact_id` igual ao da base,
+          ou 0 linhas se nunca entrou).
+        - Pedi que ele tente de novo **agora**, pela porta da cliente, com o mesmo e-mail, olhando spam e "Outros".
+      - **Carlos:** continua esperando a confirmação da Giseli (o telefone da base não bate) para trocar o e-mail; o
+        novo ainda não existe.
