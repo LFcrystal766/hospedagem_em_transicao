@@ -1829,3 +1829,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **03/11, João Paulo:** a conta no app está certa (`user`, `active`, `crystal_contact_id` igual ao da base). Passei a
       consulta do último login e da última mensagem dele (UTC), para saber se ele já conseguiu entrar depois do aviso
       da Giseli.
+    - **03/11: Carlos, e-mail TROCADO por ordem do dono** ("troca o e-mail e vida que segue, só precisamos dar acesso a
+      ele urgente"). Rodei `app_aluno_trocar_email(contact_id, novo)` e o resultado foi `trocado`, origem `base`. O e-mail
+      novo volta liberado (`t`) no `app_verificar_login_email`; o antigo não acha mais nada. Ele entra pela porta da
+      cliente com o e-mail novo.
