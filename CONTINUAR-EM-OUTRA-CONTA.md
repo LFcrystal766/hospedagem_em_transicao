@@ -1634,3 +1634,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - cada pessoa troca a própria em `/equipe/senha`, com a senha atual.
       - **Não existe "Esqueci minha senha"** por e-mail. Se o único admin perder a senha, não há comando na VPS para o
         app (o `atendimento-configurar --nova-senha` é só do Chatwoot). Recomendei ter pelo menos 2 admins com senha.
+    - **03/11:** o dono definiu a senha da conta admin; a consulta das senhas voltou `(0 rows)`. Próximo: `backup`,
+      `app-subir sha-20da7ee` (com o `REF`), `app-status` e `crystal-conferir`.
