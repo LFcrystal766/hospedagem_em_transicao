@@ -1800,3 +1800,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **03/11: senha do `+equipe` definida.** Faltam: devolver o superadmin (`--env-add` com a lista inteira, escrita
       por extenso caso o `$S` tenha sumido), gravar a lista em `.externos` (`app-definir`, vale nas próximas subidas),
       conferir `tem_senha = t` e testar o login em `/login/equipe`.
+    - **03/11: superadmin devolvido.** `SUPERADMIN_EMAILS` = Letícia + `+equipe`, valendo na API (`--env-add`) e
+      gravado em `.externos` (próximas subidas). Falta conferir `tem_senha = t`, ver se a folga de memória da API
+      continua (o `--env-add` não mexe nos limites) e o dono testar o login em `/login/equipe`.
