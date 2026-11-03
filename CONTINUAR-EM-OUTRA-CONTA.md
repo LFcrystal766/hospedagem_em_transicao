@@ -1636,3 +1636,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         app (o `atendimento-configurar --nova-senha` é só do Chatwoot). Recomendei ter pelo menos 2 admins com senha.
     - **03/11:** o dono definiu a senha da conta admin; a consulta das senhas voltou `(0 rows)`. Próximo: `backup`,
       `app-subir sha-20da7ee` (com o `REF`), `app-status` e `crystal-conferir`.
+    - **03/11 ~00:30 UTC: `sha-20da7ee` NO AR.**
+      - Backup antes: 4 bancos, na VPS e no R2 cifrado.
+      - `app-subir` OK: as 3 imagens baixadas, `api.env` aceito pelo boot, os 3 serviços em `sha-20da7ee` sem rollback,
+        HTTPS 200 e base do Supabase 200.
+      - Volta: `REF=97b5ad2… app-subir sha-088d07d`, sem volta de banco.
+      - Faltam `crystal-conferir`, a conferência das migrações e o teste no iPhone (cliente e admin com o 2.0).
