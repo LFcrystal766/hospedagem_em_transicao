@@ -1888,3 +1888,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         da conversa para o encontro (25–33%) e 85–95% de uso para escrever mensagens.
       - Do público que diz a idade, 57–68% têm 35+.
       - Faltam as mensagens reais e os números.
+    - **04/11: 5 de 6 terminaram** (+ números; `resultados/5-numeros.md`). Destaques:
+      - ~R$3,4 mi bruto na vida (estimativa); R$2,52 mi de abr a 12/10, 75% vindo de Meta Ads;
+      - reembolso de 10–13%, com 19% em agosto (pane);
+      - os 10% que mais usam geram 2/3 do volume;
+      - 84% já mandaram print;
+      - pico às 21h de segunda e terça;
+      - a 1ª semana prevê a permanência (>100 mensagens: 69% ativos no 2º mês; até 10: 27%);
+      - coortes desde junho retêm bem menos (limite de imagens em 16/07 e pane de agosto);
+      - venda adicional quase zero (bumps 2,2%, pacote de imagens 4%);
+      - o app começou abaixo do ritmo do WhatsApp (145–250 vendas por semana contra 300–440).
+      - Falta o agente das mensagens reais.
