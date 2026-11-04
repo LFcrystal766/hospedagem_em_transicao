@@ -1833,3 +1833,23 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       ele urgente"). Rodei `app_aluno_trocar_email(contact_id, novo)` e o resultado foi `trocado`, origem `base`. O e-mail
       novo volta liberado (`t`) no `app_verificar_login_email`; o antigo não acha mais nada. Ele entra pela porta da
       cliente com o e-mail novo.
+93. **04/11: análise geral das conversas da Crystal (áudio do dono).**
+    - **Pedido** (transcrito localmente com faster-whisper, no scratchpad): "analisa todas as conversas, todo o
+      histórico... quais são os principais problemas, as dores, sugestões de novos produtos, cursos, ascensões...
+      especulando, só que com mais informação".
+    - **Fontes no Supabase (só leitura):**
+      - `leticia_crystal_chat_histories`: 1,08 mi linhas, nov/25 a out/26;
+      - `..._archive`: 4,7 mi linhas;
+      - `daily_stats`: 5,8 mi mensagens, 2,9 mi humanas, 280 mil áudios e 518 mil imagens, de ~10 mil usuários;
+      - `lead_memories`: 7.648 resumos de ~1,4 mil caracteres;
+      - `crystal_memoria_unica`: 1.560 resumos do app;
+      - 9 produtos.
+      - O banco do app na VPS (out/26 em diante) não está acessível daqui.
+    - **6 agentes em paralelo**, com as regras em `scratchpad/analise/regras.md` (só SELECT, LGPD, nada que
+      identifique):
+      - 3 lotes de ~400 memórias;
+      - mensagens reais (amostra, primeiras mensagens por sessão e pares pergunta→resposta);
+      - números (uso, retenção, horário, vendas e reembolso);
+      - clientes atuais do app (~350 resumos e 15 fichas).
+    - Saída prevista: relatório anônimo e agregado para o dono e a Letícia (dores, personas, usos, oportunidades de
+      produto, curso e ascensão). Nenhum conteúdo de cliente no repositório.
