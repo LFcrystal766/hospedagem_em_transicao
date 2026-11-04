@@ -1943,3 +1943,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         - escalar na Meta com as frases dos clientes;
         - descadastro em um toque.
       - Nenhuma consulta nova ao banco: tudo vem dos 6 resumos anônimos.
+94. **04/11, suporte: Fernandes, troca de e-mail.** Na base estava o domínio digitado errado ("gmeil" no lugar de
+    "gmail"), liberado; o certo não existia em nenhum cadastro, e o nome do cadastro bate com o e-mail novo.
+    - `app_aluno_trocar_email` → `trocado` (origem `base`).
+    - Conferido: o novo entra no mesmo contato, liberado (`t`); o antigo não acha mais nada.
+    - O e-mail mandado tinha maiúsculas e um espaço; foi gravado em minúsculas e sem espaço.
