@@ -1960,3 +1960,18 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         Ver o status do envio no painel do Resend.
       - `rate_limited`: pediu código demais; esperar uma hora.
       - nada: ele não está chegando ao login com esse e-mail; pedir o print da tela.
+96. **04/11 tarde, suporte (Rafa e Giseli), 4 pedidos:**
+    - **Tine:** domínio digitado errado ("htmail"). `app_aluno_trocar_email` → `trocado` (origem `base`); o novo entra
+      liberado, o antigo não acha nada. O nome do cadastro é outro (provavelmente o e-mail de alguém da família), mas
+      o começo do e-mail é idêntico, só o domínio mudou.
+    - **Ramires:** já tinha sido corrigido em 31/10 (item 92): o e-mail certo está na base, liberado. O errado ainda
+      aparece porque a lista de ativos da Assiny de 31/10 trouxe a compra com o e-mail digitado errado e virou uma
+      liberação manual à parte (`manual-20261031-lista-ativos-assiny`). Não troquei nada: ele entra com o e-mail
+      certo. A linha duplicada ficou como estava.
+    - **Rubens ("não recebe o código", Outlook):** na base, liberado. Mesmo caminho do João Paulo (item 95): passei ao
+      dono a consulta de `auth_events` dos dois contatos.
+    - **Rafa (suporte):** liberação manual em `crystal_compras` (transação `manual-20261104-equipe-suporte`, status
+      active, sem compra), para ela conhecer a Crystal pela porta da cliente. Volta liberada (`t`).
+      - Se um dia ela precisar do painel, a conta da equipe usa outro e-mail (por exemplo, com `+equipe`), porque o
+        mesmo e-mail não pode ser cliente e equipe.
+      - Para tirar o acesso: `status='blocked'` nessa linha.
