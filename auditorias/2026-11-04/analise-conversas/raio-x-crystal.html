@@ -1,0 +1,467 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Raio-X da Crystal</title>
+<style>
+:root{color-scheme:light;
+--bg:#f6f5f2;--surface:#fcfcfb;--surface-2:#f0efeb;--ink:#0b0b0b;--ink-2:#52514e;--ink-3:#6f6e69;
+--line:#e2e0da;--track:#ebe9e4;--s1:#2a78d6;--s2:#eb6834;--accent:#1f63b8;
+--hi:#b3261e;--hi-bg:#fbeceb;--md:#8a5a00;--md-bg:#fbf3e2;--ok-bg:#eaf2fc}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+--bg:#121211;--surface:#1a1a19;--surface-2:#232321;--ink:#f0efec;--ink-2:#c3c2b7;--ink-3:#a3a297;
+--line:#34332f;--track:#2b2b28;--s1:#3987e5;--s2:#d95926;--accent:#7fb2f0;
+--hi:#f08a82;--hi-bg:#3a1f1d;--md:#e3b25a;--md-bg:#352a17;--ok-bg:#1c2a3b}}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg:#121211;--surface:#1a1a19;--surface-2:#232321;--ink:#f0efec;--ink-2:#c3c2b7;--ink-3:#a3a297;
+--line:#34332f;--track:#2b2b28;--s1:#3987e5;--s2:#d95926;--accent:#7fb2f0;
+--hi:#f08a82;--hi-bg:#3a1f1d;--md:#e3b25a;--md-bg:#352a17;--ok-bg:#1c2a3b}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-right)) 64px max(16px,env(safe-area-inset-left))}
+header h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.01em}
+header p{margin:0;color:var(--ink-2)}
+.meta{font-size:13px;color:var(--ink-3);margin-top:10px}
+h2{font-size:22px;line-height:1.25;margin:44px 0 12px;letter-spacing:-.005em;scroll-margin-top:16px}
+h3{font-size:17px;margin:26px 0 8px}
+p{margin:0 0 12px}
+ul,ol{margin:0 0 12px;padding-left:22px}
+li{margin:4px 0}
+a{color:var(--accent)}
+.muted{color:var(--ink-2)}
+.small{font-size:14px}
+.toc{margin:22px 0 0;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.toc b{display:block;font-size:13px;color:var(--ink-3);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.toc ol{margin:0;padding-left:20px;columns:2;column-gap:24px}
+.toc li{margin:3px 0;break-inside:avoid}
+@media (max-width:560px){.toc ol{columns:1}}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0 0}
+@media (max-width:700px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.tile .n{font-size:26px;font-weight:700;line-height:1.1;letter-spacing:-.01em}
+.tile .t{font-size:13px;color:var(--ink-2);margin-top:6px;line-height:1.35}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0}
+.key ol{padding-left:20px;margin:0}
+.key li{margin:8px 0}
+.chart{margin:16px 0;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.chart figcaption{margin-bottom:12px}
+.ct{display:block;font-weight:650;font-size:15px}
+.cs{display:block;font-size:13px;color:var(--ink-2);margin-top:2px}
+.cn{font-size:13px;color:var(--ink-3);margin:10px 0 0}
+.bars{display:flex;flex-direction:column;gap:10px}
+.br{outline:none;border-radius:6px;padding:2px 0}
+.br:focus-visible{box-shadow:0 0 0 2px var(--accent)}
+.bh{display:flex;justify-content:space-between;gap:12px;font-size:14px;line-height:1.3;margin-bottom:4px}
+.bl{color:var(--ink)}
+.bv{color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.bt{height:12px;background:var(--track);border-radius:0 4px 4px 0;flex:1;min-width:0}
+.bf{height:100%;background:var(--s1);border-radius:0 4px 4px 0}
+.bf.b2{background:var(--s2)}
+.br:hover .bf,.br:focus .bf{filter:brightness(1.08)}
+.prow{display:flex;align-items:center;gap:8px;margin-top:3px}
+.prow .bt{height:10px}
+.pv{font-size:13px;color:var(--ink-2);width:44px;text-align:right;font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--ink-2);margin:-4px 0 12px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;background:var(--s1)}
+.sw.s2{background:var(--s2)}
+.cols{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:4px;align-items:end;padding-top:6px}
+.cc{display:flex;flex-direction:column;align-items:center;min-width:0;outline:none}
+.cc:focus-visible{box-shadow:0 0 0 2px var(--accent);border-radius:4px}
+.ca{height:150px;width:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;border-bottom:1px solid var(--line)}
+.cv{font-size:11.5px;color:var(--ink-2);margin-bottom:3px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cf{width:min(24px,80%);background:var(--s1);border-radius:4px 4px 0 0}
+.cf.part{background:repeating-linear-gradient(45deg,var(--s1) 0 3px,transparent 3px 6px);box-shadow:inset 0 0 0 1.5px var(--s1)}
+.cc:hover .cf,.cc:focus .cf{filter:brightness(1.08)}
+.cl{font-size:12px;color:var(--ink-3);margin-top:5px;white-space:nowrap}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fm{display:block;font-size:12px;color:var(--ink-3);margin-top:2px}
+.personas{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media (max-width:640px){.personas{grid-template-columns:1fr}}
+.pc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.pc h4{margin:0;font-size:16px}
+.pc .sh{font-size:13px;color:var(--ink-2);font-weight:600;margin:2px 0 8px}
+.pc p{font-size:14px;margin:0 0 6px}
+.pc .lb{font-size:12px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.03em;display:block;margin-top:8px}
+.op{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}
+.op h4{margin:0 0 4px;font-size:16px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 8px}
+.tag{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--ink-2);background:var(--surface-2)}
+.tag.when{border-color:transparent;background:var(--ok-bg);color:var(--ink)}
+.op p{font-size:14px;margin:0 0 6px}
+.op .ev{color:var(--ink-2)}
+.risk{border-radius:12px;padding:14px;margin:10px 0;border:1px solid var(--line);background:var(--surface)}
+.risk .lv{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em}
+.risk.alta .lv{color:var(--hi);background:var(--hi-bg)}
+.risk.media .lv{color:var(--md);background:var(--md-bg)}
+.risk h4{margin:8px 0 4px;font-size:16px}
+.risk p{font-size:14px;margin:0 0 6px}
+.risk .fx{color:var(--ink-2)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:760px){.steps{grid-template-columns:1fr}}
+.st{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.st h4{margin:0 0 2px;font-size:16px}
+.st .sh{font-size:13px;color:var(--ink-3);margin-bottom:8px}
+.st ol{font-size:14px;padding-left:18px;margin:0}
+.st li{margin:6px 0}
+.quote{border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:8px 0;color:var(--ink-2);font-size:15px}
+.tip{position:fixed;z-index:10;max-width:280px;background:var(--ink);color:var(--bg);font-size:13px;line-height:1.35;padding:8px 10px;border-radius:8px;pointer-events:none;display:none;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+footer{margin-top:48px;font-size:13px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:14px}
+</style></head><body><main class="wrap">
+<header><h1>Raio-X da Crystal</h1>
+<p>O que os clientes falam com a Crystal, para que usam, onde dói e o que dá para oferecer a eles.</p>
+<div class="meta">Análise de 04/11/2026 · histórico de nov/2025 a nov/2026 · tudo anonimizado</div></header>
+<div class="tiles">
+<div class="tile"><div class="n">5,8 mi</div><div class="t">mensagens no histórico do WhatsApp (2,9 mi escritas pelos clientes)</div></div>
+<div class="tile"><div class="n">~10 mil</div><div class="t">clientes que conversaram com a Crystal no WhatsApp</div></div>
+<div class="tile"><div class="n">84%</div><div class="t">dos clientes já mandaram print de uma conversa</div></div>
+<div class="tile"><div class="n">R$ 3,4 mi</div><div class="t">faturamento bruto estimado desde o início (R$ 2,05 mi líquido de abr a 12/10)</div></div>
+</div>
+<nav class="toc"><b>Neste relatório</b><ol><li><a href="#resumo">Em um minuto</a></li><li><a href="#quem">Quem é o cliente</a></li><li><a href="#querem">O que eles querem</a></li><li><a href="#dores">As dores</a></li><li><a href="#uso">Como usam a Crystal</a></li><li><a href="#personas">Os perfis de cliente</a></li><li><a href="#numeros">Os números do negócio</a></li><li><a href="#app">O app hoje</a></li><li><a href="#oportunidades">Produtos, cursos e ascensões</a></li><li><a href="#riscos">Riscos a corrigir</a></li><li><a href="#passos">Próximos passos</a></li><li><a href="#metodo">Como foi feito e o que falta</a></li></ol></nav>
+<h2 id="resumo">Em um minuto</h2><div class="card key"><ol>
+<li><b>A Crystal é uma redatora e co-piloto de paquera.</b> 84–95% dos clientes pedem para escrever ou aprovar mensagens, e uma em cada seis mensagens é narração ao vivo (“ela respondeu isso, e agora?”). Desabafo é só 3–5% do uso.</li>
+<li><b>A dor central é parecer carente.</b> Medo de parecer carente (30–42%), vácuo e conversa que morre (40–45%), não saber puxar assunto (25–32%) e não conseguir marcar o encontro (25–33%).</li>
+<li><b>O cliente é mais velho do que parece.</b> Entre quem diz a idade, 57–68% têm 35 anos ou mais. 8–12% são recém-separados, muitas vezes pais.</li>
+<li><b>A paquera acontece no Instagram.</b> Instagram e stories aparecem em 43–58% das histórias; o Tinder, em 13–15%. A academia aparece em 22–31%.</li>
+<li><b>A primeira semana decide se o cliente fica.</b> Quem manda mais de 100 mensagens nos 7 primeiros dias continua ativo no 3º mês em 69% dos casos; quem manda até 10, em 27%.</li>
+<li><b>Quase ninguém compra uma segunda coisa.</b> Order bumps em 2,2% das compras, pacote de imagens em 4% da base e só 77 clientes com duas compras ou mais. Há espaço claro para cursos e ascensões.</li>
+<li><b>Antes de vender mais, quatro correções:</b> a leitura de print (29% das reclamações), os dados das mulheres guardados na memória (LGPD), uma regra firme para menores de idade e consentimento, e o cuidado com quem fala em risco à vida.</li>
+</ol></div>
+<h2 id="quem">Quem é o cliente</h2>
+<p>Homens, na grande maioria, solteiros e em busca. Quase nenhum está começando do zero na vida: muitos já foram casados, têm filhos, trabalham em comércio, saúde, segurança, vendas, no campo ou têm empresa. Algumas mulheres e casos fora do perfil também aparecem.</p>
+<figure class="chart"><figcaption><span class="ct">Situação amorosa</span>
+<span class="cs">Memórias dos clientes do WhatsApp, média dos três lotes</span>
+</figcaption><div class="bars" role="list">
+<div class="br" role="listitem" data-tip="Lote A 67,3% · Lote B 61,6% · Lote C 70,4%" tabindex="0" aria-label="Solteiro, buscando (várias frentes): 62–70%"><div class="bh"><span class="bl">Solteiro, buscando (várias frentes)</span><span class="bv">62–70%</span></div><div class="bt"><div class="bf" style="width:83.0%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 14% · Lote B 11,4% · Lote C 14,2%" tabindex="0" aria-label="Pós-relacionamento (separado, término, quer a ex): 11–14%"><div class="bh"><span class="bl">Pós-relacionamento (separado, término, quer a ex)</span><span class="bv">11–14%</span></div><div class="bt"><div class="bf" style="width:16.5%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 8,8% · Lote B 19,3% · Lote C 5,1%" tabindex="0" aria-label="Ficando ou conhecendo uma: 5–19%"><div class="bh"><span class="bl">Ficando ou conhecendo uma</span><span class="bv">5–19%</span></div><div class="bt"><div class="bf" style="width:13.8%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 4,8% · Lote B 2,7% · Lote C 2,7%" tabindex="0" aria-label="Namorando: 3–5%"><div class="bh"><span class="bl">Namorando</span><span class="bv">3–5%</span></div><div class="bt"><div class="bf" style="width:4.2%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 2,3% · Lote B 2,9% · Lote C 3,7%" tabindex="0" aria-label="Casado: 2–4%"><div class="bh"><span class="bl">Casado</span><span class="bv">2–4%</span></div><div class="bt"><div class="bf" style="width:3.7%"></div></div></div>
+</div>
+<p class="cn">A barra é a média dos lotes; o número é a faixa entre eles. Toque numa barra para ver cada lote.</p>
+</figure>
+<figure class="chart"><figcaption><span class="ct">Idade</span>
+<span class="cs">Só entre quem disse a idade (15–20% das memórias)</span>
+</figcaption><div class="bars" role="list">
+<div class="br" role="listitem" data-tip="Lote A 18% · Lote B 13% · Lote C 8%" tabindex="0" aria-label="18 a 24 anos: 8–18%"><div class="bh"><span class="bl">18 a 24 anos</span><span class="bv">8–18%</span></div><div class="bt"><div class="bf" style="width:32.5%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 22% · Lote B 29% · Lote C 23%" tabindex="0" aria-label="25 a 34 anos: 22–29%"><div class="bh"><span class="bl">25 a 34 anos</span><span class="bv">22–29%</span></div><div class="bt"><div class="bf" style="width:61.7%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 32% · Lote B 36% · Lote C 33%" tabindex="0" aria-label="35 a 44 anos: 32–36%"><div class="bh"><span class="bl">35 a 44 anos</span><span class="bv">32–36%</span></div><div class="bt"><div class="bf" style="width:84.2%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 22% · Lote B 16% · Lote C 25%" tabindex="0" aria-label="45 a 54 anos: 16–25%"><div class="bh"><span class="bl">45 a 54 anos</span><span class="bv">16–25%</span></div><div class="bt"><div class="bf" style="width:52.5%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 6% · Lote B 5% · Lote C 10%" tabindex="0" aria-label="55 anos ou mais: 5–10%"><div class="bh"><span class="bl">55 anos ou mais</span><span class="bv">5–10%</span></div><div class="bt"><div class="bf" style="width:17.5%"></div></div></div>
+</div>
+<p class="cn">Somados: 57–68% têm 35 anos ou mais, e 21–35% têm 45 ou mais.</p>
+</figure>
+<figure class="chart"><figcaption><span class="ct">Onde a paquera acontece</span>
+<span class="cs">Memórias do WhatsApp e resumos do app</span>
+</figcaption><div class="bars" role="list">
+<div class="br" role="listitem" data-tip="Lote A 57,5% · Lote B 57% · Lote C 55,7% · App hoje 43,2%" tabindex="0" aria-label="Instagram e stories: 43–58%"><div class="bh"><span class="bl">Instagram e stories</span><span class="bv">43–58%</span></div><div class="bt"><div class="bf" style="width:88.9%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 25,9% · Lote B 31%" tabindex="0" aria-label="WhatsApp dela: 26–31%"><div class="bh"><span class="bl">WhatsApp dela</span><span class="bv">26–31%</span></div><div class="bt"><div class="bf" style="width:47.4%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 26,1% · Lote B 31% · App hoje 21,9% (o lote C mediu de outro jeito: 9,5%)" tabindex="0" aria-label="Academia: 22–31%"><div class="bh"><span class="bl">Academia</span><span class="bv">22–31%</span></div><div class="bt"><div class="bf" style="width:43.9%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 30,2% · Lote C 23,5% · App hoje 26,4%" tabindex="0" aria-label="Aplicativos de namoro, todos: 24–30%"><div class="bh"><span class="bl">Aplicativos de namoro, todos</span><span class="bv">24–30%</span></div><div class="bt"><div class="bf" style="width:44.5%"></div></div></div>
+<div class="br" role="listitem" data-tip="Só medido no app hoje: 16,2%" tabindex="0" aria-label="Festa, bar, forró, pagode: 16%"><div class="bh"><span class="bl">Festa, bar, forró, pagode</span><span class="bv">16%</span></div><div class="bt"><div class="bf" style="width:27.0%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 14,1% · Lote B 13% · App hoje 14,6%" tabindex="0" aria-label="Tinder: 13–15%"><div class="bh"><span class="bl">Tinder</span><span class="bv">13–15%</span></div><div class="bt"><div class="bf" style="width:23.2%"></div></div></div>
+<div class="br" role="listitem" data-tip="App hoje 5,6% (no WhatsApp, colega de trabalho é dor de 5–7%)" tabindex="0" aria-label="Trabalho: 6%"><div class="bh"><span class="bl">Trabalho</span><span class="bv">6%</span></div><div class="bt"><div class="bf" style="width:9.3%"></div></div></div>
+<div class="br" role="listitem" data-tip="App hoje 5,2%" tabindex="0" aria-label="Igreja: 5%"><div class="bh"><span class="bl">Igreja</span><span class="bv">5%</span></div><div class="bt"><div class="bf" style="width:8.7%"></div></div></div>
+</div>
+</figure>
+<div class="card small"><b>Outros traços que aparecem:</b> pais (~10%), religião importante (8–9%), interior ou zona rural (~7%), ansiedade ou terapia citada (17% no lote B), neurodivergência (~3%), mora fora do Brasil (1–5%, inclusive Portugal).</div>
+<h2 id="querem">O que eles querem</h2>
+<figure class="chart"><figcaption><span class="ct">Objetivo principal</span>
+<span class="cs">Memórias do WhatsApp; toque para comparar com o app</span>
+</figcaption><div class="bars" role="list">
+<div class="br" role="listitem" data-tip="Lote A 43,5% · Lote B 40,3% · Lote C 57,5% · App hoje 62,8%" tabindex="0" aria-label="Sair com mais mulheres (do match ao encontro): 40–58%"><div class="bh"><span class="bl">Sair com mais mulheres (do match ao encontro)</span><span class="bv">40–58%</span></div><div class="bt"><div class="bf" style="width:78.5%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 26,1% · Lote B 29,2%" tabindex="0" aria-label="Conquistar uma mulher específica: 26–29%"><div class="bh"><span class="bl">Conquistar uma mulher específica</span><span class="bv">26–29%</span></div><div class="bt"><div class="bf" style="width:46.1%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 8,3% · Lote B 5,6% · Lote C 15,2% · App hoje 16,7%" tabindex="0" aria-label="Relação séria: 6–15%"><div class="bh"><span class="bl">Relação séria</span><span class="bv">6–15%</span></div><div class="bt"><div class="bf" style="width:16.2%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 4,8% · Lote B 8% · Lote C 9,5%" tabindex="0" aria-label="Sexo casual ou caso: 5–10%"><div class="bh"><span class="bl">Sexo casual ou caso</span><span class="bv">5–10%</span></div><div class="bt"><div class="bf" style="width:12.4%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 4% · Lote B 4,8% · Lote C 3,7% · App hoje 3,9%" tabindex="0" aria-label="Reconquistar a ex: 4–5%"><div class="bh"><span class="bl">Reconquistar a ex</span><span class="bv">4–5%</span></div><div class="bt"><div class="bf" style="width:6.9%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 3,8% · Lote B 2,4% · Lote C 4,2% · App hoje 4,4%" tabindex="0" aria-label="Melhorar a relação atual: 2–4%"><div class="bh"><span class="bl">Melhorar a relação atual</span><span class="bv">2–4%</span></div><div class="bt"><div class="bf" style="width:5.8%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 2,5% · Lote B 3,1% · Lote C 3,4%" tabindex="0" aria-label="Ganhar confiança: 2–3%"><div class="bh"><span class="bl">Ganhar confiança</span><span class="bv">2–3%</span></div><div class="bt"><div class="bf" style="width:5.0%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 2,8% · Lote B 1,9% · Lote C 2,7% · App hoje 8,6%" tabindex="0" aria-label="Superar um término: 2–3%"><div class="bh"><span class="bl">Superar um término</span><span class="bv">2–3%</span></div><div class="bt"><div class="bf" style="width:4.1%"></div></div></div>
+</div>
+<p class="cn">No app de hoje, quem quer relação séria (17%) e quem quer superar um término (9%) é bem mais comum do que era no WhatsApp.</p>
+</figure>
+<h2 id="dores">As dores</h2>
+<p>Cada memória tem, em média, três dores. A ordem abaixo é pela média dos lotes do WhatsApp.</p>
+<figure class="chart"><figcaption><span class="ct">As 15 dores mais citadas</span>
+<span class="cs">Parte das memórias que cita cada dor</span>
+</figcaption><div class="bars" role="list">
+<div class="br" role="listitem" data-tip="Lote B 40,3% · Lote C 44,5% (somados) · App hoje 23,6% só vácuo" tabindex="0" aria-label="Vácuo e conversa que morre: 40–45%"><div class="bh"><span class="bl">Vácuo e conversa que morre</span><span class="bv">40–45%</span></div><div class="bt"><div class="bf" style="width:84.8%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 29,6% · Lote B 42,3% · Lote C 39,9% · App hoje 21,7%" tabindex="0" aria-label="Medo de parecer carente (“gado”): 30–42%"><div class="bh"><span class="bl">Medo de parecer carente (“gado”)</span><span class="bv">30–42%</span></div><div class="bt"><div class="bf" style="width:74.5%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 25,1% · Lote B 31,4% · Lote C 31,5% · App hoje 20,3%" tabindex="0" aria-label="Não sabe puxar conversa (vira entrevista): 25–32%"><div class="bh"><span class="bl">Não sabe puxar conversa (vira entrevista)</span><span class="bv">25–32%</span></div><div class="bt"><div class="bf" style="width:58.7%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 25,1% · Lote B 28,5% · Lote C 32,8% · App hoje 10%" tabindex="0" aria-label="Não consegue marcar o encontro: 25–33%"><div class="bh"><span class="bl">Não consegue marcar o encontro</span><span class="bv">25–33%</span></div><div class="bt"><div class="bf" style="width:57.6%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 24,4% · Lote B 8,9% · Lote C 19,3% · App hoje 20,3%" tabindex="0" aria-label="Várias conversas ao mesmo tempo: 9–24%"><div class="bh"><span class="bl">Várias conversas ao mesmo tempo</span><span class="bv">9–24%</span></div><div class="bt"><div class="bf" style="width:35.1%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 14,3% · Lote B 12,1% · Lote C 10,8% · App hoje 16,9%" tabindex="0" aria-label="A ex, o término: 11–14%"><div class="bh"><span class="bl">A ex, o término</span><span class="bv">11–14%</span></div><div class="bt"><div class="bf" style="width:24.8%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 11,6% · Lote B 13% · Lote C 9,3%" tabindex="0" aria-label="Ansiedade esperando a resposta: 9–13%"><div class="bh"><span class="bl">Ansiedade esperando a resposta</span><span class="bv">9–13%</span></div><div class="bt"><div class="bf" style="width:22.6%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 7,5% · Lote B 6,8% · Lote C 7,8%" tabindex="0" aria-label="Rejeição, bloqueio: 7–8%"><div class="bh"><span class="bl">Rejeição, bloqueio</span><span class="bv">7–8%</span></div><div class="bt"><div class="bf" style="width:14.7%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 7,8% · Lote B 6% · Lote C 6,8% · App hoje 6,4%" tabindex="0" aria-label="Friendzone: 6–8%"><div class="bh"><span class="bl">Friendzone</span><span class="bv">6–8%</span></div><div class="bt"><div class="bf" style="width:13.7%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 5,3% · Lote B 8% · Lote C 7,3% · App hoje 6,4%" tabindex="0" aria-label="Distância (outra cidade ou país): 5–8%"><div class="bh"><span class="bl">Distância (outra cidade ou país)</span><span class="bv">5–8%</span></div><div class="bt"><div class="bf" style="width:13.7%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 7% · Lote B 7,5% · Lote C 5,1% · App hoje 5,8%" tabindex="0" aria-label="Ler os sinais dela: 5–8%"><div class="bh"><span class="bl">Ler os sinais dela</span><span class="bv">5–8%</span></div><div class="bt"><div class="bf" style="width:13.1%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 4,8% · Lote B 9,4% · Lote C 4,9% · App hoje 4,4%" tabindex="0" aria-label="Dinheiro, golpe, pedido de PIX: 5–9%"><div class="bh"><span class="bl">Dinheiro, golpe, pedido de PIX</span><span class="bv">5–9%</span></div><div class="bt"><div class="bf" style="width:12.7%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 5% · Lote B 7% · Lote C 6,4%" tabindex="0" aria-label="Colega de trabalho ou cliente dele: 5–7%"><div class="bh"><span class="bl">Colega de trabalho ou cliente dele</span><span class="bv">5–7%</span></div><div class="bt"><div class="bf" style="width:12.3%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 3,3% · Lote B 7,2% · Lote C 5,6% · App hoje 3,9%" tabindex="0" aria-label="Perfil ou fotos fracas: 3–7%"><div class="bh"><span class="bl">Perfil ou fotos fracas</span><span class="bv">3–7%</span></div><div class="bt"><div class="bf" style="width:10.7%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote B 3,6% · Lote C 5,9% · App hoje 3,6%" tabindex="0" aria-label="Mulher comprometida: 4–6%"><div class="bh"><span class="bl">Mulher comprometida</span><span class="bv">4–6%</span></div><div class="bt"><div class="bf" style="width:9.5%"></div></div></div>
+</div>
+</figure>
+<h3>Do jeito que eles falam (paráfrases)</h3>
+<div class="quote">“Não quero parecer gado.”</div>
+<div class="quote">“Ela visualizou e não respondeu. Mando outra?”</div>
+<div class="quote">“A conversa virou entrevista, não sei mais o que perguntar.”</div>
+<div class="quote">“Como chamo pra sair sem parecer desesperado?”</div>
+<div class="quote">“Respondi o story dela. E agora?”</div>
+<div class="quote">“Te contratei pra me dizer o que fazer.”</div>
+<p class="small muted">O medo de parecer carente é o enquadramento de quase tudo: até o vácuo e o convite para o encontro são vividos como “se eu insistir, vou parecer carente”.</p>
+<h2 id="uso">Como usam a Crystal</h2>
+<figure class="chart"><figcaption><span class="ct">Para que usam</span>
+<span class="cs">Memórias do WhatsApp; toque para comparar com o app</span>
+</figcaption><div class="bars" role="list">
+<div class="br" role="listitem" data-tip="Lote A 88,2% · Lote B 95,4% · Lote C 84,4% · App hoje 86,4%" tabindex="0" aria-label="Escrever ou aprovar mensagens: 84–95%"><div class="bh"><span class="bl">Escrever ou aprovar mensagens</span><span class="bv">84–95%</span></div><div class="bt"><div class="bf" style="width:89.3%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 26,4% · Lote B 25,1% · Lote C 38,4%" tabindex="0" aria-label="Conselho de estratégia: 25–38%"><div class="bh"><span class="bl">Conselho de estratégia</span><span class="bv">25–38%</span></div><div class="bt"><div class="bf" style="width:30.0%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote B 25,8% · Lote C 24,7%" tabindex="0" aria-label="Stories e legendas: 25–26%"><div class="bh"><span class="bl">Stories e legendas</span><span class="bv">25–26%</span></div><div class="bt"><div class="bf" style="width:25.2%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 22,1% · Lote B 8,7% · Lote C 22,2% · App hoje 9,7%" tabindex="0" aria-label="Analisar prints, perfis e fotos: 9–22%"><div class="bh"><span class="bl">Analisar prints, perfis e fotos</span><span class="bv">9–22%</span></div><div class="bt"><div class="bf" style="width:17.7%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 5,8% · Lote B 9,4% · Lote C 14,7% · App hoje 15,3%" tabindex="0" aria-label="Planejar o encontro: 6–15%"><div class="bh"><span class="bl">Planejar o encontro</span><span class="bv">6–15%</span></div><div class="bt"><div class="bf" style="width:10.0%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 9,5% · Lote B 8,2% · Lote C 9,3% · App hoje 4,7%" tabindex="0" aria-label="Perfil e bio dele: 8–10%"><div class="bh"><span class="bl">Perfil e bio dele</span><span class="bv">8–10%</span></div><div class="bt"><div class="bf" style="width:9.0%"></div></div></div>
+<div class="br" role="listitem" data-tip="Lote A 4,5% · Lote B 4,3% · Lote C 5,1% · App hoje 8,9%" tabindex="0" aria-label="Desabafo: 4–5%"><div class="bh"><span class="bl">Desabafo</span><span class="bv">4–5%</span></div><div class="bt"><div class="bf" style="width:4.6%"></div></div></div>
+</div>
+</figure>
+<figure class="chart"><figcaption><span class="ct">Por que chegam</span>
+<span class="cs">O assunto das duas primeiras mensagens de 252 conversas</span>
+</figcaption><div class="bars" role="list">
+<div class="br" role="listitem" data-tip="Primeira e segunda mensagem de 252 conversas" tabindex="0" aria-label="Começar uma conversa (Instagram à frente): 22%"><div class="bh"><span class="bl">Começar uma conversa (Instagram à frente)</span><span class="bv">22%</span></div><div class="bt"><div class="bf" style="width:74.0%"></div></div></div>
+<div class="br" role="listitem" aria-label="Conversa em andamento, com print: 20%"><div class="bh"><span class="bl">Conversa em andamento, com print</span><span class="bv">20%</span></div><div class="bt"><div class="bf" style="width:66.0%"></div></div></div>
+<div class="br" role="listitem" aria-label="Vácuo, “esfriou”: 8%"><div class="bh"><span class="bl">Vácuo, “esfriou”</span><span class="bv">8%</span></div><div class="bt"><div class="bf" style="width:26.3%"></div></div></div>
+<div class="br" role="listitem" data-tip="10,3% têm dúvida de produto nas 2 primeiras mensagens; 2 perguntam se “funciona no ChatGPT”" tabindex="0" aria-label="Dúvida sobre o produto: 7%"><div class="bh"><span class="bl">Dúvida sobre o produto</span><span class="bv">7%</span></div><div class="bt"><div class="bf" style="width:23.7%"></div></div></div>
+<div class="br" role="listitem" aria-label="Marcar o encontro: 6%"><div class="bh"><span class="bl">Marcar o encontro</span><span class="bv">6%</span></div><div class="bt"><div class="bf" style="width:20.0%"></div></div></div>
+<div class="br" role="listitem" aria-label="Pedido genérico: 6%"><div class="bh"><span class="bl">Pedido genérico</span><span class="bv">6%</span></div><div class="bt"><div class="bf" style="width:18.7%"></div></div></div>
+<div class="br" role="listitem" aria-label="Aplicativo de namoro: 5%"><div class="bh"><span class="bl">Aplicativo de namoro</span><span class="bv">5%</span></div><div class="bt"><div class="bf" style="width:17.3%"></div></div></div>
+<div class="br" role="listitem" aria-label="Só um “oi”: 4%"><div class="bh"><span class="bl">Só um “oi”</span><span class="bv">4%</span></div><div class="bt"><div class="bf" style="width:14.7%"></div></div></div>
+<div class="br" role="listitem" aria-label="A ex: 4%"><div class="bh"><span class="bl">A ex</span><span class="bv">4%</span></div><div class="bt"><div class="bf" style="width:13.3%"></div></div></div>
+</div>
+</figure>
+<div class="card"><b>Como é uma conversa típica</b><ul class="small"><li><b>Texto curto:</b> 70% das mensagens são texto, com 47 caracteres (umas 10 palavras); 24% têm até 20 caracteres (“ok”, “mandei”). A resposta da Crystal tem 80 palavras: nove vezes mais.</li><li><b>Print sem legenda:</b> 21% das mensagens são imagem. Dessas, 58% são print de conversa, 20% story ou reels, 14% app de namoro. 86% chegam sem nenhuma explicação.</li><li><b>Ao vivo:</b> uma em cada seis mensagens narra o que está acontecendo agora (“estamos sentados lado a lado”). Pedir “outra opção” duas a quatro vezes é normal.</li><li><b>Hora:</b> o pico é às 21h de segunda e terça; o segundo pico é no almoço. 8% das mensagens são de madrugada, muitas logo depois de um vácuo ou depois de beber.</li><li><b>Tratamento:</b> chamam de “Crys”, “amiga”; alguns flertam com ela ou acham que estão falando com a Letícia.</li></ul></div>
+<figure class="chart"><figcaption><span class="ct">O que acontece depois de cada resposta</span>
+<span class="cs">200 pares de pergunta e resposta</span>
+</figcaption><div class="bars" role="list">
+<div class="br" role="listitem" data-tip="200 pares pergunta e resposta" tabindex="0" aria-label="Entregou e a conversa seguiu: 69%"><div class="bh"><span class="bl">Entregou e a conversa seguiu</span><span class="bv">69%</span></div><div class="bt"><div class="bf" style="width:69.0%"></div></div></div>
+<div class="br" role="listitem" aria-label="Cliente corrigiu ou reclamou: 17%"><div class="bh"><span class="bl">Cliente corrigiu ou reclamou</span><span class="bv">17%</span></div><div class="bt"><div class="bf" style="width:17.0%"></div></div></div>
+<div class="br" role="listitem" aria-label="A Crystal só devolveu uma pergunta: 7%"><div class="bh"><span class="bl">A Crystal só devolveu uma pergunta</span><span class="bv">7%</span></div><div class="bt"><div class="bf" style="width:7.0%"></div></div></div>
+<div class="br" role="listitem" aria-label="Fora do assunto: 3,5%"><div class="bh"><span class="bl">Fora do assunto</span><span class="bv">3,5%</span></div><div class="bt"><div class="bf" style="width:3.5%"></div></div></div>
+<div class="br" role="listitem" aria-label="Pediu de novo: 2%"><div class="bh"><span class="bl">Pediu de novo</span><span class="bv">2%</span></div><div class="bt"><div class="bf" style="width:2.0%"></div></div></div>
+</div>
+</figure>
+<figure class="chart"><figcaption><span class="ct">Do que reclamam</span>
+<span class="cs">34 reclamações encontradas nos 200 pares e nas mensagens soltas</span>
+</figcaption><div class="bars" role="list">
+<div class="br" role="listitem" data-tip="10 de 34 reclamações" tabindex="0" aria-label="Leu o print errado (lado da bolha, quem disse o quê, nome trocado): 29%"><div class="bh"><span class="bl">Leu o print errado (lado da bolha, quem disse o quê, nome trocado)</span><span class="bv">29%</span></div><div class="bt"><div class="bf" style="width:72.5%"></div></div></div>
+<div class="br" role="listitem" data-tip="9 de 34" tabindex="0" aria-label="Qualidade da mensagem: 26%"><div class="bh"><span class="bl">Qualidade da mensagem</span><span class="bv">26%</span></div><div class="bt"><div class="bf" style="width:65.0%"></div></div></div>
+<div class="br" role="listitem" data-tip="6 de 34" tabindex="0" aria-label="Contexto ou memória: 18%"><div class="bh"><span class="bl">Contexto ou memória</span><span class="bv">18%</span></div><div class="bt"><div class="bf" style="width:45.0%"></div></div></div>
+<div class="br" role="listitem" data-tip="4 de 34" tabindex="0" aria-label="Formato (longo demais, queria só um emoji): 12%"><div class="bh"><span class="bl">Formato (longo demais, queria só um emoji)</span><span class="bv">12%</span></div><div class="bt"><div class="bf" style="width:30.0%"></div></div></div>
+<div class="br" role="listitem" data-tip="3 de 34" tabindex="0" aria-label="Agressividade: 9%"><div class="bh"><span class="bl">Agressividade</span><span class="bv">9%</span></div><div class="bt"><div class="bf" style="width:22.5%"></div></div></div>
+<div class="br" role="listitem" data-tip="2 de 34" tabindex="0" aria-label="Demora: 6%"><div class="bh"><span class="bl">Demora</span><span class="bv">6%</span></div><div class="bt"><div class="bf" style="width:15.0%"></div></div></div>
+</div>
+<p class="cn">Também apareceram: mulheres percebendo a IA (“parece ChatGPT”, “todo dia a mesma”), conselho que deu errado e ameaças de cancelar.</p>
+</figure>
+<p class="small muted">Pedidos que a Crystal não atende hoje e que aparecem: abrir link ou perfil do Instagram, traduzir, desfocar foto, compor música, numerologia, “que tipo de homem eu sou”, investigar se ela está com outro, apagar a memória.</p>
+<h2 id="personas">Os perfis de cliente</h2>
+<p>Treze perfis que se repetem nos lotes. Um cliente pode estar em mais de um, então as partes somam mais de 100%.</p><div class="personas">
+<div class="pc"><h4>Focado numa só</h4><div class="sh">22–30% dos clientes</div><p>Quer uma mulher específica: a do trabalho, a da academia, a que respondeu o story. Pensa em cada palavra e tem medo de estragar.</p><span class="lb">Do que precisa</span><p>Plano passo a passo para aquela mulher, sem ansiedade.</p><span class="lb">O que oferecer</span><p>Do encontro ao namoro; Postura sem carência.</p></div>
+<div class="pc"><h4>Gerente de matches</h4><div class="sh">11–22% dos clientes</div><p>Cinco a vinte conversas abertas, um print de cada perfil, quer resposta rápida para todas. No app, 42% deles dependem muito da Crystal.</p><span class="lb">Do que precisa</span><p>Saber quem é quem e em que pé está cada conversa.</p><span class="lb">O que oferecer</span><p>Fichas por mulher; kit “ela sumiu”.</p></div>
+<div class="pc"><h4>Caçador de stories</h4><div class="sh">10–20% dos clientes</div><p>A paquera começa respondendo story no Instagram. Manda o print do story e pergunta o que responder.</p><span class="lb">Do que precisa</span><p>Respostas que viram conversa e um perfil que atrai.</p><span class="lb">O que oferecer</span><p>Instagram magnético; revisão de perfil.</p></div>
+<div class="pc"><h4>Ansioso que conta os minutos</h4><div class="sh">~18% (lote B) dos clientes</div><p>Visualizou e não respondeu, ele já quer mandar outra. Pergunta várias vezes se pode mandar mensagem agora.</p><span class="lb">Do que precisa</span><p>Calma e um roteiro do que fazer enquanto espera.</p><span class="lb">O que oferecer</span><p>Postura sem carência (21 dias).</p></div>
+<div class="pc"><h4>Recomeço depois dos 35</h4><div class="sh">8–12% dos clientes</div><p>Separado depois de 10 a 24 anos de casamento, muitas vezes pai. Não sabe como funciona paquera hoje. No app, é quem mais chega a resultado (43%).</p><span class="lb">Do que precisa</span><p>Reaprender do zero, com gente como ele.</p><span class="lb">O que oferecer</span><p>Mentoria em grupo Recomeço 35+.</p></div>
+<div class="pc"><h4>Tímido que trava</h4><div class="sh">10–12% dos clientes</div><p>Sabe o que quer dizer, mas não manda. No app, só 14% chegam a resultado e 43% ainda estão se preparando.</p><span class="lb">Do que precisa</span><p>Treinar antes de ir para a conversa de verdade.</p><span class="lb">O que oferecer</span><p>Modo treino; desafios semanais.</p></div>
+<div class="pc"><h4>Ex que não larga</h4><div class="sh">4–13% dos clientes</div><p>Quer voltar ou não consegue esquecer. A Crystal já improvisa planos de 7 e 21 dias para ele.</p><span class="lb">Do que precisa</span><p>Contato zero acompanhado, ou um plano de reconquista com limite.</p><span class="lb">O que oferecer</span><p>Trilha da ex.</p></div>
+<div class="pc"><h4>Quer namorar sério (muitos cristãos)</h4><div class="sh">8–15% dos clientes</div><p>Não quer “pegar”: quer casar. Religião aparece em 8–9% das memórias.</p><span class="lb">Do que precisa</span><p>Conquista com valores e um caminho até o namoro.</p><span class="lb">O que oferecer</span><p>Trilha cristã; do encontro ao namoro.</p></div>
+<div class="pc"><h4>Caçador de casual</h4><div class="sh">8–11% dos clientes</div><p>Quer sexo, inclusive virtual. É onde mais aparecem pedidos de conteúdo explícito e de “avançar” rápido.</p><span class="lb">Do que precisa</span><p>Avançar com segurança e consentimento.</p><span class="lb">O que oferecer</span><p>Regras claras na Crystal antes de produto.</p></div>
+<div class="pc"><h4>A distância ou fora do Brasil</h4><div class="sh">5–9% dos clientes</div><p>Mora em outra cidade ou país, conversa por meses sem encontro. Às vezes em outra língua.</p><span class="lb">Do que precisa</span><p>Manter o interesse e transformar em visita.</p><span class="lb">O que oferecer</span><p>Trilha “a distância”; brasileiros no exterior.</p></div>
+<div class="pc"><h4>Paquera no trabalho</h4><div class="sh">5–7% dos clientes</div><p>Colega, cliente ou até subordinada. Medo de se expor e de problema no emprego.</p><span class="lb">Do que precisa</span><p>Saber até onde ir sem risco.</p><span class="lb">O que oferecer</span><p>Conteúdo de flerte com ética no trabalho.</p></div>
+<div class="pc"><h4>Ferido em recuperação</h4><div class="sh">6–9% dos clientes</div><p>Saiu de uma relação tóxica, está sozinho, às vezes bebe ou fala em sumir. Usa a Crystal como companhia.</p><span class="lb">Do que precisa</span><p>Acolhimento e, quando preciso, encaminhamento.</p><span class="lb">O que oferecer</span><p>Não é produto: é rede de apoio e regra de segurança.</p></div>
+<div class="pc"><h4>Comprometido buscando fora</h4><div class="sh">3–7% dos clientes</div><p>Casado ou namorando, quer um caso ou já está em um. As respostas da Crystal para ele variam.</p><span class="lb">Do que precisa</span><p>Uma regra clara da casa.</p><span class="lb">O que oferecer</span><p>Crystal Casal (para quem quer salvar a relação).</p></div>
+</div>
+<h2 id="numeros">Os números do negócio</h2>
+<div class="tiles">
+<div class="tile"><div class="n">R$ 2,52 mi</div><div class="t">bruto de abr a 12/10 (R$ 2,05 mi líquido)</div></div>
+<div class="tile"><div class="n">10–13%</div><div class="t">de reembolso por mês; 19% em agosto, o mês da pane</div></div>
+<div class="tile"><div class="n">74,5%</div><div class="t">das vendas vêm de anúncio na Meta; orgânico é 0,3%</div></div>
+<div class="tile"><div class="n">66,5%</div><div class="t">das mensagens vêm de 10% dos clientes</div></div>
+</div>
+<figure class="chart"><figcaption><span class="ct">Clientes ativos por mês no WhatsApp</span>
+<span class="cs">Em milhares de clientes que mandaram pelo menos uma mensagem no mês</span>
+</figcaption><div class="cols" role="list" style="--n:10">
+<div class="cc" role="listitem" data-tip="680 clientes ativos · 42.296 mensagens dos clientes · começo do registro" tabindex="0" aria-label="jan: 0,7"><div class="ca"><span class="cv">0,7</span><div class="cf part" style="height:13.1%"></div></div><span class="cl">jan</span></div>
+<div class="cc" role="listitem" data-tip="1.538 clientes ativos · 143.890 mensagens" tabindex="0" aria-label="fev: 1,5"><div class="ca"><span class="cv">1,5</span><div class="cf" style="height:29.6%"></div></div><span class="cl">fev</span></div>
+<div class="cc" role="listitem" data-tip="1.759 clientes ativos · 192.150 mensagens" tabindex="0" aria-label="mar: 1,8"><div class="ca"><span class="cv">1,8</span><div class="cf" style="height:33.8%"></div></div><span class="cl">mar</span></div>
+<div class="cc" role="listitem" data-tip="2.077 clientes ativos · 282.804 mensagens" tabindex="0" aria-label="abr: 2,1"><div class="ca"><span class="cv">2,1</span><div class="cf" style="height:39.9%"></div></div><span class="cl">abr</span></div>
+<div class="cc" role="listitem" data-tip="2.856 clientes ativos · 404.602 mensagens" tabindex="0" aria-label="mai: 2,9"><div class="ca"><span class="cv">2,9</span><div class="cf" style="height:54.9%"></div></div><span class="cl">mai</span></div>
+<div class="cc" role="listitem" data-tip="3.472 clientes ativos · 476.676 mensagens" tabindex="0" aria-label="jun: 3,5"><div class="ca"><span class="cv">3,5</span><div class="cf" style="height:66.8%"></div></div><span class="cl">jun</span></div>
+<div class="cc" role="listitem" data-tip="4.321 clientes ativos · 604.083 mensagens · pico de ~19,5 mil por dia" tabindex="0" aria-label="jul: 4,3"><div class="ca"><span class="cv">4,3</span><div class="cf" style="height:83.1%"></div></div><span class="cl">jul</span></div>
+<div class="cc" role="listitem" data-tip="4.542 clientes ativos · 303.338 mensagens · pane de 18 a 30/08" tabindex="0" aria-label="ago: 4,5"><div class="ca"><span class="cv">4,5</span><div class="cf" style="height:87.3%"></div></div><span class="cl">ago</span></div>
+<div class="cc" role="listitem" data-tip="4.079 clientes ativos · 347.436 mensagens" tabindex="0" aria-label="set: 4,1"><div class="ca"><span class="cv">4,1</span><div class="cf" style="height:78.4%"></div></div><span class="cl">set</span></div>
+<div class="cc" role="listitem" data-tip="2.652 clientes ativos · 98.830 mensagens · só até 16/10, quando todos foram para o app" tabindex="0" aria-label="out: 2,7"><div class="ca"><span class="cv">2,7</span><div class="cf part" style="height:51.0%"></div></div><span class="cl">out</span></div>
+</div>
+<p class="cn">Barras listradas: mês incompleto (janeiro é o começo do registro; outubro vai só até 16/10). Toque para ver as mensagens do mês.</p>
+</figure>
+<figure class="chart"><figcaption><span class="ct">Mensagens por cliente ativo, por mês</span>
+<span class="cs">O uso por pessoa caiu pela metade depois de julho</span>
+</figcaption><div class="cols" role="list" style="--n:10">
+<div class="cc" role="listitem" data-tip="3,6 dias ativos no mês · começo do registro" tabindex="0" aria-label="jan: 62"><div class="ca"><span class="cv">62</span><div class="cf part" style="height:37.3%"></div></div><span class="cl">jan</span></div>
+<div class="cc" role="listitem" data-tip="7,1 dias ativos" tabindex="0" aria-label="fev: 92"><div class="ca"><span class="cv">92</span><div class="cf" style="height:56.0%"></div></div><span class="cl">fev</span></div>
+<div class="cc" role="listitem" data-tip="7,8 dias ativos" tabindex="0" aria-label="mar: 108"><div class="ca"><span class="cv">108</span><div class="cf" style="height:65.6%"></div></div><span class="cl">mar</span></div>
+<div class="cc" role="listitem" data-tip="8,7 dias ativos" tabindex="0" aria-label="abr: 136"><div class="ca"><span class="cv">136</span><div class="cf" style="height:82.4%"></div></div><span class="cl">abr</span></div>
+<div class="cc" role="listitem" data-tip="9,1 dias ativos" tabindex="0" aria-label="mai: 142"><div class="ca"><span class="cv">142</span><div class="cf" style="height:85.9%"></div></div><span class="cl">mai</span></div>
+<div class="cc" role="listitem" data-tip="8,1 dias ativos" tabindex="0" aria-label="jun: 137"><div class="ca"><span class="cv">137</span><div class="cf" style="height:83.2%"></div></div><span class="cl">jun</span></div>
+<div class="cc" role="listitem" data-tip="7,8 dias ativos · limite semanal de imagens desde 16/07" tabindex="0" aria-label="jul: 140"><div class="ca"><span class="cv">140</span><div class="cf" style="height:84.7%"></div></div><span class="cl">jul</span></div>
+<div class="cc" role="listitem" data-tip="5,0 dias ativos · pane de 18 a 30/08" tabindex="0" aria-label="ago: 67"><div class="ca"><span class="cv">67</span><div class="cf" style="height:40.5%"></div></div><span class="cl">ago</span></div>
+<div class="cc" role="listitem" data-tip="6,3 dias ativos" tabindex="0" aria-label="set: 85"><div class="ca"><span class="cv">85</span><div class="cf" style="height:51.8%"></div></div><span class="cl">set</span></div>
+<div class="cc" role="listitem" data-tip="3,7 dias ativos · só 16 dias" tabindex="0" aria-label="out: 37"><div class="ca"><span class="cv">37</span><div class="cf part" style="height:22.6%"></div></div><span class="cl">out</span></div>
+</div>
+<p class="cn">Julho: limite semanal de imagens (16/07). Agosto: pane de 18 a 30/08. O uso por pessoa não voltou ao nível de maio a julho.</p>
+</figure>
+<figure class="chart"><figcaption><span class="ct">Quantos continuam usando</span>
+<span class="cs">Parte dos clientes ainda ativa depois de um tempo, todas as turmas</span>
+</figcaption><div class="cols" role="list" style="--n:5">
+<div class="cc" role="listitem" data-tip="Ativos entre o 7º e o 20º dia" tabindex="0" aria-label="1–3 sem.: 66%"><div class="ca"><span class="cv">66%</span><div class="cf" style="height:82.1%"></div></div><span class="cl">1–3 sem.</span></div>
+<div class="cc" role="listitem" data-tip="Ativos entre o 30º e o 43º dia" tabindex="0" aria-label="1 mês: 45%"><div class="ca"><span class="cv">45%</span><div class="cf" style="height:56.5%"></div></div><span class="cl">1 mês</span></div>
+<div class="cc" role="listitem" data-tip="Ativos entre o 60º e o 73º dia" tabindex="0" aria-label="2 meses: 38%"><div class="ca"><span class="cv">38%</span><div class="cf" style="height:47.1%"></div></div><span class="cl">2 meses</span></div>
+<div class="cc" role="listitem" data-tip="Ativos entre o 90º e o 103º dia" tabindex="0" aria-label="3 meses: 33%"><div class="ca"><span class="cv">33%</span><div class="cf" style="height:41.0%"></div></div><span class="cl">3 meses</span></div>
+<div class="cc" role="listitem" data-tip="Ativos entre o 150º e o 163º dia" tabindex="0" aria-label="5 meses: 29%"><div class="ca"><span class="cv">29%</span><div class="cf" style="height:36.1%"></div></div><span class="cl">5 meses</span></div>
+</div>
+<p class="cn">As turmas de jan a mai ficavam 50–58% ativas no 1º mês; a de junho, 47%; julho, 35%; agosto, 25%.</p>
+</figure>
+<figure class="chart"><figcaption><span class="ct">A primeira semana prevê quem fica</span>
+<span class="cs">Ativos no 3º mês, pelo número de mensagens nos primeiros 7 dias</span>
+</figcaption><div class="cols" role="list" style="--n:5">
+<div class="cc" role="listitem" data-tip="Nenhuma mensagem na 1ª semana" tabindex="0" aria-label="0: 26%"><div class="ca"><span class="cv">26%</span><div class="cf" style="height:31.9%"></div></div><span class="cl">0</span></div>
+<div class="cc" role="listitem" data-tip="1 a 10 mensagens na 1ª semana" tabindex="0" aria-label="1–10: 27%"><div class="ca"><span class="cv">27%</span><div class="cf" style="height:33.1%"></div></div><span class="cl">1–10</span></div>
+<div class="cc" role="listitem" data-tip="11 a 30 mensagens" tabindex="0" aria-label="11–30: 39%"><div class="ca"><span class="cv">39%</span><div class="cf" style="height:48.8%"></div></div><span class="cl">11–30</span></div>
+<div class="cc" role="listitem" data-tip="31 a 100 mensagens" tabindex="0" aria-label="31–100: 56%"><div class="ca"><span class="cv">56%</span><div class="cf" style="height:70.2%"></div></div><span class="cl">31–100</span></div>
+<div class="cc" role="listitem" data-tip="Mais de 100 mensagens" tabindex="0" aria-label="100+: 69%"><div class="ca"><span class="cv">69%</span><div class="cf" style="height:86.1%"></div></div><span class="cl">100+</span></div>
+</div>
+<p class="cn">É a maior alavanca encontrada: ativar o cliente na primeira semana.</p>
+</figure>
+<div class="chart"><span class="ct">Vendas por mês</span><span class="cs">Assiny, abr a 12/10</span><div class="tw"><table><thead><tr><th>Mês</th><th class="num">Vendas</th><th class="num">Reembolso</th><th class="num">Bruto</th></tr></thead><tbody><tr><td>maio</td><td class="num">1.155</td><td class="num">10,0%</td><td class="num">R$ 361 mil</td></tr><tr><td>junho</td><td class="num">1.166</td><td class="num">11,6%</td><td class="num">R$ 363 mil</td></tr><tr><td>julho</td><td class="num">1.616</td><td class="num">11,5%</td><td class="num">R$ 508 mil</td></tr><tr><td>agosto</td><td class="num">1.585</td><td class="num">19,1%</td><td class="num">R$ 493 mil</td></tr><tr><td>setembro</td><td class="num">1.634</td><td class="num">13,4%</td><td class="num">R$ 511 mil</td></tr><tr><td>outubro (1 a 12)</td><td class="num">298</td><td class="num">—</td><td class="num">—</td></tr></tbody></table></div><p class="cn">O plano anual de R$ 297 (Checkout 01) é a maior oferta: 5.446 vendas, 11,1% de reembolso. O mensal de R$ 39,90 quase não vende (12).</p></div>
+<div class="card"><b>O que os números contam</b><ul class="small"><li><b>Reembolso não é falta de uso.</b> Quem pede reembolso usou: mediana de 27 mensagens em 2 dias, 35% mandaram 10 prints ou mais. Metade dos pedidos sai até o 6º dia, 59% na primeira semana. Ou a expectativa não foi atendida, ou o cliente usa e devolve. Não existe hoje o motivo do reembolso.</li><li><b>Cartão parcelado devolve mais:</b> 14–16% contra 8,5% no PIX. 64% das compras no cartão são em 7 a 12 vezes.</li><li><b>Venda a mais quase não existe:</b> order bumps em 2,2% das compras (subiu de 0,8% em maio para 3,3% em setembro; quem leva um leva os três em 29% dos casos); pacote de imagens comprado por 4% da base, ~R$ 18 mil no total.</li><li><b>O uso está concentrado:</b> 1% dos clientes (cerca de 100 pessoas) manda 24% de todas as mensagens; a metade que menos usa manda 4%. A mediana é 65 mensagens na vida inteira.</li><li><b>As primeiras turmas são fiéis:</b> janeiro e fevereiro ainda tinham 31–39% de clientes ativos aos 5 meses. O plano anual delas vence em fev/2027.</li><li><b>A queda de vendas começou antes do app:</b> 300–440 vendas por semana em ago–set; 190–217 no fim de setembro; no app, 248, 226 e 145 nas primeiras semanas. 766 compras no app de 10/10 a 04/11 (~R$ 222 mil bruto, 12,1% de reembolso até agora).</li></ul></div>
+<h2 id="app">O app hoje</h2>
+<p>360 resumos de clientes atuais do app (out–nov/2026), comparados com as memórias do WhatsApp. O cliente de hoje está mais focado e mais machucado.</p>
+<figure class="chart"><figcaption><span class="ct">App hoje × WhatsApp</span>
+<span class="cs">Parte dos clientes em cada situação</span>
+</figcaption>
+<div class="legend"><span><i class="sw s1"></i>App hoje</span><span><i class="sw s2"></i>WhatsApp</span></div>
+<div class="bars" role="list">
+<div class="br pr" role="listitem" data-tip="App hoje: 45,6% · WhatsApp: 67,1%" tabindex="0" aria-label="Várias frentes ao mesmo tempo: App hoje: 45,6% · WhatsApp: 67,1%"><div class="bh"><span class="bl">Várias frentes ao mesmo tempo</span></div><div class="prow"><div class="bt"><div class="bf" style="width:65.1%"></div></div><span class="pv">45,6%</span></div><div class="prow"><div class="bt"><div class="bf b2" style="width:95.9%"></div></div><span class="pv">67,1%</span></div></div>
+<div class="br pr" role="listitem" data-tip="App hoje: 29,2% · WhatsApp: 17,1%" tabindex="0" aria-label="Focado numa só: App hoje: 29,2% · WhatsApp: 17,1%"><div class="bh"><span class="bl">Focado numa só</span></div><div class="prow"><div class="bt"><div class="bf" style="width:41.7%"></div></div><span class="pv">29,2%</span></div><div class="prow"><div class="bt"><div class="bf b2" style="width:24.4%"></div></div><span class="pv">17,1%</span></div></div>
+<div class="br pr" role="listitem" data-tip="App hoje: 12,8% · WhatsApp: 6,6%" tabindex="0" aria-label="Pós-término: App hoje: 12,8% · WhatsApp: 6,6%"><div class="bh"><span class="bl">Pós-término</span></div><div class="prow"><div class="bt"><div class="bf" style="width:18.3%"></div></div><span class="pv">12,8%</span></div><div class="prow"><div class="bt"><div class="bf b2" style="width:9.4%"></div></div><span class="pv">6,6%</span></div></div>
+<div class="br pr" role="listitem" data-tip="App hoje: 16,7% · WhatsApp: 7,9%" tabindex="0" aria-label="Quer relação séria: App hoje: 16,7% · WhatsApp: 7,9%"><div class="bh"><span class="bl">Quer relação séria</span></div><div class="prow"><div class="bt"><div class="bf" style="width:23.9%"></div></div><span class="pv">16,7%</span></div><div class="prow"><div class="bt"><div class="bf b2" style="width:11.3%"></div></div><span class="pv">7,9%</span></div></div>
+<div class="br pr" role="listitem" data-tip="App hoje: 8,6% · WhatsApp: 1,3%" tabindex="0" aria-label="Superar um término: App hoje: 8,6% · WhatsApp: 1,3%"><div class="bh"><span class="bl">Superar um término</span></div><div class="prow"><div class="bt"><div class="bf" style="width:12.3%"></div></div><span class="pv">8,6%</span></div><div class="prow"><div class="bt"><div class="bf b2" style="width:1.9%"></div></div><span class="pv">1,3%</span></div></div>
+<div class="br pr" role="listitem" data-tip="App hoje: 8,9% · WhatsApp: 1,3%" tabindex="0" aria-label="Desabafo: App hoje: 8,9% · WhatsApp: 1,3%"><div class="bh"><span class="bl">Desabafo</span></div><div class="prow"><div class="bt"><div class="bf" style="width:12.7%"></div></div><span class="pv">8,9%</span></div><div class="prow"><div class="bt"><div class="bf b2" style="width:1.9%"></div></div><span class="pv">1,3%</span></div></div>
+<div class="br pr" role="listitem" data-tip="App hoje: 3,9% · WhatsApp: 13,2%" tabindex="0" aria-label="Perfil fraco: App hoje: 3,9% · WhatsApp: 13,2%"><div class="bh"><span class="bl">Perfil fraco</span></div><div class="prow"><div class="bt"><div class="bf" style="width:5.6%"></div></div><span class="pv">3,9%</span></div><div class="prow"><div class="bt"><div class="bf b2" style="width:18.9%"></div></div><span class="pv">13,2%</span></div></div>
+<div class="br pr" role="listitem" data-tip="App hoje: 1,5% · WhatsApp: 19%" tabindex="0" aria-label="Fala em “alto valor”: App hoje: 1,5% · WhatsApp: 19%"><div class="bh"><span class="bl">Fala em “alto valor”</span></div><div class="prow"><div class="bt"><div class="bf" style="width:2.1%"></div></div><span class="pv">1,5%</span></div><div class="prow"><div class="bt"><div class="bf b2" style="width:27.1%"></div></div><span class="pv">19%</span></div></div>
+</div>
+</figure>
+<figure class="chart"><figcaption><span class="ct">Como estão os clientes do app</span>
+<span class="cs">Evolução registrada nos resumos</span>
+</figcaption><div class="bars" role="list">
+<div class="br" role="listitem" data-tip="Encontro marcado 15,3% · encontro feito 12,8% · namoro ou noivado 1,7% · voltou com a ex 0,8%" tabindex="0" aria-label="Resultado concreto: 31%"><div class="bh"><span class="bl">Resultado concreto</span><span class="bv">31%</span></div><div class="bt"><div class="bf" style="width:76.5%"></div></div></div>
+<div class="br" role="listitem" aria-label="Progresso de postura: 23%"><div class="bh"><span class="bl">Progresso de postura</span><span class="bv">23%</span></div><div class="bt"><div class="bf" style="width:57.8%"></div></div></div>
+<div class="br" role="listitem" aria-label="Estagnado: 13%"><div class="bh"><span class="bl">Estagnado</span><span class="bv">13%</span></div><div class="bt"><div class="bf" style="width:33.2%"></div></div></div>
+<div class="br" role="listitem" aria-label="Ainda se preparando: 13%"><div class="bh"><span class="bl">Ainda se preparando</span><span class="bv">13%</span></div><div class="bt"><div class="bf" style="width:32.8%"></div></div></div>
+<div class="br" role="listitem" aria-label="Em espiral (piorando): 1,4%"><div class="bh"><span class="bl">Em espiral (piorando)</span><span class="bv">1,4%</span></div><div class="bt"><div class="bf" style="width:3.5%"></div></div></div>
+</div>
+<p class="cn">24% dependem muito da Crystal (42% entre quem usa app de namoro), mas o resultado deles é parecido com o dos outros (31% × 34%).</p>
+</figure>
+<div class="card small"><b>Três sinais do app:</b> (1) o produto hoje termina no primeiro encontro, mas o cliente do app quer mais relação séria; (2) a análise de print quase sumiu (9,7% dos resumos) e há três relatos de falha ao anexar, vale testar no iPhone; (3) metade dos resumos já está no limite de tamanho e corta informação.</div>
+<h2 id="oportunidades">Produtos, cursos e ascensões</h2>
+<p>Cada ideia vem com a evidência que a sustenta. “Agora” é o que reduz reembolso e segura o cliente sem produto novo; “Próximo” e “Depois” são o que vender.</p>
+<div class="chart"><span class="ct">Visão geral</span><div class="tw"><table><thead><tr><th>Ideia</th><th>Quando</th><th>Esforço</th></tr></thead><tbody>
+<tr><td>Primeira semana guiada<span class="fm">Dentro do plano</span></td><td>Agora</td><td>Baixo</td></tr>
+<tr><td>Leitura de print que confere<span class="fm">Dentro do plano</span></td><td>Agora</td><td>Baixo</td></tr>
+<tr><td>Fichas por mulher<span class="fm">Dentro do plano</span></td><td>Próximo</td><td>Médio</td></tr>
+<tr><td>Kit “ela sumiu”<span class="fm">Dentro do plano</span></td><td>Próximo</td><td>Baixo</td></tr>
+<tr><td>Respostas curtas e “minha voz”<span class="fm">Dentro do plano · decisão da Letícia</span></td><td>Agora (decidir)</td><td>Baixo</td></tr>
+<tr><td>Diário de resultados<span class="fm">Dentro do plano</span></td><td>Próximo</td><td>Baixo</td></tr>
+<tr><td>Modo treino<span class="fm">Dentro do plano</span></td><td>Depois</td><td>Médio</td></tr>
+<tr><td>Postura sem carência (21 dias)<span class="fm">Curso</span></td><td>Próximo</td><td>Médio</td></tr>
+<tr><td>Instagram magnético<span class="fm">Curso</span></td><td>Próximo</td><td>Médio</td></tr>
+<tr><td>Do chat ao encontro<span class="fm">Curso</span></td><td>Próximo</td><td>Médio</td></tr>
+<tr><td>Revisão de perfil<span class="fm">Serviço avulso</span></td><td>Próximo</td><td>Baixo</td></tr>
+<tr><td>Trilha da ex<span class="fm">Curso</span></td><td>Depois</td><td>Médio</td></tr>
+<tr><td>Do encontro ao namoro<span class="fm">Curso</span></td><td>Depois</td><td>Médio</td></tr>
+<tr><td>Renovação de fevereiro de 2027<span class="fm">Campanha</span></td><td>Depois</td><td>Baixo</td></tr>
+<tr><td>Letícia por perto<span class="fm">Ascensão</span></td><td>Próximo</td><td>Baixo</td></tr>
+<tr><td>Recomeço 35+<span class="fm">Ascensão</span></td><td>Depois</td><td>Alto</td></tr>
+<tr><td>Laboratório ao vivo<span class="fm">Ascensão</span></td><td>Depois</td><td>Alto</td></tr>
+<tr><td>Crystal Casal<span class="fm">Produto novo</span></td><td>Depois</td><td>Médio</td></tr>
+<tr><td>Sexualidade e desempenho<span class="fm">Ascensão</span></td><td>Depois</td><td>Alto</td></tr>
+</tbody></table></div></div>
+<h3>Dentro do plano: segurar o cliente e reduzir reembolso</h3>
+<div class="op"><h4>Primeira semana guiada</h4><div class="tags"><span class="tag when">Agora</span><span class="tag">Dentro do plano</span><span class="tag">Esforço baixo</span></div><p>Nos 7 primeiros dias, a Crystal puxa três missões: mande um print, peça uma abertura, conte sobre ela.</p><p class="ev"><b>Evidência:</b> Quem manda mais de 100 mensagens na 1ª semana segue ativo no 3º mês em 69% dos casos; quem manda até 10, em 27%. 9,4% não mandam nada nos 3 primeiros dias, e metade dos reembolsos sai até o 6º dia.</p></div>
+<div class="op"><h4>Leitura de print que confere</h4><div class="tags"><span class="tag when">Agora</span><span class="tag">Dentro do plano</span><span class="tag">Esforço baixo</span></div><p>Quando não tiver certeza de quem disse o quê, a Crystal pergunta antes de responder.</p><p class="ev"><b>Evidência:</b> 84% dos clientes já mandaram print; 86% dos prints chegam sem legenda; ler o print errado é 29% das reclamações.</p></div>
+<div class="op"><h4>Fichas por mulher</h4><div class="tags"><span class="tag when">Próximo</span><span class="tag">Dentro do plano</span><span class="tag">Esforço médio</span></div><p>Uma ficha para cada mulher: onde conheceu, em que pé está, o que já foi dito. O cliente escolhe a ficha antes de mandar o print.</p><p class="ev"><b>Evidência:</b> 9–24% gerem várias conversas; as memórias viram listas de 5 a 20 mulheres; confundir de quem é a conversa está entre as reclamações mais citadas; 50% dos resumos do app já estão cortados por tamanho.</p></div>
+<div class="op"><h4>Kit “ela sumiu”</h4><div class="tags"><span class="tag when">Próximo</span><span class="tag">Dentro do plano</span><span class="tag">Esforço baixo</span></div><p>Um atalho para o vácuo: o que fazer agora, o que não fazer e três mensagens de resgate.</p><p class="ev"><b>Evidência:</b> Vácuo e conversa que morre somam 40–45%; é o momento em que o cliente mais procura a Crystal.</p></div>
+<div class="op"><h4>Respostas curtas e “minha voz”</h4><div class="tags"><span class="tag when">Agora (decidir)</span><span class="tag">Dentro do plano · decisão da Letícia</span><span class="tag">Esforço baixo</span></div><p>A Crystal aprende o jeito de escrever do cliente e entrega a mensagem curta, separada para copiar.</p><p class="ev"><b>Evidência:</b> A resposta da Crystal tem 80 palavras; a do cliente, 10. 7% reclamam do tom; mulheres percebem a IA (“parece ChatGPT”). Mexe no jeito de falar, que é da alma.</p></div>
+<div class="op"><h4>Diário de resultados</h4><div class="tags"><span class="tag when">Próximo</span><span class="tag">Dentro do plano</span><span class="tag">Esforço baixo</span></div><p>Depois de um encontro, a Crystal pergunta como foi e guarda. Com autorização, vira depoimento.</p><p class="ev"><b>Evidência:</b> Só 1–5% das memórias registram resultado, mas o cliente conta sucesso três vezes mais do que fracasso.</p></div>
+<div class="op"><h4>Modo treino</h4><div class="tags"><span class="tag when">Depois</span><span class="tag">Dentro do plano</span><span class="tag">Esforço médio</span></div><p>O cliente escreve a mensagem dele e a Crystal corrige, em vez de escrever por ele. Também simula a conversa.</p><p class="ev"><b>Evidência:</b> Tímidos são 10–12% e só 14% chegam a resultado; 24% dos clientes do app dependem muito da Crystal; mulheres percebem texto pronto.</p></div>
+<h3>Cursos e serviços avulsos</h3>
+<div class="op"><h4>Postura sem carência (21 dias)</h4><div class="tags"><span class="tag when">Próximo</span><span class="tag">Curso</span><span class="tag">Esforço médio</span></div><p>Um programa curto para parar de parecer carente e controlar a ansiedade na espera da resposta.</p><p class="ev"><b>Evidência:</b> É a maior dor (30–42%), mais ansiedade (9–13%) e o perfil “ansioso que conta os minutos” (~18% no lote B).</p></div>
+<div class="op"><h4>Instagram magnético</h4><div class="tags"><span class="tag when">Próximo</span><span class="tag">Curso</span><span class="tag">Esforço médio</span></div><p>Stories que puxam conversa, como responder story dela e um perfil que atrai.</p><p class="ev"><b>Evidência:</b> A paquera acontece no Instagram (43–58%), não no Tinder (13–15%). É o motivo nº 1 de chegada (22%).</p></div>
+<div class="op"><h4>Do chat ao encontro</h4><div class="tags"><span class="tag when">Próximo</span><span class="tag">Curso</span><span class="tag">Esforço médio</span></div><p>Como sair da conversa e marcar: o convite, o lugar, o que fazer se ela desmarcar.</p><p class="ev"><b>Evidência:</b> Não conseguir marcar o encontro é dor de 25–33%.</p></div>
+<div class="op"><h4>Revisão de perfil</h4><div class="tags"><span class="tag when">Próximo</span><span class="tag">Serviço avulso</span><span class="tag">Esforço baixo</span></div><p>Uma pessoa da equipe revisa fotos e bio e devolve o que trocar.</p><p class="ev"><b>Evidência:</b> Perfil fraco é dor de 3–13% (13% no WhatsApp); há pedidos espontâneos de revisão de foto e bio.</p></div>
+<div class="op"><h4>Trilha da ex</h4><div class="tags"><span class="tag when">Depois</span><span class="tag">Curso</span><span class="tag">Esforço médio</span></div><p>Duas portas: esquecer com contato zero acompanhado, ou tentar voltar com limite e prazo.</p><p class="ev"><b>Evidência:</b> A ex é dor de 11–17%; 21% dos clientes do app falam da ex em algum momento.</p></div>
+<div class="op"><h4>Do encontro ao namoro</h4><div class="tags"><span class="tag when">Depois</span><span class="tag">Curso</span><span class="tag">Esforço médio</span></div><p>O que fazer depois do primeiro encontro até virar namoro.</p><p class="ev"><b>Evidência:</b> Hoje o produto termina no primeiro encontro; no app, 17% querem relação séria.</p></div>
+<div class="op"><h4>Renovação de fevereiro de 2027</h4><div class="tags"><span class="tag when">Depois</span><span class="tag">Campanha</span><span class="tag">Esforço baixo</span></div><p>O plano anual das primeiras turmas vence em fev/2027. Preparar a renovação com resultados de cada um.</p><p class="ev"><b>Evidência:</b> As turmas de jan e fev ainda tinham 31–39% de clientes ativos aos 5 meses.</p></div>
+<h3>Ascensões e produtos novos</h3>
+<div class="op"><h4>Letícia por perto</h4><div class="tags"><span class="tag when">Próximo</span><span class="tag">Ascensão</span><span class="tag">Esforço baixo</span></div><p>Quando o cliente pede, a Crystal apresenta a mentoria ou a consultoria da Letícia.</p><p class="ev"><b>Evidência:</b> Clientes perguntam “posso falar com a Letícia?” e “essa mentoria resolve meu caso?”; 14% das memórias marcam o cliente como lead quente; 13 citam produtos da Letícia; 2 reembolsos foram por “genérico”.</p></div>
+<div class="op"><h4>Recomeço 35+</h4><div class="tags"><span class="tag when">Depois</span><span class="tag">Ascensão</span><span class="tag">Esforço alto</span></div><p>Mentoria em grupo para quem voltou a ficar solteiro depois de anos de casamento.</p><p class="ev"><b>Evidência:</b> 57–68% de quem diz a idade tem 35 anos ou mais; 8–12% são recém-separados, metade pais; é quem mais chega a resultado no app (43%).</p></div>
+<div class="op"><h4>Laboratório ao vivo</h4><div class="tags"><span class="tag when">Depois</span><span class="tag">Ascensão</span><span class="tag">Esforço alto</span></div><p>Encontros presenciais ou ao vivo para treinar abordagem.</p><p class="ev"><b>Evidência:</b> A vida real pesa mais que os apps: academia 22–31%, festa e bar 16%; 3–8% querem roteiro para abordar pessoalmente.</p></div>
+<div class="op"><h4>Crystal Casal</h4><div class="tags"><span class="tag when">Depois</span><span class="tag">Produto novo</span><span class="tag">Esforço médio</span></div><p>Para quem já está com alguém: manter a chama, resolver brigas, datas especiais.</p><p class="ev"><b>Evidência:</b> 4–9% estão em relação e querem melhorar; 8% pedem mensagens de carinho e de datas.</p></div>
+<div class="op"><h4>Sexualidade e desempenho</h4><div class="tags"><span class="tag when">Depois</span><span class="tag">Ascensão</span><span class="tag">Esforço alto</span></div><p>Conteúdo com um especialista de saúde, com encaminhamento quando for caso médico.</p><p class="ev"><b>Evidência:</b> 5–11% falam de sexo, desempenho ou virgindade; um cliente pediu curso da Letícia sobre isso.</p></div>
+<h3>Nichos para testar com conteúdo antes de virar produto</h3><div class="card"><ul class="small">
+<li><b>Trilha cristã:</b> 8–15% querem namorar sério com valores; religião aparece em 8–9%.</li>
+<li><b>A distância e fora do Brasil:</b> 5–9% vivem a distância; 1–5% moram fora; alguns em Portugal.</li>
+<li><b>Flerte com ética no trabalho:</b> 5–7% se interessam por colega, cliente ou subordinada.</li>
+<li><b>Anti-golpe:</b> 5–9% falam de dinheiro, golpe ou PIX; no lote B, 15 pedidos de PIX e 1 golpe que passou.</li>
+</ul></div>
+<h2 id="riscos">Riscos a corrigir</h2>
+<p>Os quatro primeiros pedem regra antes de qualquer venda nova. Nenhum deles exige mexer na alma: podem ser travas separadas, como a de vazamento.</p>
+<div class="risk alta"><span class="lv">▲ Alta</span><h4>Menores de idade</h4><p>Aparecem contatos de 17 anos e perfis que “não têm 18”, e o alerta da Crystal é inconsistente.</p><p class="fx"><b>O que fazer:</b> Regra firme e fora da alma, como a trava de vazamento: se ela pode ter menos de 18, a Crystal não ajuda na paquera.</p></div>
+<div class="risk alta"><span class="lv">▲ Alta</span><h4>Risco à vida</h4><p>Há menções a suicídio em memórias do WhatsApp e 7 nos resumos do app. A palavra terapia aparece em só 1,1% das respostas.</p><p class="fx"><b>O que fazer:</b> O teto de gasto já leva os contatos de ajuda. Conferir que a conversa normal também leva, sempre.</p></div>
+<div class="risk alta"><span class="lv">▲ Alta</span><h4>Dados de terceiras (LGPD)</h4><p>Memórias e resumos guardam @, telefones e nomes completos das mulheres, e às vezes CPF e e-mail do próprio cliente. A Crystal recita esses dados se alguém perguntar o que ela lembra.</p><p class="fx"><b>O que fazer:</b> Não guardar @, telefone nem nome completo de terceiras; limpar o que já está guardado; responder com resumo, nunca com o dado.</p></div>
+<div class="risk alta"><span class="lv">▲ Alta</span><h4>Consentimento e ética</h4><p>Mulher comprometida (4–6%), subordinada, mulher alcoolizada, casos de perseguição e medida protetiva, pedidos para investigar a parceira, a Crystal “confirmando” traição com poucos indícios, um role-play com conotação de menor.</p><p class="fx"><b>O que fazer:</b> Uma lista curta do que a Crystal não faz, igual para todos os clientes.</p></div>
+<div class="risk media"><span class="lv">● Média</span><h4>Leitura de print</h4><p>É 29% das reclamações: lado da bolha, cores trocadas, quem disse o quê, nome da mulher trocado. No app, a análise de print quase sumiu (9,7%) e há 3 relatos de falha ao anexar.</p><p class="fx"><b>O que fazer:</b> Conferir antes de responder e testar o anexo de imagem no iPhone.</p></div>
+<div class="risk media"><span class="lv">● Média</span><h4>“Silêncio estratégico” para tudo</h4><p>Sumir de 2 a 7 dias e “alto valor” aparecem em 24–30% das orientações, até com namorada, e às vezes terminam em bloqueio. No app, “alto valor” quase sumiu (1,5%), mas o silêncio continua em 24%.</p><p class="fx"><b>O que fazer:</b> É da alma: decisão da Letícia.</p></div>
+<div class="risk media"><span class="lv">● Média</span><h4>Respostas longas e cara de IA</h4><p>80 palavras contra 10 do cliente. Mulheres dizem que as mensagens parecem robô. É risco para a reputação da marca.</p><p class="fx"><b>O que fazer:</b> Mensagem curta, separada, no jeito dele (decisão da Letícia).</p></div>
+<div class="risk media"><span class="lv">● Média</span><h4>Memória cheia e bagunçada</h4><p>50% dos resumos do app já estão no limite de tamanho; ~6% das memórias do WhatsApp vazias ou corrompidas; gênero trocado; 25% com o “estágio de compra” misturado na vida amorosa.</p><p class="fx"><b>O que fazer:</b> Fichas por mulher e memória separada do funil de vendas.</p></div>
+<div class="risk media"><span class="lv">● Média</span><h4>Áudio</h4><p>Falha de áudio subiu: ~5% em setembro e ~9% em outubro. Respostas vazias (~5% em jun–jul) estão zeradas desde agosto.</p><p class="fx"><b>O que fazer:</b> Medir a falha de áudio no app novo.</p></div>
+<div class="risk media"><span class="lv">● Média</span><h4>Limite de imagens</h4><p>Desde 16/07, os prints por cliente por dia caíram de 3,2–3,5 para 1,4. O pacote de imagens rendeu ~R$ 18 mil. As turmas que entraram depois disso ficam menos.</p><p class="fx"><b>O que fazer:</b> Rever o limite: segurou custo, mas pode estar custando permanência.</p></div>
+<h2 id="passos">Próximos passos</h2><div class="steps">
+<div class="st"><h4>Agora</h4><div class="sh">até 30 dias, sem produto novo</div><ol><li>Travas de segurança: menores, consentimento e risco à vida.</li><li>Memória sem @, telefone ou nome completo de terceiras, e limpeza do que já está guardado.</li><li>Primeira semana guiada, medindo quem passa de 30 mensagens.</li><li>Leitura de print que confere, e teste do anexo de imagem no iPhone.</li><li>Perguntar o motivo de cada reembolso.</li><li>Letícia decide: tamanho das respostas, “minha voz” e o “silêncio estratégico”.</li></ol></div>
+<div class="st"><h4>Próximo</h4><div class="sh">30 a 60 dias</div><ol><li>Fichas por mulher e o kit “ela sumiu”.</li><li>Um curso de teste: Postura sem carência, como order bump e dentro do app.</li><li>Instagram magnético e revisão de perfil avulsa.</li><li>A Crystal apresenta a mentoria da Letícia quando o cliente pergunta.</li><li>Diário de resultados, para colher depoimentos com autorização.</li></ol></div>
+<div class="st"><h4>Depois</h4><div class="sh">60 a 90 dias</div><ol><li>Mentoria em grupo Recomeço 35+.</li><li>Do encontro ao namoro e a trilha da ex.</li><li>Modo treino.</li><li>Preparar a renovação de fev/2027.</li><li>Medir o uso dentro do app, que ainda não entra nestes números.</li></ol></div>
+</div>
+<h2 id="metodo">Como foi feito e o que falta</h2><div class="card small"><ul><li><b>Histórico do WhatsApp</b> (nov/2025 a out/2026): 5,8 milhões de mensagens, ~10 mil clientes, 280 mil áudios e 518 mil imagens. As contas de volume, horário e permanência usam tudo.</li><li><b>1.221 memórias de clientes do WhatsApp</b> lidas uma a uma, em três lotes sorteados (A, B e C; ~16% das 7.648). Quando os lotes discordam, o relatório mostra a faixa.</li><li><b>1.052 mensagens reais:</b> 600 soltas, as duas primeiras de 252 conversas e 200 pares de pergunta e resposta. Quem usa muito pesa mais nas soltas; as primeiras mensagens mostram o cliente típico.</li><li><b>360 resumos de clientes atuais do app</b> (de 1.560).</li><li><b>Vendas</b> da Assiny de abril a 12/10 e do app de 10/10 a 04/11.</li><li>Tudo foi lido só para consulta, sem alterar nada. <b>Nenhum cliente nem nenhuma mulher é identificado aqui:</b> não há nome, telefone, @ ou e-mail, e as frases são paráfrases.</li></ul><p><b>O que ainda não dá para medir:</b> o uso dentro do app (só os resumos); as vendas de janeiro a março (o faturamento total é estimativa); o motivo dos reembolsos; o custo por mensagem no WhatsApp; a renovação (só em fev/2027). A ligação entre compra e conversa é pelo final do telefone e acerta em ~90% dos casos.</p></div>
+<footer>Raio-X da Crystal · 04/11/2026 · leitura feita em seis partes e juntada aqui. Os percentuais são aproximados e servem para comparar, não para contabilidade.</footer>
+</main>
+<script>
+(function(){
+  var tip=document.createElement('div');tip.className='tip';tip.setAttribute('role','tooltip');document.body.appendChild(tip);
+  var cur=null;
+  function show(el){var t=el.getAttribute('data-tip');if(!t){return}cur=el;tip.textContent=t;tip.style.display='block';
+    var r=el.getBoundingClientRect(),tw=tip.offsetWidth,th=tip.offsetHeight;
+    var x=r.left+r.width/2-tw/2;x=Math.max(8,Math.min(x,window.innerWidth-tw-8));
+    var y=r.top-th-8;if(y<8){y=r.bottom+8}
+    tip.style.left=x+'px';tip.style.top=y+'px'}
+  function hide(){cur=null;tip.style.display='none'}
+  document.querySelectorAll('[data-tip]').forEach(function(el){
+    if(!el.getAttribute('data-tip')){return}
+    el.addEventListener('pointerenter',function(){show(el)});
+    el.addEventListener('pointerleave',hide);
+    el.addEventListener('focus',function(){show(el)});
+    el.addEventListener('blur',hide);
+    el.addEventListener('click',function(){if(cur===el){hide()}else{show(el)}});
+  });
+  window.addEventListener('scroll',hide,{passive:true});
+})();
+</script></body></html>

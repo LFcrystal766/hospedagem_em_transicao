@@ -1899,3 +1899,25 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - venda adicional quase zero (bumps 2,2%, pacote de imagens 4%);
       - o app começou abaixo do ritmo do WhatsApp (145–250 vendas por semana contra 300–440).
       - Falta o agente das mensagens reais.
+    - **04/11: 6 de 6 terminaram** (+ mensagens reais; `resultados/4-mensagens-reais.md`). Destaques:
+      - 62% das mensagens são co-piloto de paquera; 1 em 6 narra a conversa ao vivo;
+      - 21% das mensagens são imagem, e 86% dos prints chegam sem legenda;
+      - ler o print errado é 29% das reclamações;
+      - mulheres percebem a IA ("parece ChatGPT");
+      - falha de áudio de ~9% em outubro.
+    - **04/11: RELATÓRIO PRONTO, "Raio-X da Crystal"**, publicado como página privada do dono:
+      https://claude.ai/artifact/RtXtwtKQ5zvYizrL2Y6mNC (para a Letícia ver, o dono compartilha pelo menu da página).
+      - Cópia em `auditorias/2026-11-04/analise-conversas/raio-x-crystal.html`. Os 6 resumos anônimos dos agentes e as
+        regras deles estão em `.../analise-conversas/fontes/`. Nada identifica cliente nem terceira: busquei e-mail,
+        @, telefone e CPF.
+      - Seções: quem é o cliente, objetivos, as 15 dores, usos, 13 perfis, números do negócio, o app hoje, 19
+        oportunidades (dentro do plano, cursos, ascensões) com evidência, 10 riscos e passos para 30/60/90 dias.
+      - **Riscos de prioridade alta (regra antes de vender mais):**
+        - menores de 17 anos sem regra firme;
+        - risco à vida (conferir os contatos de ajuda fora do teto);
+        - @, telefone e nome de terceiras na memória (LGPD);
+        - consentimento e ética.
+        - Todos podem ser travas fora da alma, como a de vazamento.
+      - **Decisões que são da Letícia** (alma): tamanho das respostas, "minha voz" e o "silêncio estratégico" (24–30%).
+      - O que falta medir: uso dentro do app (VPS), vendas de jan a mar, motivo do reembolso.
+      - Scratchpad limpo dos arquivos com conteúdo de cliente que os agentes deixaram.
