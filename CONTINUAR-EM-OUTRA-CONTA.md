@@ -1882,3 +1882,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - 95% usam para escrever mensagens;
       - Instagram 57% contra Tinder 13%; a academia aparece em 31%;
       - golpe e pedido de PIX em 9%.
+    - **04/11: 4 de 6 terminaram** (+ memórias, lote C: 409 lidas; `resultados/3-memorias-C.md`).
+      - Ao todo, 1.221 memórias do WhatsApp e 360 resumos do app lidos.
+      - Os três lotes batem: medo de parecer carente (30–42%), vácuo somado à conversa que morre (40–45%), não sair
+        da conversa para o encontro (25–33%) e 85–95% de uso para escrever mensagens.
+      - Do público que diz a idade, 57–68% têm 35+.
+      - Faltam as mensagens reais e os números.
