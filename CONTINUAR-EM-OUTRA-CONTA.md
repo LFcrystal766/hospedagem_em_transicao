@@ -1865,3 +1865,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       chamadas cada) e Write, para guardar e contar no scratchpad. Fora do modo Auto, cada uma pede permissão. Passei ao
       dono: modo Auto, ou "sempre permitir" para Bash e Write. Ofereci pausar os agentes e retomar depois. No fim, apagar
       do scratchpad os arquivos com conteúdo de cliente.
+    - **04/11: 1 de 6 agentes terminou** (memórias, lote A: 398 lidas). O resumo anônimo está em
+      `scratchpad/analise/resultados/1-memorias-A.md`. Destaques:
+      - 67% solteiros buscando; dos que dizem a idade, 60% têm 35+;
+      - 88% usam a Crystal para escrever ou aprovar mensagens;
+      - dores principais: medo de parecer carente (30%), vácuo (25%), não sair da conversa para o encontro (25%) e não
+        saber puxar assunto (25%).
