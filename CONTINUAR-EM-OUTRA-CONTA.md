@@ -1948,3 +1948,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - `app_aluno_trocar_email` → `trocado` (origem `base`).
     - Conferido: o novo entra no mesmo contato, liberado (`t`); o antigo não acha mais nada.
     - O e-mail mandado tinha maiúsculas e um espaço; foi gravado em minúsculas e sem espaço.
+95. **04/11, suporte: João Paulo de novo, "não recebe os e-mails".**
+    - Na base, continua liberado (`t`), com o mesmo contato de 03/11.
+    - O domínio de envio está certo: DKIM do Resend, SPF no `send.` e DMARC `p=none`.
+    - O app grava cada tentativa em `auth_events`, sem e-mail nem código: `otp_sent`, `rate_limited`, `otp_wrong`,
+      `otp_expired`, `login_ok`.
+    - Passei ao dono a consulta dos 7 dias desse contato (pelo `crystal_contact_id`, sem o e-mail no comando) e a
+      contagem de "envio falhou" no log da API de 24 h.
+    - Como ler o resultado:
+      - `otp_sent` sem falha: o código saiu, então é o Hotmail (lixo eletrônico ou "Outros") ou um bloqueio no Resend.
+        Ver o status do envio no painel do Resend.
+      - `rate_limited`: pediu código demais; esperar uma hora.
+      - nada: ele não está chegando ao login com esse e-mail; pedir o print da tela.
