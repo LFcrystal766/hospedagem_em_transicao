@@ -1921,3 +1921,25 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - **Decisões que são da Letícia** (alma): tamanho das respostas, "minha voz" e o "silêncio estratégico" (24–30%).
       - O que falta medir: uso dentro do app (VPS), vendas de jan a mar, motivo do reembolso.
       - Scratchpad limpo dos arquivos com conteúdo de cliente que os agentes deixaram.
+    - **04/11: o dono esclareceu que os produtos são à parte** (vendidos separado, para o mesmo público) e pediu
+      precisão de "sniper". Pediu também para usar o que já tinha sido levantado, sem consultar o banco de novo.
+      - Feita a página **"Mira de Produtos"**: https://claude.ai/artifact/1R4Qa4GtHWXbJxskdCJG41 (privada; cópia em
+        `auditorias/2026-11-04/analise-conversas/mira-produtos.html`). O Raio-X ganhou um link para ela.
+      - **Regra da mira:** a dor aparece em 10% ou mais; tem hora marcada (um gatilho na conversa); a Crystal sozinha não
+        resolve; há sinal de que pagam. Isso corta as 19 ideias do Raio-X para 4.
+      - **Os 4 tiros**, na ordem (nomes de trabalho, a Letícia decide):
+        1. **Sem Carência**, 21 dias, R$ 97–147 (bump de R$ 47); alvo ~3.000–4.200 clientes.
+        2. **Instagram Magnético**, R$ 97–147, com degrau de R$ 297 com revisão de perfil; alvo ~4.300–5.800.
+        3. **Recomeço 35+**, mentoria em grupo, 8 semanas, R$ 997–1.997; alvo ~800–1.200. É onde está o dinheiro da
+           base.
+        4. **Depois Dela**, 30 dias, R$ 147–197; alvo ~1.100–1.700.
+      - **Na reserva:** Do Encontro ao Namoro, Revisão de Perfil avulsa, Crystal Casal.
+      - **Fora agora:** sexualidade e desempenho, os nichos e as melhorias do plano.
+      - **Como mirar:**
+        - e-mail "qual destes é você?" com 4 botões (o clique separa o grupo);
+        - pré-venda de 7 dias antes de gravar (meta 3%; abaixo de 1%, arquiva);
+        - depois, um cartão de oferta no app na hora do gatilho (é o app, não a Crystal, então a alma não muda);
+        - nunca nos 7 primeiros dias, em mensagem de risco, com menor de idade, nem mais de uma vez por mês;
+        - escalar na Meta com as frases dos clientes;
+        - descadastro em um toque.
+      - Nenhuma consulta nova ao banco: tudo vem dos 6 resumos anônimos.
