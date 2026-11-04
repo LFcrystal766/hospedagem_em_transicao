@@ -1877,3 +1877,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - O cliente de hoje é mais focado e mais emocional que o do WhatsApp; o produto termina no primeiro encontro.
       - **Achados de segurança/LGPD para tratar depois:** a memória guarda @ e telefone de terceiras; 49,7% dos
         resumos estão cortados; casos de menores (17 anos) sem regra firme; "silêncio estratégico" prescrito para tudo.
+    - **04/11: 3 de 6 terminaram** (+ memórias, lote B: 414 lidas; `resultados/2-memorias-B.md`). Confirma o lote A:
+      - medo de parecer carente (42%) e vácuo somado à conversa que morre (40%);
+      - 95% usam para escrever mensagens;
+      - Instagram 57% contra Tinder 13%; a academia aparece em 31%;
+      - golpe e pedido de PIX em 9%.
