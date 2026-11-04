@@ -1861,3 +1861,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       vale nas próximas sessões. Para esta, o dono escolhe **Auto** no seletor de modo ao lado da caixa de mensagem.
     - **04/11:** o dono perguntou da análise. Os 6 agentes ainda rodam e nenhum terminou. Lembrei que pedido de
       permissão parado segura o agente (modo Auto resolve).
+    - **04/11:** ainda pedindo permissão. Contei nos agentes: além do SQL, eles usam muito **Bash** (de 19 a 40
+      chamadas cada) e Write, para guardar e contar no scratchpad. Fora do modo Auto, cada uma pede permissão. Passei ao
+      dono: modo Auto, ou "sempre permitir" para Bash e Write. Ofereci pausar os agentes e retomar depois. No fim, apagar
+      do scratchpad os arquivos com conteúdo de cliente.
