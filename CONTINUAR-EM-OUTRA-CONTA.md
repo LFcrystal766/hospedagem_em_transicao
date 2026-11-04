@@ -1975,3 +1975,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Se um dia ela precisar do painel, a conta da equipe usa outro e-mail (por exemplo, com `+equipe`), porque o
         mesmo e-mail não pode ser cliente e equipe.
       - Para tirar o acesso: `status='blocked'` nessa linha.
+97. **04/11, resultado de `auth_events` (7 dias):**
+    - **João Paulo:** um `otp_sent` em 03/11 17:46 BRT e nada depois.
+    - **Rubens:** quatro `otp_sent` em 29/10, entre 04:28 e 04:35 BRT (pediu reenvio), e nada depois.
+    - Nenhum dos dois digitou código (sem `otp_wrong`) nem foi recusado.
+    - **Leitura:** o app enviou nas vezes em que eles pediram, mas nenhum dos dois tentou de novo com esse e-mail desde
+      então. Se tentaram hoje, foi com outro e-mail ou em outro lugar.
+    - Os dois e-mails são da Microsoft (Hotmail e Outlook), como os casos de 30–31/10.
+    - **Pedido ao suporte:** cada um tenta agora, uma vez só, espera até 5 minutos e olha o lixo eletrônico e a aba
+      "Outros". Depois roda-se a mesma consulta: se aparecer `otp_sent` de hoje, o app enviou, e o dono confere no
+      painel do Resend o status do envio (entregue, devolvido ou bloqueado).
