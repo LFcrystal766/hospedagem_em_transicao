@@ -1859,3 +1859,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **04/11:** os pedidos de permissão continuaram, porque a sessão não relê uma pasta de configuração criada depois
       de começar. Fiz o permanente: `.claude/settings.json` no repositório, commitado, com a mesma liberação do SQL;
       vale nas próximas sessões. Para esta, o dono escolhe **Auto** no seletor de modo ao lado da caixa de mensagem.
+    - **04/11:** o dono perguntou da análise. Os 6 agentes ainda rodam e nenhum terminou. Lembrei que pedido de
+      permissão parado segura o agente (modo Auto resolve).
