@@ -1871,3 +1871,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - 88% usam a Crystal para escrever ou aprovar mensagens;
       - dores principais: medo de parecer carente (30%), vácuo (25%), não sair da conversa para o encontro (25%) e não
         saber puxar assunto (25%).
+    - **04/11: 2 de 6 terminaram** (+ clientes atuais do app: 360 resumos; `resultados/6-app-atual.md`).
+      - 31% chegaram a um resultado concreto (encontro marcado ou realizado, namoro).
+      - 24% dependem da Crystal para cada mensagem.
+      - O cliente de hoje é mais focado e mais emocional que o do WhatsApp; o produto termina no primeiro encontro.
+      - **Achados de segurança/LGPD para tratar depois:** a memória guarda @ e telefone de terceiras; 49,7% dos
+        resumos estão cortados; casos de menores (17 anos) sem regra firme; "silêncio estratégico" prescrito para tudo.
