@@ -1853,3 +1853,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - clientes atuais do app (~350 resumos e 15 fichas).
     - Saída prevista: relatório anônimo e agregado para o dono e a Letícia (dores, personas, usos, oportunidades de
       produto, curso e ascensão). Nenhum conteúdo de cliente no repositório.
+    - **04/11:** o dono autorizou todo SQL no Supabase ("pode parar de pedir permissão"). Criei
+      `.claude/settings.local.json` (fora do git) liberando `mcp__Supabase__execute_sql` e `list_tables`. Os agentes da
+      análise continuam instruídos a só ler.
