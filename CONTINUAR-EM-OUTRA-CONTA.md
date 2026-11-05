@@ -1985,3 +1985,22 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **Pedido ao suporte:** cada um tenta agora, uma vez só, espera até 5 minutos e olha o lixo eletrônico e a aba
       "Outros". Depois roda-se a mesma consulta: se aparecer `otp_sent` de hoje, o app enviou, e o dono confere no
       painel do Resend o status do envio (entregue, devolvido ou bloqueado).
+98. **05/11: o dono perguntou se dá para tirar o OpenRouter e ligar direto nos provedores, com projeção de economia.**
+    - **O OpenRouter não cobra a mais por token** (preço de lista do provedor). O custo dele é a taxa de 5,5% na compra
+      de crédito com cartão (mínimo US$ 0,80). Tirar o OpenRouter economiza só esses ~5,5%.
+    - **Caminho recomendado: BYOK** (chave própria do Google e da OpenAI cadastrada no OpenRouter).
+      - Até US$ 25 mil/mês de uso a preço de lista, o OpenRouter não cobra taxa; o provedor cobra direto.
+      - A economia é a mesma de tirar, sem perder a reserva, o catálogo com preços nem a conta de custo.
+    - **Atenção no código:** com BYOK, `usage.cost` vem ~0 e o custo real vem em
+      `usage.cost_details.upstream_inference_cost`. A Crystal lê só `usage.cost` (`openrouter.ts` ~linha 408; o
+      `conhecimento.ts` lê o mesmo para os embeddings).
+      - Sem ajuste, o teto de US$ 1/dia (M12) e os painéis de custo zeram.
+      - Ajuste pequeno: somar os dois campos. Fazer ANTES de ligar o BYOK.
+    - **Tirar de vez** exige um cliente por provedor e refazer reserva, catálogo, tabela de preço e "não guardar a
+      conversa". Mesma economia, muito mais trabalho e risco.
+    - **O que roda direto hoje:** a transcrição de áudio já vai direto na Groq (whisper-large-v3-turbo), sem OpenRouter.
+      Os embeddings da base (`openai/text-embedding-3-small`) passam pelo OpenRouter.
+    - Modelo principal desde 23/10: `google/gemini-3.1-flash-lite` (US$ 0,25 entrada e US$ 1,50 saída por milhão);
+      reserva `openai/gpt-4.1-mini`.
+    - **Pedido ao dono:** o gasto real de 14 dias, pela consulta em `uso_turnos` (banco `crystal_agente`) ou em
+      OpenRouter › Activity. Economia mensal = gasto de 14 dias × 30/14 × 5,5%.
