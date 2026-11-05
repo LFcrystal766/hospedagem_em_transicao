@@ -2020,3 +2020,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **Achado maior que a taxa:** um modelo caro escolhido no painel custou num dia ~4 meses da economia do BYOK.
       Proposta (decisão do dono): lista de modelos permitidos na produção, ou aviso e confirmação de superadmin acima de
       um custo por resposta, e um alerta de gasto do dia.
+100. **05/11 13:40, suporte (Rafa), 4 pedidos:**
+    - Três trocas de e-mail com `app_aluno_trocar_email`, todas `trocado`. Conferido em cada uma: o novo entra no
+      mesmo contato, liberado; o antigo não acha nada.
+      - **Thomas** (origem `base`): e-mail totalmente outro, mas as iniciais do novo batem com o nome do cadastro.
+      - **Windison** (origem `compra`): domínio digitado errado.
+      - **Helton** (origem `base`): faltavam duas letras no começo do e-mail.
+    - **Rafael ("não recebe o código", Outlook):** na base, liberado. Mesmo caminho do João Paulo e do Rubens: consultar
+      `auth_events` do contato. O suporte mandou o CPF no pedido; não foi usado nem registrado.
