@@ -2004,3 +2004,19 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       reserva `openai/gpt-4.1-mini`.
     - **Pedido ao dono:** o gasto real de 14 dias, pela consulta em `uso_turnos` (banco `crystal_agente`) ou em
       OpenRouter › Activity. Economia mensal = gasto de 14 dias × 30/14 × 5,5%.
+99. **05/11: gasto real de 14 dias (`uso_turnos`): US$ 634,46 em 330 mil chamadas.**
+    - **Por modelo:**
+      - `openai/gpt-5.6-sol`: US$ 310,11 (49%) em só 11.850 chamadas, US$ 0,026 cada, 11,5x o Flash-Lite;
+      - `google/gemini-3.1-flash-lite`: US$ 257,81 em 113 mil chamadas (US$ 0,0023 cada);
+      - `anthropic/claude-haiku-4.5`: US$ 56,10 (US$ 0,0046 cada);
+      - o resto: menos de US$ 10; embeddings US$ 0,51.
+    - **Economia com chave própria (BYOK), 5,5%:**
+      - sobre o total: ~US$ 75/mês (~R$ 410);
+      - sem o GPT-5.6 Sol: ~US$ 38/mês (~R$ 210);
+      - sobre o gasto mensal: com o total, ~US$ 1.360/mês; sem o GPT-5.6 Sol, ~US$ 695/mês.
+    - **Suspeita:** o GPT-5.6 Sol é o incidente de 22–23/10 (modelo trocado no painel, ~US$ 13/hora), que cai dentro
+      dos 14 dias. O Haiku e o 2.5 Flash devem ser de 23/10, antes da troca para o Flash-Lite.
+    - Pedi a consulta por dia para confirmar e saber o ritmo atual.
+    - **Achado maior que a taxa:** um modelo caro escolhido no painel custou num dia ~4 meses da economia do BYOK.
+      Proposta (decisão do dono): lista de modelos permitidos na produção, ou aviso e confirmação de superadmin acima de
+      um custo por resposta, e um alerta de gasto do dia.
