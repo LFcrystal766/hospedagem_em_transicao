@@ -2038,3 +2038,27 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       conta a outra pessoa. Pedido ao suporte: print da compra (nome e e-mail) ou confirmação de que é a mesma pessoa.
     - **Walber ("não recebe o código", Gmail):** na base, liberado. Entra na consulta de `auth_events` (com o Rafael, o
       Rubens e o João Paulo). O CPF do pedido não foi usado nem registrado.
+102. **05/11: o dono pediu alternativas de login ou um jeito de o código chegar mais rápido (Hotmail e Outlook).**
+    - **Diagnóstico no código** (`painel/motor2`):
+      - o código vale só **5 minutos** (`OTP_TTL_S=300`), e Hotmail/Outlook costumam segurar e-mail de remetente novo
+        por alguns minutos;
+      - **"reenviar" gera um código novo e mata o anterior** (`routes/auth-otp.ts` ~283): o e-mail atrasado chega com
+        código morto. O Rubens apertou reenviar 3 vezes em 7 minutos;
+      - o assunto não traz o código ("Seu código de acesso à Crystal");
+      - a tela já tem `autocomplete="one-time-code"`;
+      - o domínio está certo (DKIM, SPF, DMARC `p=none`).
+    - **Já, sem publicar:** `docker service update --env-add OTP_TTL_S=900 crystal_app_app_api`, para o código valer
+      15 minutos. Some no próximo `app-subir`, como o passo 4b, porque `OTP_TTL_S` não está na lista do `app-definir`.
+    - **Pacote 1, pequeno (proposto):**
+      - o reenvio manda o MESMO código enquanto vale;
+      - código no assunto;
+      - prazo de 15 min como padrão, e `OTP_TTL_S` no `app-definir`;
+      - ajuda "não chegou?" na tela.
+      - Opcional, decisão do dono: o suporte gera um código para o cliente pelo painel, depois de conferir a
+        identidade, com auditoria.
+    - **Pacote 2, alternativas (precisa de conta externa):**
+      - código pelo WhatsApp (API oficial da Meta, modelo de autenticação, telefone da compra);
+      - "Entrar com Microsoft/Google" (o e-mail precisa bater com o da compra);
+      - Face ID (passkey) depois do primeiro acesso.
+    - **Medição por domínio:** `auth_events` `otp_sent` → `login_ok` em 30 min, juntando com o domínio de
+      `users.email`. A consulta foi passada ao dono.
