@@ -2028,3 +2028,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - **Helton** (origem `base`): faltavam duas letras no começo do e-mail.
     - **Rafael ("não recebe o código", Outlook):** na base, liberado. Mesmo caminho do João Paulo e do Rubens: consultar
       `auth_events` do contato. O suporte mandou o CPF no pedido; não foi usado nem registrado.
+101. **05/11 14:37–15:29, suporte, 4 pedidos:**
+    - **Christian:** e-mail da empresa trocado para o Gmail (`trocado`, origem `compra`); o novo bate com o nome do
+      cadastro. Conferido: o novo entra liberado, o antigo não acha nada.
+    - **Ivan:** o e-mail que o suporte mandou como "cadastrado" não existe. O cadastro real é a compra de 30/10 com
+      outro e-mail, do Outlook; é o único com esse sobrenome. Trocado para o Gmail novo (`trocado`, origem `compra`); as
+      iniciais do novo batem com o nome. Conferido: o novo entra liberado, o antigo não acha nada.
+    - **Alex → Marcos: NÃO TROCADO.** O cadastro está no nome de Alex e o e-mail novo é de um Marcos. Trocar entregaria a
+      conta a outra pessoa. Pedido ao suporte: print da compra (nome e e-mail) ou confirmação de que é a mesma pessoa.
+    - **Walber ("não recebe o código", Gmail):** na base, liberado. Entra na consulta de `auth_events` (com o Rafael, o
+      Rubens e o João Paulo). O CPF do pedido não foi usado nem registrado.
