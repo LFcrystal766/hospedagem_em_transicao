@@ -2119,3 +2119,17 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       imagens.
     - **Lição:** antes de montar uma versão para publicar, conferir a tag NO AR pelo `app-status` (perguntar ao dono)
       e partir dela. Não confiar só no CLAUDE.md, porque outra sessão pode ter publicado.
+    - **Portão da `painel/dores-login` (`2172ea9`): verde** no rápido e no e2e do login (otp + login-email, nos dois
+      modos). Branch enviada; CI e imagens disparados.
+    - **Achado: o CI da própria `1db2e16` (Dores) estava VERMELHO desde 05/11** (run 42073318016, job e2e, 4 falhas).
+      As três causas vêm da própria Dores, não do login:
+      1. a folha "Mais" do admin ganhou "Análise": o teste não esperava;
+      2. a ficha ganhou o bloco "Dores" antes de "Conta": o teste não esperava;
+      3. **defeito real de acessibilidade:** no filtro "Dor" da lista de clientes, as caixas ficam numa linha de 20 px,
+         abaixo dos 44 px de toque (auditoria móvel, admin, 360–412 px).
+    - Corrigido na `painel/dores-login`:
+      - os dois testes passam a esperar a Análise e a Dores;
+      - o `FiltrosSheet` usa `label` com `min-h-11 items-center` e caixa `h-5 w-5`, o padrão do painel.
+      - Portão do `equipe.spec` + `mobile-audit.spec` rodando.
+    - A sessão da Dores (`session_01Hj4P78CKMixHXknoryoVpW`) pode continuar mexendo na `painel/dores-fase-2`. A base
+      para publicar passa a ser a `painel/dores-login`.
