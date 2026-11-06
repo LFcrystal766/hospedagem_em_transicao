@@ -2097,3 +2097,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - o e2e completo ainda roda (começou 14:41);
       - o run do `60a2487` foi cancelado (substituído).
       - Nova conferência agendada para 15:42 UTC.
+    - **06/11 15:25 UTC: CI do `d8f6dfc` TODO VERDE** (run 42235950388: gate, audit, e2e completo e e2e do login só com
+      e-mail). As imagens `sha-d8f6dfc` já estavam prontas (run 42235961835).
+      - **Pronto para o dono publicar** pelo `crystal-em-casa/publicar-login-codigo.md`: backup,
+        `REF=97b5ad2… app-subir sha-d8f6dfc`, o passo da memória (4b), `crystal-conferir` e o teste no iPhone com
+        Hotmail.
+      - Volta: `sha-20da7ee` e o 4b.
