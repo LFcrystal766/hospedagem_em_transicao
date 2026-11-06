@@ -44,7 +44,8 @@ Vale também para o login da equipe (o código do painel passa a valer 15 minuto
 
 ## Antes (técnica)
 
-- CI do `cd2705a` verde: conferir antes de subir.
+- **CI do `cd2705a` inteiro verde** em 06/11 19:20 UTC (run 42262560775): gate, audit, e2e completo (Chromium e
+  WebKit, 352 passaram) e e2e do login só com e-mail.
 - Imagens **`sha-cd2705a`** (API, web e Crystal) geradas pelo `imagens-vps`.
 - Portão local da `painel/dores-login`:
   - rápido verde;

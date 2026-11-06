@@ -2144,3 +2144,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         rodar de novo só os jobs que falharam (o único re-run permitido: morreu na instalação).
     - **06/11 18:30 UTC:** no re-run (tentativa 2) o "Install Playwright browsers" passou em 46 s e os testes do e2e
       completo começaram. Conferência marcada para ~19:00 UTC.
+    - **06/11 19:20 UTC: CI do `cd2705a` INTEIRO VERDE** (run 42262560775, tentativa 2).
+      - e2e completo (Chromium e WebKit): 352 passaram, 7 pulados, nenhum instável, 50 min;
+      - gate, audit, e2e (login só com e-mail) e imagens `sha-cd2705a` já estavam verdes.
+      - **Liberado para o dono publicar a `sha-cd2705a`** pelo `crystal-em-casa/publicar-login-codigo.md` (backup,
+        `app-subir` com o `REF`, passo da memória, `app-status`, `crystal-conferir`, teste no iPhone com Hotmail).
+        Volta: `sha-1db2e16` + passo da memória.
+      - Falta ainda o dono confirmar se voltou para a `sha-1db2e16` (pedido de ~17:00 UTC). Se não voltou, pode ir
+        direto da `sha-d8f6dfc` para a `sha-cd2705a`: ela traz a Dores de volta.
