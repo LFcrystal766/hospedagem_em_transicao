@@ -2138,3 +2138,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Push feito; CI e `imagens-vps` disparados.
       - Roteiro `publicar-login-codigo.md` e CLAUDE.md passam para **`sha-cd2705a`**, com volta `sha-1db2e16`.
       - O e2e de WebKit (`mobile-audit` no Safari) só roda no CI: o ajuste é o mesmo CSS.
+    - **06/11 18:24 UTC, CI do `cd2705a` (run 42262560775):**
+      - verdes: gate, audit, e2e (login só com e-mail) e as imagens `sha-cd2705a` (run 42262565117);
+      - **o job e2e completo travou 50 min em "Install Playwright browsers"**, antes de qualquer teste. Cancelado;
+        rodar de novo só os jobs que falharam (o único re-run permitido: morreu na instalação).
