@@ -90,6 +90,13 @@ if [ "$MODO" = e2e ] || [ "$MODO" = completo ]; then
   else
     etapa "e2e-completo" pnpm exec playwright test --reporter=line
   fi
+  # 06/11/2026: o CI também roda o login só com e-mail (playwright.email.config.ts, job "e2e (login só com e-mail)").
+  # Sem esta etapa o portão ficava verde e o CI vermelho. Nas specs dadas, roda quando uma delas é a login-email.
+  if [ -f playwright.email.config.ts ]; then
+    if [ "${#SPECS[@]}" -eq 0 ] || printf '%s\n' "${SPECS[@]}" | grep -q 'login-email'; then
+      etapa "e2e-email" pnpm exec playwright test -c playwright.email.config.ts --reporter=line
+    fi
+  fi
 fi
 
 if [ "$MODO" = ci ]; then
@@ -102,6 +109,8 @@ if [ "$MODO" = ci ]; then
   if grep -qE '^\s+[0-9]+ flaky' ".gate/e2e-ci.log"; then
     echo "FALHOU e2e-ci-flaky (teste instável conta como defeito; veja .gate/e2e-ci.log)"; FALHAS+=("e2e-ci-flaky")
   fi
+  # O job "e2e (login só com e-mail)" do CI (06/11/2026).
+  [ -f playwright.email.config.ts ] && etapa "e2e-email" pnpm exec playwright test -c playwright.email.config.ts --reporter=line
 fi
 
 if [ "${#FALHAS[@]}" -eq 0 ]; then echo "PORTÃO VERDE ($MODO)"; exit 0; fi

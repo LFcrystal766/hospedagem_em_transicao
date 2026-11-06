@@ -2080,3 +2080,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Ordem: backup, `REF=97b5ad2… app-subir sha-60a2487`, o passo da memória (4b), `crystal-conferir`, teste no
         iPhone com uma conta Hotmail.
       - Volta: `sha-20da7ee` e o 4b. Sem SQL.
+    - **06/11 ~14:40 UTC: o CI do `60a2487` FALHOU no job "e2e (login só com e-mail)"**
+      (`playwright.email.config.ts`). Dois testes contavam com o código de 5 min:
+      - (c) adiantava o relógio 3 min e esperava o aviso do último minuto;
+      - (d) esperava "Ele ainda vale por 4:58", e agora aparece "14:58".
+      - As outras partes passaram: o portão do CI (tipos, lint, 4 suítes, build, Safari) e o audit. O e2e completo
+        ainda rodava.
+      - Corrigido no **`d8f6dfc`**, só nos testes: (c) conta pelo `expires_in_s`, como o `otp.spec` já fazia; (d) aceita
+        minutos com dois dígitos. Local: 10 de 10 nessa configuração.
+      - O `gate.sh` não rodava essa configuração; agora tem a etapa `e2e-email` no `e2e` (quando a spec é a
+        login-email), no `completo` e no `ci`. Era por isso que o portão ficou verde e o CI vermelho.
+      - Novo CI e novo `imagens-vps` disparados no `d8f6dfc`.
+      - Roteiro e CLAUDE.md passam a dizer **`sha-d8f6dfc`**. O `sha-60a2487` não deve ser publicado.

@@ -3,8 +3,8 @@
 Escrito em 06/11/2026, a pedido do dono ("pode fazer o pacote 1"). Quem roda é o Luiz, na VPS, como root.
 Claude não publica nada.
 
-Branch `painel/login-codigo` do app, em **`60a2487`**. Ela é a versão que está no ar (`sha-20da7ee`, branch
-`painel/motor2`) mais um commit só de login.
+Branch `painel/login-codigo` do app, em **`d8f6dfc`**. Ela é a versão que está no ar (`sha-20da7ee`, branch
+`painel/motor2`) mais dois commits só de login (o código e o ajuste de dois testes de ponta a ponta).
 
 ## O que muda para os clientes
 
@@ -36,11 +36,13 @@ Vale também para o login da equipe (o código do painel passa a valer 15 minuto
 
 ## Antes (técnica)
 
-- CI do `60a2487` verde.
-- Imagens **`sha-60a2487`** (API, web e Crystal) geradas pelo `imagens-vps`.
+- CI do `d8f6dfc` verde. O do `60a2487` pegou dois testes de ponta a ponta do "login só com e-mail" que ainda
+  contavam com 5 minutos. Foram ajustados no `d8f6dfc`, sem mudar o app. O portão local agora roda essa
+  configuração também (`gate.sh`, etapa `e2e-email`).
+- Imagens **`sha-d8f6dfc`** (API, web e Crystal) geradas pelo `imagens-vps`.
 - Portão local:
   - rápido verde (tipos, lint, testes da API e do web);
-  - e2e `otp` e `login-email` verdes;
+  - e2e `otp` e `login-email` verdes, inclusive no modo "login só com e-mail" (10 de 10);
   - 6 testes novos no reenvio, 5 deles falham no código antigo.
 
 ## Subir (no terminal da VPS, um por vez)
@@ -51,7 +53,7 @@ Horário de pouco movimento. O app fica alguns segundos sem responder enquanto t
 cd /root
 bash bootstrap-vps.sh app-status
 bash bootstrap-vps.sh backup
-REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-60a2487
+REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-d8f6dfc
 ```
 
 **Logo em seguida, a folga de memória.** É o mesmo passo 4b de `publicar-tudo-motor2.md`, e é obrigatório depois de
@@ -69,7 +71,7 @@ bash bootstrap-vps.sh app-status
 bash bootstrap-vps.sh crystal-conferir
 ```
 
-Tem de aparecer os três serviços em `sha-60a2487`. Os "!" do `crystal-conferir` no `/healthz` são o alarme falso já
+Tem de aparecer os três serviços em `sha-d8f6dfc`. Os "!" do `crystal-conferir` no `/healthz` são o alarme falso já
 conhecido.
 
 ## Conferir (5 minutos, no iPhone)
