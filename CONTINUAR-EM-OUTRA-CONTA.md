@@ -2092,3 +2092,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         login-email), no `completo` e no `ci`. Era por isso que o portão ficou verde e o CI vermelho.
       - Novo CI e novo `imagens-vps` disparados no `d8f6dfc`.
       - Roteiro e CLAUDE.md passam a dizer **`sha-d8f6dfc`**. O `sha-60a2487` não deve ser publicado.
+    - **06/11 15:17 UTC, situação do `d8f6dfc`:**
+      - verdes: CI gate, audit, e2e (login só com e-mail) e as imagens `sha-d8f6dfc` (API, web, Crystal);
+      - o e2e completo ainda roda (começou 14:41);
+      - o run do `60a2487` foi cancelado (substituído).
+      - Nova conferência agendada para 15:42 UTC.
