@@ -3,8 +3,16 @@
 Escrito em 06/11/2026, a pedido do dono ("pode fazer o pacote 1"). Quem roda é o Luiz, na VPS, como root.
 Claude não publica nada.
 
-Branch `painel/login-codigo` do app, em **`d8f6dfc`**. Ela é a versão que está no ar (`sha-20da7ee`, branch
-`painel/motor2`) mais dois commits só de login (o código e o ajuste de dois testes de ponta a ponta).
+**Atualizado em 06/11 ~17:30 UTC.**
+
+- A versão a publicar é a **`sha-cd2705a`**, da branch **`painel/dores-login`** do app.
+- Ela parte da versão que estava de fato no ar, a **`sha-1db2e16`** (a "Dores", branch `painel/dores-fase-2`).
+- Por cima, vêm três commits:
+  - o login (`7460351`);
+  - o ajuste de dois testes do login (`2172ea9`);
+  - a correção do CI vermelho da própria Dores (`cd2705a`): o filtro "Dor" com alvo de 44 px e dois testes da equipe.
+- A `sha-d8f6dfc` (login sobre a `20da7ee`) **não deve subir**: ela tira a Dores do ar. Aconteceu às ~16:50 UTC de
+  06/11.
 
 ## O que muda para os clientes
 
@@ -29,17 +37,19 @@ Vale também para o login da equipe (o código do painel passa a valer 15 minuto
 - **Sem variável nova.** O padrão de `OTP_TTL_S` passou a ser 900 no código.
   - Se o dono rodou antes o `docker service update --env-add OTP_TTL_S=900`, o `app-subir` tira essa variável.
   - Não faz diferença: o padrão novo já é 900.
-- **Volta:** `REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-20da7ee` e, de novo, o
+- **Volta:** `REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-1db2e16` e, de novo, o
   passo da memória (abaixo).
   - Sem volta de banco.
   - Um código pedido na versão nova continua entrando na antiga: o campo novo é só ignorado.
 
 ## Antes (técnica)
 
-- CI do `d8f6dfc` verde. O do `60a2487` pegou dois testes de ponta a ponta do "login só com e-mail" que ainda
-  contavam com 5 minutos. Foram ajustados no `d8f6dfc`, sem mudar o app. O portão local agora roda essa
-  configuração também (`gate.sh`, etapa `e2e-email`).
-- Imagens **`sha-d8f6dfc`** (API, web e Crystal) geradas pelo `imagens-vps`.
+- CI do `cd2705a` verde: conferir antes de subir.
+- Imagens **`sha-cd2705a`** (API, web e Crystal) geradas pelo `imagens-vps`.
+- Portão local da `painel/dores-login`:
+  - rápido verde;
+  - e2e do login (`otp` e `login-email`, nos dois modos) verde;
+  - `equipe.spec` e `mobile-audit.spec` com 47 de 47.
 - Portão local:
   - rápido verde (tipos, lint, testes da API e do web);
   - e2e `otp` e `login-email` verdes, inclusive no modo "login só com e-mail" (10 de 10);
@@ -53,7 +63,7 @@ Horário de pouco movimento. O app fica alguns segundos sem responder enquanto t
 cd /root
 bash bootstrap-vps.sh app-status
 bash bootstrap-vps.sh backup
-REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-d8f6dfc
+REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-cd2705a
 ```
 
 **Logo em seguida, a folga de memória.** É o mesmo passo 4b de `publicar-tudo-motor2.md`, e é obrigatório depois de
@@ -71,7 +81,7 @@ bash bootstrap-vps.sh app-status
 bash bootstrap-vps.sh crystal-conferir
 ```
 
-Tem de aparecer os três serviços em `sha-d8f6dfc`. Os "!" do `crystal-conferir` no `/healthz` são o alarme falso já
+Tem de aparecer os três serviços em `sha-cd2705a`. Os "!" do `crystal-conferir` no `/healthz` são o alarme falso já
 conhecido.
 
 ## Conferir (5 minutos, no iPhone)

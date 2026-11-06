@@ -2133,3 +2133,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Portão do `equipe.spec` + `mobile-audit.spec` rodando.
     - A sessão da Dores (`session_01Hj4P78CKMixHXknoryoVpW`) pode continuar mexendo na `painel/dores-fase-2`. A base
       para publicar passa a ser a `painel/dores-login`.
+    - **06/11 ~17:30 UTC: `cd2705a` na `painel/dores-login`** (filtro "Dor" com 44 px + testes da equipe com Análise e
+      Dores). Portão rápido verde; `equipe.spec` + `mobile-audit.spec` 47 de 47; o e2e do login já estava verde.
+      - Push feito; CI e `imagens-vps` disparados.
+      - Roteiro `publicar-login-codigo.md` e CLAUDE.md passam para **`sha-cd2705a`**, com volta `sha-1db2e16`.
+      - O e2e de WebKit (`mobile-audit` no Safari) só roda no CI: o ajuste é o mesmo CSS.
