@@ -2152,3 +2152,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         Volta: `sha-1db2e16` + passo da memória.
       - Falta ainda o dono confirmar se voltou para a `sha-1db2e16` (pedido de ~17:00 UTC). Se não voltou, pode ir
         direto da `sha-d8f6dfc` para a `sha-cd2705a`: ela traz a Dores de volta.
+105. **06/11, suporte, 2 pedidos de troca de e-mail:**
+    - **Juninho (Wilson):** a base tinha o Hotmail com "10"; trocado para o Hotmail com "30" (`app_aluno_trocar_email`,
+      `trocado`, origem `base`). Conferido: o novo entra liberado, o antigo não acha nada.
+    - **Gervazio: nada a trocar.** O Gmail novo é o da compra original (Assiny, junho), e já entra liberado. O Outlook é
+      uma liberação manual de 31/10 (`manual-2…`), que segue ativa. Os dois e-mails entram, mas são duas contas
+      separadas no app: o histórico das conversas feitas pelo Outlook não aparece no Gmail.
