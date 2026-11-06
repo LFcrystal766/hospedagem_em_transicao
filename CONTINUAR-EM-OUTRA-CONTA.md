@@ -2142,3 +2142,5 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - verdes: gate, audit, e2e (login só com e-mail) e as imagens `sha-cd2705a` (run 42262565117);
       - **o job e2e completo travou 50 min em "Install Playwright browsers"**, antes de qualquer teste. Cancelado;
         rodar de novo só os jobs que falharam (o único re-run permitido: morreu na instalação).
+    - **06/11 18:30 UTC:** no re-run (tentativa 2) o "Install Playwright browsers" passou em 46 s e os testes do e2e
+      completo começaram. Conferência marcada para ~19:00 UTC.
