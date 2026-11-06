@@ -2103,3 +2103,19 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
         `REF=97b5ad2… app-subir sha-d8f6dfc`, o passo da memória (4b), `crystal-conferir` e o teste no iPhone com
         Hotmail.
       - Volta: `sha-20da7ee` e o 4b.
+104. **06/11 ~16:50 UTC: o dono subiu a `sha-d8f6dfc`, e ela DESFEZ a "Dores" que estava no ar.** Falha minha.
+    - O `app-status` de antes mostrou **`sha-1db2e16`** no ar, não a `sha-20da7ee` que este CONTINUAR e o CLAUDE.md
+      diziam.
+    - A `1db2e16` é a branch `painel/dores-fase-2` do app: a `20da7ee` mais 84 commits de outra sessão, de 05/11.
+      - A Análise com as leituras da IA a cada 6 horas.
+      - O disparo de avisos por dor, com janela de conflito de 24 horas.
+      - Migrações `wad1_01_aluno_dores`, `wad2_01_analise_leituras` e `wad3_01_disparo_por_dor`.
+    - O login (`painel/login-codigo`) foi feito sobre a `20da7ee`. Ao subir, o código da Dores saiu. O banco ficou com
+      as colunas novas, por isso o app subiu normal.
+    - **Risco:** um aviso agendado "por dor" ser tratado pela versão antiga, que não conhece o filtro.
+    - **Pedido ao dono:** voltar já para `sha-1db2e16`, com o 4b.
+    - **Correção:** branch `painel/dores-login` = `1db2e16` + os dois commits do login, que entraram sem conflito:
+      `7460351`, e no topo **`2172ea9`**. Worktree em `/home/user/cw-dores-login`. Portão rodando; depois, CI e
+      imagens.
+    - **Lição:** antes de montar uma versão para publicar, conferir a tag NO AR pelo `app-status` (perguntar ao dono)
+      e partir dela. Não confiar só no CLAUDE.md, porque outra sessão pode ter publicado.
