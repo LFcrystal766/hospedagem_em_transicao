@@ -2062,3 +2062,21 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Face ID (passkey) depois do primeiro acesso.
     - **Medição por domínio:** `auth_events` `otp_sent` → `login_ok` em 30 min, juntando com o domínio de
       `users.email`. A consulta foi passada ao dono.
+103. **06/11: Pacote 1 do login FEITO** (o dono: "pode fazer o pacote 1"; o botão do suporte, opcional, ficou de fora).
+    - App: branch `painel/login-codigo` em **`60a2487`**, sobre a `20da7ee` que está no ar. Worktree em
+      `/home/user/cw-login`.
+    - **O que muda:**
+      - o reenvio manda o MESMO código (`codeEnc` cifrado com ENCRYPTION_KEY no desafio; só é reaproveitado se bater
+        com o `codeHash`; desafio antigo sem o cifrado gera outro);
+      - as tentativas não zeram com o mesmo código;
+      - o assunto passa a ser "123456 é o seu código de acesso à Crystal";
+      - `OTP_TTL_S` padrão 900;
+      - textos da tela: aviso do Hotmail, "Reenviado! É o mesmo código…", "Não chegou?" com o assunto novo.
+      - Também: o teste do aviso de evento aceita hora cheia ("11h"); antes falhava conforme o relógio.
+    - **Verificação:** portão rápido verde; e2e `otp` e `login-email` verdes; 6 testes novos, 5 falham no código antigo
+      (provado), e o da conferência do hash falha sem ela.
+    - CI e `imagens-vps` disparados em 06/11 ~14:09 UTC.
+    - Roteiro: `crystal-em-casa/publicar-login-codigo.md`.
+      - Ordem: backup, `REF=97b5ad2… app-subir sha-60a2487`, o passo da memória (4b), `crystal-conferir`, teste no
+        iPhone com uma conta Hotmail.
+      - Volta: `sha-20da7ee` e o 4b. Sem SQL.
