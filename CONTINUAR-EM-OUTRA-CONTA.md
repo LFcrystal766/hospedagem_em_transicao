@@ -2158,3 +2158,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - **Gervazio: nada a trocar.** O Gmail novo é o da compra original (Assiny, junho), e já entra liberado. O Outlook é
       uma liberação manual de 31/10 (`manual-2…`), que segue ativa. Os dois e-mails entram, mas são duas contas
       separadas no app: o histórico das conversas feitas pelo Outlook não aparece no Gmail.
+106. **07/11: o dono perguntou como ver se houve compra de pacote extra de imagens.**
+    - **Onde olhar:**
+      - **Supabase**, tabela `crystal_compras_eventos`: todo evento da Assiny fica ali. O pacote aparece com
+        `acao = 'ignorado_produto'`, porque não libera o app.
+      - **Banco do app, na VPS:** `imagem_extra_lancamentos` (`origem` = `compra`, `manual` ou `consumo`, e estorno),
+        `imagem_creditos_pendentes` (comprou sem ter conta no app) e `system_settings` (`op_imagens_pacotes`).
+    - **Achado no Supabase:** 2 compras aprovadas do "Pacote de Imagens Crystal - 30img" (produto
+      `7171e0cf-9d55-4d69-9a43-a25b2773e6a7`).
+      - 22/10 às 20:45, transação `c17ce7b2…`;
+      - 31/10 às 19:26, transação `60256222…`;
+      - nenhum reembolso.
+    - **Falta conferir no banco do app** se as duas viraram crédito. Comando passado ao dono, só leitura e sem e-mail.
