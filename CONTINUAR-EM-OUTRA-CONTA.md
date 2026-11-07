@@ -2170,3 +2170,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - 31/10 às 19:26, transação `60256222…`;
       - nenhum reembolso.
     - **Falta conferir no banco do app** se as duas viraram crédito. Comando passado ao dono, só leitura e sem e-mail.
+107. **07/11: o dono perguntou se o Motor 2.0 está ok.** No código, sim: a `sha-cd2705a` contém a `20da7ee` inteira.
+    - O que a Dores mudou no motor da Crystal foi só acréscimo:
+      - a leitura de dores (tipo de uso `dores`);
+      - o Laboratório com print;
+      - o `idDoContato` movido para `contato.ts`.
+    - A triagem, as regras, os exemplos, o perfil e a trava de vazamento ficaram iguais, e os testes da Crystal passaram
+      no CI do `cd2705a`.
+    - Continua só para os admins marcados, com a promoção travada.
+    - Ainda pendentes:
+      - M10/M11;
+      - a correção da memória (#57), por isso o passo da memória continua obrigatório depois de todo `app-subir`.
+    - Como ele roda na produção: não dá para ver daqui. Pedir o `crystal-conferir` depois da subida.
