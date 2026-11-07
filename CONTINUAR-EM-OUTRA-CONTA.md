@@ -2198,3 +2198,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Sem eles, o portão fica incompleto e tornar o 2.0 padrão é recusado (`MOTOR2_PORTAO_INCOMPLETO`), além da trava
         `MOTOR2_PROMOCAO_LIBERADA`.
       - Para o 2.0 chegar a todos os clientes, é preciso o M10/M11 ou mudar o portão.
+109. **07/11: o dono perguntou o que é o Motor 2.0 e como ele está funcionando.**
+    - Explicado em linguagem simples, a partir do PRD `docs/motor2/PRD-motor-2.0-crystal.md`:
+      - triagem sem IA em 4 níveis;
+      - as 27 regras inteiras, com cache;
+      - os 168 diálogos-modelo só em tática e print;
+      - perfil único no lugar de 3 memórias;
+      - a alma sem mudança.
+    - **Funcionamento real: não dá para ver daqui.** Passada ao dono a consulta (só leitura) de `uso_turnos` desde
+      03/11 14:30 UTC, por motor e nível, com turnos, contas, custo médio, tempo médio, erros, respostas cortadas e %
+      de cache.
+    - Esperando o resultado.
