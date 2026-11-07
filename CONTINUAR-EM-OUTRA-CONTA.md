@@ -2182,3 +2182,19 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - M10/M11;
       - a correção da memória (#57), por isso o passo da memória continua obrigatório depois de todo `app-subir`.
     - Como ele roda na produção: não dá para ver daqui. Pedir o `crystal-conferir` depois da subida.
+108. **07/11: o dono perguntou por que o M10 e o M11 não foram feitos.**
+    - **M10:** um avaliador automático lê, todo dia, as conversas dos clientes e manda cada resposta para outro modelo,
+      que marca 6 defeitos com sim ou não.
+      - É um uso novo do dado do cliente (LGPD).
+      - O próprio PRD exige, antes do código, a autorização do dono como encarregado de dados, o texto de privacidade
+        atualizado e o parecer do agente `seguranca`.
+      - A autorização nunca veio.
+    - **M11:** é a tela desses números, mais o filtro por motor na amostra 👍/👎. Depende do M10.
+    - **31/10:** o limite semanal de uso estava em aviso. Recomendei pausar esse trilho, que só serve depois de 7 dias de
+      teste dos admins. A sessão filha (`session_01Hj4P7977bQPtndrcJR9kog`) ficou esperando a frase do dono, que não
+      veio.
+    - **Consequência:** o portão de promoção (M13) lê os critérios do M10 e as avaliações por motor do M11
+      (`lerCriterios` e `lerHumanas` em `motor-dois.ts`).
+      - Sem eles, o portão fica incompleto e tornar o 2.0 padrão é recusado (`MOTOR2_PORTAO_INCOMPLETO`), além da trava
+        `MOTOR2_PROMOCAO_LIBERADA`.
+      - Para o 2.0 chegar a todos os clientes, é preciso o M10/M11 ou mudar o portão.
