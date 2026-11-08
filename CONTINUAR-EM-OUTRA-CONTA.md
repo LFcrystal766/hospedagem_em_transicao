@@ -2223,3 +2223,16 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - Passada a consulta (só leitura): contas admin e as marcadas, com as respostas do 2.0 desde 03/11 e a última delas.
     - Também dá para ver no painel: lista "Contas no Motor 2.0".
     - Esperando o resultado.
+112. **08/11: o dono perguntou que produtos fazer para o público que mais usa a Crystal.**
+    - Respondido com a Mira de Produtos de 04/11, sem levantar de novo:
+      - 4 produtos para testar primeiro: Sem Carência, Instagram Magnético, Recomeço 35+ e Depois Dela;
+      - 3 na reserva;
+      - teste por pré-venda de 7 dias.
+    - **Correção do item 106 (pacote de imagens):** as "2 compras" do Supabase contam só desde 10/10.
+      - `crystal_compras_eventos` começa em 10/10, quando o n8n passou a ser nosso.
+      - Pelos dados de venda do Raio-X (abril até 12/10): 426 compradores do pacote de 30 imagens a R$ 29,90, cerca de
+        4% da base, uns R$ 18 mil e 22% de recompra; o pico foi na semana de 13/07, com 102.
+      - **Desde 10/10:** 2 pacotes em 774 compras aprovadas (0,26%), uma queda forte.
+      - Suspeita: o link de compra do pacote (`imagens_checkout_link`) vazio no painel. Nesse caso a mensagem do limite
+        manda falar com o suporte e não oferece o pacote.
+      - A consulta do item 106 mostra esse valor.
