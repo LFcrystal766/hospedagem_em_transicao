@@ -2218,3 +2218,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     - O dono também pediu os artefatos. Abertos e passados os links:
       - Raio-X: https://claude.ai/artifact/RtXtwtKQ5zvYizrL2Y6mNC
       - Mira de Produtos: https://claude.ai/artifact/1R4Qa4GtHWXbJxskdCJG41
+111. **08/11: o dono perguntou quem está na lista de teste do Motor 2.0.**
+    - Não dá para ver daqui: fica em `users.crystal_motor`, no banco do app.
+    - Passada a consulta (só leitura): contas admin e as marcadas, com as respostas do 2.0 desde 03/11 e a última delas.
+    - Também dá para ver no painel: lista "Contas no Motor 2.0".
+    - Esperando o resultado.
