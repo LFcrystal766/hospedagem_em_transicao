@@ -2236,3 +2236,20 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       - Suspeita: o link de compra do pacote (`imagens_checkout_link`) vazio no painel. Nesse caso a mensagem do limite
         manda falar com o suporte e não oferece o pacote.
       - A consulta do item 106 mostra esse valor.
+113. **08/11: o dono pediu mais produtos, escritos no chat.** Feito só com os dados do Raio-X e das fontes de 04/11,
+     sem consulta nova.
+     - 12 ideias além dos 4 da Mira:
+       1. Crystal Pro;
+       2. Do Chat ao Encontro;
+       3. Clube Crystal;
+       4. Caso Analisado;
+       5. Primeiro Passo (tímidos);
+       6. Vida Real (academia e presencial);
+       7. Conversa que Não Morre;
+       8. Não Caia em Golpe;
+       9. Fotos que Atraem;
+       10. Pai Solteiro;
+       11. Cuidar da Cabeça (indicação de terapia);
+       12. Crystal Vitalícia na renovação de fevereiro de 2027.
+     - Recomendados primeiro: Crystal Pro, Do Chat ao Encontro e Clube Crystal.
+     - Nada decidido; a Letícia aprova nomes e promessas.
