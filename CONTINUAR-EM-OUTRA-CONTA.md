@@ -2253,3 +2253,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        12. Crystal Vitalícia na renovação de fevereiro de 2027.
      - Recomendados primeiro: Crystal Pro, Do Chat ao Encontro e Clube Crystal.
      - Nada decidido; a Letícia aprova nomes e promessas.
+114. **08/11: o dono quer mandar um vídeo para todos os clientes do app.**
+     - O app não toca vídeo dentro da conversa: não há player, e a mensagem tem só texto e um botão com link `https://`.
+     - **Caminho:**
+       1. Subir o vídeo no YouTube como "Não listado" (ou no Vimeo).
+       2. No painel, Mensagens › Nova mensagem › "Mensagem da Crystal": título, texto, botão "Assistir ao vídeo" com
+          o link, público "Todas as clientes ativas".
+       3. "Enviar teste para mim" (obrigatório) e depois "Agora" ou "Em data e hora".
+     - Dica: descrever o vídeo no texto e marcar "A Crystal lembra desta mensagem". Ela não vê o vídeo; só sabe do
+       assunto pelo texto.
+     - **Achado de texto:** o painel diz "Todas as clientes ativas", "Clientes escolhidas" e "a cliente" no feminino. O
+       público é masculino; vem do U59, que trocou "aluna" por "cliente" mantendo o feminino. Oferecido corrigir.
