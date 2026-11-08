@@ -2275,3 +2275,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - Silêncio provável das 22h às 8h (o formulário mostra o horário certo): enviar antes das 22h.
      - **Oferecido para a próxima versão:** vídeo tocando dentro da bolha da Crystal (embed do `youtube-nocookie.com`),
        se o dono pedir.
+116. **08/11 ~20:00 BRT: o dono mandou o link do vídeo no Google Drive** (arquivo `1D9-OBpmaL1F5b-nNFpsG5nsEhyV4ImsS`).
+     - Conferido pelo conector do Drive:
+       - MP4 de 4,5 MB, da conta da Crystal no Drive;
+       - "qualquer pessoa com o link" pode ver: abre para os clientes sem pedir acesso.
+     - Passado para usar no botão da mensagem.
+     - Ressalva: o Drive pode limitar quando muita gente abre ao mesmo tempo. Se aparecer "muitas pessoas
+       visualizaram", trocar o link pelo YouTube "Não listado".
+     - O conteúdo do vídeo não foi visto (o conector dá só os dados do arquivo).
