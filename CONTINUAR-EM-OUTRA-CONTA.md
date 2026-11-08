@@ -2264,3 +2264,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        assunto pelo texto.
      - **Achado de texto:** o painel diz "Todas as clientes ativas", "Clientes escolhidas" e "a cliente" no feminino. O
        público é masculino; vem do U59, que trocou "aluna" por "cliente" mantendo o feminino. Oferecido corrigir.
+115. **08/11 19:54 BRT: o dono perguntou se a Crystal pode mandar o vídeo dentro da conversa até as 21h.**
+     - **Hoje, não.** Seria preciso:
+       - um player na bolha da Crystal;
+       - liberar o YouTube na política de segurança do web (CSP);
+       - testes, CI (o e2e leva cerca de 50 min), imagens e a subida pelo dono.
+     - Não cabe com segurança em 1 hora, e a `sha-cd2705a` ainda não subiu.
+     - **Para hoje:** mensagem da Crystal com o botão "Assistir ao vídeo" (item 114). Funciona já: no iPhone abre no
+       app do YouTube ou no Safari.
+     - Silêncio provável das 22h às 8h (o formulário mostra o horário certo): enviar antes das 22h.
+     - **Oferecido para a próxima versão:** vídeo tocando dentro da bolha da Crystal (embed do `youtube-nocookie.com`),
+       se o dono pedir.
