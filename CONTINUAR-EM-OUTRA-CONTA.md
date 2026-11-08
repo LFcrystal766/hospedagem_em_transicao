@@ -2209,3 +2209,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
       03/11 14:30 UTC, por motor e nível, com turnos, contas, custo médio, tempo médio, erros, respostas cortadas e %
       de cache.
     - Esperando o resultado.
+110. **08/11: "está só para os superadmins?" Resposta: só para as contas de admin MARCADAS.**
+    - Regra A01 (`contaNoMotorDois`: papel `admin` + `users.crystal_motor = '2.0'`).
+    - Superadmin é um admin com o e-mail em `SUPERADMIN_EMAILS`: só entra se for marcado. Um admin comum marcado também
+      entra.
+    - Cliente, suporte e técnico ficam no atual, mesmo marcados no banco. O WhatsApp fica sempre no atual.
+    - Quem marca: um admin, na lista "Contas no Motor 2.0" (`PUT /staff/users/:id/motor`).
+    - O dono também pediu os artefatos. Abertos e passados os links:
+      - Raio-X: https://claude.ai/artifact/RtXtwtKQ5zvYizrL2Y6mNC
+      - Mira de Produtos: https://claude.ai/artifact/1R4Qa4GtHWXbJxskdCJG41
