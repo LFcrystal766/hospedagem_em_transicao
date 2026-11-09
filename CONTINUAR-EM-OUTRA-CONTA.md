@@ -2332,7 +2332,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - o aviso e os números ficam.
      - **Testes:** 67 da API e 20 do web passaram nos arquivos tocados. Quebrar à mão a bolha, a rota, o reenvio ou a
        proteção da cópia faz um teste falhar.
-     - Portão `rapido` rodando (porta 3260). Depois: e2e do vídeo e do login, push, CI, imagens.
+     - Portão `rapido`:
+       - verde em tipos, lint e nos testes de shared, API e Crystal;
+       - 1 teste do web esperava a ajuda antiga do campo de vídeo, corrigido em `e3e75c58`; o web inteiro passou
+         (2.350 testes).
+     - **Push de `painel/video-login` em `e3e75c58` (09/11 ~17:00 BRT):** CI no run 42688668221 e imagens
+       **`sha-e3e75c5`** no run 42688677237.
+       - e2e local (porta 3280) rodando: vídeo, otp, login-email, equipe, imagens e imagens-painel.
+       - Conferência marcada para 20:55 UTC.
      - **Roteiro:** `crystal-em-casa/publicar-video-login.md` (a tag entra depois das imagens).
        - Duas migrações aditivas: `wim1_01_imagem_ofertas` e `wvd1_01_aviso_video`.
        - Nenhuma variável nova.
