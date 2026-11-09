@@ -2341,7 +2341,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - e2e local (porta 3280) VERDE: 58 de 58 (vídeo, otp, login-email, equipe, imagens e imagens-painel) e o e2e
          do login só com e-mail, 10 de 10.
        - **Imagens `sha-e3e75c5` prontas** (api, web e crystal; audit limpo).
-       - Falta o CI (e2e completo, Chromium e WebKit). Conferência marcada para 20:55 UTC.
+       - **09/11 20:53 UTC: CI do `e3e75c58` INTEIRO VERDE** (run 42688668221).
+         - gate, audit e e2e do login só com e-mail;
+         - e2e completo, Chromium e WebKit: 362 passaram e 7 pulados, nenhum instável, 51,8 min.
+       - **`sha-e3e75c5` liberada para o dono publicar** pelo `crystal-em-casa/publicar-video-login.md`: backup,
+         `app-subir` com o `REF`, passo da memória, `app-status`, `crystal-conferir` e conferência no iPhone.
+         - Volta: a tag do `app-status` de antes, mais o passo da memória, sem volta de banco.
      - **Roteiro:** `crystal-em-casa/publicar-video-login.md` (a tag entra depois das imagens).
        - Duas migrações aditivas: `wim1_01_imagem_ofertas` e `wvd1_01_aviso_video`.
        - Nenhuma variável nova.

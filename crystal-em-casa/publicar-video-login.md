@@ -4,7 +4,8 @@ Escrito em 09/11/2026. Quem roda é o Luiz, na VPS, como root. Claude não publi
 
 ## O que entra
 
-A branch **`painel/video-login`** do app junta tudo numa versão só:
+A versão a publicar é a **`sha-e3e75c5`** (branch **`painel/video-login`**, commit `e3e75c58`). Ela junta tudo numa
+versão só:
 
 | Parte | De onde vem | O que muda para os clientes e a equipe |
 |---|---|---|
@@ -44,9 +45,11 @@ A branch **`painel/video-login`** do app junta tudo numa versão só:
 
 ## Antes (técnica)
 
-- CI do commit verde, inclusive o e2e completo (Chromium e WebKit) e o e2e do login só com e-mail.
-- Imagens `sha-<commit>` (API, web e Crystal) geradas pelo `imagens-vps`.
-- Portão local da `painel/video-login`: ver CONTINUAR, item 119.
+- **CI do `e3e75c58` inteiro verde** (run 42688668221): gate, audit, e2e completo (Chromium e WebKit, 362 passaram,
+  nenhum instável) e e2e do login só com e-mail.
+- **Imagens `sha-e3e75c5` prontas** (run 42688677237: API, web e Crystal).
+- Portão local: rápido verde (2.350 testes do web, mais API, shared e Crystal); e2e de vídeo, login, equipe e imagens
+  com 58 de 58; login só com e-mail com 10 de 10.
 
 ## Subir (no terminal da VPS, um por vez)
 
@@ -56,7 +59,7 @@ Horário de pouco movimento. O app fica alguns segundos sem responder enquanto t
 cd /root
 bash bootstrap-vps.sh app-status          # anote a tag atual: é a volta
 bash bootstrap-vps.sh backup
-REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-XXXXXXX
+REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-e3e75c5
 docker service update --limit-cpu 1 --limit-memory 2560M --env-add NODE_OPTIONS=--max-old-space-size=2048 crystal_app_app_crystal
 docker service update --limit-memory 2048M --env-add NODE_OPTIONS=--max-old-space-size=1536 crystal_app_app_api
 bash bootstrap-vps.sh app-status
@@ -64,7 +67,7 @@ bash bootstrap-vps.sh crystal-conferir
 ```
 
 Os dois `docker service update` são o passo da memória, obrigatório depois de todo `app-subir`. Tem de aparecer os
-três serviços na tag nova. Os "!" do `crystal-conferir` no `/healthz` são o alarme falso já conhecido.
+três serviços em `sha-e3e75c5`. Os "!" do `crystal-conferir` no `/healthz` são o alarme falso já conhecido.
 
 ## Conferir (10 minutos, no iPhone)
 
