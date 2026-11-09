@@ -2302,3 +2302,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        (`cd2705a`); o e-mail ainda sai com "Seu código de acesso à Crystal" e o padrão do `OTP_TTL_S` é 300.
        - Publicar como está tira o Pacote 1 do login, como aconteceu com a Dores em 06/11.
        - Recomendado: juntar a `painel/dores-login` nela antes de publicar. Perguntado ao dono.
+118. **09/11: "quanto tempo ele armazena?" (o vídeo do disparo, na `painel/video-disparos`).**
+     - **O arquivo, na VPS:** para sempre. O vídeo fica enquanto o aviso existir; a retenção nunca apaga `notices` ("a
+       `notices` fica") e não há rota para apagar um aviso enviado (só modelos).
+       - Só o envio que nunca virou mensagem some: é órfão em 24 h e é apagado com 48 h.
+     - **A bolha na conversa do cliente:** segue a retenção das mensagens (`message_retention_days`, em Configurações ›
+       Retenção). Sem valor, nada é apagado. A entrega some junto.
+       - O vídeo é lido do aviso, não da mensagem, e por isso a retenção das mensagens não apaga o arquivo.
+     - Disco: até 50 MB por vídeo. Por exemplo, 1 vídeo de 20 MB por semana dá cerca de 1 GB por ano.
