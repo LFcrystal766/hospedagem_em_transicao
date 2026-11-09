@@ -2310,3 +2310,32 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        Retenção). Sem valor, nada é apagado. A entrega some junto.
        - O vídeo é lido do aviso, não da mensagem, e por isso a retenção das mensagens não apaga o arquivo.
      - Disco: até 50 MB por vídeo. Por exemplo, 1 vídeo de 20 MB por semana dá cerca de 1 GB por ano.
+119. **09/11 ~17:00 BRT: o dono pediu que o vídeo fique só 48 h ("para não ocupar memória") e que os números
+     continuem** (enviadas, entregues, abertas, cliques).
+     - **Branch nova `painel/video-login`** (worktree `/home/user/cw-video`):
+       - `painel/video-disparos` até `2682118b`, que já tinha pacote de imagens, memória do WhatsApp e Dores;
+       - mais o merge da `painel/dores-login` (`de68b97e`), com o login e a correção do CI da Dores. Só um conflito, em
+         `e2e/equipe.spec.ts`: a folha Mais fica com Imagens e Análise.
+       - Mais `9f9870c3`, as 48 h.
+     - **Regra** (`aviso-video.ts`: `videoVenceEm`, `videoVencido`, `arquivosVencidos`):
+       - enviado, cancelado ou com falha vence 48 h depois do fim (sem fim, do início; cancelado antes de sair, da
+         última mudança);
+       - rascunho, agendado e enviando nunca vencem;
+       - a retenção, de hora em hora (`apagarVideosVencidos`), apaga vídeo e capa, menos o arquivo que um aviso ainda
+         válido usa (a cópia do reenvio).
+     - **Vencido:**
+       - a bolha fica só com o texto;
+       - `/me` e `/staff` do vídeo e da capa dão 404;
+       - o reenvio sai sem vídeo;
+       - o DTO ganha `video_vence_em`, e o detalhe do envio diz "fica até" e depois "saiu em";
+       - a ajuda do campo fala das 48 h;
+       - o aviso e os números ficam.
+     - **Testes:** 67 da API e 20 do web passaram nos arquivos tocados. Quebrar à mão a bolha, a rota, o reenvio ou a
+       proteção da cópia faz um teste falhar.
+     - Portão `rapido` rodando (porta 3260). Depois: e2e do vídeo e do login, push, CI, imagens.
+     - **Roteiro:** `crystal-em-casa/publicar-video-login.md` (a tag entra depois das imagens).
+       - Duas migrações aditivas: `wim1_01_imagem_ofertas` e `wvd1_01_aviso_video`.
+       - Nenhuma variável nova.
+       - A volta é a tag que o `app-status` mostrar antes da subida, sem volta de banco.
+     - **A `painel/video-disparos` sozinha não deve subir:** ela tira o login. A outra sessão continua mexendo nela
+       (último commit às 16:20). Se ela fizer mais, juntar de novo na `painel/video-login`.
