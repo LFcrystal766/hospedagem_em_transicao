@@ -2338,8 +2338,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
          (2.350 testes).
      - **Push de `painel/video-login` em `e3e75c58` (09/11 ~17:00 BRT):** CI no run 42688668221 e imagens
        **`sha-e3e75c5`** no run 42688677237.
-       - e2e local (porta 3280) rodando: vídeo, otp, login-email, equipe, imagens e imagens-painel.
-       - Conferência marcada para 20:55 UTC.
+       - e2e local (porta 3280) VERDE: 58 de 58 (vídeo, otp, login-email, equipe, imagens e imagens-painel) e o e2e
+         do login só com e-mail, 10 de 10.
+       - **Imagens `sha-e3e75c5` prontas** (api, web e crystal; audit limpo).
+       - Falta o CI (e2e completo, Chromium e WebKit). Conferência marcada para 20:55 UTC.
      - **Roteiro:** `crystal-em-casa/publicar-video-login.md` (a tag entra depois das imagens).
        - Duas migrações aditivas: `wim1_01_imagem_ofertas` e `wvd1_01_aviso_video`.
        - Nenhuma variável nova.
