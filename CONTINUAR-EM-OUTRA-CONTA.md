@@ -2283,3 +2283,22 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - Ressalva: o Drive pode limitar quando muita gente abre ao mesmo tempo. Se aparecer "muitas pessoas
        visualizaram", trocar o link pelo YouTube "Não listado".
      - O conteúdo do vídeo não foi visto (o conector dá só os dados do arquivo).
+117. **09/11: o dono disse que foi feita uma otimização e pediu para ver onde ficam os vídeos enviados.**
+     - Outra sessão fez a branch `painel/video-disparos` (`fdc76351`, 09/11 14:51 BRT): vídeo na "Mensagem da Crystal".
+       - Base: `1db2e16`, mais `painel/pacote-imagens` (`897f1ac6`) e `fix/memoria-whatsapp` (`155b7af5`).
+     - **Onde fica o vídeo:**
+       - na VPS, no volume Docker `app_uploads` (`/app/uploads` da API, `UPLOAD_DIR` no `api.env`), a mesma pasta das
+         fotos e áudios dos clientes;
+       - arquivos `aviso__<uuid>.mp4` e a capa `aviso__<uuid>.jpg|webp`;
+       - sobrevive ao `app-subir` e entra no `backup` (tar dos uploads);
+       - não vai para Drive nem YouTube.
+     - **Regras:**
+       - só MP4 (o `.mov` do iPhone, marca `qt`, é recusado), até 50 MB, capa até 300 KB;
+       - só quem recebeu o aviso baixa (e a equipe com acesso), com Range e cache `private, immutable`;
+       - o vídeo de aviso enviado fica guardado enquanto o aviso existir;
+       - o vídeo enviado e não usado em 24 h vira órfão e é apagado com 48 h.
+     - Servido direto pela VPS, sem CDN (`api.` é cinza): cada aparelho baixa uma vez.
+     - **ALERTA:** a `painel/video-disparos` NÃO tem o login (`7460351`, `2172ea9`) nem a correção do CI da Dores
+       (`cd2705a`); o e-mail ainda sai com "Seu código de acesso à Crystal" e o padrão do `OTP_TTL_S` é 300.
+       - Publicar como está tira o Pacote 1 do login, como aconteceu com a Dores em 06/11.
+       - Recomendado: juntar a `painel/dores-login` nela antes de publicar. Perguntado ao dono.
