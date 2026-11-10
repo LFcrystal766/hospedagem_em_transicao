@@ -2353,3 +2353,32 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - A volta é a tag que o `app-status` mostrar antes da subida, sem volta de banco.
      - **A `painel/video-disparos` sozinha não deve subir:** ela tira o login. A outra sessão continua mexendo nela
        (último commit às 16:20). Se ela fizer mais, juntar de novo na `painel/video-login`.
+120. **10/11: o dono pediu um vídeo para o suporte**: achar o e-mail do cliente, trocar o e-mail e pegar o código de
+     acesso. Hoje o suporte não via o código (fica cifrado). Escolha do dono: criar "Gerar código" e depois fazer o vídeo.
+     - **Branch `painel/suporte-codigo`** (worktree `/home/user/cw-video`), sobre a `painel/video-login`.
+     - **API:** `POST /staff/alunos/:id/codigo-acesso` (`routes/staff-alunos-codigo.ts`, `services/codigo-suporte.ts`).
+       - Só admin e support, com o código do e-mail de quem está no painel (reauth).
+       - Limites: 20 por hora por pessoa da equipe e 5 por conta por dia.
+       - Se o cliente já pediu no app, devolve o MESMO código do e-mail. Senão, cria o desafio da conta sem e-mail
+         (15 min), e o `/auth/login` devolve esse desafio quando ele digita o e-mail.
+       - Recusa antes da confirmação: conta de revisão, desligada, prazo vencido ou sem e-mail.
+       - O código vai só na resposta (`no-store`), nunca em log nem na auditoria (`aluno.codigo_acesso`, só
+         `mesmo_do_email`).
+       - O e-mail da conta recebe um aviso, sem o código.
+     - **Painel:**
+       - botão "Pegar código de acesso" no bloco Entrada no app ("Não recebe o e-mail com o código?") e em
+         Ações › Conta;
+       - diálogo com a regra (o código vai só para o WhatsApp da compra), depois a confirmação;
+       - depois o código, com "Vale até as HH:MM", Copiar e Fechar.
+     - A confirmação do painel é o código mandado ao e-mail de quem está no painel, não uma senha.
+     - **Testes:** API 8 de 8, painel 4 de 4, e2e `codigo-suporte.spec.ts` no modo só e-mail (11 de 11 com o
+       login-email).
+       - Quebrar a confirmação, o bloqueio de conta desligada, o aviso ou o reaproveitamento do código faz um teste
+         falhar.
+       - Dois testes da ficha ganharam o item novo na lista de Ações.
+     - Portão `rapido` rodando (porta 3320). Depois: push, CI e imagens.
+     - **Vídeo:** gravado no app local de demonstração com dados de exemplo, pelo Playwright, com legendas.
+       - Partes: buscar o cliente → bloco Conta (e-mail e WhatsApp) → Ações › Corrigir e-mail (motivo + código do e-mail
+         da equipe) → Pegar código de acesso → o cliente entra no celular.
+       - Roteiro fora do repositório: `cw-video/.gate/video/gravar.spec.ts` e `playwright.video.config.ts`.
+     - **Achado de texto (não mexido):** o painel ainda escreve "a cliente" no feminino, e isso aparece no vídeo.
