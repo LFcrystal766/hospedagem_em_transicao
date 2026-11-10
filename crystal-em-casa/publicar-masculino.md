@@ -22,10 +22,15 @@ desde 10/11, mais só a troca de texto. Nada mais muda.
 
 ## Antes (técnica)
 
-- Portão local rápido verde: tipos, lint e testes de shared, API, web e Crystal.
+- **CI do `28dbd23c` inteiro verde** (run 42875276332): gate, audit, e2e do login só com e-mail e e2e completo
+  (Chromium e WebKit, 361 passaram).
+  - Um teste ficou instável e passou na segunda tentativa: `onda6-banners` "sem banner". A primeira abertura da tela
+    de início foi interrompida (`page.goto` ERR_ABORTED).
+  - Não tem ligação com esta troca: nessa tela só mudaram comentários. Aqui ele passou 10 de 10.
+- **Imagens `sha-28dbd23` prontas** (run 42875348214: API, web e Crystal).
+- Portão local: rápido verde (tipos, lint e testes de shared, API, web e Crystal); e2e das 23 specs mexidas com 255
+  passaram; login só com e-mail com 11 de 11.
 - Guarda nova no CI: o teste reprova "a cliente", "das clientes", "clientes ativas" etc. em qualquer frase do painel.
-- CI do `28dbd23c` e imagens `sha-28dbd23`: ver o item 124 do `CONTINUAR-EM-OUTRA-CONTA.md` (só subir com os dois
-  verdes).
 
 ## Subir (no terminal da VPS, um por vez)
 

@@ -2477,3 +2477,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - Guarda nova no CI (`apps/web/lib/cliente-guarda.test.ts`, bloco "painel no masculino"): reprova "a cliente",
        "das clientes", "clientes ativas" etc. em qualquer frase do web, da API e do shared e no `docs/equipe.md`.
      - Scripts da troca no scratchpad desta sessão (`masc/troca.py`, `masc/adj.py`, `masc/pron.py`).
+     - **PRONTA (10/11 ~19:30 UTC): `sha-28dbd23`** (commit `28dbd23c`, branch `painel/masculino`).
+       - CI inteiro verde (run 42875276332): gate, audit, e2e do login só com e-mail e e2e completo (361 passaram).
+         Um instável que passou na segunda tentativa: `onda6-banners` "sem banner" (`page.goto` ERR_ABORTED na primeira
+         abertura). Nessa tela só mudaram comentários; aqui passou 10 de 10.
+       - Imagens `sha-28dbd23` prontas (run 42875348214).
+       - Portão local: rápido verde; e2e das 23 specs mexidas com 255 passaram; login só com e-mail com 11 de 11.
+       - Roteiro: `crystal-em-casa/publicar-masculino.md` (sem migração, sem variável nova, volta `sha-92e785f`, com o
+         passo da memória). Subir só quando o dono pedir.
