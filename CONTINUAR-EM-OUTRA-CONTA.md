@@ -2485,3 +2485,16 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Portão local: rápido verde; e2e das 23 specs mexidas com 255 passaram; login só com e-mail com 11 de 11.
        - Roteiro: `crystal-em-casa/publicar-masculino.md` (sem migração, sem variável nova, volta `sha-92e785f`, com o
          passo da memória). Subir só quando o dono pedir.
+125. **10/11 (fim da tarde): "não está chegando código pro contato@leticiafelisberto.com" (de novo).**
+     - Mandada ao dono a conferência só de leitura na VPS (conta, senha, eventos de entrada, falha de envio) e a leitura
+       de cada resultado:
+       - `tem_senha = f` → falta "Definir senha" (Equipe › Suporte Crystal);
+       - nenhum evento → está entrando pela tela de cliente (`/login`), que nunca manda código para equipe;
+       - `staff_login_fail` → senha errada (ou sem senha);
+       - `otp_sent` na hora → o app entregou ao Resend: olhar o Resend (Emails, procurar o contato@: Delivered,
+         Bounced ou Suppressed; se Suppressed, tirar da lista de bloqueio) e o Spam/quarentena do Google Workspace;
+       - "envio falhou" no log → o Resend recusou (a tela mostra "Não consegui enviar o código agora").
+     - Tela "Já mandei vários códigos para esse e-mail hoje" = teto de 10 envios por endereço em 24 h (conta também as
+       tentativas na tela de cliente). Espera vencer, ou apagar no Redis as chaves de envio desse e-mail.
+     - O painel não troca o e-mail de uma conta de equipe (não há rota). Se a caixa do contato@ não receber de jeito
+       nenhum, o caminho é criar outra conta de suporte com um e-mail que recebe.
