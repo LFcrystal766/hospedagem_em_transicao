@@ -2431,3 +2431,18 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
          e equipe. Nesse caso, avisar e decidir (outro e-mail para o suporte, ou tirar a conta de cliente).
      - É o e-mail público do suporte (`SUPORTE_EMAIL` nos avisos aos clientes): quem usar a conta precisa ler essa
        caixa, porque a confirmação do painel chega nela.
+     - **Resultado da consulta (10/11):** existe uma conta de CLIENTE, name "contato", `role user`, ativa, criada em
+       06/10.
+       - No Supabase, o e-mail é da Letícia Felisberto: base Assiny de 16/06, contato `c767dff8…`, liberado. É a compra
+         dela, que virou conta de cliente no app.
+     - **Dono: "transforme em suport".** O painel não troca cliente por equipe, então o caminho é SQL no banco do app
+       (o dono roda na VPS). Numa transação:
+       1. encerra todas as sessões da conta (`sessions.revoked_at`). Sem isso, a renovação de uma sessão de cliente,
+          aberta só com o código do e-mail, viraria sessão de suporte sem senha;
+       2. `role = 'support'`, `crystal_contact_id = null` (desliga da compra da Letícia na base) e `name = 'Suporte
+          Crystal'`;
+       3. só se a conta for de cliente e ativa.
+     - Depois: Equipe › Suporte Crystal › Definir senha (admin). A pessoa entra por `/login/equipe` com e-mail, senha e
+       o código que chega no `contato@`.
+     - A troca não fica na auditoria do painel (foi por SQL; uma linha à mão quebraria a corrente da auditoria).
+     - A Letícia não entra mais como cliente com esse e-mail.
