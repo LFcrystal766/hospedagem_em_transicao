@@ -2518,3 +2518,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
           `v=spf1 include:amazonses.com ~all`, copiando os valores exatos da página do domínio). Depois "Verify".
        4. Forge: desligar no Resend (ou pedir ao support@resend.com). Se quiser o Forge depois, com o subdomínio que o
           Resend sugerir, nunca `mail.`, `ftp.` nem `server.`.
+     - **Correção (dono, 10/11): "cname já estava apontado".** O CNAME do Forge no `send.` foi o dono que configurou,
+       antes de hoje. Retirados os passos de apagar o CNAME e a suspeita de mudança sem autorização. (Pelo DNS de fora
+       não dá para distinguir: o `send.` com CNAME também responde SPF e MX, então as conferências de 23/10 e 03/11
+       passariam igual.)
+     - Status do Resend (resend-status.com) em 10/11: tudo operacional, nenhum incidente em novembro.
+     - O e-mail do código (`buildOtpEmail`) é simples: assunto "NNNNNN é o seu código de acesso à Crystal", texto
+       curto, sem link. O app fez a parte dele: o Resend aceitou ("Sent"). Falta a entrega.
+     - Pedido ao dono: abrir no Resend um código parado em "Sent" e mandar o print da linha do tempo (há "Delivery
+       Delayed"? com qual motivo?) e dizer a hora do último e-mail "Delivered". Se tudo parar em "Sent", abrir chamado no
+       support@resend.com com o ID do e-mail e pedir para voltar o domínio ao motor antigo enquanto isso. Avisar o
+       Resend que o Return-Path do Forge está no `send.` (a doc pede subdomínio próprio e manter os registros antigos):
+       se o envio cair no motor antigo, o SPF do `send.` não autoriza mais esse caminho.
