@@ -2414,3 +2414,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - mandar o `crystal-conferir`;
        - fazer a conferência no iPhone (login, vídeo, Análise, Imagens, código pelo suporte).
      - O vídeo `suporte-email-e-codigo.mp4` já pode ir para a equipe.
+122. **10/11: o dono pediu que `contato@leticiafelisberto.com` seja usuário de suporte do painel.**
+     - Não dá para ver daqui (banco do app, na VPS). Passada ao dono a consulta só de leitura em `users` por esse
+       e-mail: nome, papel, status e data de criação.
+     - **Caminhos:**
+       - Sem conta: Equipe › "Nova conta de equipe" (só admin): Nome, E-mail, CPF opcional, Papel "Suporte". Depois,
+         "Definir senha". A pessoa entra por `/login/equipe` com e-mail, senha e o código que chega nesse e-mail.
+       - Conta de equipe com outro papel: Equipe › a conta › Papel "Suporte".
+       - Conta de CLIENTE com esse e-mail: a criação dá 409 (`EMAIL_EXISTS`) e o painel não troca papel entre cliente
+         e equipe. Nesse caso, avisar e decidir (outro e-mail para o suporte, ou tirar a conta de cliente).
+     - É o e-mail público do suporte (`SUPORTE_EMAIL` nos avisos aos clientes): quem usar a conta precisa ler essa
+       caixa, porque a confirmação do painel chega nela.
