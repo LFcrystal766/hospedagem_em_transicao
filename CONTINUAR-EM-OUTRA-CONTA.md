@@ -2465,3 +2465,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        `select role, status, password_hash is not null as tem_senha from users where lower(email)='contato@leticiafelisberto.com';`
        e `select kind, created_at from auth_events where user_id=(…) order by created_at desc limit 8;`
        (`staff_login_fail` = senha; `otp_sent` = o código saiu). Log: `docker service logs --since 1h crystal_app_app_api 2>&1 | grep "envio falhou"`.
+124. **10/11: "corrija o texto do painel para o masculino".** Branch `painel/masculino` do app (a partir da
+     `painel/suporte-codigo`, que é a `sha-92e785f` no ar), worktree `/home/user/cw-video`.
+     - Trocado: "a/as/da/na/pela/à/esta/essa/uma/outra/nenhuma/toda(s)… cliente(s)" → "o/os/do/no/pelo/ao/este/esse/
+       um/outro/nenhum/todo(s)… cliente(s)"; "clientes ativas/distintas/escolhidas" → "ativos/distintos/escolhidos";
+       "Cliente removida/fictícia" → "removido/fictício"; "ela/dela" quando é o cliente → "ele/dele".
+     - Ficam: "a Crystal… ela", "a pessoa… ela", "conta(s) de cliente ativa(s)", "lista de clientes exportada",
+       "Liberar N pessoas? Elas…", as dores (P08 "os sinais dela" é a mulher de quem o cliente fala).
+     - Não mexe na alma (apps/crystal sem mudança) nem em código, rota, chave ou banco: só texto, comentário e o guia
+       `docs/equipe.md`.
+     - Guarda nova no CI (`apps/web/lib/cliente-guarda.test.ts`, bloco "painel no masculino"): reprova "a cliente",
+       "das clientes", "clientes ativas" etc. em qualquer frase do web, da API e do shared e no `docs/equipe.md`.
+     - Scripts da troca no scratchpad desta sessão (`masc/troca.py`, `masc/adj.py`, `masc/pron.py`).
