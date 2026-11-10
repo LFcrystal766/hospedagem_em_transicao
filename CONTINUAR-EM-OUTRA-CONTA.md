@@ -2380,7 +2380,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - verde em tipos, lint e nos testes de shared, API, web e Crystal;
        - o único erro foi de tipo no teste novo do painel, corrigido em `92e785fd`.
      - **Push de `painel/suporte-codigo` em `92e785fd`:** CI e imagens **`sha-92e785f`** disparados (10/11 ~13:20
-       UTC). Conferência marcada para 14:18 UTC.
+       UTC).
+     - **10/11 14:18 UTC: CI do `92e785fd` INTEIRO VERDE** (run 42823962002).
+       - gate e audit;
+       - e2e completo: 362 passaram, nenhum instável;
+       - e2e do login só com e-mail: 11 de 11, com o `codigo-suporte.spec.ts`.
+       - Imagens **`sha-92e785f`** prontas (run 42823962388).
+     - **Roteiro:** `crystal-em-casa/publicar-video-login.md`, agora para a `sha-92e785f`, com a seção do código e o
+       passo 5 da conferência. A volta é a tag do `app-status` de antes, sem volta de banco (nenhuma migração nova além
+       das duas da `sha-e3e75c5`).
      - **Vídeo ENTREGUE** (10/11 ~13:30 UTC): `suporte-email-e-codigo.mp4`, 2 min 10 s, 1280×720, 3,2 MB.
        - Dados de exemplo: Cauã Souza, `caua.souza@exenplo.com` → `@exemplo.com`, WhatsApp +55 48 99999-0001.
        - Partes:
