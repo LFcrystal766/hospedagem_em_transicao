@@ -2498,3 +2498,23 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        tentativas na tela de cliente). Espera vencer, ou apagar no Redis as chaves de envio desse e-mail.
      - O painel não troca o e-mail de uma conta de equipe (não há rota). Se a caixa do contato@ não receber de jeito
        nenhum, o caminho é criar outra conta de suporte com um e-mail que recebe.
+126. **10/11 (noite): "no Resend tá dando enviado mas não chega, nem pra mim".** Não é só o contato@: nenhum código chega.
+     - **Achado no DNS (conferido de fora, Cloudflare DoH e Google DoH):** `send.crystalnowpp.com.br` virou **CNAME →
+       `send.forge.rmta.net`** (Resend Forge, o motor novo do Resend, anunciado em 23/10, só por convite). Por isso o MX
+       e o SPF que o `send.` tinha (motor antigo do Resend, conferidos em 23/10 e 03/11) sumiram: um CNAME não convive
+       com outros registros no mesmo nome. O que o `send.` responde agora: MX `10 feedback.forge.rmta.net` e
+       `v=spf1 ip4:52.3.252.119 ip4:44.222.39.36 ip4:199.249.231.0/24 ~all`.
+     - A doc do Forge (resend.com/docs/forge) manda usar um subdomínio NOVO para o Return-Path e diz "Your existing DNS
+       records stay untouched. Don't remove them."; se o subdomínio já tem MX/TXT, escolher outro. Aqui foi o
+       contrário: o Forge ocupou o `send.` e o motor antigo ficou sem os registros dele.
+     - DKIM `resend._domainkey` e DMARC `p=none` seguem no lugar.
+     - Não dá para ver daqui quem mudou nem quando (sem token do Cloudflare nesta sessão). Pedido ao dono: Cloudflare ›
+       Audit Log (quem/quando); se ninguém da equipe mudou, trocar a senha do Cloudflare e conferir o 2FA.
+     - Passos mandados ao dono:
+       1. Resend › Emails › abrir um código "Sent": ver o evento seguinte e o motivo (Delivery Delayed / Bounced).
+       2. Resend › Domains › crystalnowpp.com.br: ver quais registros estão vermelhos e o estado do Forge.
+       3. Cloudflare (DNS only, cinza): apagar o CNAME `send` → `send.forge.rmta.net` e recolocar os 2 registros que o
+          Resend mostra para o `send` (MX `feedback-smtp.us-east-1.amazonses.com` prioridade 10 e TXT
+          `v=spf1 include:amazonses.com ~all`, copiando os valores exatos da página do domínio). Depois "Verify".
+       4. Forge: desligar no Resend (ou pedir ao support@resend.com). Se quiser o Forge depois, com o subdomínio que o
+          Resend sugerir, nunca `mail.`, `ftp.` nem `server.`.
