@@ -2450,3 +2450,18 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - 6 sessões encerradas e 1 conta trocada;
        - resultado: `Suporte Crystal | support | active |`, sem contato na base.
      - Falta o dono definir a senha (Equipe › Suporte Crystal › Definir senha) e passá-la à pessoa pelo Bitwarden.
+123. **10/11: "não está chegando o e-mail do contato@leticia… com o código".**
+     - Causa provável, vista no código (sem mudar nada):
+       - a entrada de CLIENTE (`/login`, só o e-mail) nunca manda código para conta de equipe. Ela mostra a tela do
+         código igual, mas não envia nada (A1/A2 da segurança de 24/10: ninguém descobre quem é da equipe). Desde a
+         troca, o `contato@` é equipe;
+       - a entrada da equipe (`/login/equipe`) pede e-mail + SENHA. Sem senha definida, responde "E-mail ou senha
+         incorretos." e também não manda código.
+     - Caminho certo: admin define a senha (Equipe › Suporte Crystal › Definir senha, 10+ caracteres, letras e números)
+       e a pessoa entra por `app.crystalnowpp.com.br/login/equipe`.
+     - A caixa `leticiafelisberto.com` é Google Workspace (MX `aspmx.l.google.com`, DMARC `p=none`). Se ainda não
+       chegar, procurar em Spam e "Todos os e-mails" por "código"; "Reenviar código" manda o mesmo código.
+     - Conferência na VPS, se precisar (só leitura):
+       `select role, status, password_hash is not null as tem_senha from users where lower(email)='contato@leticiafelisberto.com';`
+       e `select kind, created_at from auth_events where user_id=(…) order by created_at desc limit 8;`
+       (`staff_login_fail` = senha; `otp_sent` = o código saiu). Log: `docker service logs --since 1h crystal_app_app_api 2>&1 | grep "envio falhou"`.
