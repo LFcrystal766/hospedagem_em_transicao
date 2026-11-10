@@ -2405,3 +2405,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
          da equipe) → Pegar código de acesso → o cliente entra no celular.
        - Roteiro fora do repositório: `cw-video/.gate/video/gravar.spec.ts` e `playwright.video.config.ts`.
      - **Achado de texto (não mexido):** o painel ainda escreve "a cliente" no feminino, e isso aparece no vídeo.
+121. **10/11 ~16:43 UTC: o dono subiu a `sha-92e785f`.**
+     - O `app-status` mostrou `app_api`, `app_crystal` e `app_web` em `sha-92e785f`, e o HTTPS de `app.` e `api.` com 200.
+     - **A versão no ar agora é a `sha-92e785f`** (branch `painel/suporte-codigo`). Todo trabalho novo parte dela.
+     - A volta é a tag de antes da subida (o dono não mandou o `app-status` de antes), sem volta de banco.
+     - Pedido ao dono:
+       - confirmar o passo da memória (os dois `docker service update`), com o comando de conferência;
+       - mandar o `crystal-conferir`;
+       - fazer a conferência no iPhone (login, vídeo, Análise, Imagens, código pelo suporte).
+     - O vídeo `suporte-email-e-codigo.mp4` já pode ir para a equipe.
