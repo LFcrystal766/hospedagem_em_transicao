@@ -2530,3 +2530,16 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        support@resend.com com o ID do e-mail e pedir para voltar o domínio ao motor antigo enquanto isso. Avisar o
        Resend que o Return-Path do Forge está no `send.` (a doc pede subdomínio próprio e manter os registros antigos):
        se o envio cair no motor antigo, o SPF do `send.` não autoriza mais esse caminho.
+127. **10/11 ~17:37 (hora do painel do Resend): linha do tempo de um código no Resend = `sent` 5:37 PM e `delivered`
+     5:37 PM.**
+     - Conclusão: o app e o Resend/Forge funcionaram. O servidor de quem recebe (Google/Microsoft) ACEITOU o e-mail
+       no mesmo minuto. Se não aparece na caixa de entrada, ele foi separado do lado de quem recebe: Spam/Lixo
+       eletrônico, aba "Outros", quarentena do Google Workspace, regra ou remetente bloqueado.
+     - O DNS (Forge no `send.`) não é a causa: entrega confirmada.
+     - Passos mandados ao dono:
+       - procurar pelo assunto "é o seu código de acesso à Crystal" em Todos os e-mails / Spam / Lixo eletrônico;
+       - marcar "Não é spam" e pôr `acesso@crystalnowpp.com.br` nos contatos/remetentes confiáveis;
+       - Google Workspace do `leticiafelisberto.com`: o admin do domínio vê o caminho exato em Admin › Relatórios ›
+         Pesquisa de registros de e-mail (remetente `acesso@crystalnowpp.com.br`) e a quarentena;
+       - Hotmail: Lixo eletrônico, aba "Outros", Configurações › Email › Lixo eletrônico › Remetentes bloqueados.
+     - Melhoria depois (fora do app): Google Postmaster Tools e Microsoft SNDS para o domínio (reputação do envio).
