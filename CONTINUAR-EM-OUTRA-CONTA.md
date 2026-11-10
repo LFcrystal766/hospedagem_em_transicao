@@ -2446,3 +2446,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        o código que chega no `contato@`.
      - A troca não fica na auditoria do painel (foi por SQL; uma linha à mão quebraria a corrente da auditoria).
      - A Letícia não entra mais como cliente com esse e-mail.
+     - **FEITO (10/11), pelo dono na VPS:**
+       - 6 sessões encerradas e 1 conta trocada;
+       - resultado: `Suporte Crystal | support | active |`, sem contato na base.
+     - Falta o dono definir a senha (Equipe › Suporte Crystal › Definir senha) e passá-la à pessoa pelo Bitwarden.
