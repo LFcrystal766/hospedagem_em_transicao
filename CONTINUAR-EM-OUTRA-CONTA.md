@@ -2376,7 +2376,22 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Quebrar a confirmação, o bloqueio de conta desligada, o aviso ou o reaproveitamento do código faz um teste
          falhar.
        - Dois testes da ficha ganharam o item novo na lista de Ações.
-     - Portão `rapido` rodando (porta 3320). Depois: push, CI e imagens.
+     - Portão `rapido`:
+       - verde em tipos, lint e nos testes de shared, API, web e Crystal;
+       - o único erro foi de tipo no teste novo do painel, corrigido em `92e785fd`.
+     - **Push de `painel/suporte-codigo` em `92e785fd`:** CI e imagens **`sha-92e785f`** disparados (10/11 ~13:20
+       UTC). Conferência marcada para 14:18 UTC.
+     - **Vídeo ENTREGUE** (10/11 ~13:30 UTC): `suporte-email-e-codigo.mp4`, 2 min 10 s, 1280×720, 3,2 MB.
+       - Dados de exemplo: Cauã Souza, `caua.souza@exenplo.com` → `@exemplo.com`, WhatsApp +55 48 99999-0001.
+       - Partes:
+         1. abertura;
+         2. Alunos › busca › ficha › bloco Conta (e-mail e WhatsApp destacados);
+         3. Ações › Corrigir e-mail (e-mail, motivo, código do e-mail da equipe, Trocar e-mail);
+         4. Entrada no app › Pegar código de acesso (regra, confirmação, código, "Vale até");
+         5. no celular, o cliente digita o e-mail e o código e entra;
+         6. resumo.
+       - **Só mostrar ao suporte depois de publicar a versão com o botão** (`sha-92e785f` ou a seguinte). A troca de
+         e-mail já existe na versão no ar.
      - **Vídeo:** gravado no app local de demonstração com dados de exemplo, pelo Playwright, com legendas.
        - Partes: buscar o cliente → bloco Conta (e-mail e WhatsApp) → Ações › Corrigir e-mail (motivo + código do e-mail
          da equipe) → Pegar código de acesso → o cliente entra no celular.
