@@ -2414,6 +2414,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - mandar o `crystal-conferir`;
        - fazer a conferência no iPhone (login, vídeo, Análise, Imagens, código pelo suporte).
      - O vídeo `suporte-email-e-codigo.mp4` já pode ir para a equipe.
+     - **Passo da memória CONFIRMADO** (`docker service inspect`): `app_crystal` 2684354560 (2560M) e `app_api`
+       2147483648 (2048M).
+     - Faltam:
+       - o `crystal-conferir`;
+       - a conferência no iPhone;
+       - o resultado da consulta do `contato@` (item 122).
 122. **10/11: o dono pediu que `contato@leticiafelisberto.com` seja usuário de suporte do painel.**
      - Não dá para ver daqui (banco do app, na VPS). Passada ao dono a consulta só de leitura em `users` por esse
        e-mail: nome, papel, status e data de criação.
