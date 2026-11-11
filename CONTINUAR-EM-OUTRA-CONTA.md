@@ -2586,3 +2586,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - nunca troca um CPF que já está guardado; fica o da base quando ela bate.
        - Testes: `auth-email-cpf.test.ts` (13), `directory-supabase.test.ts` (+5), LoginForm (+6), login-modo (+2),
          e2e `login-email.spec.ts` (f) e o helper `pedirCodigoNoModoEmail` (CPF que não é de ninguém leva ao código).
+     - **11/11 ~16:25 UTC: commit `a860e695` na `painel/login-cpf`.**
+       - Portão rápido verde; e2e local do login: 12 de 12 no modo e-mail com CPF e 12 de 12 no modo antigo.
+       - CI rodando (run 43058055129) e imagens `sha-a860e69` disparadas.
+       - Roteiro: `crystal-em-casa/publicar-login-cpf.md` (já traz o painel no masculino; volta `sha-92e785f`).
