@@ -2595,3 +2595,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - "e2e (login só com e-mail)" falhou ANTES dos testes: o runner ficou sem DNS ao baixar as fontes do Playwright
          (`Temporary failure resolving 'azure.archive.ubuntu.com'`). Falha de infraestrutura;
        - o e2e principal ainda roda. Quando acabar, rodar uma vez só o job que falhou.
+     - **11/11 ~18:00 UTC: `sha-a860e69` PRONTA.** CI inteiro verde (run 43058055129):
+       - e2e principal com 361 passaram e 1 instável já conhecido (`onda6-banners` "sem banner");
+       - e2e do login só com e-mail verde na segunda tentativa (a primeira caiu na instalação, por DNS do runner).
+       - Imagens prontas (run 43058081165). Roteiro: `crystal-em-casa/publicar-login-cpf.md`.
+       - O dono perguntou "pode subir?": sim.

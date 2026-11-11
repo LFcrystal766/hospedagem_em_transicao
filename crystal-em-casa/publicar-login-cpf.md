@@ -52,9 +52,14 @@ no ar desde 10/11, mais duas coisas:
 
 ## Antes (técnica)
 
-- Portão local rápido verde: tipos, lint e testes de shared, API, web e Crystal.
-- CI do `a860e695` e imagens `sha-a860e69`: ver o item 131 do `CONTINUAR-EM-OUTRA-CONTA.md`. Só subir com os dois
-  verdes.
+- **CI do `a860e695` inteiro verde** (run 43058055129):
+  - gate, audit e e2e completo (Chromium e WebKit, 361 passaram);
+  - e2e do login só com e-mail verde na segunda tentativa. A primeira caiu antes dos testes: o runner ficou sem DNS
+    ao instalar o Playwright.
+  - Um teste instável passou na segunda tentativa: `onda6-banners` "sem banner", o mesmo de 10/11. Nessa tela não
+    mudou nada.
+- **Imagens `sha-a860e69` prontas** (run 43058081165: API, web e Crystal).
+- Portão local: rápido verde; e2e do login com 12 de 12 no modo e-mail com CPF e 12 de 12 no modo antigo.
 
 ## Subir (no terminal da VPS, um por vez)
 
