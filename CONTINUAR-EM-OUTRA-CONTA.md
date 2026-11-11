@@ -2590,3 +2590,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Portão rápido verde; e2e local do login: 12 de 12 no modo e-mail com CPF e 12 de 12 no modo antigo.
        - CI rodando (run 43058055129) e imagens `sha-a860e69` disparadas.
        - Roteiro: `crystal-em-casa/publicar-login-cpf.md` (já traz o painel no masculino; volta `sha-92e785f`).
+     - **11/11 ~17:20 UTC, CI do `a860e695` (run 43058055129):**
+       - gate e audit verdes; imagens `sha-a860e69` prontas (run 43058081165);
+       - "e2e (login só com e-mail)" falhou ANTES dos testes: o runner ficou sem DNS ao baixar as fontes do Playwright
+         (`Temporary failure resolving 'azure.archive.ubuntu.com'`). Falha de infraestrutura;
+       - o e2e principal ainda roda. Quando acabar, rodar uma vez só o job que falhou.
