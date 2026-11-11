@@ -2567,3 +2567,22 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 130. **11/11, suporte: troca de e-mail do Bruno** (pedido do dono). Cadastro achado pelo e-mail antigo (contato
      `56047d26…`), `app_aluno_trocar_email` → `trocado`, origem `base`. Conferido: o novo volta liberado, o antigo não acha
      nada. Ele entra pela tela de cliente com o e-mail novo.
+131. **11/11: login e-mail + CPF, andamento.**
+     - **Supabase (APLICADO em 11/11, migrações `login_cpf_20261111_parte_a` e `_parte_b`; arquivo
+       `crystal-em-casa/supabase/app_login_cpf.sql`):**
+       - segredo `crystal_cpf_marca` no Vault;
+       - `app_cpf_marca(cpf)` (HMAC-SHA256);
+       - coluna `crystal_compras.cpf_marca`;
+       - `app_compra_evento` guardando a marca de `data.client.document`;
+       - `app_verificar_login_email_cpf(p_email, p_cpf)` com `cpf_confere`.
+       - Testado com transação desfeita (nada ficou gravado). Só acrescenta: a versão no ar não muda.
+       - O fluxo do n8n de 13/10 (no ar) manda o corpo inteiro da Assiny, então o CPF das compras novas já chega.
+         Conferir depois da próxima compra: `select count(*) from crystal_compras where cpf_marca is not null;`.
+     - **App (branch `painel/login-cpf`, sobre a `painel/masculino`):**
+       - `LOGIN_CPF` (padrão `ligado`), `SUPABASE_LOGIN_EMAIL_CPF_RPC`;
+       - `services/login-cpf.ts` (sessão sem código, aviso de novo acesso, cadastro do CPF);
+       - `/auth/modo` com `cpf`; tela com e-mail + CPF;
+       - o CPF digitado vai no desafio e na porta e é cadastrado no `/auth/verify`;
+       - nunca troca um CPF que já está guardado; fica o da base quando ela bate.
+       - Testes: `auth-email-cpf.test.ts` (13), `directory-supabase.test.ts` (+5), LoginForm (+6), login-modo (+2),
+         e2e `login-email.spec.ts` (f) e o helper `pedirCodigoNoModoEmail` (CPF que não é de ninguém leva ao código).
