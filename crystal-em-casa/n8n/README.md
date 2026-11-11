@@ -11,6 +11,12 @@
 | `webhook-crystal-app.json` | Webhook genérico do app (28/09), guarda cada chamada nas execuções. Nada legítimo bate nele desde que o canal é o Chatwoot | dormente: desativar no editor quando o dono decidir |
 | `crystal-provisoria.json` | Crystal provisória (OpenRouter) para o `bootstrap-vps.sh crystal-provisoria` | reserva |
 
+> **11/11/2026 · login com e-mail + CPF.** O `app_compra_evento` passou a guardar a marca HMAC do CPF
+> (`crystal_compras.cpf_marca`; SQL em `crystal-em-casa/supabase/app_login_cpf.sql`, já aplicado). O fluxo de 13/10
+> (no ar) manda o corpo inteiro da Assiny, então o CPF já chega sem mudar nada no n8n. O `compra-assiny.json` de 24/10
+> agora também manda `data.client.document` (11 dígitos) no evento: ao importar essa versão, o CPF continua chegando.
+> O número em claro não fica em lugar nenhum do Supabase.
+
 Antes de importar ou mudar qualquer JSON: `python3 -I conferir-fluxos.py` (sai 1 se achar problema).
 
 ## compra-assiny.json (24/10): o que mudou e por quê
