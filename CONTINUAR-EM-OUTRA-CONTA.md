@@ -2543,3 +2543,27 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
          Pesquisa de registros de e-mail (remetente `acesso@crystalnowpp.com.br`) e a quarentena;
        - Hotmail: Lixo eletrônico, aba "Outros", Configurações › Email › Lixo eletrônico › Remetentes bloqueados.
      - Melhoria depois (fora do app): Google Postmaster Tools e Microsoft SNDS para o domínio (reputação do envio).
+128. **11/11: leads "fora do grupo black / despedida de solteiro" (550 linhas) cruzados com a base.**
+     - Cruzamento por e-mail e por telefone (DDD + 8 últimos dígitos), mandando ao Supabase só marcas MD5 truncadas
+       (nada em claro). Fontes: `leticia_crystal_customers` (+ assinaturas e compras), `crystal_compras` e
+       `leticia_crystal_lead_management`.
+     - Resultado: **501 fora da base**, 43 clientes ativos, 3 com compra pendente, 2 que compraram e cancelaram ou
+       reembolsaram, 1 só com contato no WhatsApp.
+     - Planilha com as colunas "Situacao na base" e "Achado por": scratchpad desta sessão
+       (`leads/leads-cruzados-com-a-base.csv`). Tem dado pessoal: não vai para o repositório.
+129. **11/11: o dono pediu o login com e-mail + CPF.** Regra dele: "quem tem CPF vem com CPF; os novos usuários têm que
+     vir com CPF; os que não têm vêm com código e, quando entrar, cadastra o CPF". Escolha: login misto.
+     - Achado antes de mexer: o modo antigo `cpf_email` (sem código) já existe, mas só confere a base antiga
+       (`leticia_crystal_customers`, parada em 12/10). 775 compradores ativos desde 10/10 estão só em `crystal_compras`,
+       sem CPF (o n8n tira o CPF de propósito desde 24/10), e 1.721 da base antiga não têm CPF. Só trocar a variável
+       deixaria essas pessoas sem entrar.
+     - Plano (branch `painel/login-cpf`, a partir da `painel/masculino`):
+       - tela: e-mail + CPF;
+       - CPF guardado e bate → entra sem código (aviso de novo acesso por e-mail);
+       - sem CPF guardado, ou não bate → código por e-mail, como hoje (a resposta é igual: sem oráculo);
+       - entrou com código e não há CPF na base → o CPF digitado fica cadastrado na conta (marca HMAC);
+       - compras novas: o n8n manda o CPF e o Supabase guarda só a marca (HMAC com segredo no Vault);
+       - `LOGIN_CPF=desligado` na VPS volta ao login só com código.
+130. **11/11, suporte: troca de e-mail do Bruno** (pedido do dono). Cadastro achado pelo e-mail antigo (contato
+     `56047d26…`), `app_aluno_trocar_email` → `trocado`, origem `base`. Conferido: o novo volta liberado, o antigo não acha
+     nada. Ele entra pela tela de cliente com o e-mail novo.
