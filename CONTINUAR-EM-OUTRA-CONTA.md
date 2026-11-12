@@ -2629,3 +2629,18 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
          - A marca do CPF deles foi gravada em `crystal_compras.cpf_marca`: com a versão do CPF no ar, entram direto.
          - Conferido: os 6, o Marcos e o eusou voltam `liberado` e `cpf_confere` verdadeiros.
          - Volta de uma liberação: `update crystal_compras set status = 'canceled', bloqueado_em = now() where email = … and produto = 'Liberação manual';`
+133. **12/11: o dono acha o código por e-mail complicado** e perguntou por e-mail + senha, ou e-mail + CPF no primeiro acesso.
+     - **Recomendação: não usar senha.** Esquecer a senha cai de novo no e-mail ("esqueci a senha") e no suporte.
+     - **E-mail + CPF já está pronto** (`sha-a860e69`, e a `sha-8ed06f8` com o Rafa): quem tem CPF guardado entra
+       sem código.
+     - **Contagem de 12/11:**
+       - base antiga: 9.427 de 11.149 com CPF;
+       - compras novas: o CPF já chega da Assiny desde 11/11 (28 compras ativas com a marca, incluindo os 6 liberados à mão);
+       - 787 compras ativas entre 10/10 e 11/11 sem CPF em lugar nenhum. A tabela antiga de webhooks
+         (23/03 a 07/05) recupera só 19.
+     - **Próximo passo proposto:** o dono exporta da Assiny as vendas (e-mail + CPF), a partir de 10/10 ou de todo o
+       período. O Claude grava só a marca do CPF (`app_cpf_marca`) e a planilha não fica no repositório. Com isso, quase todos
+       entram com e-mail + CPF.
+     - **Quem sobrar:** código uma vez (depois o CPF fica na conta) ou "Pegar código de acesso" na ficha.
+     - **Não aceitar o primeiro CPF digitado sem conferir:** quem soubesse só o e-mail de um cliente entraria na conta.
+     - CI da `sha-8ed06f8` rodando (run 43304841756); imagens prontas (run 43304873715).
