@@ -2600,3 +2600,26 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - e2e do login só com e-mail verde na segunda tentativa (a primeira caiu na instalação, por DNS do runner).
        - Imagens prontas (run 43058081165). Roteiro: `crystal-em-casa/publicar-login-cpf.md`.
        - O dono perguntou "pode subir?": sim.
+132. **11–12/11: suporte "Bia" vira "Rafa" e pedidos de clientes.**
+     - **Rafa (pedido do dono): versão nova `sha-8ed06f8`** (branch `painel/suporte-rafa`, commit `8ed06f8f`) =
+       `sha-a860e69` (masculino + login com CPF) + o nome novo.
+       - Padrão do painel e do app: Rafa ("Fale com Rafa, do nosso suporte.", "Oi, Rafa! …").
+       - Os e-mails de aviso (novo acesso, e-mail trocado, código pego pela equipe) passam a ler o nome do painel.
+       - Os textos não põem "a" nem "o" antes do nome.
+       - Portão rápido verde; e2e de suporte, código e login verdes.
+       - CI rodando (run 43304841756) e imagens disparadas.
+       - Volta: `sha-92e785f`. Sem migração.
+     - **Já hoje, sem versão nova:** em Configurações › Contatos › "Nome de quem atende", gravar `Rafa`. A tela
+       Suporte e as mensagens prontas do WhatsApp mudam em até 5 minutos. Os e-mails da versão no ar ainda dizem "a Bia".
+     - **Troca de e-mail do George** (pedido do dono): `app_aluno_trocar_email` → `trocado` (base). O novo
+       volta liberado e o antigo não acha nada.
+     - **Lucas** (print "Não encontrei uma compra"): está na base, ativo (liberação manual de 31/10). O print é de
+       antes disso. Hoje o código sai normalmente.
+     - **14 clientes "não receberam o e-mail" (12/11):**
+       - 6 estão na base, liberados, com o CPF batendo: Walber, Rafael, Marcello, Pedro, Willian e Wilson.
+         - O código sai, mas não chega. Suporte: ficha › "Pegar código de acesso".
+         - Com a `sha-a860e69` (ou a `sha-8ed06f8`) no ar, eles entram com e-mail + CPF, sem código.
+       - 1 com erro de um dígito no e-mail da compra: o "eusou" (o CPF bate). E-mail trocado para o que ele usa (`trocado`).
+       - 1 com o CPF ligado a outro e-mail da base: Marcos. Ele entra com o e-mail da compra; troca só se ele pedir.
+       - 6 sem compra nem pelo e-mail nem pelo CPF: tfreddi, gui (o e-mail veio "gmai.com"), edu, juares, ti_palermo e
+         carmmarcelino. Para cada um, pedir o comprovante da compra (e-mail e plataforma).
