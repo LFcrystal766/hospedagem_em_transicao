@@ -2620,6 +2620,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
          - O código sai, mas não chega. Suporte: ficha › "Pegar código de acesso".
          - Com a `sha-a860e69` (ou a `sha-8ed06f8`) no ar, eles entram com e-mail + CPF, sem código.
        - 1 com erro de um dígito no e-mail da compra: o "eusou" (o CPF bate). E-mail trocado para o que ele usa (`trocado`).
-       - 1 com o CPF ligado a outro e-mail da base: Marcos. Ele entra com o e-mail da compra; troca só se ele pedir.
-       - 6 sem compra nem pelo e-mail nem pelo CPF: tfreddi, gui (o e-mail veio "gmai.com"), edu, juares, ti_palermo e
-         carmmarcelino. Para cada um, pedir o comprovante da compra (e-mail e plataforma).
+       - 1 com o CPF ligado a outro e-mail da base: Marcos. O dono pediu "trocar": `app_aluno_trocar_email` → `trocado`;
+         o e-mail dele volta liberado com o CPF batendo, e o da compra não acha mais nada.
+       - 6 sem compra nem pelo e-mail nem pelo CPF: tfreddi, gui, edu, juares, ti_palermo e carmmarcelino.
+         - O dono pediu "pode liberar": liberação manual (`app_aluno_corrigir_cadastro('liberar_manual')`) → `liberado`.
+         - O do gui foi liberado com "gmail.com": ele escreveu "gmai.com", domínio que não é dele (código ali vazaria).
+         - O nome veio do e-mail (Tfreddi, Gui, Edu, Juares Lucio Ramos, Ti Palermo, Carm Marcelino): o suporte corrige na ficha.
+         - A marca do CPF deles foi gravada em `crystal_compras.cpf_marca`: com a versão do CPF no ar, entram direto.
+         - Conferido: os 6, o Marcos e o eusou voltam `liberado` e `cpf_confere` verdadeiros.
+         - Volta de uma liberação: `update crystal_compras set status = 'canceled', bloqueado_em = now() where email = … and produto = 'Liberação manual';`
