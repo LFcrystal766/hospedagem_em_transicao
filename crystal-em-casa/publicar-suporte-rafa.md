@@ -28,9 +28,10 @@ no ar desde 10/11, mais três coisas. Ela substitui a `sha-28dbd23` e a `sha-a86
 
 ## Antes (técnica)
 
-- **CI do `8ed06f8f`** (run 43304841756): verde em gate (tipos, lint, testes de shared, API, web e Crystal, build do web),
-  audit e e2e do login só com e-mail. O e2e completo estava rodando quando este roteiro foi escrito; a conferência final
-  fica no `CONTINUAR-EM-OUTRA-CONTA.md` (item 134).
+- **CI do `8ed06f8f` inteiro verde** (run 43304841756):
+  - gate: tipos, lint, testes de shared, API, web e Crystal, e build do web;
+  - audit e e2e do login só com e-mail;
+  - e2e completo (Chromium e WebKit): 362 passaram e 7 pulados, sem teste instável.
 - **Imagens `sha-8ed06f8` prontas** (run 43304873715: API, web e Crystal).
 - **Portão local:** rápido verde. O e2e de `suporte`, `otp` e `login-email` também ficou verde.
 

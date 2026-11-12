@@ -2646,6 +2646,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - CI da `sha-8ed06f8` rodando (run 43304841756); imagens prontas (run 43304873715).
 134. **12/11 ~21:40 UTC: CI do `8ed06f8f` (run 43304841756).**
      - Verdes: gate (tipos, lint, 4 suítes, build do web), audit e e2e do login só com e-mail.
-     - O e2e completo ainda rodava.
+     - **~21:48 UTC: e2e completo verde** (Chromium e WebKit: 362 passaram e 7 pulados, sem instável). CI inteiro verde.
+     - **Pode subir.** Volta: `sha-92e785f`.
      - Imagens `sha-8ed06f8` prontas (run 43304873715).
      - Roteiro: `crystal-em-casa/publicar-suporte-rafa.md` (substitui o `publicar-login-cpf.md`; volta `sha-92e785f`).
