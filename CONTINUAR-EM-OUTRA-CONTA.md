@@ -2805,5 +2805,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
          (`sed` + `echo`).
        - O `app-subir` copia o `.externos` inteiro para o `api.env` e confere o `api.env` na imagem antes de trocar. A
          API só aceita `ligado` ou `desligado`, então um valor errado para tudo antes de mexer no ar.
-     - **Falta:** conferir o CI do `8562647f` (gate, audit, e2e do login por e-mail + senha, e2e completo com as 18
-       falhas de mídia já conhecidas) e as imagens. Verde: avisar o dono que pode subir a `sha-8562647`.
+     - **22:31 UTC: CI do `8562647f` verde no que importa. PODE SUBIR a `sha-8562647`.**
+       - Verdes: gate inteiro (tipos, lint, 4 suítes, build do web, bundle do Safari), audit, e2e do login só com e-mail
+         (com o roteiro da senha). Imagens `sha-8562647` prontas.
+       - O e2e completo ainda roda (passa de uma hora). Esperado: as mesmas 18 falhas de mídia/`mobile-audit` da outra
+         sessão. **Falta conferir que não aparece falha nova de login.**

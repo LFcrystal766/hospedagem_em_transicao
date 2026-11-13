@@ -1,4 +1,4 @@
-# Publicar a versão `sha-8562647` (login do cliente com e-mail + senha)
+# Publicar a versão `sha-8562647` (login do cliente com e-mail + senha): PODE SUBIR
 
 Escrito em 13/11/2026. Quem roda é o Luiz, na VPS, como root. Claude não publica nada.
 
@@ -89,8 +89,12 @@ rode o mesmo `app-subir` e o passo da memória.
     visor já estar na tela.
   - Sonda sob carga: 1 em 120 vezes sem o ouvinte.
   - Corrigido no `8562647f` (ouvintes no mesmo commit que mostra o visor): 0 em 200.
-- **CI do `8562647f`** (run 43514432464) e imagens `sha-8562647` (run 43514441747): disparados em 13/11 ~21:52 UTC.
-  Resultado no `CONTINUAR-EM-OUTRA-CONTA.md` (item 144).
+- **CI do `8562647f`** (run 43514432464), conferido em 13/11 ~22:31 UTC:
+  - verdes: **gate inteiro** (tipos, lint, as 4 suítes, build do web e bundle do Safari), audit e **e2e do login só com
+    e-mail**, com o roteiro da senha;
+  - **imagens `sha-8562647` prontas** (run 43514441747);
+  - o e2e completo ainda roda (passa de uma hora). A conferência dele fica no `CONTINUAR-EM-OUTRA-CONTA.md` (item 144).
+- **PODE SUBIR.**
 - **e2e completo:** as 18 falhas de mídia (`mensagens-midia.spec.ts` e `mobile-audit.spec.ts`) já existiam na versão
   da outra sessão. Ver `publicar-integrado.md`.
 
