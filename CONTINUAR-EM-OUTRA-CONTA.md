@@ -2741,3 +2741,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - `app-subir` troca os 3 serviços, então não precisa terminar a volta antes.
      - **Pendência:** corrigir os testes de mídia e de `mobile-audit` da outra sessão (provável: o job e2e não tem ffmpeg,
        e a M05 e a M08 convertem OPUS).
+142. **13/11: o dono perguntou "Suporte qual o CPF".**
+     - Resposta: a conta da equipe (Suporte) não tem CPF e entra por `/login/equipe` com e-mail, senha e código.
+       A tela "E-mail da compra" + "CPF" é só de cliente.
+     - O painel nunca mostra o CPF inteiro de um cliente, só uma parte.
+       - Para conferir: pedir o CPF ao cliente e comparar a parte que aparece.
+       - Se estiver errado, corrigir na ficha.
+       - O cliente também pode deixar o CPF em branco e entrar com o código.
