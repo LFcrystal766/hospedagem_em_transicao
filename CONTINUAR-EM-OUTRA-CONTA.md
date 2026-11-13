@@ -2748,3 +2748,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Para conferir: pedir o CPF ao cliente e comparar a parte que aparece.
        - Se estiver errado, corrigir na ficha.
        - O cliente também pode deixar o CPF em branco e entrar com o código.
+     - Dono: "não é do cliente, é da equipe".
+       - Confirmado no código: a entrada da equipe (`/login/equipe`, `StaffLoginForm`) pede só e-mail e senha, depois o
+         código. Não há CPF.
+       - Se a pessoa vê um campo de CPF, está na tela de cliente (`/login`), que nunca deixa conta de equipe entrar.
+       - O app guarda só a marca e os 4 últimos dígitos: ninguém consegue ver o CPF inteiro de uma conta.
+       - Se a Suporte Crystal ainda não tem senha: admin › Equipe › Suporte Crystal › Definir senha (item 122).
