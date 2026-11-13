@@ -2715,3 +2715,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - **Achado:** 16 compras ativas voltaram depois de um bloqueio (13 em 31/10, 2 do Botão Dourado e o Jefferson).
          Podem estar com a conta do app desligada pelo mesmo motivo.
          - Proposta: a API religar sozinha a conta desligada por reembolso quando a base mostra compra nova e ativa.
+139. **13/11 ~17:00 UTC: volta em andamento na VPS.** O dono rodou o 1º comando: a API voltou para `sha-b5eb55c` e convergiu.
+     - Faltam a Crystal (`sha-b3d02f1`) e o web (`sha-44f4dcd`), e depois o `app-status`.
+     - Versão integrada `b7ca761e`: portão rápido VERDE (tipos, lint e as 4 suítes). CI e imagens `sha-b7ca761` rodando.
