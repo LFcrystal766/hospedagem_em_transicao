@@ -2675,3 +2675,17 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Caminho: painel › Clientes › e-mail dele › ficha › "Reativar acesso" (pede o código de reautenticação).
        - Se depois ele receber "acesso inativo", a compra está bloqueada na base. Liberar no Supabase quando a
          conexão voltar.
+137. **13/11: mais um "sem código", Alessandro, comprador do combo da Black.**
+     - **Hipótese forte:** o produto do combo da Black não está em `crystal_compras_produtos`. É o mesmo caso da V10 em 26/10
+       (item 52).
+       - O `app_compra_evento` marca a compra como `ignorado_produto` e o comprador não entra em `crystal_compras`.
+       - O login não acha a compra e o código não sai (desafio fantasma).
+       - Explica também os 6 "sem compra" de 12/11, liberados à mão.
+     - O Supabase não conectou nesta sessão; diagnóstico não rodado. SQL entregue ao dono para o SQL Editor:
+       - `select produto, produto_id, count(*), max(recebido_em) from crystal_compras_eventos where acao = 'ignorado_produto'
+         and recebido_em > now() - interval '30 days' group by 1, 2 order by 4 desc;`
+       - Depois `insert into crystal_compras_produtos (produto_id, nome) values (…)`, se o dono confirmar que o combo dá o app.
+     - **As compras já ignoradas não voltam sozinhas:** o evento não guarda o e-mail.
+       - Liberar à mão (painel › Liberação manual ou `liberar_manual`).
+       - Ou usar a planilha de vendas da Assiny (e-mail + CPF), que também resolve o CPF.
+     - Alessandro: liberar à mão já (painel ou SQL entregue).
