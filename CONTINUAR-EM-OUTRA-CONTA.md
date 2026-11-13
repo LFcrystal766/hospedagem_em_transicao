@@ -2808,5 +2808,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - **22:31 UTC: CI do `8562647f` verde no que importa. PODE SUBIR a `sha-8562647`.**
        - Verdes: gate inteiro (tipos, lint, 4 suítes, build do web, bundle do Safari), audit, e2e do login só com e-mail
          (com o roteiro da senha). Imagens `sha-8562647` prontas.
-       - O e2e completo ainda roda (passa de uma hora). Esperado: as mesmas 18 falhas de mídia/`mobile-audit` da outra
-         sessão. **Falta conferir que não aparece falha nova de login.**
+       - **23:20 UTC: e2e completo terminou com 441 passaram, 18 falharam e 52 pulados**, os mesmos números da
+         `sha-8c4510c`. As 18 são as mesmas de antes: 14 em `mensagens-midia.spec.ts` e 4 em `mobile-audit.spec.ts`, da
+         outra sessão. Nenhuma falha de login ou de senha. A `sha-8562647` está conferida por inteiro.
+     - **Pendência que continua:** corrigir os testes de mídia e de `mobile-audit` da outra sessão (item 141).

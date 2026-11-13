@@ -93,7 +93,9 @@ rode o mesmo `app-subir` e o passo da memória.
   - verdes: **gate inteiro** (tipos, lint, as 4 suítes, build do web e bundle do Safari), audit e **e2e do login só com
     e-mail**, com o roteiro da senha;
   - **imagens `sha-8562647` prontas** (run 43514441747);
-  - o e2e completo ainda roda (passa de uma hora). A conferência dele fica no `CONTINUAR-EM-OUTRA-CONTA.md` (item 144).
+  - e2e completo (terminou 23:20 UTC): 441 passaram, 18 falharam, 52 pulados. São os mesmos números da
+    `sha-8c4510c`, e as 18 são as mesmas falhas de mídia (14 em `mensagens-midia.spec.ts`) e de `mobile-audit.spec.ts`
+    (4) da outra sessão. Nenhuma falha de login ou de senha.
 - **PODE SUBIR.**
 - **e2e completo:** as 18 falhas de mídia (`mensagens-midia.spec.ts` e `mobile-audit.spec.ts`) já existiam na versão
   da outra sessão. Ver `publicar-integrado.md`.
