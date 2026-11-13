@@ -2754,3 +2754,30 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Se a pessoa vê um campo de CPF, está na tela de cliente (`/login`), que nunca deixa conta de equipe entrar.
        - O app guarda só a marca e os 4 últimos dígitos: ninguém consegue ver o CPF inteiro de uma conta.
        - Se a Suporte Crystal ainda não tem senha: admin › Equipe › Suporte Crystal › Definir senha (item 122).
+143. **13/11: o dono pediu "vamos colocar e-mail e senha, nem CPF tá dando certo".**
+     - Pedidos do dono no meio do caminho:
+       - "para entrar a primeira vez fazemos um check com o e-mail";
+       - "o esqueci a senha manda um e-mail";
+       - "o botão de primeiro acesso";
+       - "ter a opção de código por e-mail para quem quiser".
+     - **Branch `painel/login-senha` do app, `3e1d7a9`** (sobre a integrada `8c4510c`).
+     - **API:**
+       - `POST /auth/senha`: e-mail + senha, sem código. Desconhecido, sem senha, equipe e senha errada dão sempre o mesmo
+         401; o motivo só aparece depois da senha certa (desligada, inativa, fora do lote, OK na política).
+       - `PUT /me/senha`: sem a atual até 15 min depois de entrar pelo código (janela no Redis, de uso único). Fora disso
+         pede a atual (403). Derruba as outras sessões.
+       - `tem_senha` no `/me`; `senha` no `/auth/modo`; chave `LOGIN_SENHA` (padrão ligado); evento `login_senha_fail`.
+     - **Web:**
+       - `/login` com e-mail + senha;
+       - "Primeiro acesso: criar senha" (botão em destaque), "Esqueci a senha" e "Entrar com código por e-mail".
+         Os três vão só com o e-mail (sem CPF) e o código por e-mail;
+       - primeiro acesso e esqueci levam a `/criar-senha` (8+ caracteres, repetir).
+     - **Testes:**
+       - API 9 novos (`auth-senha.test.ts`);
+       - web: `LoginSenhaForm`, `CriarSenhaForm`, `login-modo`;
+       - e2e `login-senha.spec.ts`, com config próprio `playwright.senha.config.ts`: 3 de 3;
+       - e2e do login por e-mail: 13 de 13;
+       - portão rápido verde, depois de ajustar o teste do `/auth/modo`.
+     - CI rodando; imagens `sha-3e1d7a9` disparadas. Ainda não subir; o roteiro vem depois do CI.
+     - Depois de subir, todo cliente cria a senha uma vez pelo "Primeiro acesso" (código no e-mail).
+       - Desligar: `app-definir LOGIN_SENHA` → `desligado`, e volta a tela de antes.
