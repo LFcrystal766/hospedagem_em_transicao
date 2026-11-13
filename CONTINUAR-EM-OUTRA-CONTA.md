@@ -2728,3 +2728,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Subir `sha-8c4510c` com `app-subir` e o passo da memória.
        - Volta: as 3 tags antigas por `docker service update --image`.
      - Não há migração nova: a `wmm1_01` já está no banco.
+     - **18:36 UTC, CI do `8c4510c` (run 43473770258):**
+       - verdes: gate (inclusive a API, que tinha caído antes), audit e e2e do login só com e-mail;
+       - imagens `sha-8c4510c` prontas (run 43473780023);
+       - o e2e completo ainda rodava.
