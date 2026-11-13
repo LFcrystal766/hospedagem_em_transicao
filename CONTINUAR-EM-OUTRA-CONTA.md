@@ -2650,3 +2650,20 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - **Pode subir.** Volta: `sha-92e785f`.
      - Imagens `sha-8ed06f8` prontas (run 43304873715).
      - Roteiro: `crystal-em-casa/publicar-suporte-rafa.md` (substitui o `publicar-login-cpf.md`; volta `sha-92e785f`).
+135. **13/11: CPF obrigatório na `sha-8ed06f8` era um problema; e dois casos do suporte.**
+     - **Achado:** no modo e-mail com CPF (`sha-a860e69` e `sha-8ed06f8`), a tela EXIGIA um CPF válido. Cliente de fora do
+       Brasil (caso do Pedro, de Portugal) não entraria.
+       - Correção na `painel/suporte-rafa`, ainda sem commit no início deste item: CPF em branco manda só o e-mail e leva
+         ao código. CPF digitado errado continua travando com a frase.
+       - Dica nova: "Não tem CPF? Deixe em branco: eu mando um código no seu e-mail."
+       - Testes: formulário (53), API (14, inclusive documento de fora com 8 dígitos, que nunca vira CPF) e e2e (g).
+       - Portão rápido verde. **Não subir a `sha-8ed06f8`**; a versão nova vem com tag própria.
+       - Se a `sha-8ed06f8` já tiver subido: `app-definir LOGIN_CPF` → `desligado`, `app-subir` com a mesma tag e o passo
+         da memória (volta ao login só com e-mail).
+     - **Pedro (Portugal):** documento de 8 dígitos (não é CPF), compra de 04/08. O Supabase não conectou nesta sessão;
+       base não conferida.
+       - Por ora, o suporte usa "Pegar código de acesso" na ficha.
+     - **Jefferson:** recebeu "Seu acesso está desligado" (código ACCOUNT_DISABLED), ou seja, a conta do app está desligada.
+       - Causas possíveis: reembolso/chargeback da Assiny, alguém da equipe desligou na ficha, ou pré-bloqueio.
+       - O suporte vê na ficha (Histórico) e, se foi engano, usa "Reativar acesso".
+       - A compra no Supabase ainda não foi conferida.
