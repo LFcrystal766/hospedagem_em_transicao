@@ -2732,3 +2732,12 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - verdes: gate (inclusive a API, que tinha caído antes), audit e e2e do login só com e-mail;
        - imagens `sha-8c4510c` prontas (run 43473780023);
        - o e2e completo ainda rodava.
+141. **13/11 ~19:05 UTC: e2e completo do `8c4510c`: 441 passaram e 18 falharam.**
+     - Falhas: 15 em `mensagens-midia.spec.ts` (M05, M06, M08, M12) e o resto em `mobile-audit` (equipe e U58).
+     - **Já existiam:** o CI da branch da outra sessão (`painel/mensagens-midia` `288dc92c`, run 43259024771) também tinha o
+       gate e o e2e vermelhos, com o mesmo pacote de 159 arquivos de falha. É a versão que estava no ar.
+     - O que a junção mexe (login, CPF opcional, suporte Rafa) passou.
+     - **Recomendação ao dono: subir a `sha-8c4510c`.** É a versão que estava no ar + Rafa + CPF opcional.
+       - `app-subir` troca os 3 serviços, então não precisa terminar a volta antes.
+     - **Pendência:** corrigir os testes de mídia e de `mobile-audit` da outra sessão (provável: o job e2e não tem ffmpeg,
+       e a M05 e a M08 convertem OPUS).

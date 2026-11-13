@@ -52,8 +52,16 @@ A **`sha-8c4510c`** (branch **`painel/integrado-rafa`**, commit `8c4510c`) junta
 - **1º CI (`b7ca761e`):**
   - verdes: audit e e2e do login só com e-mail;
   - o gate caiu num teste instável da outra sessão (`anonymous-copy`, ordem de duas bolhas). Corrigido no `8c4510c`.
-- **CI do `8c4510c`** e imagens `sha-8c4510c` disparados em 13/11 ~17:40 UTC. A conferência final fica no
-  `CONTINUAR-EM-OUTRA-CONTA.md` (item 140).
+- **CI do `8c4510c`** (run 43473770258):
+  - verdes: gate (tipos, lint, as 4 suítes e o build do web), audit e e2e do login só com e-mail;
+  - imagens `sha-8c4510c` prontas (run 43473780023);
+  - e2e completo: 441 passaram e 18 falharam.
+- **As 18 falhas não vêm desta junção.** São 15 de `mensagens-midia.spec.ts` e 3+1 de `mobile-audit.spec.ts`.
+  - O CI da própria branch da outra sessão (`painel/mensagens-midia`, run 43259024771, commit `288dc92c`) já tinha
+    o e2e vermelho, com o mesmo pacote de 159 arquivos de falha.
+  - Essa é a versão que estava no ar desde 12/11.
+  - O que esta junção mexe (login, CPF, suporte, Rafa) passou inteiro.
+  - Corrigir os testes de mídia da outra sessão fica como tarefa à parte.
 
 ## Subir (no terminal da VPS, um por vez)
 
