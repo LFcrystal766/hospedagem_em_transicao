@@ -2780,4 +2780,30 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - portão rápido verde, depois de ajustar o teste do `/auth/modo`.
      - CI rodando; imagens `sha-3e1d7a9` disparadas. Ainda não subir; o roteiro vem depois do CI.
      - Depois de subir, todo cliente cria a senha uma vez pelo "Primeiro acesso" (código no e-mail).
-       - Desligar: `app-definir LOGIN_SENHA` → `desligado`, e volta a tela de antes.
+       - Desligar: `LOGIN_SENHA=desligado` no `.externos` (o `app-definir` não aceita esse nome; ver item 144), e
+         volta a tela de antes.
+144. **13/11 ~21:45 UTC: CI do `3e1d7a9` e versão `sha-8562647`.**
+     - **CI do `3e1d7a9`** (run 43503819492):
+       - verdes: audit e e2e do login só com e-mail, que já roda o roteiro da senha;
+       - imagens `sha-3e1d7a9` prontas;
+       - o gate caiu em 1 teste da visualização única da outra sessão (`VisualizacaoUnica.test.tsx`, "a volta do
+         bfcache sem pageshow").
+     - **Causa: corrida de tempo, não a senha.**
+       - Os ouvintes de `pagehide`/`visibilitychange` do visor estavam num `useEffect`. Com a máquina carregada, ele roda
+         depois de o visor já estar na tela.
+       - Sonda sob carga: 1 em 120 vezes sem o ouvinte.
+       - **Correção `8562647f`:** `useLayoutEffect`, ouvintes no mesmo commit que mostra o visor. Na mesma sonda, 0 em 200.
+       - No app, fecha também o intervalo em que mandar para segundo plano logo depois de abrir não fechava.
+     - **Portão local do `8562647f`:** tipos, lint e web inteiro verdes (239 arquivos, 2.860 testes).
+     - **Disparados ~21:52 UTC:** CI (run 43514432464) e imagens `sha-8562647` (run 43514441747).
+     - **Roteiro `crystal-em-casa/publicar-login-senha.md`:** subir, conferir no iPhone, desligar só a senha, voltar para
+       `sha-8c4510c`.
+     - **Achado no bootstrap: o `app-definir` e o `app-remover` só aceitam nomes da lista `APP_EXTERNOS`.**
+       - `LOGIN_CPF` e `LOGIN_SENHA` não estão nela.
+       - Os roteiros `publicar-integrado.md`, `publicar-login-cpf.md` e `publicar-suporte-rafa.md` mandavam
+         `app-definir LOGIN_CPF`, que falharia. Corrigidos: a linha vai direto no `/root/crystal/app/.externos`
+         (`sed` + `echo`).
+       - O `app-subir` copia o `.externos` inteiro para o `api.env` e confere o `api.env` na imagem antes de trocar. A
+         API só aceita `ligado` ou `desligado`, então um valor errado para tudo antes de mexer no ar.
+     - **Falta:** conferir o CI do `8562647f` (gate, audit, e2e do login por e-mail + senha, e2e completo com as 18
+       falhas de mídia já conhecidas) e as imagens. Verde: avisar o dono que pode subir a `sha-8562647`.

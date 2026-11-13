@@ -40,7 +40,8 @@ A **`sha-8c4510c`** (branch **`painel/integrado-rafa`**, commit `8c4510c`) junta
 - **Nenhuma migração nova.** A `wmm1_01_aviso_midia` da outra sessão já está no banco, porque a API `sha-b5eb55c` a aplicou.
 - **Nenhuma variável nova obrigatória.** O padrão é `LOGIN_CPF=ligado`.
 - **Desligar só o CPF**, sem voltar a versão:
-  1. `bash bootstrap-vps.sh app-definir LOGIN_CPF` e digitar `desligado`;
+  1. `sed -i '/^LOGIN_CPF=/d' /root/crystal/app/.externos && echo 'LOGIN_CPF=desligado' >> /root/crystal/app/.externos`
+     (o `app-definir` não aceita `LOGIN_CPF`: o nome não está na lista dele; para religar, só o `sed`);
   2. `app-subir` com a mesma tag;
   3. o passo da memória.
 - **Volta:** as três tags anteriores, uma por serviço (comandos no fim). Sem volta de banco.

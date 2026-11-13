@@ -44,7 +44,8 @@ no ar desde 10/11, mais duas coisas:
 - **Banco do app: nenhuma migração nova.**
 - **Nenhuma variável nova obrigatória.** O padrão é `LOGIN_CPF=ligado`.
 - **Desligar só o CPF**, sem voltar a versão:
-  1. `bash bootstrap-vps.sh app-definir LOGIN_CPF` e digitar `desligado`;
+  1. `sed -i '/^LOGIN_CPF=/d' /root/crystal/app/.externos && echo 'LOGIN_CPF=desligado' >> /root/crystal/app/.externos`
+     (o `app-definir` não aceita `LOGIN_CPF`: o nome não está na lista dele; para religar, só o `sed`);
   2. `app-subir` com a mesma tag;
   3. o passo da memória.
 - **Volta da versão:** `sha-92e785f`, com o passo da memória. Sem volta de banco. As colunas e funções novas do

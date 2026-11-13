@@ -29,7 +29,8 @@ entra (achado de 13/11, cliente de Portugal).
 - **Nenhuma migração nova** no banco do app. O Supabase do login com CPF já foi aplicado em 11/11.
 - **Nenhuma variável nova obrigatória.** O padrão é `LOGIN_CPF=ligado`.
 - **Desligar só o CPF**, sem voltar a versão:
-  1. `bash bootstrap-vps.sh app-definir LOGIN_CPF` e digitar `desligado`;
+  1. `sed -i '/^LOGIN_CPF=/d' /root/crystal/app/.externos && echo 'LOGIN_CPF=desligado' >> /root/crystal/app/.externos`
+     (o `app-definir` não aceita `LOGIN_CPF`: o nome não está na lista dele; para religar, só o `sed`);
   2. `app-subir` com a mesma tag;
   3. o passo da memória.
 - **Volta da versão:** `sha-92e785f`, com o passo da memória. Sem volta de banco.
