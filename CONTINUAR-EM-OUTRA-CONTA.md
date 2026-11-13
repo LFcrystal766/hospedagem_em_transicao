@@ -2718,3 +2718,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 139. **13/11 ~17:00 UTC: volta em andamento na VPS.** O dono rodou o 1º comando: a API voltou para `sha-b5eb55c` e convergiu.
      - Faltam a Crystal (`sha-b3d02f1`) e o web (`sha-44f4dcd`), e depois o `app-status`.
      - Versão integrada `b7ca761e`: portão rápido VERDE (tipos, lint e as 4 suítes). CI e imagens `sha-b7ca761` rodando.
+140. **13/11 ~17:40 UTC: versão integrada `sha-8c4510c`.**
+     - **1º CI (`b7ca761e`, run 43466262236):** audit e e2e do login só com e-mail verdes.
+       - O gate caiu em `anonymous-copy.test.ts` "M03": teste da outra sessão; duas bolhas no mesmo milissegundo vieram em
+         ordem trocada.
+       - Corrigido no `8c4510c`: o teste confere as duas sem depender da ordem.
+       - Esse CI foi cancelado. CI novo no push e imagens `sha-8c4510c` disparadas.
+     - **Roteiro:** `crystal-em-casa/publicar-integrado.md`.
+       - Subir `sha-8c4510c` com `app-subir` e o passo da memória.
+       - Volta: as 3 tags antigas por `docker service update --image`.
+     - Não há migração nova: a `wmm1_01` já está no banco.
