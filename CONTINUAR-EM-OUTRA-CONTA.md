@@ -2667,3 +2667,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Causas possíveis: reembolso/chargeback da Assiny, alguém da equipe desligou na ficha, ou pré-bloqueio.
        - O suporte vê na ficha (Histórico) e, se foi engano, usa "Reativar acesso".
        - A compra no Supabase ainda não foi conferida.
+136. **13/11 ~14:15 UTC: commit `25afaf7f` na `painel/suporte-rafa`.** Traz o CPF opcional.
+     - CI rodando (run 43440954158) e imagens `sha-25afaf7` disparadas.
+     - Roteiro `crystal-em-casa/publicar-suporte-rafa.md` atualizado para a `sha-25afaf7`.
+     - **Jefferson: o dono pediu "reativar acesso".**
+       - O Claude não alcança o banco do app (VPS) e o Supabase não conectou nesta sessão.
+       - Caminho: painel › Clientes › e-mail dele › ficha › "Reativar acesso" (pede o código de reautenticação).
+       - Se depois ele receber "acesso inativo", a compra está bloqueada na base. Liberar no Supabase quando a
+         conexão voltar.
