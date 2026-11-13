@@ -2689,3 +2689,29 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Liberar à mão (painel › Liberação manual ou `liberar_manual`).
        - Ou usar a planilha de vendas da Assiny (e-mail + CPF), que também resolve o CPF.
      - Alessandro: liberar à mão já (painel ou SQL entregue).
+138. **13/11 ~14:07 UTC: o dono subiu a `sha-8ed06f8`, mas o que estava no ar NÃO era a `sha-92e785f`.**
+     - **Antes estavam:** API `sha-b5eb55c`, Crystal `sha-b3d02f1` e web `sha-44f4dcd`. São da outra sessão, branch
+       `fix/notificacao-abre-conversa-ios`.
+       - Essa versão parte da `a860e695` (o login com CPF) e tem mais 151 commits: mídia nas mensagens (M01–M12),
+         visualização única, exclusão de disparos e o toque na notificação abrindo a conversa (iOS).
+       - Tem a migração `wmm1_01_aviso_midia`.
+     - **A `sha-8ed06f8` tirou tudo isso do ar.** O banco não muda: a `8ed06f8` não traz migração nova e a `wmm1_01` fica
+       no banco.
+     - **O CPF obrigatório já estava no ar desde a versão da outra sessão.** Isso explica o Pedro (Portugal).
+     - **Volta imediata entregue ao dono:** `docker service update --image` nos 3 serviços, com as tags antigas. O passo da
+       memória continua, porque `--image` não mexe nos limites.
+     - **Versão integrada:** branch `painel/integrado-rafa`, commit `b7ca761e` = `44f4dcd9` + merge da `painel/suporte-rafa`
+       (Rafa + CPF opcional).
+       - Merge sem conflito. Portão rápido rodando; imagens `sha-b7ca761` disparadas; CI do push rodando.
+     - **Supabase voltou:**
+       - **Combo da Black:** nenhum evento ignorado em 30 dias. O único "ignorado" é o "Pacote de Imagens", e isso é normal.
+         A compra do combo NÃO chega ao nosso n8n. Provável: o webhook da Assiny não está ligado ao produto do combo.
+         Ação do dono na Assiny.
+       - **Alessandro:** liberado à mão, com a marca do CPF (`liberado` e `cpf_confere` verdadeiros).
+       - **Pedro:** está na base e `liberado`. O bloqueio era o CPF obrigatório na tela; com a versão integrada, entra
+         deixando o CPF em branco. Por ora: "Pegar código de acesso" na ficha não basta, porque a tela nem envia.
+       - **Jefferson:** foi bloqueado em 25/10 e recomprou ("CRYSTAL - Recuperação") em 12/11. A base está `active`, mas a
+         conta do app ficou desligada desde o reembolso. Precisa de "Reativar acesso" no painel.
+       - **Achado:** 16 compras ativas voltaram depois de um bloqueio (13 em 31/10, 2 do Botão Dourado e o Jefferson).
+         Podem estar com a conta do app desligada pelo mesmo motivo.
+         - Proposta: a API religar sozinha a conta desligada por reembolso quando a base mostra compra nova e ativa.
