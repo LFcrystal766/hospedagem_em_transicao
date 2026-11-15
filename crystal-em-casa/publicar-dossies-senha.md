@@ -1,6 +1,17 @@
-# Publicar a versão `sha-2e2e745` (Dossiês + login com senha): PODE SUBIR
+# Publicar a versão `sha-2e2e745` (Dossiês + login com senha): NO AR desde 15/11 ~18:40 UTC
 
 Escrito em 15/11/2026. Quem roda é o Luiz, na VPS, como root. Claude não publica nada.
+
+> **Correção de 15/11, depois da subida.** O `app-status` de antes da subida mostrou que os Dossiês **já estavam no
+> ar**: API e Crystal em `sha-1c859a9` (`painel/arquivo-conversas`) e web em `sha-bcfca1f`
+> (`painel/dossies-aviso-desativado`).
+>
+> - A outra sessão montou essas imagens na própria VPS, com `bootstrap-vps.sh app-construir`, que baixa o commit exato
+>   do GitHub sem passar pelo GitHub Actions. Por isso elas não apareciam na lista do `imagens-vps`, e a conferência
+>   abaixo dizia "nunca publicados".
+> - Os dois commits (`1c859a96` e `bcfca1f1`) estão dentro da `2e2e745f`: nada se perdeu.
+> - As migrações `wdc1_01` e `wdc2_01` já tinham sido aplicadas por aquela versão.
+> - **A volta passou a ser as tags de antes** (fim deste arquivo), não a `sha-8c4510c`, que tiraria os Dossiês.
 
 ## Por que esta versão existe
 
@@ -110,10 +121,16 @@ de aparecer em `sha-2e2e745`.
 
 ## Volta da versão
 
+A versão que estava no ar antes da `sha-2e2e745` (Dossiês, sem a senha), uma tag por serviço. As imagens foram
+montadas na VPS (`app-construir`) e não existem no ghcr.io, por isso o `--no-resolve-image`:
+
 ```bash
-REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-8c4510c
-docker service update --limit-cpu 1 --limit-memory 2560M --env-add NODE_OPTIONS=--max-old-space-size=2048 crystal_app_app_crystal
-docker service update --limit-memory 2048M --env-add NODE_OPTIONS=--max-old-space-size=1536 crystal_app_app_api
+docker service update --no-resolve-image --image ghcr.io/lfcrystal766/crystal-web-chat-api:sha-1c859a9 crystal_app_app_api
+docker service update --no-resolve-image --image ghcr.io/lfcrystal766/crystal-web-chat-crystal:sha-1c859a9 crystal_app_app_crystal
+docker service update --no-resolve-image --image ghcr.io/lfcrystal766/crystal-web-chat-web:sha-bcfca1f crystal_app_app_web
+bash bootstrap-vps.sh app-status
 ```
 
-Para manter a senha e tirar só os Dossiês, a volta é a `sha-8562647`, com o mesmo passo da memória.
+`--image` não mexe nos limites de memória, então não precisa repetir o passo da memória.
+
+**Não volte para a `sha-8c4510c` nem para a `sha-8562647`:** as duas tiram os Dossiês, que já estavam no ar.

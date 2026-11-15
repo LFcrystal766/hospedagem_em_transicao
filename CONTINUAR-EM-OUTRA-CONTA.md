@@ -2842,3 +2842,25 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
          43745726368).
        - O e2e completo (run 43745723989) ainda roda, cerca de 1 h 40. Esperado: as mesmas 18 falhas de mídia e de
          `mobile-audit`. **Falta conferir que não aparece falha nova.**
+146. **15/11 ~18:40 UTC: o dono subiu a `sha-2e2e745`. NO AR.**
+     - **Saída da VPS:**
+       - `app-subir` ok: o `api.env` passou na imagem nova e os três serviços ficaram em `sha-2e2e745`, sem rollback;
+       - HTTPS 200 em `app.` e `api.`; base de alunos ok;
+       - passo da memória feito nos dois serviços.
+     - **Correção do item 145.** O `app-status` de antes da subida mostrou que os Dossiês **estavam no ar**:
+       - API e Crystal em `sha-1c859a9` (`painel/arquivo-conversas`) e web em `sha-bcfca1f`
+         (`painel/dossies-aviso-desativado`);
+       - a outra sessão montou essas imagens na VPS com `app-construir REF`, que baixa o commit exato do GitHub, sem o
+         GitHub Actions; por isso não apareciam no `imagens-vps`;
+       - **os dois commits estão dentro da `2e2e745f`: nada se perdeu**; as migrações `wdc1_01`/`wdc2_01` já estavam
+         aplicadas.
+     - **Volta agora = as 3 tags de antes**, com `docker service update --no-resolve-image --image` (API e Crystal
+       `sha-1c859a9`, web `sha-bcfca1f`). Nunca `sha-8c4510c` nem `sha-8562647`, que tiram os Dossiês. Roteiro
+       corrigido.
+     - **Lição:** para saber o que está no ar, usar o `app-status` do dono, não só a lista do `imagens-vps`. O
+       `app-construir` monta imagens sem deixar rastro no GitHub Actions.
+     - **Base de todo trabalho novo: `painel/dossies-senha` (`2e2e745f`).** Uma branch que parta de antes dela tira a
+       senha ou os Dossiês.
+     - **Falta:**
+       - o dono conferir no iPhone (`publicar-dossies-senha.md`);
+       - o e2e completo do `2e2e745f` (run 43745723989; conferência agendada para 20:02 UTC).
