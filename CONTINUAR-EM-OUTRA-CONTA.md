@@ -2863,4 +2863,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        senha ou os Dossiês.
      - **Falta:**
        - o dono conferir no iPhone (`publicar-dossies-senha.md`);
-       - o e2e completo do `2e2e745f` (run 43745723989; conferência agendada para 20:02 UTC).
+       - ~~o e2e completo do `2e2e745f`~~ **feito às 20:03 UTC** (run 43745723989): 481 passaram, 18 falharam, 56
+         pulados. As 18 são as mesmas de antes (14 de `mensagens-midia.spec.ts`, 4 de `mobile-audit.spec.ts`). Nenhuma
+         falha de login, senha ou Dossiês. A `sha-2e2e745` está conferida por inteiro.
+     - **Pendência que continua:** corrigir os testes de mídia e de `mobile-audit` da outra sessão (item 141).

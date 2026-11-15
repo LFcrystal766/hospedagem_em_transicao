@@ -82,7 +82,9 @@ A **`sha-2e2e745`** (branch **`painel/dossies-senha`**, commit `2e2e745f`) junta
   - verdes: **gate inteiro** (tipos, lint, as 4 suítes, build do web e bundle do Safari), audit e **e2e do login só
     com e-mail**, com o roteiro da senha;
   - **imagens `sha-2e2e745` prontas** (run 43745726368);
-  - o e2e completo ainda roda (cerca de 1 h 40). A conferência dele fica no `CONTINUAR-EM-OUTRA-CONTA.md` (item 145).
+  - e2e completo (terminou 19:56 UTC): 481 passaram, 18 falharam, 56 pulados. As 18 são as mesmas falhas de mídia
+    (`mensagens-midia.spec.ts`) e de `mobile-audit.spec.ts` da outra sessão. Nenhuma falha de login, senha ou
+    Dossiês.
 - **PODE SUBIR.**
 
 ## Subir (no terminal da VPS, um por vez)
