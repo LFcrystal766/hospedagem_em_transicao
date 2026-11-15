@@ -1,4 +1,4 @@
-# Publicar a versão `sha-2e2e745` (Dossiês + login com senha)
+# Publicar a versão `sha-2e2e745` (Dossiês + login com senha): PODE SUBIR
 
 Escrito em 15/11/2026. Quem roda é o Luiz, na VPS, como root. Claude não publica nada.
 
@@ -67,8 +67,12 @@ A **`sha-2e2e745`** (branch **`painel/dossies-senha`**, commit `2e2e745f`) junta
   - testes: shared 478, Crystal 1.290, web 2.958, API 2.731.
 - **CI da branch dos Dossiês sozinha** (run 43655268860): gate, audit e e2e do login verdes. O e2e completo teve 480
   passaram e as mesmas 18 falhas de mídia/`mobile-audit` de antes, mais 1 teste que passou na segunda tentativa.
-- **CI do `2e2e745f`** e imagens `sha-2e2e745`: disparados em 15/11. O resultado fica no `CONTINUAR-EM-OUTRA-CONTA.md`
-  (item 145). **Só subir depois de o CONTINUAR dizer PODE SUBIR.**
+- **CI do `2e2e745f`** (run 43745723989), conferido em 15/11 ~18:32 UTC:
+  - verdes: **gate inteiro** (tipos, lint, as 4 suítes, build do web e bundle do Safari), audit e **e2e do login só
+    com e-mail**, com o roteiro da senha;
+  - **imagens `sha-2e2e745` prontas** (run 43745726368);
+  - o e2e completo ainda roda (cerca de 1 h 40). A conferência dele fica no `CONTINUAR-EM-OUTRA-CONTA.md` (item 145).
+- **PODE SUBIR.**
 
 ## Subir (no terminal da VPS, um por vez)
 

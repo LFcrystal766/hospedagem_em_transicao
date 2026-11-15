@@ -2837,5 +2837,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - `op_dossie` desligado de fábrica: a seção mostra o recado de desativado e não gasta tokens.
        - O importador `arquivo:importar` é um comando à mão.
      - **Disparados em 15/11:** CI e imagens `sha-2e2e745`. Roteiro `crystal-em-casa/publicar-dossies-senha.md`.
-     - **Falta:** conferir o CI (gate, audit, e2e do login + senha, e2e completo com as 18 conhecidas) e as imagens.
-       Verde: PODE SUBIR a `sha-2e2e745` no lugar da `sha-8562647`.
+     - **18:32 UTC: CI do `2e2e745f` verde no que importa. PODE SUBIR a `sha-2e2e745` no lugar da `sha-8562647`.**
+       - Verdes: gate inteiro, audit, e2e do login só com e-mail (com a senha). Imagens `sha-2e2e745` prontas (run
+         43745726368).
+       - O e2e completo (run 43745723989) ainda roda, cerca de 1 h 40. Esperado: as mesmas 18 falhas de mídia e de
+         `mobile-audit`. **Falta conferir que não aparece falha nova.**
