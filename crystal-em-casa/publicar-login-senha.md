@@ -2,6 +2,10 @@
 
 Escrito em 13/11/2026. Quem roda é o Luiz, na VPS, como root. Claude não publica nada.
 
+> **15/11:** esta versão não tem os Dossiês de outra sessão (13 e 14/11, nunca publicados). A versão com tudo é a
+> `sha-2e2e745` (esta + Dossiês): ver `publicar-dossies-senha.md`. A `sha-8562647` continua valendo como volta que
+> mantém a senha.
+
 ## O que é
 
 A **`sha-8562647`** (branch **`painel/login-senha`**, commit `8562647f`) é a versão integrada `sha-8c4510c` (mídia,

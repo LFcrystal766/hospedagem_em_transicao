@@ -2812,3 +2812,30 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
          `sha-8c4510c`. As 18 são as mesmas de antes: 14 em `mensagens-midia.spec.ts` e 4 em `mobile-audit.spec.ts`, da
          outra sessão. Nenhuma falha de login ou de senha. A `sha-8562647` está conferida por inteiro.
      - **Pendência que continua:** corrigir os testes de mídia e de `mobile-audit` da outra sessão (item 141).
+145. **15/11: o dono pediu "veja se a imagem está de acordo com a última atualizada, não vai perder nada da versão
+     atual de design, funcionalidade etc."**
+     - **Tudo o que já esteve no ar está dentro da `8562647f`.** Conferido por ancestralidade, versão por versão:
+       - as 3 tags antigas (`b5eb55c`, `b3d02f1`, `44f4dcd`);
+       - `8c4510c`, `25afaf7`, `8ed06f8`, `a860e69`, `28dbd23`, `92e785f`, `e3e75c5`, `cd2705a`, `1db2e16`, `20da7ee`.
+     - **A última imagem do repositório era a `sha-8562647`** (imagens-vps run 126). Só esse workflow gera imagem para a
+       VPS, então nada mais novo pode estar no ar.
+     - **Achado: outra sessão (`session_01Hj4P79…`) fez os Dossiês em 13 e 14/11, a partir da mesma base `8c4510c`.**
+       - Branches em sequência: `painel/dossies` → `painel/arquivo-conversas` → `painel/dossies-aviso-desativado`
+         (`bcfca1f1`).
+       - Nunca publicados e sem imagem. Não têm a senha.
+       - O CI deles (run 43655268860): gate, audit e e2e do login verdes; e2e completo com 480 passaram e as 18 falhas
+         já conhecidas, mais 1 teste que passou na segunda tentativa.
+     - **Outras branches fora da `8562647f`:** só experimentos e trabalho antigo que nunca esteve no ar:
+       - `crystal/motor-3` (10/11, 14 commits);
+       - `m2wip/*`, `otimizacao/*`, `correcao/foto-e-velocidade-chatwoot`, `backup/onda4…` (outubro);
+       - `lfchat/g0-discovery`, `legacy/mvp-original`.
+     - **Versão com tudo: branch `painel/dossies-senha`, `2e2e745f`** = `8562647f` + `bcfca1f1`.
+       - Junção sem conflito. Os dois lados mexeram em `auth.ts`, `microcopy.ts` e nos ajudantes de teste; o lado dos
+         Dossiês só tira o telefone antigo do dossiê, sem tocar na senha.
+       - Portão local verde: tipos, lint; testes shared 478, Crystal 1.290, web 2.958, API 2.731.
+       - Migrações `wdc1_01_dossies` (8 tabelas) e `wdc2_01_conversa_arquivo` (3 tabelas): só `CREATE`.
+       - `op_dossie` desligado de fábrica: a seção mostra o recado de desativado e não gasta tokens.
+       - O importador `arquivo:importar` é um comando à mão.
+     - **Disparados em 15/11:** CI e imagens `sha-2e2e745`. Roteiro `crystal-em-casa/publicar-dossies-senha.md`.
+     - **Falta:** conferir o CI (gate, audit, e2e do login + senha, e2e completo com as 18 conhecidas) e as imagens.
+       Verde: PODE SUBIR a `sha-2e2e745` no lugar da `sha-8562647`.
