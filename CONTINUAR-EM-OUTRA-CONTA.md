@@ -3033,3 +3033,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Page Rules: Read;
        - Cache Rules: Read;
        - Analytics: Read.
+154. **16/11: o dono escolheu (b), a chave da zona e o script. O formulário seguro não abriu: a conversa estava longa
+     demais.**
+     - **O dono põe a chave nas configurações do ambiente:**
+       - menu do ambiente no título da sessão › Edit › Network secrets (ou API credentials);
+       - host `api.cloudflare.com`, cabeçalho `Authorization`, valor `Bearer <token>`.
+     - **Na sessão que rodar:**
+       - `export CLOUDFLARE_API_TOKEN=substituido-pelo-proxy`: o script manda `Authorization: Bearer …` e o proxy troca
+         pelo valor salvo;
+       - primeiro uma leitura de teste (`scripts/cloudflare-degrau2.sh foto`).
+       - Se esta sessão não pegar a chave, a madrugada roda numa sessão nova ("a new session picks it up").
+     - **Data proposta:** madrugada de quarta, 18/11, às 02:00 BRT. Aviso ao time hoje, 16/11. Esperando o dono
+       confirmar.
