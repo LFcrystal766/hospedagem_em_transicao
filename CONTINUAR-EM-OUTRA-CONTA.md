@@ -3079,3 +3079,13 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Origin CA antes de 26/12;
        - apagar a chave.
      - Relatório: `auditorias/2026-11-16/RELATORIO.md`.
+157. **16/11 00:30 BRT: consolidação do degrau 2 feita.** O dono não tinha mandado o `colo=`, mas as métricas do
+     Cloudflare mostraram os visitantes do Brasil todos em POP do Brasil (GRU 2.602, GIG 342…).
+     - `saude` 30 min: 3.999 pedidos e 0 ruins.
+     - `https` (Always Use HTTPS) e `regras` (xmlrpc 403, freio no wp-login, `/crystal-teste` sem barra) aplicados.
+     - `saude` e `validar` ok depois de cada passo.
+     - **Faltam:**
+       - conferências das 07:00 e das 12:00 BRT (agendadas);
+       - Origin CA antes de 26/12;
+       - regra do `fbclid` em redirecionamento;
+       - apagar a chave depois das 12:00.

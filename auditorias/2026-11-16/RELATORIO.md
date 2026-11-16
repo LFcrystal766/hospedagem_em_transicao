@@ -36,12 +36,31 @@ Pedido do dono às 23:39 BRT: "faça agora!", "pode mandar bala", "agora inclusi
 - **As 56 páginas da lista** (`site-estatico/ferramentas/paginas.txt`): 56 com 200 e `cf-ray`.
 - **Fora do muro:** `server./healthz` 200; `app.` 200 e `api./healthz` 200, sem Cloudflare.
 
+## Consolidação (16/11, 00:30–00:33 BRT)
+
+- **`saude` (30 min):** 3.999 pedidos e 0 ruins.
+  - 2.805 servidos pela borda sem ir à AZAN.
+  - 17 com 404 (página inexistente) e 1 com 499 (o visitante fechou).
+- **`validar`:** sem erro.
+- **POP dos visitantes do Brasil, medido nas métricas do Cloudflare (30 min, `clientCountryName` × `coloCode`):**
+  - todos em POP do Brasil: GRU 2.602, GIG 342, CFC 60, UDI 48, NVT 36, QWJ 35, FOR 27, XAP 27, CWB 21, BSB 20;
+  - nenhum visitante do Brasil em POP de fora.
+  - O critério do plano está atendido sem depender do iPhone do dono.
+- **00:31 `https --aplicar`:** Always Use HTTPS ligado. `http://` passou a dar 301 para `https://`; home e
+  `/crystal-ttk/` com 200; `saude` (5 min) com 403 pedidos e 0 ruins.
+- **00:32 `regras --aplicar`:**
+  - `crystal_bloqueia_xmlrpc` (`/xmlrpc.php` com 403 na borda);
+  - `crystal_freio_wp_login` (limite em `/wp-login.php`, que segue com 200);
+  - `crystal_teste_sem_barra` (`/crystal-teste` com 200 sem redirecionar).
+  - Depois: `saude` (5 min) com 397 pedidos e 0 ruins; `validar` sem erro.
+
 ## Pendente
 
-- **O dono abre `https://crystalnowpp.com.br/cdn-cgi/trace` no iPhone** (4G e Wi-Fi) e diz o `colo=`.
+- ~~O dono abre `/cdn-cgi/trace` no iPhone~~: dispensado, porque as métricas já mostram os visitantes do Brasil em
+  POP do Brasil. O teste no iPhone continua valendo como prova para o dono.
   - GRU, GIG, FOR, POA, CNF ou CWB: ok.
   - Fora do Brasil (MIA, IAD…): voltar para cinza, pela regra do plano.
-- **00:30 BRT:** consolidação (`https`, `regras`), se a saúde seguir boa e o POP for do Brasil.
+- ~~00:30 BRT: consolidação~~ feita (ver acima).
 - **02:00, 07:00 e 12:00 BRT:** `foto`, `saude` e `validar`.
 - **Origin CA no cPanel antes de 26/12.**
 - **O dono apaga a chave** depois da última conferência.
