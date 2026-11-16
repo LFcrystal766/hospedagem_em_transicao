@@ -2867,3 +2867,38 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
          pulados. As 18 são as mesmas de antes (14 de `mensagens-midia.spec.ts`, 4 de `mobile-audit.spec.ts`). Nenhuma
          falha de login, senha ou Dossiês. A `sha-2e2e745` está conferida por inteiro.
      - **Pendência que continua:** corrigir os testes de mídia e de `mobile-audit` da outra sessão (item 141).
+147. **16/11: o dono perguntou por que o site (WordPress e arquivos) continua na AZAN e o que falta para sair.**
+     - **Por quê:**
+       - o Cloudflare não hospeda o WordPress: ele é o DNS e o escudo na frente (degrau 1 feito em 18–22/09);
+       - o site precisa de uma hospedagem nova, e a conta Hostinger só tem a VPS do app;
+       - o degrau 2 (Cloudflare na frente da AZAN) dependia do chamado #RAI-374885, sem resposta registrada;
+       - desde 28/09 todo o trabalho foi para o app;
+       - a proposta de 09/10 (`PROXIMOS-PASSOS.md` › "Migração final do site") espera a decisão do dono.
+     - **O que falta, em ordem:**
+       1. Decisão e contratação: plano de hospedagem de site da Hostinger em São Paulo (Premium; preço de 09/10:
+          R$ 45,99/mês ou R$ 179,88 no 1º ano). Não na VPS do app: o WordPress é a peça mais atacada e ficaria ao lado
+          dos segredos do app.
+       2. Acessos no ambiente, como variáveis (nunca no chat). Em 16/11 nenhum está no ambiente:
+          - Cloudflare;
+          - token do cPanel da AZAN, para o backup;
+          - senha de aplicativo do WordPress;
+          - chave de leitura do Stape, para conferir as vendas.
+       3. Cópia: backup completo da AZAN (arquivos + banco) e restauração na Hostinger. Testar num endereço provisório
+          antes da virada:
+          - páginas e checkout;
+          - GTM/Stape e Purchase;
+          - regra do LiteSpeed (301 sem `fbclid`).
+       4. Virada numa madrugada, 02:00–05:00 BRT:
+          - `A` do apex e do `www` para a Hostinger, laranja, com o Origin CA no hPanel;
+          - `server.`, `mail.` e `ftp.` continuam cinza;
+          - volta: o `A` de novo na AZAN, cinza, em minutos.
+       5. Antes de cancelar a AZAN:
+          - e-mail `@crystalnowpp` migrado;
+          - zona do `leticiafelisberto.com` no Cloudflare, mantendo o MX do Google;
+          - contato do Registro.br numa caixa fora da AZAN;
+          - backup final;
+          - 15 dias estáveis.
+     - **Datas:**
+       - o plano previa cancelar antes da fatura de 14/11, que já passou;
+       - se a AZAN é mensal, a próxima é 14/12;
+       - para não pagar mais uma, a virada precisa ser até ~28/11.
