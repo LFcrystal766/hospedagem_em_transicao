@@ -2902,3 +2902,23 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - o plano previa cancelar antes da fatura de 14/11, que já passou;
        - se a AZAN é mensal, a próxima é 14/12;
        - para não pagar mais uma, a virada precisa ser até ~28/11.
+148. **16/11: o dono perguntou "não tem hospedagem no Cloudflare?"**
+     - **Resposta:** o Cloudflare Pages hospeda páginas prontas (HTML), mas não roda WordPress (PHP + banco).
+     - **O que o site é** (auditoria de 13/09):
+       - 45 páginas de venda em Elementor Pro, com Rank Math, LiteSpeed Cache e Code Snippets;
+       - checkout fora, na Assiny (`createOneClickBuy` → `pay.assiny.com.br`);
+       - rastreio pelo GTM e pelo Stape (`server.`, que não muda);
+       - nenhum formulário ou loja achado.
+       Por isso uma **cópia estática no Cloudflare Pages é viável**.
+     - **Opção A, estático no Cloudflare Pages:**
+       - a favor: sem mensalidade de hospedagem; mais rápido; quase nada exposto a ataque (some o `wp-admin`, e o
+         `/wp-json/wp/v2/users` deixa de expor o `admin`);
+       - contra: o WordPress continua existindo para editar, num lugar fechado, e cada edição precisa de um
+         "publicar" que gera a cópia de novo;
+       - refazer no Cloudflare: redirecionamentos, a regra do `fbclid` (301) e o que o Code Snippets faz no servidor
+         (ainda não lido).
+     - **Opção B, hospedagem Hostinger + Cloudflare na frente** (proposta de 09/10): a equipe edita como hoje;
+       ~R$ 46/mês.
+     - **Para decidir:**
+       - quem edita as páginas e com que frequência (houve edições em 03/09 e 12/09);
+       - o que há no Code Snippets (precisa do acesso ao WordPress).
