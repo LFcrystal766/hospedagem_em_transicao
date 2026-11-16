@@ -380,8 +380,18 @@ cmd_preparar() {
 
   echo "Conferências (só leitura):"
   # Pela ler/ler_fase: leitura que falha para o script, não vira "nenhuma" (achado 35).
-  local pr; pr=$(ler "/zones/$ZONA_ID/pagerules" | jq -c '[.[]? | select(.status=="active") | .targets[].constraint.value]') || exit 2
-  if [ "$pr" = "[]" ]; then ok "nenhuma Page Rule ativa"; else aviso "Page Rules ativas: $pr"; fi
+  # Chave de CONTA (não de usuário) não lê Page Rules: o Cloudflare responde 1011. Só nesse caso, e só com o dono
+  # tendo conferido no painel (Rules > Page Rules vazio), segue com PAGERULES_CONFERIDAS=painel. Outro erro para.
+  local prr pr
+  prr=$(api GET "/zones/$ZONA_ID/pagerules")
+  if [ "$(echo "$prr" | jq -r '.success' 2>/dev/null)" = "true" ]; then
+    pr=$(echo "$prr" | jq -c '[.result[]? | select(.status=="active") | .targets[].constraint.value]')
+    if [ "$pr" = "[]" ]; then ok "nenhuma Page Rule ativa"; else aviso "Page Rules ativas: $pr"; fi
+  elif echo "$prr" | jq -e '.errors[]? | select(.code==1011)' >/dev/null 2>&1 && [ "${PAGERULES_CONFERIDAS:-}" = "painel" ]; then
+    aviso "Page Rules: a chave de conta não lê este endpoint (1011); o dono conferiu no painel: nenhuma (PAGERULES_CONFERIDAS=painel)"
+  else
+    falha "GET /zones/$ZONA_ID/pagerules: $(echo "$prr" | jq -c '.errors' 2>/dev/null). Se for 1011 (chave de conta): conferir no painel (Rules > Page Rules) e rodar com PAGERULES_CONFERIDAS=painel"
+  fi
   local cr; cr=$(ler_fase http_request_cache_settings | jq -c '[.rules[]? | select(.action_parameters.cache==true) | .expression]') || exit 2
   if [ "$cr" = "[]" ]; then ok "nenhuma Cache Rule marcando HTML como cacheável"; else aviso "Cache Rules com cache ligado: $cr"; fi
   echo "server., mail. e ftp. (cinza e sem CNAME do apex, que vai ficar laranja):"

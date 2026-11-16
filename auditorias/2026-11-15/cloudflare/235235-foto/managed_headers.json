@@ -1,0 +1,41 @@
+{
+  "result": {
+    "managed_request_headers": [
+      {
+        "enabled": false,
+        "has_conflict": false,
+        "id": "add_client_certificate_headers"
+      },
+      {
+        "enabled": false,
+        "has_conflict": false,
+        "id": "add_visitor_location_headers"
+      },
+      {
+        "enabled": false,
+        "has_conflict": false,
+        "id": "remove_visitor_ip_headers"
+      },
+      {
+        "enabled": false,
+        "has_conflict": false,
+        "id": "add_waf_credential_check_status_header"
+      }
+    ],
+    "managed_response_headers": [
+      {
+        "enabled": false,
+        "has_conflict": false,
+        "id": "remove_x-powered-by_header"
+      },
+      {
+        "enabled": false,
+        "has_conflict": false,
+        "id": "add_security_headers"
+      }
+    ]
+  },
+  "success": true,
+  "errors": [],
+  "messages": []
+}

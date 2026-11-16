@@ -1,0 +1,8 @@
+{
+  "id": "ssl",
+  "value": "strict",
+  "modified_on": "2026-09-18T13:35:07.596097Z",
+  "certificate_status": "active",
+  "validation_errors": [],
+  "editable": true
+}
