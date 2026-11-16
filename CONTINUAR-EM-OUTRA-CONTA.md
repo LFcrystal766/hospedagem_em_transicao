@@ -3192,4 +3192,25 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        "black", "combo" e "curso" em produto e oferta). **Esperando a exportação da Assiny** (vendas aprovadas do combo).
        Ao chegar: `liberar_manual` para cada e-mail, pulando reembolsados e cancelados; relatório com contagens, sem
        e-mail no repositório.
+165. **16/11 (fim da tarde): os 56 compradores do combo da Black liberados.**
+     - **Fonte:** exportação da Assiny que o dono anexou (56 vendas `paid` de "Combo - Black Friday 2026", oferta
+       "[R$997,00][NAO ALUNOS]", de 11/11 21:11 a 16/11 07:11). O arquivo ficou só no upload da sessão; nada de e-mail ou
+       CPF no repositório. A lista temporária no scratchpad foi apagada.
+     - **Antes:** 31 já entravam (clientes de antes) e 25 sem acesso.
+     - **Feito:**
+       1. produto do combo (`3c243b20-7ac2-4b8a-96f8-70b97c507473`) incluído em `crystal_compras_produtos`: as próximas
+          compras e reembolsos do combo passam a ser tratados assim que a Assiny avisar o nosso n8n;
+       2. cada venda passou por `app_compra_evento` como `approved_purchase`, com o id da transação da Assiny. Se a Assiny
+          mandar o mesmo evento depois, ele cai como "repetido"; o reembolso de uma dessas transações bloqueia certo.
+          Resultado: 45 novos e 11 que já tinham linha ativa.
+     - **Depois:** 56 de 56 com login `liberado` e compra ativa.
+     - **Pontos de atenção:**
+       - **Jhonatan** tinha sido bloqueado por reembolso em 12/11. A compra agora está ativa, mas a conta dele no app pode
+         ter ficado desligada (caso Jefferson): se não entrar, "Reativar acesso" na ficha.
+       - **Tiago P.** comprou com o e-mail digitado errado (domínio "hotmal"). Está liberado com esse e-mail; se ele tentar
+         com o certo, não acha. Corrigir o e-mail na ficha, se ele pedir.
+       - **Paulinho** estava na lista: a liberação manual virou a compra do combo, com o nome completo.
+       - O CPF não foi passado (só a marca serviria para a entrada por CPF, que deve ser desligada).
+     - **Falta, do dono:** ligar o webhook do nosso n8n no produto do combo na Assiny. Até lá, cada venda nova do combo
+       fica sem acesso e precisa de nova exportação.
 
