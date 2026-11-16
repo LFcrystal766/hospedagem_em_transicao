@@ -3218,4 +3218,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        webhook da Crystal que já existe (Integrações > Webhooks). Pedido ao dono: não usar "enviar teste" (criaria uma
        compra de teste); o Claude confere na próxima venda real do combo (`crystal_compras_eventos`, produto
        `3c243b20…`).
+166. **16/11 ~18:00 BRT: vendas desde sexta (13/11 00:00 BRT) e entradas com senha.**
+     - **Vendas que chegaram pelo webhook:** 111 aprovadas (13/11: 25; 14/11: 38; 15/11: 35; 16/11 até ~18h: 13). Por
+       produto: Nova Melhor Amiga 69, Botão Dourado 21, Recuperação 21. Mais 4 pacotes de imagens (complemento).
+     - **Combo da Black (exportação da Assiny):** 7 desde sexta (5 em 13/11, 1 em 15/11, 1 em 16/11); os outros 49 são de
+       11 e 12/11. Total de vendas da Crystal desde sexta: 118.
+     - **Reembolsos:** 4. **"Assinatura cancelada":** 39, todas sem nunca terem sido liberadas e no mesmo minuto da
+       criação: são pagamentos que não se completaram (cartão recusado ou desistência), não vendas perdidas.
+     - **Observação:** a versão com e-mail e senha entrou no ar no domingo, 15/11 ~15:40 BRT, não na sexta.
+     - **Quantos entraram com senha:** fica no banco do app, na VPS, que o Claude não alcança. Comando só de leitura
+       entregue ao dono (conta `auth.login` com `codigo = senha` no `audit_log`, senhas criadas em `user.password_set`
+       e todas as entradas de cliente em `auth_events` desde 15/11 18:40 UTC).
 
