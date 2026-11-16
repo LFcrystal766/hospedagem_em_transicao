@@ -3007,4 +3007,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - (a) o dono clica no painel seguindo a lista e a sessão confere de fora;
        - (b) chave do Cloudflare só da zona (DNS + settings): o script faz tudo às 02:00, com conferência e volta
          automáticas. Recomendada.
-     - Certificado da AZAN ("válido até 01/2027"): conferência no crt.sh em andamento.
+     - **Certificado da AZAN, conferido no crt.sh em 16/11: NÃO vale até 01/2027.**
+       - É o AutoSSL da Sectigo, de 90 dias: de 29/09 a **26/12/2026**, cobrindo `crystalnowpp.com.br` e
+         `*.crystalnowpp.com.br`.
+       - Os outros dois (YE1 até 21/12, YR2 até 01/12) são os de borda do Cloudflare, que renovam sozinhos.
+       - Com Full (strict), se o AutoSSL não renovar (risco: a zona saiu da AZAN), o site dá erro 526 depois de 26/12.
+       - Mais seguro: instalar no cPanel da AZAN um Origin CA do Cloudflare (até 15 anos) antes do laranja.
