@@ -3013,3 +3013,23 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Os outros dois (YE1 até 21/12, YR2 até 01/12) são os de borda do Cloudflare, que renovam sozinhos.
        - Com Full (strict), se o AutoSSL não renovar (risco: a zona saiu da AZAN), o site dá erro 526 depois de 26/12.
        - Mais seguro: instalar no cPanel da AZAN um Origin CA do Cloudflare (até 15 anos) antes do laranja.
+153. **16/11: o dono mandou o chamado #RAI-374885 da área de cliente da AZAN.**
+     - **Respondido em 28/09 às 15:57**, nove minutos depois de aberto, por Isabel L. (HospedaInfo): "Essa
+       configuração é aplicada em toda nossa rede, de forma global, até por que 90% dos clientes usam CloudFlare".
+       Chamado encerrado.
+     - **O degrau 2 (laranja na frente da AZAN) está liberado do lado da AZAN.**
+     - **Falta:**
+       - o dono escolher como rodar: (a) ele clica, a sessão confere; ou (b) a chave da zona e o script
+         (`runbooks/madrugada-degrau2.md`);
+       - marcar a madrugada e mandar o aviso ao time 48 h antes (`pedidos/aviso-time-degrau2.md`);
+       - Origin CA no cPanel antes de 26/12 (o AutoSSL vence nesse dia).
+     - **Permissões da chave (b)**, só da zona `crystalnowpp.com.br`:
+       - DNS: Edit;
+       - Zone Settings: Edit;
+       - Transform Rules: Edit;
+       - Zone WAF: Edit;
+       - Bot Management: Edit;
+       - SSL and Certificates: Read;
+       - Page Rules: Read;
+       - Cache Rules: Read;
+       - Analytics: Read.

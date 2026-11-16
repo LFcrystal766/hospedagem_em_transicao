@@ -29,5 +29,11 @@ Obrigado.
 
 - 28/09/2026: chamado **#RAI-374885** aberto em Suporte Técnico - Geral, com o
   texto acima sem alteração. Aguardando a AZAN confirmar as duas configurações.
+- **28/09/2026 15:57: a AZAN respondeu e encerrou o chamado** (Isabel L., Equipe HospedaInfo):
+  > Essa configuração é aplicada em toda nossa rede, de forma global, até por que 90% dos clientes usam CloudFlare.
+  - A resposta só chegou ao repositório em 16/11: o dono mandou o print da área de cliente
+    (`painel.hospedainfo.com`).
+  - Ela libera o degrau 2 do lado da AZAN.
+  - A confirmação de verdade é a madrugada: `saude` e `validar` voltam para cinza se aparecer 403 ou 5xx da AZAN.
 - Fatura da AZAN: plano mensal de R$ 99,90. Próxima prevista para 14/10/2026,
   deduzida da sequência das faturas pagas (não havia fatura em aberto em 28/09).

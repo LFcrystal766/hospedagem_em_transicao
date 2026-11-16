@@ -13,7 +13,9 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
   AZAN. Certificado de borda ativo para apex e `*.`.
 - **Degrau 2 não começou.** O apex ainda resolve `45.224.128.177` (AZAN).
 - **Chamado #RAI-374885** aberto na AZAN em 28/09 para liberar os IPs do
-  Cloudflare e ler `CF-Connecting-IP`. O laranja só entra depois da resposta.
+  Cloudflare e ler `CF-Connecting-IP`. **Respondido em 28/09 15:57 e encerrado:** a liberação é global na rede da
+  AZAN ("90% dos clientes usam Cloudflare"). A resposta só chegou ao repositório em 16/11. O degrau 2 está liberado
+  do lado da AZAN.
 - **Fatura AZAN**: mensal, R$ 99,90, próxima prevista para 14/10/2026. Não cancelar.
 - **Sem agência desde 09/10**: tudo passa a ser nosso (compra e reembolso no nosso n8n). Nada é
   combinado com o Tuan. A Crystal do WhatsApp será encerrada: todo mundo vai para o app.
