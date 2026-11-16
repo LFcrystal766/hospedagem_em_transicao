@@ -3089,3 +3089,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Origin CA antes de 26/12;
        - regra do `fbclid` em redirecionamento;
        - apagar a chave depois das 12:00.
+158. **16/11: o dono pediu mais informações para entender o degrau 2.** Explicado em linguagem simples:
+     - o que é o muro, o que ele faz agora e o que não mudou (links, páginas, Elementor, checkout, rastreio, e-mail, app);
+     - como ver funcionando (`/cdn-cgi/trace`, Analytics do Cloudflare);
+     - o cuidado com imagem trocada com o mesmo nome (Caching › Purge);
+     - a volta e o que falta.
