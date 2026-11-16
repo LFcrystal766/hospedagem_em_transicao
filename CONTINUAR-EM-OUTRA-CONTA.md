@@ -2986,3 +2986,25 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Mandar o texto ou o print para a sessão.
      - **Nota:** o caminho recomendado (site no Cloudflare Pages) não depende desse chamado. Ele só importa para pôr o
        muro na frente da AZAN.
+152. **16/11: o dono colou um passo a passo para ligar o laranja (apex e `www`, `server.` cinza, SSL Full strict) e
+     perguntou se faz sentido.** Também abriu o painel da AZAN (`painel.hospedainfo.com`) "para eu analisar".
+     - **Painel da AZAN:** a sessão na nuvem não vê o navegador dele e não deve receber a senha. Pedido ao dono:
+       - prints de Suporte › Meus chamados › #RAI-374885;
+       - prints de Faturas (próxima data e valor) e de Serviços;
+       - ligar o 2FA da conta, que estava desligado em 28/09.
+     - **O passo a passo colado faz sentido, mas está incompleto** frente ao plano (`scripts/cloudflare-degrau2.sh` e
+       `runbooks/madrugada-degrau2.md`). Falta:
+       - o `AAAA` do apex também laranja;
+       - o `ftp` (CNAME do apex) virar `A` cinza antes;
+       - tirar o `+a` do SPF;
+       - manter cinza também `mail.`, `ftp.`, `app.`, `api.`, `atendimento.`, `painel.`, `editor.` e `webhook.`;
+       - antes: Rocket Loader off, "Add security headers" off (`referrer-policy`), Bot Fight Mode e bloqueio de IA off,
+         Email Obfuscation off, Always Use HTTPS off no início, HSTS off;
+       - janela 02:00–05:00 BRT, time avisado, vigia e volta para cinza;
+       - nunca `fbclid` em URL com 301;
+       - o risco do firewall da AZAN, que é o motivo do chamado.
+     - **Duas formas de rodar:**
+       - (a) o dono clica no painel seguindo a lista e a sessão confere de fora;
+       - (b) chave do Cloudflare só da zona (DNS + settings): o script faz tudo às 02:00, com conferência e volta
+         automáticas. Recomendada.
+     - Certificado da AZAN ("válido até 01/2027"): conferência no crt.sh em andamento.
