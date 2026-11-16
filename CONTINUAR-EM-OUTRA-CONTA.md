@@ -3121,3 +3121,33 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - **Mídia (`02`):** nada crítico nem alto; 1 médio (vídeo do aviso servido como chegou, com metadados) e 6 baixos.
        - **Ok:** cabeçalhos e CORS do app e da API, Portainer restrito, cadastro do Chatwoot fechado, RLS em tudo,
          dependências de produção sem aviso.
+161. **16/11 12:00 BRT: degrau 2 fechado.**
+     - `foto`, `saude` (60 min: 5.609 pedidos, 29 ruins, 0,5%) e `validar` ok; 56 de 56 páginas pelo Cloudflare;
+       `server.`, `app.` e `api.` ok.
+     - `auditorias/2026-11-16/RELATORIO.md` fechado, com a tabela do que foi aplicado e os pendentes.
+     - **Corrigido no `validar`:** o teste do `http://` mandava `fbclid`/`utm` a um endereço que responde 301 (contra a
+       regra da casa). Conferido de fora: nenhum redirecionamento e nenhuma das 56 páginas guardou o parâmetro.
+     - **Pendentes:** Origin CA antes de 26/12; regra do `fbclid` em redirecionamento; Page Rules não conferidas; a
+       chave do Cloudflare continua no ambiente até o dono decidir sobre as regras novas da zona (item 162).
+162. **16/11: revisão de segurança, resultado.**
+     - **Relatórios:** `auditorias/2026-11-16/seguranca/`. No GitHub estão `02`, `03` e `06`. **O `00-resumo.md` e os
+       relatórios `01`, `04` e `05` ficaram fora do git** (`.git/info/exclude`), porque **este repositório está
+       público** e eles trazem o passo a passo das falhas. O dono recebeu os arquivos em 16/11. Quando o repositório
+       for privado: tirar a linha do `exclude`, commitar e dar push.
+     - **Placar:** nenhum crítico; 8 altos novos (3 na entrada, 1 no painel, 2 na VPS/roteiros, 2 vistos de fora) e 2
+       altos de 24/10 ainda abertos em produção; o `05` (funções da agência no Supabase) ainda rodando às 12:25 BRT.
+     - **Seis pontos para hoje, na ordem do resumo** (todos conferidos na produção em 16/11):
+       1. repositório público: deixar privado (antes, um comando na VPS guarda os yaml ao lado do script);
+       2. uma chave antiga da entrada do app a desligar no `.externos`, com `app-subir` da mesma tag;
+       3. chave legada do Supabase: desligar as legadas **e** revogar o segredo JWT legado (só desligar não basta);
+       4. n8n desatualizado e sem as travas de 24/10: 2FA hoje, atualização na noite da infraestrutura;
+       5. função de compra do Supabase sem a trava de 24/10: SQL único a preparar, com teste;
+       6. trava do Traefik contornável no Chatwoot: Traefik novo na noite da infraestrutura.
+     - **Conferido nos registros do Supabase (7 dias, 09 a 16/11):** só a nossa VPS (app e n8n, chave nova) e as funções
+       internas chamam a API. Nenhum pedido com chave legada nem de endereço desconhecido. Desligar as legadas não
+       quebra nada nosso.
+     - **Ponto de fundo:** a noite da infraestrutura de 24/10 não aconteceu. O script da VPS é o de 23/10 e 18 das 30
+       correções INF existem só no repositório. O pacote envelheceu e precisa ser refeito antes de marcar a noite.
+     - **Diário:** e-mails de clientes trocados pela inicial (regra: só primeiro nome).
+     - **Próximos passos do Claude, quando o dono mandar:** versão do app com as correções (4 curtas primeiro); SQL
+       único da função de compra; pacote da noite da infraestrutura refeito; 3 regras novas no Cloudflare; DMARC.

@@ -14,6 +14,14 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
 - **Degrau 2 FEITO em 15/11/2026 às 23:55 BRT** (fora da janela, por ordem do dono). Apex, AAAA e `www` laranja na
   frente da AZAN; `server.`, `mail.`, `ftp.` e o app cinza; SPF sem `+a`. `validar` e `saude` ok. Relatório em
   `auditorias/2026-11-16/RELATORIO.md`. Volta: `scripts/cloudflare-degrau2.sh cinza --aplicar`.
+  **Fechado em 16/11 às 12:00 BRT** (conferências de 23:55, 00:30, 07:00 e 12:00 ok, sem volta). Pendentes: Origin CA
+  no cPanel antes de 26/12, regra do `fbclid` em redirecionamento, Page Rules não conferidas.
+- **Revisão de segurança de 16/11** (pedido do dono): resumo e ordem do que fazer em
+  `auditorias/2026-11-16/seguranca/00-resumo.md`. **Este repositório estava público no GitHub em 16/11**: os
+  relatórios `00`, `01`, `04` e `05` ficaram fora do git (`.git/info/exclude`) até o dono deixá-lo privado. Numa sessão
+  nova: conferir a visibilidade; se já for privado e os arquivos existirem na pasta, tirar a linha do `exclude`,
+  commitar e dar push; se a pasta não os tiver, pedir ao dono os que ele recebeu em 16/11. Nenhum relatório com passo a
+  passo de falha vai para repositório público.
 - **Chamado #RAI-374885** aberto na AZAN em 28/09 para liberar os IPs do
   Cloudflare e ler `CF-Connecting-IP`. **Respondido em 28/09 15:57 e encerrado:** a liberação é global na rede da
   AZAN ("90% dos clientes usam Cloudflare"). A resposta só chegou ao repositório em 16/11. O degrau 2 está liberado
