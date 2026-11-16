@@ -2974,3 +2974,15 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - o IP real do cliente pelo `CF-Connecting-IP` nos limites da API;
        - decisão explícita do dono.
      - `server.`, `mail.` e `ftp.` ficam sempre cinza.
+151. **16/11: "Por que não teve resposta? Como buscar a resposta?" (chamado AZAN #RAI-374885).**
+     - **Correção:** não se sabe se a AZAN respondeu.
+       - O dono abriu o chamado no painel da AZAN em 28/09 (`pedidos/azan-chamado-cloudflare.md`).
+       - A resposta vai para a área de cliente da AZAN e para o e-mail cadastrado na conta, que nenhuma sessão vê.
+       - Ninguém encaminhou nada. Desde 28/09, todo o trabalho foi para o app.
+       - "Sem resposta" quer dizer "nenhuma resposta chegou ao repositório".
+     - **Como buscar:**
+       - área de cliente da AZAN (hospeda.info) › Suporte › Meus chamados › #RAI-374885;
+       - ou o e-mail da conta da AZAN, buscando "RAI-374885" ou "hospeda".
+       - Mandar o texto ou o print para a sessão.
+     - **Nota:** o caminho recomendado (site no Cloudflare Pages) não depende desse chamado. Ele só importa para pôr o
+       muro na frente da AZAN.
