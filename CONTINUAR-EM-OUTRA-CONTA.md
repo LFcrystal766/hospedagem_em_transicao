@@ -3171,3 +3171,20 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - **Para o dono conferir:** quem pagou pelo PayPal em 21/10 e 12/11 e se essas duas pessoas têm acesso.
      - **Esperando o dono:** repositório privado; a chave antiga da entrada no `.externos`; o "pode" para desligar as 3
        tarefas; os passos do painel do Supabase.
+164. **16/11 (tarde): Paulinho sem código; e o combo da Black.**
+     - **Paulinho:** o e-mail não existia em lugar nenhum (base antiga, assinaturas, acessos, `crystal_compras`). Sem
+       compra achada, o app não manda o código. **Liberado a pedido do dono** com
+       `app_aluno_corrigir_cadastro('liberar_manual', …)`, nome "Paulinho" (tirado do e-mail; corrigir na ficha se for
+       outro). Conferido: o login responde `liberado = true`.
+     - **Combo da Black: a compra não chega ao nosso sistema.** Em 14 dias, 432 eventos da Assiny chegaram ao nosso n8n,
+       todos de 5 produtos (Nova Melhor Amiga, Recuperação, Botão Dourado, Renovação, Pacote de Imagens). Nenhum do
+       combo, nem como "ignorado". A fila antiga da agência também não recebe nada da Assiny desde 12/10.
+       - **Causa provável:** na Assiny, o webhook do nosso n8n não está ligado ao produto do combo (ou o combo aponta
+         para outro endereço, talvez o da agência).
+       - **Ação do dono na Assiny:** abrir o produto do combo › Webhooks/Integrações e ligar o mesmo webhook dos outros
+         produtos; anotar o endereço que estiver lá hoje.
+       - **Ação do Claude depois:** quando o primeiro evento do combo chegar, ele aparece como `ignorado_produto` com o
+         id; incluir esse id em `crystal_compras_produtos`, se o combo dá o app.
+       - **Quem já comprou o combo:** o dono exporta da Assiny a lista de e-mails das vendas do combo e cola para o
+         Claude; liberação em lote pela mesma função (sem gravar e-mail no repositório).
+
