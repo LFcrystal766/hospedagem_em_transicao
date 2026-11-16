@@ -1,0 +1,114 @@
+[
+  {
+    "count": 2986,
+    "dimensions": {
+      "edgeResponseStatus": 200,
+      "originResponseStatus": 0
+    }
+  },
+  {
+    "count": 2115,
+    "dimensions": {
+      "edgeResponseStatus": 200,
+      "originResponseStatus": 200
+    }
+  },
+  {
+    "count": 356,
+    "dimensions": {
+      "edgeResponseStatus": 204,
+      "originResponseStatus": 0
+    }
+  },
+  {
+    "count": 70,
+    "dimensions": {
+      "edgeResponseStatus": 404,
+      "originResponseStatus": 404
+    }
+  },
+  {
+    "count": 28,
+    "dimensions": {
+      "edgeResponseStatus": 403,
+      "originResponseStatus": 403
+    }
+  },
+  {
+    "count": 28,
+    "dimensions": {
+      "edgeResponseStatus": 301,
+      "originResponseStatus": 301
+    }
+  },
+  {
+    "count": 8,
+    "dimensions": {
+      "edgeResponseStatus": 301,
+      "originResponseStatus": 0
+    }
+  },
+  {
+    "count": 4,
+    "dimensions": {
+      "edgeResponseStatus": 406,
+      "originResponseStatus": 406
+    }
+  },
+  {
+    "count": 3,
+    "dimensions": {
+      "edgeResponseStatus": 401,
+      "originResponseStatus": 401
+    }
+  },
+  {
+    "count": 3,
+    "dimensions": {
+      "edgeResponseStatus": 403,
+      "originResponseStatus": 0
+    }
+  },
+  {
+    "count": 2,
+    "dimensions": {
+      "edgeResponseStatus": 404,
+      "originResponseStatus": 0
+    }
+  },
+  {
+    "count": 2,
+    "dimensions": {
+      "edgeResponseStatus": 499,
+      "originResponseStatus": 0
+    }
+  },
+  {
+    "count": 1,
+    "dimensions": {
+      "edgeResponseStatus": 302,
+      "originResponseStatus": 302
+    }
+  },
+  {
+    "count": 1,
+    "dimensions": {
+      "edgeResponseStatus": 307,
+      "originResponseStatus": 307
+    }
+  },
+  {
+    "count": 1,
+    "dimensions": {
+      "edgeResponseStatus": 500,
+      "originResponseStatus": 500
+    }
+  },
+  {
+    "count": 1,
+    "dimensions": {
+      "edgeResponseStatus": 304,
+      "originResponseStatus": 304
+    }
+  }
+]

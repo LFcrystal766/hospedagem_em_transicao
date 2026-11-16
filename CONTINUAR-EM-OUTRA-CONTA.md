@@ -457,25 +457,25 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     (`uso_turnos` no banco `crystal_agente`) para comparar Flash-Lite x Haiku x GPT-4.1 mini.
 
 28. **Pedidos do suporte (21/10, noite), feitos por mim no Supabase:**
-    - Carlos: e-mail trocado (`app_aluno_trocar_email`) de `carlosschramm0912@` para `carlos.schramm0912@gmail.com`; login liberado.
-    - Marcos: de `oficialmarcosmagno@` para `oficialmarcosfraga@gmail.com`; login liberado.
-    - Bruno (`bruno_devesa@hotmail.com`, PayPal, 1 ano): linha manual em `crystal_compras`
+    - Carlos: e-mail trocado (`app_aluno_trocar_email`) de `carlosschramm0912@` para `c***@gmail.com`; login liberado.
+    - Marcos: de `oficialmarcosmagno@` para `o***@gmail.com`; login liberado.
+    - Bruno (`b***@hotmail.com`, PayPal, 1 ano): linha manual em `crystal_compras`
       (`manual-20261021-paypal-1-ano-ate-20271021`, telefone de Portugal). **Cortar em 21/10/2027** (não há vencimento automático).
-    - `agf.centronorte@outlook.com`: cadastro ativo e login liberado; o código não chega. Hipótese: Outlook/Hotmail
+    - `a***@outlook.com`: cadastro ativo e login liberado; o código não chega. Hipótese: Outlook/Hotmail
       barrando o Resend ou endereço na lista de supressão do Resend. Dono confere em resend.com › Emails (buscar o
       endereço) e nos logs (`"e-mail: envio falhou"`). Saída: tirar da supressão ou trocar o e-mail do aluno por outro.
     - Superadmin: `bash bootstrap-vps.sh app-definir SUPERADMIN_EMAILS` (lista inteira, vírgula) + `app-subir sha-2bba5dc`.
 
 29. **22/10:** relatório do consultor (20/10) copiado para `auditorias/2026-10-20/consultoria-onda6.md` (já estava no app em
-    `docs/consultoria/`). `bangeheitor@gmail.com`: não existe em cadastro, assinatura, acesso nem `crystal_compras`; nenhum
+    `docs/consultoria/`). `b***@gmail.com`: não existe em cadastro, assinatura, acesso nem `crystal_compras`; nenhum
     e-mail parecido nem nome "Bange" na base. O n8n de compras está vivo (38 compras automáticas em 24 h, última 16:08 UTC).
     Provável: comprou com outro e-mail ou por fora (PayPal). Aguardando o dono: CPF/nome/comprovante ou pedido de liberação manual.
     Artefato do relatório para o grupo: https://claude.ai/artifact/G8XLS7i3APGE7W7ZuThMHe (cópia em
     `artefato/revisao-onda6-2026-10-20.html`). É privado: o dono precisa abrir o Share e liberar antes de mandar no grupo.
 
-30. **22/10, pedidos do dono:** Heitor (`bangeheitor@gmail.com`) liberado à mão sem compra achada
+30. **22/10, pedidos do dono:** Heitor (`b***@gmail.com`) liberado à mão sem compra achada
     (`manual-20261022-pedido-do-dono-sem-compra-achada`; volta: `delete from crystal_compras where transacao = '...'`).
-    Leonardo: e-mail trocado de `la7957702@gmail.com` para `leonardo79783@gmail.com` (mesma conta da base); login ok.
+    Leonardo: e-mail trocado de `l***@gmail.com` para `l***@gmail.com` (mesma conta da base); login ok.
     **Pedido novo:** coluna "custo por aluno" na tabela de custos da área onde se troca o provedor de IA
     (Operação › Crystal). Detalhe do dono: dois números dos últimos 30 dias: custo por aluno **ativo** (custo ÷ alunos que
     usaram) e custo por aluno **da base** (custo ÷ todos os alunos com acesso). Em andamento no worktree
@@ -491,11 +491,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Publicar: sem SQL, backup + `app-subir sha-c93b8e2` + `crystal-conferir` + `app-painel-conferir`; volta
     `app-subir sha-2bba5dc` (mas volta para a versão vulnerável do Next).
 
-31. **22/10:** `walterprezotti@gmail.com` não existe em cadastro, assinatura, acesso nem `crystal_compras`; nada com
-    "prezotti" na base. Dono informou o e-mail da compra: `valtersilva@gmail.com` (assinatura 5456 ativa até 06/2027).
-    Feito: e-mail do cadastro trocado para `walterprezotti@gmail.com` (`app_aluno_trocar_email`, mesma conta). Login ok.
+31. **22/10:** `w***@gmail.com` não existe em cadastro, assinatura, acesso nem `crystal_compras`; nada com
+    o sobrenome na base. Dono informou o e-mail da compra: `v***@gmail.com` (assinatura 5456 ativa até 06/2027).
+    Feito: e-mail do cadastro trocado para `w***@gmail.com` (`app_aluno_trocar_email`, mesma conta). Login ok.
 
-32. **22/10:** `edsonserafinmoveis@gmail.com`: cadastro de 23/09, assinatura 25575 **pending** (pagamento não confirmado
+32. **22/10:** `e***@gmail.com`: cadastro de 23/09, assinatura 25575 **pending** (pagamento não confirmado
     desde 23/09, fim 09/2027), acesso pending; o login aceita pending e responde liberado = true. Do nosso lado entra.
     Pedido ao dono: print do que ele vê (tela de login ou fala da Crystal) para saber se "não reconhece" é o app ou a Crystal.
     Dono pediu "libera": linha manual em `crystal_compras` (`manual-20261022-pedido-do-dono-assinatura-agencia-25575-pendente`)
@@ -511,7 +511,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
     Achado à parte no mesmo print (12/10): "Lembra da nossa conversa no WhatsApp" recebeu a frase de proteção
     "Olha... Vamos voltar ao foco da conversa." (falso positivo da regra anti-ataque do prompt). Ajustar na alma depois.
 
-34. **23/10: "cartão recusado e depois aprovado não libera".** Eduardo (`eduardonasciment@uol.com.br`) não estava em
+34. **23/10: "cartão recusado e depois aprovado não libera".** Eduardo (`e***@uol.com.br`) não estava em
     nada (cadastro, assinatura, `crystal_compras`, nem e-mail parecido): liberado à mão
     (`manual-20261023-cartao-recusado-depois-aprovado`), login ok. Investigação: no Supabase, todo `approved_purchase` que
     chegou virou liberação (413 eventos; nenhum `ignorado_ja_bloqueada`; o único ignorado é o pacote de imagens, certo).
@@ -524,8 +524,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 35. **23/10: dono pôs crédito no OpenRouter.** Falta confirmar com `crystal-conferir` (as linhas "pergunta como aluno" e
     "reserva sozinha" têm que dar ok) e decidir o modelo (painel estava em `openai/gpt-5.6-sol`; o dono queria Flash-Lite).
 
-36. **23/10: código de login que não chega, só em Microsoft** (`rafaeldrmachado@outlook.com`, `joaopaulosj2009@hotmail.com`,
-    e antes `agf.centronorte@outlook.com`). Os três estão liberados no login (o app manda o código). DNS do remetente
+36. **23/10: código de login que não chega, só em Microsoft** (`r***@outlook.com`, `j***@hotmail.com`,
+    e antes `a***@outlook.com`). Os três estão liberados no login (o app manda o código). DNS do remetente
     `acesso@crystalnowpp.com.br` conferido de fora: DKIM `resend._domainkey` publicado, `send.` com SPF e MX do Resend,
     `_dmarc` p=none: autenticação ok. Causa provável: Outlook/Hotmail jogando no lixo/"Outros" ou segurando, ou endereço
     na lista de supressão do Resend. Dono confere em resend.com › Emails (status de cada um). Contorno: trocar o e-mail do

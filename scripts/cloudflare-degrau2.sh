@@ -551,18 +551,20 @@ cmd_validar() {
 
   echo "www e http:"
   curl -sS -m 30 -o /dev/null -D - "https://www.$DOMINIO/" | tr -d '\r' | grep -iE '^(HTTP/|location:)' | sed 's/^/  /'
-  curl -sS -m 30 -o /dev/null -D - "http://$DOMINIO/crystal-teste/?fbclid=VALIDA&utm_content=VALIDA" | tr -d '\r' | grep -iE '^(HTTP/|location:)' | sed 's/^/  /'
+  # Sem query: http:// responde 301, e URL que responde 301 nunca recebe fbclid/utm/gclid (regra da casa, 11/09).
+  curl -sS -m 30 -o /dev/null -D - "http://$DOMINIO/crystal-teste/" | tr -d '\r' | grep -iE '^(HTTP/|location:)' | sed 's/^/  /'
 
   echo "xmlrpc (403 da borda depois do comando regras):"
   curl -sS -m 30 -o /dev/null -D - "https://$DOMINIO/xmlrpc.php" | tr -d '\r' | grep -iE '^(HTTP/|server:)' | sed 's/^/  /'
 
   echo "TTFB e POP (base da AZAN direta: 0,104 a 0,172 s):"
+  local cabpop; cabpop=$(mktemp)
   for _ in 1 2 3 4 5 6 7 8 9 10; do
-    curl -sS -m 30 -A "$UA" -o /dev/null -D /tmp/.cab.$$ -w '%{time_starttransfer}\n' "https://$DOMINIO/crystal-teste/" \
+    curl -sS -m 30 -A "$UA" -o /dev/null -D "$cabpop" -w '%{time_starttransfer}\n' "https://$DOMINIO/crystal-teste/" \
       | tr '\n' ' '
-    grep -i '^cf-ray:' /tmp/.cab.$$ | tr -d '\r' | sed 's/.*-//'
+    grep -i '^cf-ray:' "$cabpop" | tr -d '\r' | sed 's/.*-//'
   done | sed 's/^/  /'
-  rm -f /tmp/.cab.$$
+  rm -f "$cabpop"
   echo "POP fora do Brasil (GRU, GIG, FOR, POA, CNF, CWB...) ou TTFB acima do dobro da base = voltar pra cinza"
 
   echo

@@ -64,6 +64,27 @@ Pedido do dono às 23:39 BRT: "faça agora!", "pode mandar bala", "agora inclusi
 - **56 de 56 páginas** com 200 pelo Cloudflare.
 - **Fora do muro:** `server./healthz`, `app.` e `api./healthz` com 200.
 
+## Conferência das 12:00 BRT (fechamento do dia)
+
+- **`foto`:** apex, AAAA e `www` laranja; `server.` cinza em `35.199.71.234`.
+- **`saude` (60 min):** 5.609 pedidos e 29 ruins (0,5%), abaixo do limite de 5%.
+  - 5.101 com 200 e 356 com 204.
+  - 72 com 404 (página inexistente), 31 com 403 (quase todos o bloqueio do `xmlrpc`) e 1 com 500 da AZAN.
+- **`validar`:** sem erro. `server.` correto, `/healthz` com 200 e crawler da Meta com 200.
+- **56 de 56 páginas** com 200 pelo Cloudflare.
+- **Fora do muro:** `server./healthz`, `app.` e `api./healthz` com 200.
+
+**O degrau 2 está fechado.** Doze horas no ar, quatro conferências, nenhuma volta para cinza.
+
+## Resumo do que foi aplicado
+
+| Quando (BRT) | O quê |
+|---|---|
+| 15/11 23:55 | `preparar` e `laranja`: apex, AAAA e `www` laranja; `ftp` de CNAME para A/AAAA cinza; SPF sem `+a`; SSL em modo estrito |
+| 16/11 00:31 | "Sempre HTTPS" ligado |
+| 16/11 00:32 | Três regras: bloqueio do `/xmlrpc.php`, freio no `/wp-login.php` e o acerto do `/teste` sem barra |
+| 16/11 07:00 e 12:00 | Conferências: tudo ok |
+
 ## Pendente
 
 - ~~O dono abre `/cdn-cgi/trace` no iPhone~~: dispensado, porque as métricas já mostram os visitantes do Brasil em
@@ -71,8 +92,17 @@ Pedido do dono às 23:39 BRT: "faça agora!", "pode mandar bala", "agora inclusi
   - GRU, GIG, FOR, POA, CNF ou CWB: ok.
   - Fora do Brasil (MIA, IAD…): voltar para cinza, pela regra do plano.
 - ~~00:30 BRT: consolidação~~ feita (ver acima).
-- **02:00, 07:00 e 12:00 BRT:** `foto`, `saude` e `validar`.
-- **Origin CA no cPanel antes de 26/12.**
-- **O dono apaga a chave** depois da última conferência.
+- ~~02:00, 07:00 e 12:00 BRT: `foto`, `saude` e `validar`~~ feitas as de 07:00 e 12:00. A de 02:00 não rodou: o
+  degrau já estava consolidado desde 00:33 e a de 07:00 cobriu a madrugada.
+- **Origin CA no cPanel antes de 26/12**, quando vence o certificado AutoSSL da AZAN.
+- **Regra da zona que tira `fbclid`/`utm`/`gclid` de redirecionamento.** Hoje quem faz isso é o LiteSpeed, atrás do
+  Cloudflare.
+- **Page Rules não conferidas.** A chave usada não lê Page Rules; o dono mandou seguir. Abrir uma vez
+  Rules › Page Rules no painel e confirmar que está vazio.
+- **O script `validar` precisa de dois acertos** antes de rodar de novo (revisão de segurança de 16/11): ele manda
+  parâmetros de teste a um endereço `http://` que responde 301, o que a regra da casa proíbe. Não houve efeito
+  visível, mas o teste sai do script.
+- **A chave do Cloudflare:** apagar quando não houver mais nada para fazer com ela. A revisão de segurança de 16/11
+  sugere três regras novas na zona; se o dono quiser que o Claude as aplique, a chave fica até lá.
 
 Volta: `scripts/cloudflare-degrau2.sh cinza --aplicar` (segundos).
