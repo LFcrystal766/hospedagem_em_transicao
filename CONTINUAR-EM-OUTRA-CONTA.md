@@ -3229,4 +3229,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - **Quantos entraram com senha:** fica no banco do app, na VPS, que o Claude não alcança. Comando só de leitura
        entregue ao dono (conta `auth.login` com `codigo = senha` no `audit_log`, senhas criadas em `user.password_set`
        e todas as entradas de cliente em `auth_events` desde 15/11 18:40 UTC).
+167. **16/11 ~18:10 BRT: Pedro (Outlook) sem código.** Compra ativa ("CRYSTAL - Recuperação", 12/11, liberada no mesmo
+     dia, sem bloqueio) e o login responde `liberado = true`: o problema não é a base. Hipóteses, na ordem: o código cai
+     no Lixo eletrônico ou não chega no Outlook (caso já visto com Microsoft, itens 36 e 126); conta do app desligada;
+     limite de tentativas. Caminho entregue ao dono: ficha › "Pegar código de acesso" e mandar pelo WhatsApp; conferir
+     na ficha se a conta está desativada; no Resend, procurar o endereço (Delivered, Bounced ou nada).
 
