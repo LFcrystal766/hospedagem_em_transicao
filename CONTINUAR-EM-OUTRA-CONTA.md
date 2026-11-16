@@ -3099,3 +3099,25 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - 56 de 56 páginas com 200 pelo Cloudflare.
      - `server.`, `app.` e `api.` ok.
      - Falta o fechamento das 12:00.
+160. **16/11: o dono pediu "faça uma revisão de segurança na Crystal, nos nossos sites e em toda a infraestrutura".**
+     - **Como:** só leitura, nada mudado em produção. Relatórios em `auditorias/2026-11-16/seguranca/`.
+       - Cinco revisores independentes de código: entrada e sessões (`01`), mídia e arquivos (`02`), painel/dados/IA
+         (`03`), VPS e roteiros (`04`), funções da agência no Supabase (`05`).
+       - A sessão principal fez a superfície externa, o Cloudflare, o e-mail, o Supabase e o GitHub (`06`).
+     - **Parcial das 12:00 BRT** (`06-superficie-externa.md` e `02-midia-arquivos.md` prontos; `01`, `03`, `04` e `05`
+       em andamento):
+       - **X-01 (alto, só o dono):** as chaves legadas do Supabase continuam ligadas e são de 28/07; a `service_role`
+         vazada em 06/10 (INF-02) segue válida. Desligar em Settings › API Keys. A agência parou de gravar em 16/10.
+       - **X-02 (alto):** n8n na `1.123.10`, com correções críticas publicadas depois (`1.123.22`, `.33`, `.83`), e o
+         `editor.` aberto na internet, com `/metrics` sem senha.
+       - **Médios:**
+         - PHP 7.4 no site;
+         - `robots.txt` alterado em 23/08 com sitemaps falsos (possível rastro de invasão; sem sinal ativo de fora);
+         - usuário `admin` exposto;
+         - DMARC `p=none`;
+         - identidade SES desconhecida no DNS;
+         - VPS pedindo reinício.
+       - **Novo:** 15 Edge Functions da agência ativas no Supabase, 9 sem JWT, e 3 crons por minuto. Em análise (`05`).
+       - **Mídia (`02`):** nada crítico nem alto; 1 médio (vídeo do aviso servido como chegou, com metadados) e 6 baixos.
+       - **Ok:** cabeçalhos e CORS do app e da API, Portainer restrito, cadastro do Chatwoot fechado, RLS em tudo,
+         dependências de produção sem aviso.
