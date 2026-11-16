@@ -389,6 +389,8 @@ cmd_preparar() {
     if [ "$pr" = "[]" ]; then ok "nenhuma Page Rule ativa"; else aviso "Page Rules ativas: $pr"; fi
   elif echo "$prr" | jq -e '.errors[]? | select(.code==1011)' >/dev/null 2>&1 && [ "${PAGERULES_CONFERIDAS:-}" = "painel" ]; then
     aviso "Page Rules: a chave de conta não lê este endpoint (1011); o dono conferiu no painel: nenhuma (PAGERULES_CONFERIDAS=painel)"
+  elif echo "$prr" | jq -e '.errors[]? | select(.code==1011)' >/dev/null 2>&1 && [ "${PAGERULES_CONFERIDAS:-}" = "dono-autorizou" ]; then
+    aviso "Page Rules: a chave de conta não lê este endpoint (1011) e NÃO foram conferidas; o dono mandou seguir (PAGERULES_CONFERIDAS=dono-autorizou). Rodar o validar logo depois do laranja"
   else
     falha "GET /zones/$ZONA_ID/pagerules: $(echo "$prr" | jq -c '.errors' 2>/dev/null). Se for 1011 (chave de conta): conferir no painel (Rules > Page Rules) e rodar com PAGERULES_CONFERIDAS=painel"
   fi

@@ -11,7 +11,9 @@ situação mais recente está em `artefato/overview-2026-09-28.html` e em
 - **Degrau 1 feito** entre 18 e 22/09: NS no Cloudflare (`aldo`/`jule`), zona
   `c8f015c8ed7347f8900aa90d6701a15c` ativa, tudo cinza, valores iguais aos da
   AZAN. Certificado de borda ativo para apex e `*.`.
-- **Degrau 2 não começou.** O apex ainda resolve `45.224.128.177` (AZAN).
+- **Degrau 2 FEITO em 15/11/2026 às 23:55 BRT** (fora da janela, por ordem do dono). Apex, AAAA e `www` laranja na
+  frente da AZAN; `server.`, `mail.`, `ftp.` e o app cinza; SPF sem `+a`. `validar` e `saude` ok. Relatório em
+  `auditorias/2026-11-16/RELATORIO.md`. Volta: `scripts/cloudflare-degrau2.sh cinza --aplicar`.
 - **Chamado #RAI-374885** aberto na AZAN em 28/09 para liberar os IPs do
   Cloudflare e ler `CF-Connecting-IP`. **Respondido em 28/09 15:57 e encerrado:** a liberação é global na rede da
   AZAN ("90% dos clientes usam Cloudflare"). A resposta só chegou ao repositório em 16/11. O degrau 2 está liberado

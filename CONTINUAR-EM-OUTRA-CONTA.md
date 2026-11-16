@@ -3063,3 +3063,19 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        e nenhuma variável. A chamada de teste continua recusada.
        - Pedido: salvar de novo em Network secrets (ou, se o app não oferecer, na variável `CLOUDFLARE_API_TOKEN`).
        - Depois a sessão confere com `get_environment` e abre uma sessão nova para a madrugada, se esta não pegar.
+156. **15/11 23:55 BRT: DEGRAU 2 FEITO.** O Cloudflare está na frente do site, a pedido do dono ("agora inclusive";
+     fora da janela, com `FORA_DA_JANELA=sim`).
+     - **O que mudou:** apex, AAAA e `www` laranja; `ftp` virou A/AAAA cinza; SPF sem `+a`; e-mail obfuscation off;
+       SSL custom/strict.
+     - **Conferido:**
+       - `validar` sem erro e `saude` sem respostas ruins;
+       - 56 de 56 páginas com 200 pelo Cloudflare;
+       - `server.`, `app.` e `api.` fora do muro e ok.
+     - **Script:** `PAGERULES_CONFERIDAS` (chave de conta não lê Page Rules: 1011). O dono mandou seguir sem conferir.
+     - **Pendente:**
+       - o `colo=` no iPhone do dono (precisa ser do Brasil);
+       - consolidação às 00:30 BRT;
+       - conferências às 02:00, 07:00 e 12:00;
+       - Origin CA antes de 26/12;
+       - apagar a chave.
+     - Relatório: `auditorias/2026-11-16/RELATORIO.md`.

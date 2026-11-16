@@ -1,0 +1,30 @@
+[
+  {
+    "count": 17,
+    "dimensions": {
+      "edgeResponseStatus": 200,
+      "originResponseStatus": 200
+    }
+  },
+  {
+    "count": 5,
+    "dimensions": {
+      "edgeResponseStatus": 200,
+      "originResponseStatus": 0
+    }
+  },
+  {
+    "count": 1,
+    "dimensions": {
+      "edgeResponseStatus": 204,
+      "originResponseStatus": 0
+    }
+  },
+  {
+    "count": 1,
+    "dimensions": {
+      "edgeResponseStatus": 301,
+      "originResponseStatus": 301
+    }
+  }
+]
