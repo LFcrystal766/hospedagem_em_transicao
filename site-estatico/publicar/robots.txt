@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://crystalnowpp.com.br/sitemap_index.xml
