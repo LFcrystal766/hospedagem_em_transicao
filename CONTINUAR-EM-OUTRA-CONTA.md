@@ -2869,7 +2869,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - **Pendência que continua:** corrigir os testes de mídia e de `mobile-audit` da outra sessão (item 141).
 147. **16/11: o dono perguntou por que o site (WordPress e arquivos) continua na AZAN e o que falta para sair.**
      - **Por quê:**
-       - o Cloudflare não hospeda o WordPress: ele é o DNS e o escudo na frente (degrau 1 feito em 18–22/09);
+       - o Cloudflare não hospeda o WordPress: ele é o DNS (feito em 18–22/09) e pode ser o escudo na frente (NÃO
+         ligado: tudo cinza; ver item 150);
        - o site precisa de uma hospedagem nova, e a conta Hostinger só tem a VPS do app;
        - o degrau 2 (Cloudflare na frente da AZAN) dependia do chamado #RAI-374885, sem resposta registrada;
        - desde 28/09 todo o trabalho foi para o app;
@@ -2947,3 +2948,29 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - **Prova para o dono no iPhone:** abrir `https://crystalnowpp.com.br/cdn-cgi/trace`.
          - Com o muro, aparece um texto curto com `colo=GRU`.
          - Hoje aparece a página "não encontrada" do site.
+150. **16/11: "O que falta para isso funcionar? Por que me falou que estava funcionando? Para que está servindo?"**
+     - **Erro meu:** no item 147 eu disse ao dono que o Cloudflare "aponta o endereço e protege o que vem de trás" e que
+       "essa parte já está feita". Só a primeira metade era verdade.
+       - Desde 22/09 o Cloudflare responde o DNS.
+       - Nunca protegeu nada: tudo cinza, como o plano mandava.
+       - Corrigido com o dono.
+     - **Para que serve hoje:**
+       - é o DNS do domínio inteiro, fora da AZAN;
+       - foi por ele que nasceram `app.`, `api.`, `atendimento.` e os registros de e-mail do app (Resend: `send.`, DKIM,
+         DMARC), que mandam o código de login;
+       - a virada do site vira uma troca de minutos, com volta de minutos;
+       - o certificado de borda já está pronto.
+     - **Para o muro funcionar no site, dois caminhos:**
+       1. **Laranja na frente da AZAN.** Depende do chamado #RAI-374885 (liberar os IPs do Cloudflare e ler
+          `CF-Connecting-IP`), sem resposta; sem isso, o firewall da AZAN pode barrar o próprio Cloudflare e derrubar o
+          site.
+       2. **Recomendado: o site no Cloudflare Pages.** Lá ele já nasce atrás do muro. Falta:
+          - subir a cópia (`site-estatico/`) pelo Connect to Git ou pela chave;
+          - a regra do `fbclid`, os redirecionamentos e tirar o `noindex`;
+          - a virada do `A` numa madrugada.
+          A AZAN fica 15 dias de volta.
+     - **No app** (`app.`, `api.`, `atendimento.`), o muro é outro passo, depois:
+       - o certificado do Traefik por DNS ou o Origin CA;
+       - o IP real do cliente pelo `CF-Connecting-IP` nos limites da API;
+       - decisão explícita do dono.
+     - `server.`, `mail.` e `ftp.` ficam sempre cinza.
