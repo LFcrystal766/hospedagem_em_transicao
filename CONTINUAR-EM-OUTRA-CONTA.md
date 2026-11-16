@@ -3134,8 +3134,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        relatórios `01`, `04` e `05` ficaram fora do git** (`.git/info/exclude`), porque **este repositório está
        público** e eles trazem o passo a passo das falhas. O dono recebeu os arquivos em 16/11. Quando o repositório
        for privado: tirar a linha do `exclude`, commitar e dar push.
-     - **Placar:** nenhum crítico; 8 altos novos (3 na entrada, 1 no painel, 2 na VPS/roteiros, 2 vistos de fora) e 2
-       altos de 24/10 ainda abertos em produção; o `05` (funções da agência no Supabase) ainda rodando às 12:25 BRT.
+     - **Placar final (com o `05`, item 163):** 1 crítico pela escala do revisor do `05`; 12 altos novos (3 na
+       entrada, 1 no painel, 2 na VPS/roteiros, 2 vistos de fora, 4 nas funções da agência) e 2 altos de 24/10 ainda
+       abertos em produção.
      - **Seis pontos para hoje, na ordem do resumo** (todos conferidos na produção em 16/11):
        1. repositório público: deixar privado (antes, um comando na VPS guarda os yaml ao lado do script);
        2. uma chave antiga da entrada do app a desligar no `.externos`, com `app-subir` da mesma tag;
@@ -3151,3 +3152,22 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - **Diário:** e-mails de clientes trocados pela inicial (regra: só primeiro nome).
      - **Próximos passos do Claude, quando o dono mandar:** versão do app com as correções (4 curtas primeiro); SQL
        único da função de compra; pacote da noite da infraestrutura refeito; 3 regras novas no Cloudflare; DMARC.
+163. **16/11 (tarde): relatório `05` entregue e conferido no banco. A revisão está completa.**
+     - **O que existe:** o projeto do Supabase ainda roda 15 funções e 3 tarefas (cron 3, 4 e 5, de minuto em minuto)
+       escritas pela agência. O app novo usa só uma, `crystal_hybrid_search`, como reserva da busca: **não apagar**.
+     - **O achado principal:** as três portas de entrada de pagamento antigas não conferem quem chama, e as tarefas
+       entregam o que chega a um servidor da agência. Desde 16/10 passaram por ali 150 eventos da Guru (até 26/10) e 2
+       pagamentos do PayPal (21/10 e 12/11). O webhook do PayPal ainda aponta para a função antiga.
+     - **Conferido pela sessão principal:**
+       - tarefas ativas e filas vazias;
+       - as tabelas de compras e assinaturas da agência não mudam desde 12/10 (sinal de que o n8n dela não grava mais
+         no nosso banco);
+       - o arquivo das filas (8,3 mil eventos com dado pessoal) **não sai pela API**, que só expõe `public`,
+         `graphql_public` e `pgmq_public`.
+     - **Ordem combinada (passo 3 do `00-resumo.md`):** desligar as 3 tarefas (Claude, com o "pode" do dono;
+       reversível) → trocar o endereço no PayPal → desligar as chaves legadas → guardar cópia do código e apagar as 14
+       funções → remover a conta da agência do Auth → trocar a senha do banco → **por último e acompanhado**, revogar o
+       segredo JWT legado (a função de reserva da busca confere crachá).
+     - **Para o dono conferir:** quem pagou pelo PayPal em 21/10 e 12/11 e se essas duas pessoas têm acesso.
+     - **Esperando o dono:** repositório privado; a chave antiga da entrada no `.externos`; o "pode" para desligar as 3
+       tarefas; os passos do painel do Supabase.
