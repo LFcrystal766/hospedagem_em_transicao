@@ -1,0 +1,11 @@
+{
+  "result": null,
+  "success": false,
+  "errors": [
+    {
+      "code": 10003,
+      "message": "could not find entrypoint ruleset in the http_request_dynamic_redirect phase"
+    }
+  ],
+  "messages": []
+}

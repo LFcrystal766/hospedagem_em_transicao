@@ -1,0 +1,58 @@
+[
+  {
+    "count": 3715,
+    "dimensions": {
+      "edgeResponseStatus": 200,
+      "originResponseStatus": 0
+    }
+  },
+  {
+    "count": 683,
+    "dimensions": {
+      "edgeResponseStatus": 200,
+      "originResponseStatus": 200
+    }
+  },
+  {
+    "count": 425,
+    "dimensions": {
+      "edgeResponseStatus": 204,
+      "originResponseStatus": 0
+    }
+  },
+  {
+    "count": 71,
+    "dimensions": {
+      "edgeResponseStatus": 404,
+      "originResponseStatus": 404
+    }
+  },
+  {
+    "count": 5,
+    "dimensions": {
+      "edgeResponseStatus": 301,
+      "originResponseStatus": 301
+    }
+  },
+  {
+    "count": 2,
+    "dimensions": {
+      "edgeResponseStatus": 499,
+      "originResponseStatus": 0
+    }
+  },
+  {
+    "count": 1,
+    "dimensions": {
+      "edgeResponseStatus": 403,
+      "originResponseStatus": 0
+    }
+  },
+  {
+    "count": 1,
+    "dimensions": {
+      "edgeResponseStatus": 301,
+      "originResponseStatus": 0
+    }
+  }
+]

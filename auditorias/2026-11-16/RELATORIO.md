@@ -54,6 +54,16 @@ Pedido do dono às 23:39 BRT: "faça agora!", "pode mandar bala", "agora inclusi
   - `crystal_teste_sem_barra` (`/crystal-teste` com 200 sem redirecionar).
   - Depois: `saude` (5 min) com 397 pedidos e 0 ruins; `validar` sem erro.
 
+## Conferência das 07:00 BRT
+
+- **`foto`:** apex, AAAA e `www` laranja; `server.` cinza em `35.199.71.234`.
+- **`saude` (60 min):** 4.903 pedidos e 0 ruins.
+  - 3.715 servidos pela borda.
+  - 71 com 404 (página inexistente) e 1 com 403 (bloqueio do `xmlrpc`).
+- **`validar`:** sem erro. `server.` correto, `/healthz` com 200 e crawler da Meta com 200.
+- **56 de 56 páginas** com 200 pelo Cloudflare.
+- **Fora do muro:** `server./healthz`, `app.` e `api./healthz` com 200.
+
 ## Pendente
 
 - ~~O dono abre `/cdn-cgi/trace` no iPhone~~: dispensado, porque as métricas já mostram os visitantes do Brasil em

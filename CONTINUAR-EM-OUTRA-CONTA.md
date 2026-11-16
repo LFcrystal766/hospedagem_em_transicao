@@ -3094,3 +3094,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - como ver funcionando (`/cdn-cgi/trace`, Analytics do Cloudflare);
      - o cuidado com imagem trocada com o mesmo nome (Caching › Purge);
      - a volta e o que falta.
+159. **16/11 07:00 BRT: conferência do degrau 2 ok.**
+     - `saude` 60 min: 4.903 pedidos e 0 ruins. `validar` sem erro.
+     - 56 de 56 páginas com 200 pelo Cloudflare.
+     - `server.`, `app.` e `api.` ok.
+     - Falta o fechamento das 12:00.

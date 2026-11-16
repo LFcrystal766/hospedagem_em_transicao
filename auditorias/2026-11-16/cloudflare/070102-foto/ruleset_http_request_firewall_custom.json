@@ -1,0 +1,27 @@
+{
+  "result": {
+    "description": "",
+    "id": "d986f9c149774cb6b853a17899b8e843",
+    "kind": "zone",
+    "last_updated": "2026-11-16T03:32:06.638843Z",
+    "name": "default",
+    "phase": "http_request_firewall_custom",
+    "rules": [
+      {
+        "action": "block",
+        "description": "Bloqueia xmlrpc (o WAF da AZAN fazia isso)",
+        "enabled": true,
+        "expression": "(http.request.uri.path eq \"/xmlrpc.php\")",
+        "id": "7864badc10c342719b5b369378ee2f64",
+        "last_updated": "2026-11-16T03:32:06.638843Z",
+        "ref": "crystal_bloqueia_xmlrpc",
+        "version": "1"
+      }
+    ],
+    "source": "firewall_custom",
+    "version": "1"
+  },
+  "success": true,
+  "errors": [],
+  "messages": []
+}
