@@ -3059,3 +3059,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - o app, o rastreio (`server.`) e o e-mail ficam fora;
        - risco pequeno de o site cair alguns minutos, com volta para cinza em ~1 minuto;
        - fazer às 02:00 (em ~2 h 20), não agora, pela regra da janela.
+     - **23:41 BRT:** o dono disse "coloquei o token", mas o ambiente Default não tem nada salvo: `network_secrets` vazio
+       e nenhuma variável. A chamada de teste continua recusada.
+       - Pedido: salvar de novo em Network secrets (ou, se o app não oferecer, na variável `CLOUDFLARE_API_TOKEN`).
+       - Depois a sessão confere com `get_environment` e abre uma sessão nova para a madrugada, se esta não pegar.
