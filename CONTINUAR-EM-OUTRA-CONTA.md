@@ -3213,4 +3213,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - O CPF não foi passado (só a marca serviria para a entrada por CPF, que deve ser desligada).
      - **Falta, do dono:** ligar o webhook do nosso n8n no produto do combo na Assiny. Até lá, cada venda nova do combo
        fica sem acesso e precisa de nova exportação.
+     - **Webhook do combo:** o dono vai ligar pela extensão Claude in Chrome. O endereço do webhook é segredo (o caminho
+       secreto do n8n) e não está no repositório; não precisa sair da Assiny: basta incluir o produto do combo no
+       webhook da Crystal que já existe (Integrações > Webhooks). Pedido ao dono: não usar "enviar teste" (criaria uma
+       compra de teste); o Claude confere na próxima venda real do combo (`crystal_compras_eventos`, produto
+       `3c243b20…`).
 
