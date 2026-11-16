@@ -3187,4 +3187,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
          id; incluir esse id em `crystal_compras_produtos`, se o combo dá o app.
        - **Quem já comprou o combo:** o dono exporta da Assiny a lista de e-mails das vendas do combo e cola para o
          Claude; liberação em lote pela mesma função (sem gravar e-mail no repositório).
+     - **16/11: o dono autorizou "liberar todos do combo black".** Não há rastro de nenhum comprador do combo no que o
+       Claude alcança: nada em `crystal_compras`, em `crystal_compras_eventos` nem nas tabelas da agência (busca por
+       "black", "combo" e "curso" em produto e oferta). **Esperando a exportação da Assiny** (vendas aprovadas do combo).
+       Ao chegar: `liberar_manual` para cada e-mail, pulando reembolsados e cancelados; relatório com contagens, sem
+       e-mail no repositório.
 
