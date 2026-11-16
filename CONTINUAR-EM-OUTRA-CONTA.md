@@ -3045,3 +3045,17 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - Se esta sessão não pegar a chave, a madrugada roda numa sessão nova ("a new session picks it up").
      - **Data proposta:** madrugada de quarta, 18/11, às 02:00 BRT. Aviso ao time hoje, 16/11. Esperando o dono
        confirmar.
+155. **15/11 23:39 BRT: o dono disse "faça agora!" e perguntou se corre risco de tirar os sites do ar ou mudar os
+     links.**
+     - **Teste:** a chave ainda não chega a esta sessão (`/user/tokens/verify` deu "Invalid request headers" com o
+       valor de troca).
+     - **Roteiro desta madrugada:** `runbooks/madrugada-degrau2-2026-11-16.md`, com a branch atual e a chave pelo proxy.
+       - 00:30 BRT: preparação.
+       - 02:00 BRT: virada, com volta automática.
+       - 02:30 BRT: consolidação.
+       - 03:30, 07:00 e 12:00 BRT: conferências.
+     - **Resposta ao dono:**
+       - os links não mudam;
+       - o app, o rastreio (`server.`) e o e-mail ficam fora;
+       - risco pequeno de o site cair alguns minutos, com volta para cinza em ~1 minuto;
+       - fazer às 02:00 (em ~2 h 20), não agora, pela regra da janela.
