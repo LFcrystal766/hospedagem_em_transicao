@@ -2922,3 +2922,28 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - **Para decidir:**
        - quem edita as páginas e com que frequência (houve edições em 03/09 e 12/09);
        - o que há no Code Snippets (precisa do acesso ao WordPress).
+149. **16/11: o dono pediu "faça essas cópias no Cloudflare, mas não ponha no ar ainda".**
+     - Também perguntou se dá para editar sem WordPress e como fica o rastreio.
+     - **Cópia pronta em `site-estatico/`** (commit `2a46653`; ver o `README.md` da pasta):
+       - 56 endereços e 347 arquivos, 24 MB;
+       - conferência de 112 aberturas: os mesmos endereços de fora do original, nenhum arquivo faltando, fotos iguais em
+         105 (as outras 7 com contador ou carrossel);
+       - `montar.py` refeito do zero reproduz a pasta.
+     - **Não foi para o Cloudflare.** O dono recusou passar a chave do Cloudflare Pages (formulário seguro, 16/11).
+       - Caminho sem chave: no painel do Cloudflare, Workers & Pages › Create › Pages › Connect to Git.
+       - Recomendado: um repositório só do site, para o Cloudflare não ler o resto. Cada push publica sozinho.
+       - Esperando a decisão do dono.
+     - **Rastreio:** vem junto, porque mora no código da página e em servidores de fora (Stape/GTM em `server.`, player,
+       YouTube, Assiny, Meta).
+       - Para refazer no Cloudflare na virada: a regra que tira `fbclid`/`utm`/`gclid` dos 301 (hoje do LiteSpeed) e os
+         redirecionamentos do Rank Math, se houver.
+     - **Achado:** o `robots.txt` da AZAN lista 5 sitemaps inexistentes (`sitemap613.xml`…), rastro comum de spam
+       injetado. Conferir no WordPress.
+     - **"Como provar que o muro já está funcionando?"** Conferido em 16/11: **o muro NÃO está ligado.**
+       - NS no Cloudflare (`aldo`/`jule`), mas tudo cinza.
+       - Apex e `www` em `45.224.128.177` (AZAN), cabeçalho `server: jupiter`, sem `cf-ray`.
+       - `app.` em `177.7.61.136` (VPS).
+       - `/cdn-cgi/trace` dá 404 nos dois.
+       - **Prova para o dono no iPhone:** abrir `https://crystalnowpp.com.br/cdn-cgi/trace`.
+         - Com o muro, aparece um texto curto com `colo=GRU`.
+         - Hoje aparece a página "não encontrada" do site.
