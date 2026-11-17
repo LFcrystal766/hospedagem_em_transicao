@@ -3239,4 +3239,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      pessoa). E-mail trocado com `app_aluno_trocar_email(<id da compra>, <e-mail certo>)`: `trocado`. Conferido: o e-mail
      certo responde `liberado = true`; o errado não acha mais nada. Se já existir conta do app no e-mail antigo, o login
      acha pelo contato e acompanha o e-mail novo sozinho. E-mails e CPF fora do repositório.
+169. **17/11: Eduardo e Francisco "não aparecem na Crystal".**
+     - **Eduardo** (comprador do combo): liberado desde 12/11 (liberação manual; virou a compra do combo em 16/11). O CPF
+       informado confere. Login `liberado = true`. Não aparece no painel porque a busca do painel
+       (`app_equipe_buscar_aluno`) só olha a base antiga e as contas do app; compra nova de quem ainda não entrou
+       nenhuma vez fica invisível ali. Ele só precisa entrar.
+     - **Francisco** (Portugal): não existia em lugar nenhum; a equipe achou a compra na Assiny. Liberado com
+       `liberar_manual` (nome "Francisco"); login `liberado = true`. **Falta saber qual produto ele comprou**: se não for
+       um dos que chegam ao nosso n8n, há outro produto sem webhook (como o combo).
+     - **Proposta (não feita):** a busca do painel passar a olhar também `crystal_compras`, para a equipe achar quem
+       comprou e ainda não entrou.
 
