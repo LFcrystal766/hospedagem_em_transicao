@@ -3259,4 +3259,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        passa tudo de novo pelo `app_compra_evento`. O que já entrou cai como "repetido" e o reembolsado continua
        bloqueado (a transação já tem bloqueio), então repetir não estraga nada.
      - Eduardo: confirmado ok (liberado, CPF confere).
+     - **Francisco: confirmado ok** (liberado). Entra sem CPF: com a senha ligada, a tela não pede CPF (`pedeCpf` fica
+       falso quando `pedeSenha` é verdadeiro); primeiro acesso = e-mail, código no e-mail, criar a senha.
 
