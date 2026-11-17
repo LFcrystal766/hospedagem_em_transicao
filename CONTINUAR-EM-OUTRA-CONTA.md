@@ -3249,4 +3249,14 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        um dos que chegam ao nosso n8n, há outro produto sem webhook (como o combo).
      - **Proposta (não feita):** a busca do painel passar a olhar também `crystal_compras`, para a equipe achar quem
        comprou e ainda não entrou.
+170. **17/11: o webhook do combo da Black está funcionando.**
+     - Depois da carga manual dos 56 (16/11 16:29 BRT), chegaram sozinhos pelo nosso n8n: 2 compras do combo (16/11
+       21:48 e 23:21 BRT, liberadas) e 1 reembolso (17/11 15:10 BRT, bloqueado certo). Total do combo na tabela: 58.
+     - **Francisco comprou o combo**, mas não estava na exportação de 16/11, que ia só até 07:11 daquele dia. Há uma
+       janela sem cobertura: **16/11 de 07:11 até o webhook ser ligado** (o primeiro aviso chegou às 21:48). Quem
+       comprou nessa janela pode estar sem acesso.
+     - **Pedido ao dono:** nova exportação da Assiny das vendas pagas do combo (pode ser o período inteiro); o Claude
+       passa tudo de novo pelo `app_compra_evento`. O que já entrou cai como "repetido" e o reembolsado continua
+       bloqueado (a transação já tem bloqueio), então repetir não estraga nada.
+     - Eduardo: confirmado ok (liberado, CPF confere).
 
