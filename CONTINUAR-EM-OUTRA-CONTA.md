@@ -3234,4 +3234,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      no Lixo eletrônico ou não chega no Outlook (caso já visto com Microsoft, itens 36 e 126); conta do app desligada;
      limite de tentativas. Caminho entregue ao dono: ficha › "Pegar código de acesso" e mandar pelo WhatsApp; conferir
      na ficha se a conta está desativada; no Resend, procurar o endereço (Delivered, Bounced ou nada).
+168. **17/11: Luiz (comprou com o e-mail digitado errado).** Compra ativa de 16/11 ("CRYSTAL - A NOVA MELHOR AMIGA DOS
+     HOMENS", anual) num e-mail com uma letra trocada. O CPF informado pelo dono confere com a marca da compra (mesma
+     pessoa). E-mail trocado com `app_aluno_trocar_email(<id da compra>, <e-mail certo>)`: `trocado`. Conferido: o e-mail
+     certo responde `liberado = true`; o errado não acha mais nada. Se já existir conta do app no e-mail antigo, o login
+     acha pelo contato e acompanha o e-mail novo sozinho. E-mails e CPF fora do repositório.
 
