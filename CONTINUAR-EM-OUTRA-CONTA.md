@@ -3261,4 +3261,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - Eduardo: confirmado ok (liberado, CPF confere).
      - **Francisco: confirmado ok** (liberado). Entra sem CPF: com a senha ligada, a tela não pede CPF (`pedeCpf` fica
        falso quando `pedeSenha` é verdadeiro); primeiro acesso = e-mail, código no e-mail, criar a senha.
+171. **18/11: Leonardo "não aparece na Crystal".** Comprador do combo, liberado desde 16/11 (carga dos 56); login
+     `liberado = true`. Só nunca entrou, por isso não aparece na busca do painel (item 169). O e-mail tem 30 letras antes
+     do @ (o limite do Gmail) e termina sem o "a" final do sobrenome: ele precisa digitar exatamente como na compra.
+     Terceiro caso igual em dois dias: reforçar ao dono a proposta de a busca do painel olhar também `crystal_compras`.
 
