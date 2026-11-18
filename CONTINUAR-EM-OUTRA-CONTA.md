@@ -3265,4 +3265,17 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      `liberado = true`. Só nunca entrou, por isso não aparece na busca do painel (item 169). O e-mail tem 30 letras antes
      do @ (o limite do Gmail) e termina sem o "a" final do sobrenome: ele precisa digitar exatamente como na compra.
      Terceiro caso igual em dois dias: reforçar ao dono a proposta de a busca do painel olhar também `crystal_compras`.
+172. **18/11: Paulinho de novo (com CPF).** No Supabase está tudo certo: compra ativa e o CPF informado confere. Mas a
+     história mudou: o **combo foi reembolsado em 17/11 às 15:10** e às **20:57 ele comprou a "CRYSTAL - Recuperação"**;
+     o login do Supabase responde `liberado = true`.
+     - **Provável bloqueio no app (VPS):** o reembolso pode ter chegado também ao webhook de reembolso do app. Se ele já
+       tinha conta, ela foi desligada (motivo `refund`): o painel mostra "Religar" na ficha. Se não tinha, o app criou
+       uma conta **pré-bloqueada** com o e-mail dele (motivo `preblock`), e **o painel não oferece "Religar" para
+       pré-bloqueio**: o login dá "acesso desligado" e nada no painel resolve.
+     - **Entregue ao dono:** um comando que mostra o estado da conta e só religa se for pré-bloqueio (mesmos campos que o
+       "Religar" do painel zera; nome "Aluno" vira "Paulo"; a auditoria com hash não é escrita à mão). Se for `refund`,
+       usar "Religar" no painel.
+     - **Lacuna de produto (já anotada no item 138):** recompra depois de reembolso não religa a conta sozinha; e
+       pré-bloqueio não tem saída pelo painel. Proposta para a próxima versão: religar sozinho quando a base mostrar
+       compra nova e ativa depois do bloqueio.
 
