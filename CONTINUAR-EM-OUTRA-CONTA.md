@@ -3278,4 +3278,24 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - **Lacuna de produto (já anotada no item 138):** recompra depois de reembolso não religa a conta sozinha; e
        pré-bloqueio não tem saída pelo painel. Proposta para a próxima versão: religar sozinho quando a base mostrar
        compra nova e ativa depois do bloqueio.
+173. **19/11: quatro pedidos de uma vez.**
+     - **Cliente com erro ao criar a senha ("Sua sessão terminou"):** o e-mail informado não está em compra nenhuma; na
+       base antiga há o Nathan (anual ativa até 09/2027) com um e-mail parecido (sublinhado, sem o "xx"). Causa provável:
+       a conta do app tem o e-mail novo; ao renovar o acesso (a cada 15 min), `baseRecusou` confere o e-mail na base, não
+       acha e derruba a sessão (`auth.base_recusou`). **Esperando o dono confirmar** que é a mesma pessoa (CPF ou nome);
+       batendo, trocar o e-mail na base com `app_aluno_trocar_email`. Os prints mostraram as senhas que ele tentou: pedir
+       outra senha, sem documento.
+     - **Clara:** acesso sem compra a pedido da equipe (`liberar_manual`, nome "Clara", oferta anotada "Acesso pedido pela
+       equipe em 19/11/2026 (Clara); sem compra"). Login `liberado = true`.
+     - **/reset limpar a tela:** mudança no app, branch `painel/reset-limpa-tela` (agente em andamento). Desenho:
+       esconder, não apagar (o cliente vê só o que veio depois do recomeço; equipe, Dossiês e exportação continuam vendo
+       tudo); o `done` do reset leva uma marca e a tela limpa na hora.
+     - **Formulário 2 h depois da compra:** mudança no app, branch `painel/mensagem-pos-compra` (agente em andamento).
+       Desenho: três chaves na Operação (`op_pos_compra` desligada de fábrica, `op_pos_compra_texto` com a mensagem do
+       dono, `op_pos_compra_horas` = 2); agendador a cada ~10 min entrega uma bolha da Crystal uma vez por conta, para
+       compras dos últimos 7 dias; quem ainda não entrou recebe ao entrar. Migração aditiva (`users.pos_compra_enviada_em`).
+       **Função nova no Supabase, já aplicada:** `app_compras_recentes(p_desde, p_ate)`, só leitura, só `service_role`
+       (`crystal-em-casa/supabase/app_compras_recentes.sql`). **O dono mandou dois links diferentes**; o padrão é o da
+       mensagem (`…SD9t…`), editável no painel.
+     - Depois dos dois agentes: juntar as duas branches numa versão só, portão, CI, imagens e roteiro.
 
