@@ -61,7 +61,13 @@
   - testes de shared, API e web verdes;
   - Crystal: um teste de velocidade falhou com a máquina carregada e passou sozinho. `apps/crystal` não mudou;
   - e2e do reset, do formulário, da jornada e de erros: 23 de 23.
-- **Portão completo local** (o mesmo que o CI): resultado abaixo, quando terminar.
+- **Portão completo local** (o mesmo que o CI, 1,1 h): **pode subir.**
+  - Tipos, lint, as quatro suítes (484 + 2.965 testes), build do web, Safari, audit e e2e do e-mail: verdes.
+  - E2e inteiro: 457 passaram e 4 falharam, todos em `mobile-audit.spec.ts`:
+    - "Conversa" a 1,6 px da curva da pílula com letra grande (o mínimo é 2);
+    - `/equipe/mensagens` a 360 px com conteúdo fora da tela (admin, suporte e técnico).
+  - **As mesmas 4 falham na versão no ar** (`sha-2e2e745`): a spec rodou nas duas, com o mesmo resultado (24 passaram
+    e 4 falharam). Não é da versão nova. Ficam para uma correção à parte.
 - **GitHub Actions bloqueado em 19/11:** o CI e o build das imagens falham em 1 segundo, sem log. É o mesmo sintoma
   do bloqueio de cobrança de 28/10.
   - **Caminho A:** o dono resolve a cobrança no GitHub (Settings › Billing and plans) e o Claude dispara as imagens.

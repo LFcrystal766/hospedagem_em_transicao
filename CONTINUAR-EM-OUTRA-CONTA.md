@@ -3307,8 +3307,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - **Portão completo local (1,1 h):** tudo verde (testes 484 + 2.965, build, Safari, audit, e2e do e-mail), menos
        o e2e inteiro: 457 passaram e 4 falharam, todos em `mobile-audit.spec.ts` (medida de pixel: "Conversa" a 1,6 px
        da curva da pílula com letra grande, mínimo 2; e `/equipe/mensagens` a 360 px com conteúdo fora da tela, para
-       admin, suporte e técnico). Nenhum arquivo dessas telas mudou. Rodando a mesma spec na versão no ar
-       (`cw-junta`, porta 3480) e de novo na nova (porta 3500) para comparar.
+       admin, suporte e técnico). **As mesmas 4 falham na versão no ar** (`cw-junta`, `2e2e745f`): a spec rodou nas
+       duas com o mesmo resultado (24 passaram e 4 falharam). Não é da versão nova: **PODE SUBIR**, assim que houver
+       imagens. As 4 ficam para uma correção à parte.
      - **GitHub Actions bloqueado de novo:** CI e `imagens-vps` falham em 1 segundo, sem log (mesmo sintoma da cobrança
        de 28/10). Caminho A: o dono resolve a cobrança e o Claude dispara as imagens. Caminho B: `app-construir` na VPS
        com o SHA de 40 letras.
