@@ -3298,4 +3298,19 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        (`crystal-em-casa/supabase/app_compras_recentes.sql`). **O dono mandou dois links diferentes**; o padrão é o da
        mensagem (`…SD9t…`), editável no painel.
      - Depois dos dois agentes: juntar as duas branches numa versão só, portão, CI, imagens e roteiro.
+174. **19/11 (tarde): versão `painel/reset-poscompra` montada (`6180988b`, tag `sha-6180988`).**
+     - Junção sem conflito de `painel/reset-limpa-tela` (/reset limpa a tela) e `painel/mensagem-pos-compra` (formulário
+       depois da compra), as duas a partir da `2e2e745f` (no ar).
+     - **Portão local:** tipos, lint e testes de shared, API e web verdes; Crystal com um teste de velocidade que falha
+       com a máquina carregada e passa sozinho (`apps/crystal` não mudou); e2e de reset, formulário, jornada e erros
+       23/23. Portão completo local rodando.
+     - **GitHub Actions bloqueado de novo:** CI e `imagens-vps` falham em 1 segundo, sem log (mesmo sintoma da cobrança
+       de 28/10). Caminho A: o dono resolve a cobrança e o Claude dispara as imagens. Caminho B: `app-construir` na VPS
+       com o SHA de 40 letras.
+     - **Roteiro:** `crystal-em-casa/publicar-reset-poscompra.md`, já com o superadmin pedido em 19/11
+       (`marketing@` em `SUPERADMIN_EMAILS` via `app-definir`, lista inteira; a pessoa precisa ser admin no painel) e o
+       `LOGIN_CPF=desligado` da revisão de 16/11.
+     - **Formulário:** desligado de fábrica; ao ligar, quem comprou nos últimos 7 dias recebe de uma vez (233 em 19/11,
+       só quem tem conta); o link vira o botão "Abrir o formulário"; não respeita o horário de silêncio; dois links
+       diferentes do dono, padrão o da mensagem.
 
