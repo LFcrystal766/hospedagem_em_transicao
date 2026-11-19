@@ -3320,3 +3320,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        só quem tem conta); o link vira o botão "Abrir o formulário"; não respeita o horário de silêncio; dois links
        diferentes do dono, padrão o da mensagem.
 
+175. **19/11 (tarde): Wilson ("cadastrar o e-mail novo; o antigo era outro").** O e-mail que o suporte pediu para
+     cadastrar (`j***30@hotmail.com`) **já é o do cadastro dele** na base antiga: cliente da Assiny desde 09/05, assinatura
+     ativa, e o login responde `liberado = true`. O e-mail "antigo" (`j***10@hotmail.com`) não existe em lugar nenhum
+     (nem base, nem compras). O cadastro foi atualizado em 06/11; pode ter sido a troca, feita antes. Nada foi mudado.
+     Caminho entregue: entrar com o e-mail certo, "Primeiro acesso" ou "Esqueci a senha" para receber o código e criar a
+     senha; se o código não chegar, ficha › "Pegar código de acesso" e mandar pelo WhatsApp.
