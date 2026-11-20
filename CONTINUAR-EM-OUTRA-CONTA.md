@@ -3352,3 +3352,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      Audit limpo, tipos ok, build do web ok, `prisma validate/generate` ok. Disparados `imagens-vps` (run 44740155047) e
      CI (run 44740149938); e2e de login com senha, jornada, reset, formulário e erros rodando aqui (porta 3520).
      Roteiro trocado para `sha-7e9de25`. Estimativa dada ao dono: 30 a 40 minutos.
+180. **20/11, 13:02 UTC: imagens `sha-7e9de25` PRONTAS, pode subir.** `imagens-vps` run 44740155047 verde (audit,
+     build e push das 3 imagens). E2e local da `7e9de250` (login com senha, jornada, reset, formulário, erros): 23/23.
+     CI completo (run 44740149938) rodando: audit, tipos, lint e testes de shared já verdes. Roteiro
+     `crystal-em-casa/publicar-reset-poscompra.md` com a tag nova; na VPS é só a subida (sem `app-construir`).

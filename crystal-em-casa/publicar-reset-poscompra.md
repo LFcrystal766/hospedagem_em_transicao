@@ -74,17 +74,19 @@
     - `/equipe/mensagens` a 360 px com conteúdo fora da tela (admin, suporte e técnico).
   - **As mesmas 4 falham na versão no ar** (`sha-2e2e745`): a spec rodou nas duas, com o mesmo resultado (24 passaram
     e 4 falharam). Não é da versão nova. Ficam para uma correção à parte.
-- **GitHub Actions bloqueado em 19/11:** o CI e o build das imagens falham em 1 segundo, sem log. É o mesmo sintoma
-  do bloqueio de cobrança de 28/10.
-  - **Caminho A:** o dono resolve a cobrança no GitHub (Settings › Billing and plans) e o Claude dispara as imagens.
-  - **Caminho B:** monta as imagens na VPS (abaixo).
+- **GitHub Actions bloqueado de 19/11 até 20/11 ~12:50 UTC** (cobrança, resolvida pelo dono).
+- **`sha-7e9de25` (20/11), depois da troca do Next.js e do `effect`:**
+  - audit limpo aqui, no CI e no `imagens-vps`;
+  - tipos, build do web e `prisma validate/generate` ok;
+  - e2e de login com senha, jornada, reset, formulário e erros: 23 de 23;
+  - CI completo no GitHub (run 44740149938): rodando; deve repetir as 4 falhas antigas do `mobile-audit`.
 
 ## Imagens
 
-**Caminho A (GitHub de volta):** o Claude dispara `imagens-vps` e avisa quando `sha-7e9de25` estiver pronta. Na VPS, só a
-subida.
+**PRONTAS em 20/11, 13:02 UTC:** `imagens-vps` run 44740155047, as 3 imagens `sha-7e9de25` no ghcr.io (api, web e
+crystal). Na VPS, só a subida.
 
-**Caminho B (sem o GitHub):** na VPS, uma vez:
+**Caminho B (só se o GitHub voltar a falhar):** na VPS, uma vez:
 
 ```bash
 cd /root
