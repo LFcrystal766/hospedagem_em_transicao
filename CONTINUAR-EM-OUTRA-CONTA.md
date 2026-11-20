@@ -3370,3 +3370,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 183. **20/11 (~14:00 UTC): passo da memória conferido na `sha-7e9de25`.** `docker service inspect`: Crystal com limite
      2684354560 (2560M) e API com 2147483648 (2048M). Falta: o dono confirmar o superadmin da `marketing@` e ligar o
      formulário (Configurações › Produto); depois conferir nos logs do Supabase as chamadas a `app_compras_recentes`.
+184. **20/11 (~14:10 UTC): superadmin da `marketing@` travado.** A conta com esse e-mail no app é de **cliente**
+     (`role = user`) e não aparece em Equipe. No Supabase não há compra nem cadastro com esse e-mail (a conta de cliente
+     não consegue mais entrar pelo login de cliente). O app não deixa: trocar o papel de cliente para equipe
+     (`ROLE_CHANGE_FORBIDDEN`, regra A05 item 7) nem criar conta de equipe com e-mail já usado (`EMAIL_EXISTS`; o login
+     acha a conta pelo e-mail). Caminho entregue ao dono, respeitando a regra: (1) conferir a linha; (2) liberar o
+     e-mail renomeando a conta de cliente para `marketing+cliente@…` (`update … where lower(email)=… and role='user'`,
+     tem de dar `UPDATE 1`); (3) incluir em Equipe como Administrador; (4) se o `app-definir SUPERADMIN_EMAILS` já foi
+     feito antes do `app-subir`, vale na hora; se não, `app-definir` + `app-subir sha-7e9de25` + passo da memória.
