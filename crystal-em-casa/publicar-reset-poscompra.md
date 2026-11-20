@@ -1,7 +1,13 @@
 # Publicar: /reset limpa a tela + formulário depois da compra (19/11/2026)
 
-- **Versão:** branch `painel/reset-poscompra`, commit `6180988b752dc82f687d8777f49c6ddf5f74612f`, tag `sha-6180988`.
+- **Versão:** branch `painel/reset-poscompra`, commit `7e9de25050dceaf6bc9d3ad376ff1af4c1ebe6ac`, tag `sha-7e9de25`.
 - **Base:** `sha-2e2e745` (no ar desde 15/11), mais dois pedidos do dono de 19/11.
+- **20/11: a tag mudou de `sha-6180988` para `sha-7e9de25`.** O GitHub voltou, mas a montagem parou em quatro alertas
+  de segurança publicados depois do portão de 19/11. A `7e9de25` é a mesma versão com:
+  - Next.js 15.5.28 → 15.5.29;
+  - `effect` 3.21.0 → 3.22.4, um pacote que o Prisma usa por dentro (ReDoS).
+  - Sem mudança de código nem de banco. Audit limpo; tipos, build do web e Prisma ok.
+  - A `sha-6180988` nunca teve imagem: não usar.
 - **Junto, se o dono quiser (recomendado):**
   - `marketing@leticiafelisberto.com` como superadmin;
   - fechar a entrada por CPF (revisão de segurança de 16/11, item 2).
@@ -75,14 +81,14 @@
 
 ## Imagens
 
-**Caminho A (GitHub de volta):** o Claude dispara `imagens-vps` e avisa quando `sha-6180988` estiver pronta. Na VPS, só a
+**Caminho A (GitHub de volta):** o Claude dispara `imagens-vps` e avisa quando `sha-7e9de25` estiver pronta. Na VPS, só a
 subida.
 
 **Caminho B (sem o GitHub):** na VPS, uma vez:
 
 ```bash
 cd /root
-bash bootstrap-vps.sh app-construir painel/reset-poscompra 6180988b752dc82f687d8777f49c6ddf5f74612f
+bash bootstrap-vps.sh app-construir painel/reset-poscompra 7e9de25050dceaf6bc9d3ad376ff1af4c1ebe6ac
 ```
 
 - **Tentado de novo pelo GitHub em 20/11 (~12:48 UTC):** os 3 trabalhos falharam em 1 segundo, sem log
@@ -94,7 +100,7 @@ bash bootstrap-vps.sh app-construir painel/reset-poscompra 6180988b752dc82f687d8
   - Expiration: 7 dias.
   - O script não mostra o token na tela nem o guarda. Depois de montar, apagar o token no GitHub.
 - **Leva de 15 a 30 minutos e pesa na CPU** (o build do web). Melhor num horário de pouco movimento.
-- **No fim deve mostrar** "código em 6180988 (tag sha-6180988)", as 3 imagens e "imagens prontas nesta VPS".
+- **No fim deve mostrar** "código em 7e9de25 (tag sha-7e9de25)", as 3 imagens e "imagens prontas nesta VPS".
 - **Depois, antes de subir:** `bash bootstrap-vps.sh backup`, como o próprio script sugere.
 - **O `app-subir` aceita imagem montada na VPS** (rótulo `crystal.construida-na-vps`). Foi o mesmo caminho dos Dossiês
   da outra sessão.
@@ -132,14 +138,14 @@ sed -i '/^LOGIN_CPF=/d' /root/crystal/app/.externos && echo 'LOGIN_CPF=desligado
 **3. Subir a versão e o passo da memória.**
 
 ```bash
-REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-6180988
+REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-7e9de25
 docker service update --limit-cpu 1 --limit-memory 2560M --env-add NODE_OPTIONS=--max-old-space-size=2048 crystal_app_app_crystal
 docker service update --limit-memory 2048M --env-add NODE_OPTIONS=--max-old-space-size=1536 crystal_app_app_api
 bash bootstrap-vps.sh app-status
 curl -s https://api.crystalnowpp.com.br/auth/modo
 ```
 
-- **Certo:** os três serviços em `sha-6180988`, HTTPS ok e, se fez o passo 2, `"cpf":false` na última linha.
+- **Certo:** os três serviços em `sha-7e9de25`, HTTPS ok e, se fez o passo 2, `"cpf":false` na última linha.
 
 ## Conferir depois (no celular)
 

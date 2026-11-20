@@ -3344,3 +3344,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
 178. **20/11 (~12:50 UTC): o dono resolveu a cobrança do GitHub.** Disparado o `imagens-vps` na
      `painel/reset-poscompra` (run 44739108755): os 3 trabalhos passaram do "Set up job" e estão montando de verdade.
      O CI da junção (run 44537382821) foi rodado de novo. Volta marcada para conferir as imagens.
+179. **20/11 (~12:58 UTC): imagens da `6180988` pararam no audit; nova tag `sha-7e9de25`.** Com o GitHub de volta, os
+     3 trabalhos do `imagens-vps` (run 44739108755) caíram no `pnpm audit --prod --audit-level=moderate`: alertas
+     publicados depois do portão de 19/11, `next <= 15.5.28` (3 moderados) e `effect <= 3.22.0` (alto, ReDoS, via
+     `prisma > @prisma/config`, que fixa a 3.21.0 até na 6.19.3). Correção `7e9de250` na `painel/reset-poscompra`:
+     `next` 15.5.29 e override `effect: 3.22.4` (a 3.22.5 tem menos de 7 dias e o `minimumReleaseAge: 10080` recusa).
+     Audit limpo, tipos ok, build do web ok, `prisma validate/generate` ok. Disparados `imagens-vps` (run 44740155047) e
+     CI (run 44740149938); e2e de login com senha, jornada, reset, formulário e erros rodando aqui (porta 3520).
+     Roteiro trocado para `sha-7e9de25`. Estimativa dada ao dono: 30 a 40 minutos.
