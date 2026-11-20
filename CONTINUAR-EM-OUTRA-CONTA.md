@@ -3361,3 +3361,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      Roteiro ganhou o `bash bootstrap-vps.sh backup` antes do `app-subir` (há migração). Conferido no script `97b5ad2`:
      `LOGIN_CPF` do `.externos` vai para o `api.env` (só as chaves da Crystal ficam de fora) e o app aceita
      `ligado|desligado`.
+182. **20/11 (~13:50 UTC): `sha-7e9de25` NO AR.** O dono mandou o `app-status`: api, crystal e web em `sha-7e9de25`,
+     HTTPS ok. Conferido de fora: `/auth/modo` → `{"modo":"email","cpf":false,"senha":true}` (entrada por CPF fechada);
+     o app web já tem "As mensagens antigas saem da tela." e "Formulário depois da compra". A volta é a `sha-2e2e745`
+     (com o passo da memória). Falta o dono confirmar: o passo da memória (comando seguro mandado, que mostra só o
+     limite e o `NODE_OPTIONS`), o superadmin da `marketing@` e ligar o formulário no painel. Com o formulário ligado,
+     dá para ver nos logs do Supabase as chamadas a `app_compras_recentes` (a cada 10 min).
