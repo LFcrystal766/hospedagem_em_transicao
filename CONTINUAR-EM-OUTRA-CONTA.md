@@ -3341,3 +3341,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      `97b5ad2` do script: aceita SHA de 7 a 40 letras; o `app-subir` aceita imagem montada na VPS). Roteiro
      atualizado com o passo a passo do token (fine-grained, só `crystal-web-chat`, Contents Read-only, 7 dias) e o
      `backup` antes do `app-subir`.
+178. **20/11 (~12:50 UTC): o dono resolveu a cobrança do GitHub.** Disparado o `imagens-vps` na
+     `painel/reset-poscompra` (run 44739108755): os 3 trabalhos passaram do "Set up job" e estão montando de verdade.
+     O CI da junção (run 44537382821) foi rodado de novo. Volta marcada para conferir as imagens.
