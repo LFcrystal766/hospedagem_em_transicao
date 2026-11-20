@@ -85,9 +85,19 @@ cd /root
 bash bootstrap-vps.sh app-construir painel/reset-poscompra 6180988b752dc82f687d8777f49c6ddf5f74612f
 ```
 
-- Pede um token do GitHub **só de leitura** do `crystal-web-chat` (fine-grained, Contents: Read-only).
-- Leva de 15 a 30 minutos.
-- No fim deve mostrar "código em 6180988 (tag sha-6180988)" e as 3 imagens.
+- **Tentado de novo pelo GitHub em 20/11 (~12:48 UTC):** os 3 trabalhos falharam em 1 segundo, sem log
+  (run 44738769365). O motivo aparece na página do run, no GitHub.
+- **Pede um token do GitHub só de leitura.** Para criar: github.com › Settings › Developer settings › Personal access
+  tokens › Fine-grained tokens › Generate new token:
+  - Repository access: Only select repositories › `crystal-web-chat`;
+  - Permissions › Contents: Read-only;
+  - Expiration: 7 dias.
+  - O script não mostra o token na tela nem o guarda. Depois de montar, apagar o token no GitHub.
+- **Leva de 15 a 30 minutos e pesa na CPU** (o build do web). Melhor num horário de pouco movimento.
+- **No fim deve mostrar** "código em 6180988 (tag sha-6180988)", as 3 imagens e "imagens prontas nesta VPS".
+- **Depois, antes de subir:** `bash bootstrap-vps.sh backup`, como o próprio script sugere.
+- **O `app-subir` aceita imagem montada na VPS** (rótulo `crystal.construida-na-vps`). Foi o mesmo caminho dos Dossiês
+  da outra sessão.
 - Anotar no diário que foi montada na VPS.
 
 ## Subir (no terminal da VPS, um por vez)

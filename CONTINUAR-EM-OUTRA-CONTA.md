@@ -3334,3 +3334,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - o GitHub Actions continua sem rodar nada desde 19/11 13:50 UTC (sem imagem da `sha-6180988`).
      Como foi feito: a cada 10 min o app procura compras com mais de 2 h (até 7 dias), então a mensagem chega entre 2 h e
      2 h 10 depois da compra; quem ainda não tem conta recebe na primeira volta depois de entrar no app.
+177. **20/11 (~12:48 UTC): "pode montar as imagens".** Disparado o `imagens-vps` na `painel/reset-poscompra` (run
+     44738769365): os 3 trabalhos falharam em 1 segundo, sem log, como em 19/11. O GitHub continua bloqueado. Aqui não há
+     Docker funcionando nem credencial de escrita no ghcr.io, e o Claude não entra na VPS: as imagens só saem pela VPS,
+     com o dono rodando `bash bootstrap-vps.sh app-construir painel/reset-poscompra 6180988` (conferido na versão
+     `97b5ad2` do script: aceita SHA de 7 a 40 letras; o `app-subir` aceita imagem montada na VPS). Roteiro
+     atualizado com o passo a passo do token (fine-grained, só `crystal-web-chat`, Contents Read-only, 7 dias) e o
+     `backup` antes do `app-subir`.
