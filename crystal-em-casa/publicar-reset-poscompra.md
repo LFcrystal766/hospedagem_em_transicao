@@ -79,7 +79,8 @@
   - audit limpo aqui, no CI e no `imagens-vps`;
   - tipos, build do web e `prisma validate/generate` ok;
   - e2e de login com senha, jornada, reset, formulário e erros: 23 de 23;
-  - CI completo no GitHub (run 44740149938): rodando; deve repetir as 4 falhas antigas do `mobile-audit`.
+  - CI no GitHub (run 44740149938): audit, tipos, lint, as quatro suítes, build do web, Safari e e2e do login só com
+    e-mail **verdes** (13:20 UTC). O e2e inteiro ainda roda e deve repetir as 4 falhas antigas do `mobile-audit`.
 
 ## Imagens
 
@@ -137,9 +138,10 @@ cp -p /root/crystal/app/.externos /root/crystal/app/.externos.antes-1119
 sed -i '/^LOGIN_CPF=/d' /root/crystal/app/.externos && echo 'LOGIN_CPF=desligado' >> /root/crystal/app/.externos
 ```
 
-**3. Subir a versão e o passo da memória.**
+**3. Backup dos bancos, subir a versão e o passo da memória.** A versão tem uma migração (aditiva): o backup vem antes.
 
 ```bash
+bash bootstrap-vps.sh backup
 REF=97b5ad29d2b998163bc31654cbc2c00aa8017d7e bash bootstrap-vps.sh app-subir sha-7e9de25
 docker service update --limit-cpu 1 --limit-memory 2560M --env-add NODE_OPTIONS=--max-old-space-size=2048 crystal_app_app_crystal
 docker service update --limit-memory 2048M --env-add NODE_OPTIONS=--max-old-space-size=1536 crystal_app_app_api

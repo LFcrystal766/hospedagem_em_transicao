@@ -3356,3 +3356,8 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      build e push das 3 imagens). E2e local da `7e9de250` (login com senha, jornada, reset, formulário, erros): 23/23.
      CI completo (run 44740149938) rodando: audit, tipos, lint e testes de shared já verdes. Roteiro
      `crystal-em-casa/publicar-reset-poscompra.md` com a tag nova; na VPS é só a subida (sem `app-construir`).
+181. **20/11 (~13:25 UTC): o dono pediu o passo a passo para subir a `sha-7e9de25`.** CI (run 44740149938): audit,
+     tipos, lint, quatro suítes, build do web, Safari e e2e do login só com e-mail verdes; e2e inteiro rodando.
+     Roteiro ganhou o `bash bootstrap-vps.sh backup` antes do `app-subir` (há migração). Conferido no script `97b5ad2`:
+     `LOGIN_CPF` do `.externos` vai para o `api.env` (só as chaves da Crystal ficam de fora) e o app aceita
+     `ligado|desligado`.
