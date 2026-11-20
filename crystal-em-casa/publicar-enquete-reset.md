@@ -30,7 +30,8 @@
       fora, que o dono tirou em 18/11. O teste foi acertado (`280a1d75`): o link de fora segue só para o admin.
 - **Aqui:**
   - os 25 testes de segurança e os 3.001 testes do web passaram;
-  - os e2e de enquete, mensagens, reset, formulário, login, jornada e erros: resultado no CONTINUAR.
+  - os e2e de enquete (aluno e painel), mensagens, mensagens da onda 4, reset, formulário, login com senha, jornada
+    e erros: **42 passaram, 1 pulado, nenhuma falha** (7,5 min). **Pode subir.**
 
 ## Subir (no terminal da VPS, um por vez)
 
