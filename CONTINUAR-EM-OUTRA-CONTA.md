@@ -3400,3 +3400,10 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        `marketing@`: a lista anterior tinha 2 e-mails (a Letícia e o e-mail de equipe do Luiz), que perderam o
        superadmin; tem de ser regravada com os três antes da próxima subida. (2) Ele subiu a `7e9de25` uma segunda vez
        e não refez o passo da memória: limites voltaram ao do yaml.
+187. **20/11 (~14:50 UTC): junção `painel/enquete-reset` com imagens prontas (`sha-2b645e9`).** `imagens-vps` run
+     44751955524 verde. CI run 44751944846: audit, tipos, lint, shared e e2e do login só com e-mail verdes; testes
+     da API com 1 falha, o A9 de `seguranca-autorizacao.test.ts`. A falha já existia na `disparo-sem-codigo`, porque
+     o `0856897e` tirou o código ao enviar e não acertou esse teste. Acertado no `280a1d75` (só teste: o link de fora
+     segue só do admin). Aqui: segurança 25/25 e web 3.001/3.001; e2e de enquete, mensagens, reset, formulário,
+     login, jornada e erros rodando (porta 3560). Roteiro novo: `crystal-em-casa/publicar-enquete-reset.md`, com a
+     lista inteira de superadmin, backup, `app-subir sha-2b645e9`, passo da memória e as duas voltas.
