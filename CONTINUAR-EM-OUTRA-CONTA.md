@@ -3378,3 +3378,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      e-mail renomeando a conta de cliente para `marketing+cliente@…` (`update … where lower(email)=… and role='user'`,
      tem de dar `UPDATE 1`); (3) incluir em Equipe como Administrador; (4) se o `app-definir SUPERADMIN_EMAILS` já foi
      feito antes do `app-subir`, vale na hora; se não, `app-definir` + `app-subir sha-7e9de25` + passo da memória.
+185. **20/11 (~14:15 UTC): e-mail da `marketing@` liberado.** Na VPS: uma linha só (`user`, `active`, criada em 06/10);
+     o `update` respondeu `UPDATE 1` (a conta de cliente agora é `marketing+cliente@…`, nada apagado). Próximo: o dono
+     inclui `marketing@` em Equipe como Administrador e confere se o `api.env` da subida já tem o e-mail em
+     `SUPERADMIN_EMAILS` (`grep -c`, só a contagem); se der 0, `app-definir` + `app-subir sha-7e9de25` + memória.
