@@ -3382,3 +3382,21 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      o `update` respondeu `UPDATE 1` (a conta de cliente agora é `marketing+cliente@…`, nada apagado). Próximo: o dono
      inclui `marketing@` em Equipe como Administrador e confere se o `api.env` da subida já tem o e-mail em
      `SUPERADMIN_EMAILS` (`grep -c`, só a contagem); se der 0, `app-definir` + `app-subir sha-7e9de25` + memória.
+186. **20/11 (~14:25 UTC): a subida da `sha-7e9de25` TIROU DO AR as Enquetes.** O `app-status` que o dono colou ANTES
+     de subir mostrava API `sha-7d6dbed` e web `sha-0856897` (Crystal `sha-2e2e745`): a branch
+     `painel/disparo-sem-codigo` de 18/11 (outra sessão: Enquetes, "enviar e agendar sem código por e-mail", horário
+     de silêncio pelo horário de Brasília; migração `wen1_01_aviso_enquete`). O roteiro dizia "deve ser sha-2e2e745" e
+     ninguém conferiu. A `7e9de25` saiu da `2e2e745f`, sem esses commits. Erro do Claude: não conferir a versão no ar
+     antes de montar a junção.
+     - **Volta para o que estava:** `docker service update --with-registry-auth --image
+       ghcr.io/lfcrystal766/crystal-web-chat-api:sha-7d6dbed crystal_app_app_api` e o mesmo para o web com
+       `sha-0856897` (Crystal fica na `7e9de25` ou volta para `sha-2e2e745`); depois o passo da memória.
+     - **Correção em andamento:** branch `painel/enquete-reset` = `7d6dbed0` + merge da `painel/reset-poscompra`,
+       commit `2b645e9e` (tag `sha-2b645e9`). 3 conflitos resolvidos mantendo os dois lados: `memory-chat.ts` e
+       `prisma-chat.ts` (`votarNaBolhaDeTeste` + `listPage` com `depoisDe`) e `use-chat.test.ts` (os dois `describe`).
+       Portão rápido e e2e de enquete, mensagens, reset, formulário, login, jornada e erros rodando (portas 3540/3560);
+       CI e `imagens-vps` disparados no GitHub.
+     - **Outros problemas da sessão do dono na VPS:** (1) no `app-definir SUPERADMIN_EMAILS` ele digitou só a
+       `marketing@`: a lista anterior tinha 2 e-mails (a Letícia e o e-mail de equipe do Luiz), que perderam o
+       superadmin; tem de ser regravada com os três antes da próxima subida. (2) Ele subiu a `7e9de25` uma segunda vez
+       e não refez o passo da memória: limites voltaram ao do yaml.
