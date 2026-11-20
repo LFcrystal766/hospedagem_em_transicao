@@ -3407,3 +3407,7 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      segue só do admin). Aqui: segurança 25/25 e web 3.001/3.001; e2e de enquete, mensagens, reset, formulário,
      login, jornada e erros rodando (porta 3560). Roteiro novo: `crystal-em-casa/publicar-enquete-reset.md`, com a
      lista inteira de superadmin, backup, `app-subir sha-2b645e9`, passo da memória e as duas voltas.
+188. **20/11 (~15:00 UTC): `sha-2b645e9` PODE SUBIR.** E2e aqui (porta 3560): enquete, enquete-painel, mensagens,
+     mensagens-onda4, onda6-reset, pos-compra, login-senha, journey e errors com 42 passaram e 1 pulado, sem falha.
+     Passo a passo mandado ao dono (roteiro `crystal-em-casa/publicar-enquete-reset.md`). O CI completo da
+     `280a1d75` segue rodando no GitHub.
