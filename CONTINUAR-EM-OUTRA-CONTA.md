@@ -3367,3 +3367,6 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      (com o passo da memória). Falta o dono confirmar: o passo da memória (comando seguro mandado, que mostra só o
      limite e o `NODE_OPTIONS`), o superadmin da `marketing@` e ligar o formulário no painel. Com o formulário ligado,
      dá para ver nos logs do Supabase as chamadas a `app_compras_recentes` (a cada 10 min).
+183. **20/11 (~14:00 UTC): passo da memória conferido na `sha-7e9de25`.** `docker service inspect`: Crystal com limite
+     2684354560 (2560M) e API com 2147483648 (2048M). Falta: o dono confirmar o superadmin da `marketing@` e ligar o
+     formulário (Configurações › Produto); depois conferir nos logs do Supabase as chamadas a `app_compras_recentes`.
