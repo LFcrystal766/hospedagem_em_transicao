@@ -3326,3 +3326,11 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      (nem base, nem compras). O cadastro foi atualizado em 06/11; pode ter sido a troca, feita antes. Nada foi mudado.
      Caminho entregue: entrar com o e-mail certo, "Primeiro acesso" ou "Esqueci a senha" para receber o código e criar a
      senha; se o código não chegar, ficha › "Pegar código de acesso" e mandar pelo WhatsApp.
+176. **20/11 (~12:45 UTC): "a mensagem está chegando depois de 2 h?" Ainda não sai: a versão do formulário não está no
+     ar.** Conferido de fora, sem a VPS:
+     - o app web no ar ainda diz "As mensagens continuam na tela." no diálogo de recomeçar (a `6180988` diz que saem);
+     - `/auth/modo` responde `"cpf":true` (o `LOGIN_CPF=desligado` do roteiro também não foi feito);
+     - os logs do Supabase (24 h) não têm nenhuma chamada a `app_compras_recentes`;
+     - o GitHub Actions continua sem rodar nada desde 19/11 13:50 UTC (sem imagem da `sha-6180988`).
+     Como foi feito: a cada 10 min o app procura compras com mais de 2 h (até 7 dias), então a mensagem chega entre 2 h e
+     2 h 10 depois da compra; quem ainda não tem conta recebe na primeira volta depois de entrar no app.
