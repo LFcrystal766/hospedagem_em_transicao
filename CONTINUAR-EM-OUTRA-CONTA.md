@@ -3411,3 +3411,21 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      mensagens-onda4, onda6-reset, pos-compra, login-senha, journey e errors com 42 passaram e 1 pulado, sem falha.
      Passo a passo mandado ao dono (roteiro `crystal-em-casa/publicar-enquete-reset.md`). O CI completo da
      `280a1d75` segue rodando no GitHub.
+189. **26/11: "muita gente sendo desligada automaticamente" e "todos os lotes 100% liberados".**
+     - **Causa:** desde 15/10, `subscription_canceled` da Assiny (cancelar a renovação da assinatura ANUAL, sem
+       reembolso) virava bloqueio em `crystal_compras` e, pelo n8n, `/webhooks/reembolso` desligava a conta no app.
+       Atingidos: 166 clientes da base antiga com assinatura válida lá e sem reembolso (115 nos últimos 30 dias;
+       anual R$ 297 checkouts 01/02/03 e recuperação R$ 247).
+     - **Feito no Supabase (SQL autorizado):** (1) `app_compra_evento` novo (`supabase/app_compras_cancelamento.sql`):
+       cancelamento só registra (`acao` 'cancelamento', nunca 'repetido'; o n8n cai na saída "nada" e só responde à
+       Assiny); reembolso e chargeback seguem bloqueando. (2) 166 compras desbloqueadas (`bloqueado_em` null; login
+       `liberado = true` em 166/166). (3) Lotes: 9.357 clientes marcados `is_in_rollout = true` (+ `app_liberado_em`),
+       11.149 de 11.149; só o painel e duas métricas leem isso; o login não olha lote desde 11/10. (4) Teste numa
+       transação desfeita: cancelamento → `cancelamento` duas vezes; reembolso da mesma compra → `bloqueado`.
+     - **Falta (dono, na VPS):** religar as contas que o app já desligou: `crystal-em-casa/religar-cancelamentos.md`
+       (contar; `update` só para desligados por `refund`/`preblock` cujo evento foi cancelamento e sem reembolso;
+       contar de novo).
+     - **Pendência:** cortar o acesso no fim do período pago de quem cancelou; hoje fica com acesso.
+     - **Base antiga parada:** `leticia_crystal_subscriptions` sem atualização desde 12/10 e `active_accesses` desde
+       16/10 (a agência saiu em 09/10). Hoje não vence ninguém nos próximos 14 dias, mas a base não acompanha mais
+       renovação nem cancelamento.
