@@ -3487,3 +3487,9 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - O e-mail de boas-vindas ainda diz "na entrada, você recebe um código neste mesmo e-mail": texto de antes do
          login com senha (15/11). Proposto ao dono trocar.
        - O conector não mostra o histórico de execuções: falha de execução só pelo painel do n8n (Executions).
+193. **28/11: texto novo do e-mail de boas-vindas (login com senha).** O dono pediu o texto. Entregue no chat a
+     expressão pronta para o nó "E-mail de boas-vindas (Resend)" do fluxo NO AR (versão de 14/10, que lê de
+     `$('Assiny')`): passo a passo com "Primeiro acesso: criar senha" (o rótulo do botão no app), código no e-mail,
+     criar a senha, aviso do spam. O mesmo texto entrou no `crystal-em-casa/n8n/compra-assiny.json` (versão de 24/10,
+     que lê de "Conferir e enxugar"), para não voltar o texto antigo quando ela for publicada. Quem cola no n8n é o
+     dono; o Claude não edita o fluxo.

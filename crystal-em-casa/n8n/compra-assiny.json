@@ -278,7 +278,7 @@
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ from: 'Crystal <acesso@crystalnowpp.com.br>', to: [$('Conferir e enxugar').first().json.email], subject: 'Seu acesso à Crystal está liberado', text: $('Conferir e enxugar').first().json.saudacao + '\\n\\n' + 'Sua compra foi confirmada e o seu acesso à Crystal já está liberado.\\n\\n' + 'Entre em: https://app.crystalnowpp.com.br\\n' + 'Use o mesmo e-mail da compra: na entrada, você recebe um código nele para confirmar.\\n\\n' + 'Dúvidas: fale com a nossa equipe pelo próprio app.\\n\\nCrystal' }) }}",
+        "jsonBody": "={{ JSON.stringify({ from: 'Crystal <acesso@crystalnowpp.com.br>', to: [$('Conferir e enxugar').first().json.email], subject: 'Seu acesso à Crystal está liberado', text: $('Conferir e enxugar').first().json.saudacao + '\\n\\n' + 'Sua compra foi confirmada e o seu acesso à Crystal já está liberado.\\n\\n' + 'Para entrar pela primeira vez:\\n' + '1. Abra https://app.crystalnowpp.com.br\\n' + '2. Toque em \"Primeiro acesso: criar senha\".\\n' + '3. Digite este mesmo e-mail, o da compra.\\n' + '4. Você recebe um código neste e-mail. Digite o código e crie a sua senha.\\n\\n' + 'Nas próximas vezes, é só entrar com o e-mail e a senha.\\n\\n' + 'Se o código não chegar em alguns minutos, olhe a caixa de spam.\\n\\n' + 'Dúvidas: fale com a nossa equipe pelo próprio app.\\n\\nCrystal' }) }}",
         "options": {
           "timeout": 15000
         },
