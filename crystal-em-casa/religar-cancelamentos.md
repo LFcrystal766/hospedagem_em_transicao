@@ -44,10 +44,25 @@ docker exec $(docker ps -qf name=crystal_app_app_postgres | head -1) psql -U cry
 
 **3. Contar de novo.** Rode o comando do passo 1: as linhas de `subscription_canceled` têm de sumir.
 
+**4. Religar o cliente do Combo da Black (27/11).** Comprou o Combo em 19/11 e foi desligado em 24/11 pelo reembolso de
+outra compra dele, a assinatura "Botão Dourado". A regra foi corrigida e o Supabase já está liberado. Falta a conta no
+app:
+
+```bash
+docker exec $(docker ps -qf name=crystal_app_app_postgres | head -1) psql -U crystal -d crystal_web_chat -c "update users set status = 'active', disabled_reason = null, disabled_note_enc = null, disabled_at = null where lower(email) = lower('E-MAIL DO CLIENTE') and role = 'user' and status = 'disabled' and disabled_reason in ('refund', 'preblock');"
+```
+
+- Troque `E-MAIL DO CLIENTE` pelo e-mail que o suporte mandou em 27/11 (está na conversa com o Claude, não neste
+  repositório). Tem de responder `UPDATE 1`.
+
 ## Depois
 
 - **O cliente entra de novo com e-mail e senha.** As sessões antigas foram derrubadas quando a conta foi desligada.
 - **Não há linha de auditoria da religação**, porque ela foi feita direto no banco. O registro está aqui e no
   CONTINUAR, item 189.
-- **Pendência (decisão do dono):** cortar o acesso no fim do período pago de quem cancelou. Hoje, quem cancela a
-  renovação continua com acesso.
+- **Fim do período pago (feito em 26–27/11, `supabase/app_compras_fim_periodo.sql`):**
+  - quem cancela a renovação fica com acesso até o fim do período pago, salvo se renovar;
+  - para as 166 compras, o fim calculado vai de 24/02/2027 a 06/10/2027;
+  - depois disso, o login responde `liberado = false`.
+  - **O "Portão de lotes" do painel tem de ficar LIGADO.** Com ele desligado, o app deixa entrar quem tem
+    `liberado = false`: o corte e também os reembolsos que o app não desligou.

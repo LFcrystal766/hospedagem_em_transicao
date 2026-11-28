@@ -3429,3 +3429,27 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
      - **Base antiga parada:** `leticia_crystal_subscriptions` sem atualização desde 12/10 e `active_accesses` desde
        16/10 (a agência saiu em 09/10). Hoje não vence ninguém nos próximos 14 dias, mas a base não acompanha mais
        renovação nem cancelamento.
+190. **26–27/11: corte no fim do período pago ("desde que não tenha renovado") e o caso do Combo da Black.**
+     - **Fim do período pago** (`supabase/app_compras_fim_periodo.sql`, aplicado):
+       - coluna `crystal_compras.acesso_ate`;
+       - função `app_compras_fim_periodo` (a maior entre a última liberação + período, `liberado_em` + período e,
+         na base antiga, `end_date`/`next_billing_date`/`start_date` + 1 ano/cadastro + 1 ano; MENSAL = 1 mês, resto
+         1 ano);
+       - `app_compra_evento`: cancelamento grava `canceled` + `acesso_ate`, e a renovação zera;
+       - `app_verificar_login_email`: entra até `acesso_ate` e depois responde `liberado = false`.
+       - Preenchido nas 166: de 24/02/2027 a 06/10/2027, nenhum vence nos próximos 30 dias.
+       - Depende do "Portão de lotes" LIGADO no painel.
+     - **Combo da Black (cliente do suporte, 27/11):**
+       - comprou a assinatura "Botão Dourado" em 18/10 e o Combo em 19/11;
+       - em 24/11 o reembolso do Botão Dourado casou pela assinatura com a linha única do e-mail, que já era a do
+         Combo, e bloqueou o Combo.
+       - Corrigido: linha `active` de novo (login `liberado = true`).
+       - Regra nova: a assinatura só casa quando a compra atual da linha foi liberada por ela mesma. Vale para
+         reembolso e para cancelamento.
+       - Foi o único caso nesse padrão.
+       - Falta religar a conta no app (passo 4 de `crystal-em-casa/religar-cancelamentos.md`). E-mail fora do
+         repositório.
+     - **Testes numa transação desfeita**, todos como esperado:
+       - cancelado dentro do prazo → liberado; vencido → bloqueado; renovou → liberado, sem fim;
+       - reembolso da assinatura antiga depois do combo → `outra_compra`, liberado;
+       - reembolso de uma renovação → bloqueado.
