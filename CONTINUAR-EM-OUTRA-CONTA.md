@@ -3474,3 +3474,16 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        logs), entrega de e-mail no Resend, OpenRouter. Comandos de leitura mandados ao dono para a VPS.
      - **Observação:** esta sessão do Claude reiniciou várias vezes e os conectores caíram no meio; isso é do
        ambiente do Claude, não da Crystal.
+192. **28/11 (~14:10 UTC): rotinas da agência desligadas ("pode desligar as três") e n8n conferido.**
+     - **Cron 3, 4 e 5 do Supabase** (`crystal_assiny/guru/paypal_webhook_processor`, a cada minuto) com
+       `cron.alter_job(…, active := false)`. Última rodada às 14:09:00 UTC; às 14:10 já não rodaram. Volta:
+       `select cron.alter_job(3, active := true);` (e 4, 5). As funções em si continuam lá. Os outros 6 cron seguem
+       ativos (contadores semanais, arquivamento, estatísticas).
+     - **n8n (conector reconectado pelo dono):** um fluxo só, ativo, "Crystal · compra e reembolso da Assiny". **O que
+       está no ar é a versão de 14/10**, não a do repositório (`n8n/compra-assiny.json`, de 24/10, com "Conferir e
+       enxugar" e o nó "Destino"): webhook sem credencial (só o caminho secreto), três IFs em paralelo.
+       - "Bloqueou?" = `acao` igual a `bloqueado`, exato. Então `cancelamento` e `repetido` NÃO chamam
+         `/webhooks/reembolso` nessa versão: a regra de 26/11 está segura no fluxo no ar.
+       - O e-mail de boas-vindas ainda diz "na entrada, você recebe um código neste mesmo e-mail": texto de antes do
+         login com senha (15/11). Proposto ao dono trocar.
+       - O conector não mostra o histórico de execuções: falha de execução só pelo painel do n8n (Executions).
