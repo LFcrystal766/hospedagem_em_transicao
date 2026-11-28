@@ -3453,3 +3453,24 @@ Imagens: `ghcr.io/lfcrystal766/crystal-web-chat-{api,web,crystal}:sha-<7>`, gera
        - cancelado dentro do prazo → liberado; vencido → bloqueado; renovou → liberado, sem fim;
        - reembolso da assinatura antiga depois do combo → `outra_compra`, liberado;
        - reembolso de uma renovação → bloqueado.
+191. **28/11 (~13:30 UTC): verificação geral das integrações (pedido do dono: "parecem instáveis").** Só leitura.
+     - **Serviços públicos (3 tentativas cada):** app, API (`/healthz`, `/auth/modo`), atendimento, webhook e editor
+       do n8n, site e Stape com 200, de 0,2 a 1,0 s. `painel.` com 403 (esperado: restrito por IP). DNS certo: VPS
+       `177.7.61.136`, Stape `35.199.71.234`, site no Cloudflare, `mail.` na AZAN.
+     - **Supabase (24 h):** 8.787 chamadas na API e nenhum 4xx/5xx em nenhuma hora. App → Supabase ok (memória, login,
+       silêncio do WhatsApp, base). Advisors de saúde: nada.
+     - **Compras (Assiny → n8n → Supabase):** chegando. 28/11: 19 liberações (última 12:40 UTC) e 7 cancelamentos, já
+       como `cancelamento`, sem bloquear. 27/11: 27 liberações, 6 reembolsos, 5 cancelamentos. "Ignorado" só o
+       Pacote de Imagens (17 em 21 dias), que é o esperado: vai para `/webhooks/imagens`.
+     - **Formulário depois da compra:** ligado e rodando (`app_compras_recentes` 144 vezes em 24 h, a cada 10 min).
+     - **Versão no ar:** o web tem /reset novo e formulário, mas NÃO tem Enquetes: segue a `sha-7e9de25`. A
+       `sha-2b645e9` (item 188) não subiu.
+     - **Resto da agência ainda rodando no Supabase:** cron 3, 4 e 5 chamam a cada minuto as funções
+       `crystal_assiny/guru/paypal_webhook_processor` (4.315 chamadas por dia, todas 200); `cron.job_run_details` com
+       371 MB; 2 `statement timeout` por dia às 06:12 e 18:12 UTC (o arquivamento da agência, cron 6). Não afetam o
+       app. Desligar 3, 4 e 5 segue esperando o "pode" do dono (revisão de 16/11).
+     - **Fornecedores:** Supabase, Resend e GitHub sem incidente; Cloudflare com degradação parcial declarada.
+     - **Não deu para ver:** execuções do n8n (o conector pediu login de novo), por dentro da VPS (reinícios, memória,
+       logs), entrega de e-mail no Resend, OpenRouter. Comandos de leitura mandados ao dono para a VPS.
+     - **Observação:** esta sessão do Claude reiniciou várias vezes e os conectores caíram no meio; isso é do
+       ambiente do Claude, não da Crystal.
